@@ -39,11 +39,37 @@ export class BedrockProvider implements AIProvider {
   private initializeClient(): void {
     try {
       const region = ModelRouter.getRegion();
+      const bearerToken = process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.BEDROCK_API_KEY;
       const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
       const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
       const sessionToken = process.env.AWS_SESSION_TOKEN;
 
-      if (accessKeyId && secretAccessKey) {
+      if (bearerToken) {
+        // Amazon Bedrock Bearer Token authentication (ABSK... key format)
+        this.client = new BedrockRuntimeClient({
+          region,
+          credentials: {
+            accessKeyId: 'anonymous',
+            secretAccessKey: 'anonymous',
+          },
+        });
+
+        // Add middleware to inject the Bearer token into HTTP Authorization header
+        (this.client.middlewareStack as any).add(
+          (next: any) => async (args: any) => {
+            const request = args.request;
+            if (request && request.headers) {
+              request.headers['authorization'] = `Bearer ${bearerToken}`;
+              delete request.headers['x-amz-date'];
+              delete request.headers['x-amz-security-token'];
+              delete request.headers['x-amz-content-sha256'];
+            }
+            return next(args);
+          },
+          { step: 'finalizeRequest', priority: 'low', name: 'bedrockBearerAuthMiddleware' }
+        );
+        console.log(`[BedrockProvider] Configured Amazon Bedrock with Bearer Token auth for region: ${region}`);
+      } else if (accessKeyId && secretAccessKey) {
         this.client = new BedrockRuntimeClient({
           region,
           credentials: {
@@ -53,7 +79,7 @@ export class BedrockProvider implements AIProvider {
           },
         });
       } else {
-        // AWS SDK default provider chain (IAM role, ECS task role, EC2 instance profile)
+        // AWS SDK default provider chain (IAM role, ECS task role, EC2 instance profile, AWS CLI profile)
         this.client = new BedrockRuntimeClient({ region });
       }
     } catch (err) {

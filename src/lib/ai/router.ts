@@ -56,9 +56,10 @@ export class ModelRouter {
 
   public static isBedrockConfigured(): boolean {
     const hasRegion = Boolean(process.env.AWS_REGION);
+    const hasBearerToken = Boolean(process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.BEDROCK_API_KEY);
     const hasKeys = Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
     // On AWS (ECS/Lambda/EC2), IAM instance profile or task roles provide credentials without env vars
-    const isAwsEnvironment = Boolean(process.env.AWS_EXECUTION_ENV || process.env.AWS_LAMBDA_FUNCTION_NAME);
-    return hasRegion && (hasKeys || isAwsEnvironment);
+    const isAwsEnvironment = Boolean(process.env.AWS_EXECUTION_ENV || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.AWS_PROFILE);
+    return hasRegion && (hasBearerToken || hasKeys || isAwsEnvironment);
   }
 }
