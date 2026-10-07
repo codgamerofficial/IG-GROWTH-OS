@@ -70,7 +70,14 @@ CREATE TABLE IF NOT EXISTS public.content_variants (
     created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- 5. PRODUCTS TABLE
+-- 5. PRODUCTS TABLE (Clean recreate for IG GrowthOS)
+DROP TABLE IF EXISTS public.looks CASCADE;
+DROP TABLE IF EXISTS public.skin_analyses CASCADE;
+DROP TABLE IF EXISTS public.orders CASCADE;
+DROP TABLE IF EXISTS public.order_items CASCADE;
+DROP TABLE IF EXISTS public.cart_items CASCADE;
+DROP TABLE IF EXISTS public.products CASCADE;
+
 CREATE TABLE IF NOT EXISTS public.products (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     brand_id UUID NOT NULL REFERENCES public.brands(id) ON DELETE CASCADE,
