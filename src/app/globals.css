@@ -1,0 +1,226 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #FBF9F6;
+  --background-secondary: #F5F0EC;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --surface-glass: rgba(255, 255, 255, 0.75);
+  --border: #E9DFDA;
+  --foreground: #171416;
+  --foreground-secondary: #6F6769;
+  --muted: #8A8184;
+  --accent: #C87588;
+  --accent-secondary: #D7B879;
+  --rose: #E6A1B1;
+  --rose-highlight: #F3D8D9;
+  --champagne: #D7B879;
+  --soft-blush: #FDE2E2;
+  --success: #15803D;
+  --warning: #B45309;
+  --error: #BE123C;
+
+  /* IG GrowthOS Brand System Tokens */
+  --brand-violet: #7C3AED;
+  --brand-purple: #9333EA;
+  --brand-magenta: #C026D3;
+  --brand-pink: #EC4899;
+  --brand-blue: #2563EB;
+  --brand-cyan: #06B6D4;
+  --brand-orange: #F97316;
+  --brand-gradient: linear-gradient(135deg, #7C3AED 0%, #C026D3 30%, #EC4899 55%, #2563EB 80%, #06B6D4 100%);
+  --brand-gradient-soft: linear-gradient(135deg, rgba(124, 58, 237, 0.16) 0%, rgba(192, 38, 211, 0.16) 45%, rgba(6, 182, 212, 0.16) 100%);
+  --brand-glow: 0 0 40px -5px rgba(192, 38, 211, 0.35);
+}
+
+.dark {
+  --background: #070812;
+  --background-secondary: #0B0D17;
+  --surface: #111322;
+  --surface-elevated: #16192C;
+  --surface-glass: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.08);
+  --foreground: #F8FAFC;
+  --foreground-secondary: #94A3B8;
+  --muted: #64748B;
+  --accent: #C026D3;
+  --accent-secondary: #06B6D4;
+  --rose: #EC4899;
+  --rose-highlight: #F472B6;
+  --champagne: #F59E0B;
+  --soft-blush: #E879F9;
+  --success: #10B981;
+  --warning: #F59E0B;
+  --error: #EF4444;
+
+  --brand-violet: #8B5CF6;
+  --brand-purple: #A855F7;
+  --brand-magenta: #D946EF;
+  --brand-pink: #F43F5E;
+  --brand-blue: #3B82F6;
+  --brand-cyan: #06B6D4;
+  --brand-orange: #FB923C;
+  --brand-gradient: linear-gradient(135deg, #8B5CF6 0%, #D946EF 30%, #F43F5E 55%, #3B82F6 80%, #06B6D4 100%);
+  --brand-gradient-soft: linear-gradient(135deg, rgba(139, 92, 246, 0.18) 0%, rgba(217, 70, 239, 0.18) 45%, rgba(6, 182, 212, 0.18) 100%);
+}
+
+.brand-gradient-text {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-gradient-bg {
+  background: var(--brand-gradient);
+}
+
+.brand-glow {
+  box-shadow: var(--brand-glow);
+}
+
+/* Global transitions for theme changes (avoid animating width/height) */
+html {
+  transition: background-color 280ms ease-out, color 280ms ease-out;
+  color-scheme: light dark;
+}
+
+body {
+  color: var(--foreground);
+  background-color: var(--background);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 280ms ease-out, color 280ms ease-out;
+}
+
+/* Card System */
+@layer components {
+  .card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 30px -10px rgba(40, 25, 30, 0.06);
+    transition: all 250ms ease-out;
+  }
+
+  .dark .card {
+    background-color: #151519;
+    border-color: rgba(255, 255, 255, 0.09);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.32);
+  }
+
+  .card-glass {
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    transition: all 250ms ease-out;
+  }
+
+  .dark .card-glass {
+    background-color: rgba(255, 255, 255, 0.045);
+    border-color: rgba(255, 255, 255, 0.09);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
+  }
+
+  .dark .card-glass:hover {
+    background-color: rgba(255, 255, 255, 0.065);
+    border-color: rgba(239, 163, 181, 0.25);
+  }
+
+  .card-elevated {
+    background-color: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: 1.5rem;
+    box-shadow: 0 20px 40px -15px rgba(40, 25, 30, 0.10);
+    transition: all 250ms ease-out;
+  }
+
+  .dark .card-elevated {
+    background-color: #1B1B21;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.45);
+  }
+
+  .card-highlight {
+    background: linear-gradient(135deg, rgba(253, 246, 246, 0.9) 0%, rgba(250, 248, 245, 0.95) 100%);
+    border: 1px solid #F3D8D9;
+    border-radius: 1.5rem;
+    transition: all 250ms ease-out;
+  }
+
+  .dark .card-highlight {
+    background: linear-gradient(135deg, rgba(239, 163, 181, 0.08) 0%, rgba(21, 21, 25, 0.95) 100%);
+    border-color: rgba(239, 163, 181, 0.28);
+    box-shadow: 0 0 40px -5px rgba(239, 163, 181, 0.15);
+  }
+
+  .card-premium {
+    background: linear-gradient(145deg, #FFFFFF 0%, #FAF8F5 100%);
+    border: 1px solid #EAE3D9;
+    border-radius: 1.5rem;
+    box-shadow: 0 15px 35px -10px rgba(205, 179, 123, 0.15);
+    transition: all 250ms ease-out;
+  }
+
+  .dark .card-premium {
+    background: linear-gradient(145deg, #1B1B21 0%, #151519 100%);
+    border-color: rgba(232, 201, 141, 0.20);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 0 0 30px rgba(232, 201, 141, 0.08);
+  }
+}
+
+/* Custom smooth luxury scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #DDD2C3;
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #25252E;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #CDB37B;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #EFA3B5;
+}
+
+/* Editorial selection highlight */
+::selection {
+  background-color: #F3D8D9;
+  color: #1A1718;
+}
+
+.dark ::selection {
+  background-color: rgba(239, 163, 181, 0.35);
+  color: #FAF7F8;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

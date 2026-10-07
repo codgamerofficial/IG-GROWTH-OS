@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 180" fill="none">
+  <defs>
+    <!-- Background Glow -->
+    <radialGradient id="hz-bg-glow" cx="90" cy="90" r="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1E1338" />
+      <stop offset="70%" stop-color="#0E0C1C" />
+      <stop offset="100%" stop-color="#070812" />
+    </radialGradient>
+
+    <!-- Aurora Gradients -->
+    <linearGradient id="hz-aurora" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A00" />
+      <stop offset="25%" stop-color="#EC4899" />
+      <stop offset="60%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+
+    <linearGradient id="hz-os-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EC4899" />
+      <stop offset="50%" stop-color="#A855F7" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+
+    <linearGradient id="hz-arrow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EC4899" />
+      <stop offset="100%" stop-color="#FFAE42" />
+    </linearGradient>
+
+    <filter id="hz-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="6" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- ICON CONTAINER (Left) -->
+  <g transform="translate(16, 16)">
+    <!-- Squircle Base -->
+    <rect x="0" y="0" width="148" height="148" rx="36" fill="url(#hz-bg-glow)" stroke="rgba(255, 255, 255, 0.12)" stroke-width="2" />
+
+    <!-- "i" Dot -->
+    <circle cx="50" cy="38" r="10" fill="#FFAE42" filter="url(#hz-glow)" />
+    <!-- "i" Stem -->
+    <rect x="42" y="54" width="16" height="56" rx="8" fill="url(#hz-aurora)" filter="url(#hz-glow)" />
+
+    <!-- "G" Loop -->
+    <path d="M68 68 C72 50, 90 44, 108 46 C120 48, 128 54, 132 62 L118 70 C114 66, 108 62, 104 62 C90 62, 80 72, 80 88 C80 102, 90 114, 104 114 C114 114, 122 108, 124 100 L104 100 C100 100 98 96 98 92 C98 88 100 86 104 86 L134 86 C138 86 142 90 142 96 C140 118, 124 132, 104 132 C74 132, 64 108, 64 88 C64 82, 66 74, 68 68 Z" fill="url(#hz-aurora)" filter="url(#hz-glow)" />
+
+    <!-- Upward Growth Arrow -->
+    <path d="M116 58 L134 26 L146 64 L132 54 L116 58 Z" fill="url(#hz-arrow)" filter="url(#hz-glow)" />
+  </g>
+
+  <!-- WORDMARK: IG GrowthOS -->
+  <g transform="translate(196, 96)">
+    <!-- "IG" (Bold Crisp White) -->
+    <text x="0" y="0" font-family="'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="54" fill="#FFFFFF" letter-spacing="-0.03em">IG </text>
+    
+    <!-- "Growth" (Clean Pure White) -->
+    <text x="86" y="0" font-family="'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="54" fill="#F8FAFC" letter-spacing="-0.02em">Growth</text>
+
+    <!-- "OS" (Aurora Gradient Highlight) -->
+    <text x="296" y="0" font-family="'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="54" fill="url(#hz-os-grad)" letter-spacing="0.01em">OS</text>
+
+    <!-- TAGLINE: AI-POWERED SOCIAL GROWTH -->
+    <text x="2" y="38" font-family="'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-weight="700" font-size="14" fill="#94A3B8" letter-spacing="0.28em">AI-POWERED SOCIAL GROWTH</text>
+  </g>
+</svg>

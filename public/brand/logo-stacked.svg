@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" fill="none">
+  <defs>
+    <radialGradient id="stk-bg-glow" cx="200" cy="140" r="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1E1338" />
+      <stop offset="70%" stop-color="#0E0C1C" />
+      <stop offset="100%" stop-color="#070812" />
+    </radialGradient>
+
+    <linearGradient id="stk-aurora" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A00" />
+      <stop offset="25%" stop-color="#EC4899" />
+      <stop offset="60%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+
+    <linearGradient id="stk-os-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EC4899" />
+      <stop offset="50%" stop-color="#A855F7" />
+      <stop offset="100%" stop-color="#06B6D4" />
+    </linearGradient>
+
+    <linearGradient id="stk-arrow" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#EC4899" />
+      <stop offset="100%" stop-color="#FFAE42" />
+    </linearGradient>
+
+    <filter id="stk-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- ICON CONTAINER (Centered Top) -->
+  <g transform="translate(110, 24)">
+    <rect x="0" y="0" width="180" height="180" rx="44" fill="url(#stk-bg-glow)" stroke="rgba(255, 255, 255, 0.12)" stroke-width="2" />
+
+    <!-- "i" Dot -->
+    <circle cx="62" cy="46" r="12" fill="#FFAE42" filter="url(#stk-glow)" />
+    <!-- "i" Stem -->
+    <rect x="52" y="66" width="20" height="68" rx="10" fill="url(#stk-aurora)" filter="url(#stk-glow)" />
+
+    <!-- "G" Loop -->
+    <path d="M84 82 C88 60, 110 54, 132 56 C146 58, 156 66, 160 76 L144 86 C138 80, 132 76, 126 76 C110 76, 98 88, 98 108 C98 124, 110 138, 126 138 C138 138, 148 132, 152 122 L126 122 C122 122 120 116 120 112 C120 106 122 104 126 104 L164 104 C168 104 172 108 172 116 C170 144, 150 160, 126 160 C90 160, 78 132, 78 108 C78 100, 80 90, 84 82 Z" fill="url(#stk-aurora)" filter="url(#stk-glow)" />
+
+    <!-- Upward Growth Arrow -->
+    <path d="M142 72 L164 32 L178 78 L160 66 L142 72 Z" fill="url(#stk-arrow)" filter="url(#stk-glow)" />
+  </g>
+
+  <!-- STACKED WORDMARK -->
+  <g transform="translate(200, 310)" text-anchor="middle">
+    <!-- IG GrowthOS -->
+    <text font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif" font-weight="900" font-size="44" fill="#FFFFFF" letter-spacing="-0.02em">
+      <tspan fill="#FFFFFF">IG </tspan>
+      <tspan fill="#F8FAFC">Growth</tspan>
+      <tspan fill="url(#stk-os-grad)">OS</tspan>
+    </text>
+
+    <!-- Subtitle / Tagline -->
+    <text y="44" font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif" font-weight="700" font-size="13" fill="#94A3B8" letter-spacing="0.32em">
+      AI-POWERED SOCIAL GROWTH
+    </text>
+
+    <!-- Pillar chips -->
+    <text y="80" font-family="'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif" font-weight="600" font-size="11" fill="#64748B" letter-spacing="0.18em">
+      CREATE • AUTOMATE • GROW
+    </text>
+  </g>
+</svg>

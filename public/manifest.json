@@ -1,0 +1,56 @@
+{
+  "name": "IG GrowthOS — AI-Powered Social Growth",
+  "short_name": "IG GrowthOS",
+  "description": "AI-powered social media automation, content creation, scheduling and analytics for modern brands.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070812",
+  "theme_color": "#070812",
+  "icons": [
+    {
+      "src": "/brand/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/icon-384.png",
+      "sizes": "384x384",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/brand/icon-1024.png",
+      "sizes": "1024x1024",
+      "type": "image/png"
+    }
+  ]
+}
