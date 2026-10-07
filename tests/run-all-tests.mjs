@@ -213,7 +213,7 @@ console.log('✅ PASS: Analytics engine rate calculations verified.\n');
 // 7. AMAZON BEDROCK MODEL ROUTER TEST
 console.log('--- Test 7: Amazon Bedrock ModelRouter Logic ---');
 function resolveBedrockModel(workflow, env) {
-  const fallback = env.BEDROCK_MODEL_ID || 'anthropic.claude-3-5-sonnet-20241022-v2:0';
+  const fallback = env.BEDROCK_MODEL_ID || 'au.anthropic.claude-sonnet-4-6';
   switch (workflow) {
     case 'content': return env.CONTENT_MODEL_ID || fallback;
     case 'analytics': return env.ANALYTICS_MODEL_ID || fallback;
@@ -224,17 +224,17 @@ function resolveBedrockModel(workflow, env) {
 }
 
 // Fallback case
-const testEnv1 = { BEDROCK_MODEL_ID: 'us.anthropic.claude-3-5-sonnet-20241022-v2:0' };
-assert.strictEqual(resolveBedrockModel('content', testEnv1), 'us.anthropic.claude-3-5-sonnet-20241022-v2:0');
-assert.strictEqual(resolveBedrockModel('analytics', testEnv1), 'us.anthropic.claude-3-5-sonnet-20241022-v2:0');
+const testEnv1 = { BEDROCK_MODEL_ID: 'au.anthropic.claude-sonnet-4-6' };
+assert.strictEqual(resolveBedrockModel('content', testEnv1), 'au.anthropic.claude-sonnet-4-6');
+assert.strictEqual(resolveBedrockModel('analytics', testEnv1), 'au.anthropic.claude-sonnet-4-6');
 
 // Workflow override case
 const testEnv2 = {
   BEDROCK_MODEL_ID: 'amazon.nova-pro-v1:0',
-  CONTENT_MODEL_ID: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+  CONTENT_MODEL_ID: 'au.anthropic.claude-sonnet-4-6',
   ANALYTICS_MODEL_ID: 'meta.llama3-70b-instruct-v1:0',
 };
-assert.strictEqual(resolveBedrockModel('content', testEnv2), 'anthropic.claude-3-5-sonnet-20241022-v2:0');
+assert.strictEqual(resolveBedrockModel('content', testEnv2), 'au.anthropic.claude-sonnet-4-6');
 assert.strictEqual(resolveBedrockModel('analytics', testEnv2), 'meta.llama3-70b-instruct-v1:0');
 assert.strictEqual(resolveBedrockModel('trend', testEnv2), 'amazon.nova-pro-v1:0'); // Fallback
 console.log('✅ PASS: Amazon Bedrock dynamic model routing verified.\n');

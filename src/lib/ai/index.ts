@@ -541,7 +541,7 @@ export class ClaudeProvider implements AIProvider {
           'content-type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-3-5-sonnet-20241022',
+          model: process.env.ANTHROPIC_MODEL_ID || 'claude-3-7-sonnet-latest',
           max_tokens: 3000,
           messages: [{
             role: 'user',
@@ -588,7 +588,7 @@ export class ClaudeProvider implements AIProvider {
           'content-type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'claude-3-5-sonnet-20241022',
+          model: process.env.ANTHROPIC_MODEL_ID || 'claude-3-7-sonnet-latest',
           max_tokens: 1500,
           system: 'You are the AI Growth Copilot for RIIQX on IG GrowthOS. Give actionable, trend-aware, data-backed Instagram growth guidance.',
           messages: messages.map(m => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: m.content })),
@@ -685,8 +685,8 @@ export class GeminiProvider implements AIProvider {
   }
 }
 
-// Re-export Bedrock Provider and Model Router
-export { BedrockProvider } from './bedrock';
+// Re-export Bedrock Provider, Connection Service, and Model Router
+export { BedrockProvider, BedrockConnectionService, bedrockConnection } from './bedrock';
 export { ModelRouter } from './router';
 
 // -----------------------------------------------------------------------------

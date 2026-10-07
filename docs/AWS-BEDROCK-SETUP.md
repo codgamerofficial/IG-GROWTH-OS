@@ -34,7 +34,7 @@ No external Anthropic or third-party keys are required when using Bedrock. All A
 1. In the Amazon Bedrock console, click **Model access** in the left navigation sidebar.
 2. Click **Manage model access** or **Modify model access**.
 3. Select the models you want to enable for IG GrowthOS:
-   - **Anthropic Claude 3.5 Sonnet** (`anthropic.claude-3-5-sonnet-20241022-v2:0` or cross-region inference profile `us.anthropic.claude-3-5-sonnet-20241022-v2:0`)
+   - **Anthropic Claude Sonnet** (`au.anthropic.claude-sonnet-4-6` or cross-region inference profile)
    - **Amazon Nova Pro** (`amazon.nova-pro-v1:0`)
    - **Meta Llama 3.1 70B** (`meta.llama3-1-70b-instruct-v1:0`)
 4. Submit the request. Access is typically granted immediately.
@@ -85,14 +85,14 @@ AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 AI_PROVIDER=bedrock
 
 # Master Default Bedrock Model
-BEDROCK_MODEL_ID=anthropic.claude-3-5-sonnet-20241022-v2:0
+BEDROCK_MODEL_ID=au.anthropic.claude-sonnet-4-6
 
 # Optional Dynamic Model Routing (Section 49)
 # If left empty, these automatically fall back to BEDROCK_MODEL_ID
-CONTENT_MODEL_ID=anthropic.claude-3-5-sonnet-20241022-v2:0
-ANALYTICS_MODEL_ID=anthropic.claude-3-5-sonnet-20241022-v2:0
-TREND_MODEL_ID=anthropic.claude-3-5-sonnet-20241022-v2:0
-CHAT_MODEL_ID=anthropic.claude-3-5-sonnet-20241022-v2:0
+CONTENT_MODEL_ID=au.anthropic.claude-sonnet-4-6
+ANALYTICS_MODEL_ID=au.anthropic.claude-sonnet-4-6
+TREND_MODEL_ID=au.anthropic.claude-sonnet-4-6
+CHAT_MODEL_ID=au.anthropic.claude-sonnet-4-6
 ```
 
 ---

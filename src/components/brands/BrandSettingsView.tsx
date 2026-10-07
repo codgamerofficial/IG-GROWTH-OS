@@ -6,10 +6,12 @@
 
 import React, { useState } from 'react';
 import { useGrowthOS } from '@/context/GrowthOSContext';
-import { Tag, Save, CheckCircle2, Sliders, Shield } from 'lucide-react';
+import { Tag, Save, CheckCircle2, Sliders, Shield, Cpu } from 'lucide-react';
+import { AIInfrastructureView } from '@/components/settings/AIInfrastructureView';
 
 export function BrandSettingsView() {
   const { brand, pillars } = useGrowthOS();
+  const [activeTab, setActiveTab] = useState<'brand' | 'ai'>('ai');
 
   const [brandName, setBrandName] = useState(brand?.name || 'RIIQX');
   const [description, setDescription] = useState(
@@ -43,19 +45,49 @@ export function BrandSettingsView() {
   };
 
   return (
-    <div className="space-y-8 p-4 md:p-8 max-w-4xl mx-auto">
-      {/* Header */}
-      <div className="border-b border-white/10 pb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-          <Tag className="h-6 w-6 text-rose-400" />
-          <span>Brand Settings: {brand?.name || 'RIIQX'}</span>
-        </h1>
-        <p className="text-xs text-zinc-400 mt-1">
-          Configure audience archetypes, brand voice guidelines, and content distribution pillars.
-        </p>
+    <div className="space-y-6 p-4 md:p-8 max-w-5xl mx-auto">
+      {/* Header & Tabs */}
+      <div className="border-b border-white/10 pb-4 space-y-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+            <span>Platform Settings</span>
+          </h1>
+          <p className="text-xs text-zinc-400 mt-1">
+            Manage Amazon Bedrock AI infrastructure routing and brand architecture.
+          </p>
+        </div>
+
+        {/* Tab Controls */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab('ai')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === 'ai'
+                ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+            }`}
+          >
+            <Cpu className="h-4 w-4" />
+            <span>AI Infrastructure</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('brand')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+              activeTab === 'brand'
+                ? 'bg-rose-500/10 text-rose-400 border border-rose-500/30'
+                : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+            }`}
+          >
+            <Tag className="h-4 w-4" />
+            <span>Brand Architecture ({brand?.name || 'RIIQX'})</span>
+          </button>
+        </div>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-6">
+      {activeTab === 'ai' ? (
+        <AIInfrastructureView />
+      ) : (
+        <form onSubmit={handleSave} className="space-y-6">
         {/* Brand Profile Details */}
         <div className="rounded-2xl border border-white/10 bg-[#111114] p-6 shadow-xl space-y-4">
           <h3 className="text-sm font-bold text-white flex items-center gap-2">
@@ -145,6 +177,7 @@ export function BrandSettingsView() {
           </button>
         </div>
       </form>
+      )}
     </div>
   );
 }

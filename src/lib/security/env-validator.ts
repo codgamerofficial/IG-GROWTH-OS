@@ -69,7 +69,7 @@ export function validateEnvironment(): EnvironmentValidationReport {
   const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
   const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
   const awsProfile = process.env.AWS_PROFILE;
-  const modelId = process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-5-sonnet-20241022-v2:0';
+  const modelId = process.env.BEDROCK_MODEL_ID || 'au.anthropic.claude-sonnet-4-6';
 
   let authMethod: 'BEARER_TOKEN' | 'IAM_KEYS' | 'AWS_PROFILE' | 'NONE' = 'NONE';
   if (accessKeyId && secretAccessKey) {

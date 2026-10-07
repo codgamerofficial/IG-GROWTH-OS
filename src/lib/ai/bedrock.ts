@@ -26,6 +26,9 @@ import {
 import { ModelRouter, AIWorkflowType } from './router';
 import { bedrockTools, executeBedrockTool } from './tools';
 import { MockAIProvider } from './index';
+import { bedrockConnection, BedrockConnectionService } from './bedrock-connection';
+
+export { BedrockConnectionService, bedrockConnection };
 
 export class BedrockProvider implements AIProvider {
   public name = 'BedrockProvider';
@@ -42,49 +45,7 @@ export class BedrockProvider implements AIProvider {
 
   private initializeClient(): void {
     try {
-      const region = ModelRouter.getRegion();
-      const bearerToken = process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.BEDROCK_API_KEY;
-      const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-      const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-      const sessionToken = process.env.AWS_SESSION_TOKEN;
-
-      if (accessKeyId && secretAccessKey) {
-        // AWS IAM SigV4 Authentication (Access Key + Secret Key + optional Session Token)
-        this.client = new BedrockRuntimeClient({
-          region,
-          credentials: {
-            accessKeyId,
-            secretAccessKey,
-            ...(sessionToken ? { sessionToken } : {}),
-          },
-        });
-      } else if (bearerToken) {
-        // Amazon Bedrock Bearer Token authentication (ABSK... key format)
-        this.client = new BedrockRuntimeClient({
-          region,
-          credentials: {
-            accessKeyId: 'anonymous',
-            secretAccessKey: 'anonymous',
-          },
-        });
-
-        (this.client.middlewareStack as any).add(
-          (next: any) => async (args: any) => {
-            const request = args.request;
-            if (request && request.headers) {
-              request.headers['authorization'] = `Bearer ${bearerToken}`;
-              delete request.headers['x-amz-date'];
-              delete request.headers['x-amz-security-token'];
-              delete request.headers['x-amz-content-sha256'];
-            }
-            return next(args);
-          },
-          { step: 'finalizeRequest', priority: 'low', name: 'bedrockBearerAuthMiddleware' }
-        );
-      } else {
-        // AWS SDK default provider chain (IAM role, ECS task role, AWS CLI profile)
-        this.client = new BedrockRuntimeClient({ region });
-      }
+      this.client = bedrockConnection.createClient(false);
     } catch (err) {
       console.error('[BedrockProvider] AWS Bedrock client init error:', err);
       this.client = null;
@@ -135,7 +96,18 @@ export class BedrockProvider implements AIProvider {
         toolConfig: params.enableTools ? { tools: bedrockTools } : undefined,
       });
 
-      const response = await this.client.send(command);
+      let response;
+      try {
+        response = await this.client.send(command);
+      } catch (firstErr: any) {
+        const hasBearer = Boolean(process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.BEDROCK_API_KEY);
+        if (firstErr.name === 'ExpiredTokenException' && hasBearer) {
+          this.client = bedrockConnection.createClient(true);
+          response = await this.client.send(command);
+        } else {
+          throw firstErr;
+        }
+      }
 
       // Check for tool use
       const messageContent = response.output?.message?.content;
@@ -202,6 +174,9 @@ export class BedrockProvider implements AIProvider {
       // FAIL LOUDLY — NO SILENT FALLBACK (Section 52)
       if (error.message?.includes('use case details have not been submitted') || error.name === 'ResourceNotFoundException') {
         throw new Error(`BLOCKED — AWS BEDROCK MODEL ACCESS REQUIRED: Model '${modelId}' requires submitting the Anthropic Use Case details form in the AWS Bedrock Console (Region: ${ModelRouter.getRegion()}).`);
+      }
+      if (error.name === 'ExpiredTokenException') {
+        throw new Error(`BLOCKED — AWS BEDROCK AUTHENTICATION EXPIRED: The temporary AWS security credentials have expired. Refresh AWS_SESSION_TOKEN or configure a permanent Bedrock API Key.`);
       }
       if (error.message?.includes('Too many tokens per day') || error.name === 'ThrottlingException') {
         throw new Error(`BLOCKED — AWS BEDROCK RATE LIMIT: Daily token limit reached for model '${modelId}'. Account verification or quota upgrade required.`);

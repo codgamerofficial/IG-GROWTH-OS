@@ -1,121 +1,71 @@
 import { NextResponse } from 'next/server';
-import { BedrockRuntimeClient, ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
-import { ModelRouter } from '@/lib/ai/router';
+import { bedrockConnection } from '@/lib/ai/bedrock-connection';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const startTime = Date.now();
-  const region = ModelRouter.getRegion();
-  const modelId = ModelRouter.getModelId('default');
-  const bearerToken = process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.BEDROCK_API_KEY;
-  const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
-  const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
-  const sessionToken = process.env.AWS_SESSION_TOKEN;
-
-  if (!ModelRouter.isBedrockConfigured()) {
-    return NextResponse.json(
-      {
-        service: 'bedrock',
-        status: 'blocked',
-        healthy: false,
-        checkedAt: new Date().toISOString(),
-        latencyMs: 0,
-        region,
-        modelId,
-        message: 'BLOCKED — AWS BEDROCK CONFIGURATION REQUIRED: Credentials are missing.',
-      },
-      { status: 503 }
-    );
-  }
-
-  let client: BedrockRuntimeClient;
-  if (accessKeyId && secretAccessKey) {
-    client = new BedrockRuntimeClient({
-      region,
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-        ...(sessionToken ? { sessionToken } : {}),
-      },
-    });
-  } else if (bearerToken) {
-    client = new BedrockRuntimeClient({
-      region,
-      credentials: { accessKeyId: 'anonymous', secretAccessKey: 'anonymous' },
-    });
-    (client.middlewareStack as any).add(
-      (next: any) => async (args: any) => {
-        const request = args.request;
-        if (request && request.headers) {
-          request.headers['authorization'] = `Bearer ${bearerToken}`;
-          delete request.headers['x-amz-date'];
-          delete request.headers['x-amz-security-token'];
-          delete request.headers['x-amz-content-sha256'];
-        }
-        return next(args);
-      },
-      { step: 'finalizeRequest', priority: 'low', name: 'healthCheckAuth' }
-    );
-  } else {
-    client = new BedrockRuntimeClient({ region });
-  }
-
   try {
-    const res = await client.send(
-      new ConverseCommand({
-        modelId,
-        messages: [{ role: 'user', content: [{ text: 'Respond with exactly: OK' }] }],
-        inferenceConfig: { maxTokens: 10, temperature: 0.1 },
-      })
-    );
+    const config = bedrockConnection.getConfigurationStatus();
 
-    const latencyMs = Date.now() - startTime;
-    const outputText = res.output?.message?.content?.[0]?.text || '';
+    if (!config.isConfigured) {
+      return NextResponse.json(
+        {
+          provider: 'bedrock',
+          region: config.region,
+          modelId: config.primaryModel,
+          reachable: false,
+          authorized: false,
+          inferenceSuccessful: false,
+          errorCode: 'MISSING_CREDENTIALS',
+          errorMessage: 'BLOCKED — AWS BEDROCK CONFIGURATION REQUIRED: Credentials are missing.',
+          status: 'blocked',
+          healthy: false,
+          config,
+        },
+        { status: 200 }
+      );
+    }
 
-    return NextResponse.json({
-      service: 'bedrock',
-      status: 'healthy',
-      healthy: true,
-      checkedAt: new Date().toISOString(),
-      latencyMs,
-      region,
-      modelId,
-      response: outputText,
-      usage: res.usage || null,
-      message: 'Amazon Bedrock is online and actively returning model inferences.',
-    });
-  } catch (err: any) {
-    const latencyMs = Date.now() - startTime;
-
-    // Distinguish between authorization/verification/access errors vs connection failure
-    const isAccessPending =
-      err.message?.includes('use case details have not been submitted') ||
-      err.message?.includes('being verified') ||
-      err.name === 'ResourceNotFoundException';
-
-    const isThrottled =
-      err.message?.includes('Too many tokens per day') ||
-      err.name === 'ThrottlingException';
+    const testResult = await bedrockConnection.testConnection();
 
     return NextResponse.json(
       {
+        ...testResult,
         service: 'bedrock',
-        status: isAccessPending ? 'blocked_model_access' : isThrottled ? 'rate_limited' : 'error',
-        healthy: false,
-        checkedAt: new Date().toISOString(),
-        latencyMs,
-        region,
-        modelId,
-        errorName: err.name || 'UnknownError',
-        errorMessage: err.message,
-        diagnostic: isAccessPending
-          ? 'BLOCKED — Anthropic Claude model use case details form must be submitted in AWS Bedrock Console (Region: ap-southeast-2).'
-          : isThrottled
-          ? 'BLOCKED — AWS daily token quota limit reached on this free tier account. Wait for account verification or upgrade.'
-          : 'Failed to communicate with Amazon Bedrock.',
+        status: testResult.inferenceSuccessful ? 'healthy' : testResult.authorized ? 'rate_limited' : 'blocked_model_access',
+        healthy: testResult.inferenceSuccessful,
+        config,
+        diagnostic: !testResult.inferenceSuccessful
+          ? testResult.errorMessage?.includes('use case details have not been submitted')
+            ? `BLOCKED — AWS BEDROCK MODEL ACCESS REQUIRED: Model '${testResult.modelId}' requires submitting the Anthropic Use Case details form in the AWS Bedrock Console (Region: ${testResult.region}).`
+            : testResult.errorMessage?.includes('ExpiredTokenException')
+            ? 'BLOCKED — AWS security token has expired. Please refresh credentials.'
+            : testResult.errorMessage?.includes('Too many tokens per day')
+            ? 'BLOCKED — AWS Bedrock daily token limit reached. Quota increase or account upgrade required.'
+            : testResult.errorMessage
+          : 'Amazon Bedrock is online and actively returning model inferences.',
       },
       { status: 200 }
     );
+  } catch (err: any) {
+    return NextResponse.json(
+      {
+        provider: 'bedrock',
+        region: process.env.AWS_REGION || 'ap-southeast-2',
+        modelId: process.env.BEDROCK_MODEL_ID || 'au.anthropic.claude-sonnet-4-6',
+        reachable: false,
+        authorized: false,
+        inferenceSuccessful: false,
+        errorCode: err.name || 'InternalError',
+        errorMessage: err.message,
+        status: 'error',
+        healthy: false,
+      },
+      { status: 500 }
+    );
   }
+}
+
+export async function POST() {
+  return GET();
 }

@@ -17,7 +17,7 @@ export class ModelRouter {
    * Priority: Task-specific env var -> BEDROCK_MODEL_ID -> Default Amazon Bedrock Model ID
    */
   public static getModelId(workflow: AIWorkflowType = 'default'): string {
-    const fallbackDefault = process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-5-sonnet-20241022-v2:0';
+    const fallbackDefault = process.env.BEDROCK_MODEL_ID || 'au.anthropic.claude-sonnet-4-6';
 
     switch (workflow) {
       case 'content':
@@ -51,7 +51,7 @@ export class ModelRouter {
   }
 
   public static getRegion(): string {
-    return process.env.AWS_REGION || 'us-east-1';
+    return process.env.AWS_REGION || 'ap-southeast-2';
   }
 
   public static isBedrockConfigured(): boolean {
