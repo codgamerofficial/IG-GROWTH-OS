@@ -1,5 +1,9 @@
 // =============================================================================
-// IG GrowthOS: Official Meta / Instagram Graph API Service
+// IG GrowthOS: Official Meta / Instagram Graph API Service (Strict Production)
+// =============================================================================
+// Real Meta Graph API integration. Zero mock data, zero fake containers,
+// zero simulated publishing. If credentials are not present, explicitly reports
+// DISCONNECTED and blocks publishing with actionable errors.
 // =============================================================================
 
 import {
@@ -17,36 +21,42 @@ export class InstagramService {
   private baseUrl = `https://graph.facebook.com/${this.apiVersion}`;
   private accessToken: string | null;
   private businessAccountId: string | null;
-  private isMock: boolean;
 
   constructor(options?: { accessToken?: string; businessAccountId?: string }) {
     this.accessToken = options?.accessToken || process.env.INSTAGRAM_ACCESS_TOKEN || null;
-    this.businessAccountId = options?.businessAccountId || process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || '17841405309281745';
-    this.isMock = process.env.MOCK_MODE === 'true' || !this.accessToken || this.accessToken.includes('your-instagram');
+    this.businessAccountId = options?.businessAccountId || process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || null;
   }
 
-  getMode(): 'MOCK' | 'LIVE' {
-    return this.isMock ? 'MOCK' : 'LIVE';
+  isConfigured(): boolean {
+    return Boolean(
+      this.accessToken &&
+      !this.accessToken.includes('your-instagram') &&
+      this.accessToken.trim().length > 10
+    );
+  }
+
+  getMode(): 'DISCONNECTED' | 'LIVE' {
+    return this.isConfigured() ? 'LIVE' : 'DISCONNECTED';
   }
 
   // 1. GET ACCOUNT DETAILS
   async getAccount(accountId?: string): Promise<InstagramAccount> {
-    const targetId = accountId || this.businessAccountId || '17841405309281745';
+    const targetId = accountId || this.businessAccountId;
 
-    if (this.isMock) {
+    if (!this.isConfigured() || !targetId) {
       return {
-        id: targetId,
-        username: 'riiqx.official',
-        name: 'RIIQX | Modern Vanguard',
-        profile_picture_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-        followers_count: 48920,
-        follows_count: 312,
-        media_count: 84,
-        biography: 'Avant-garde streetwear & modern uniform architecture. Heavyweight fleece, tactical tailoring. Worldwide delivery.',
-        website: 'https://riiqx.com',
-        connected: true,
+        id: targetId || '',
+        username: '',
+        name: 'Instagram Disconnected',
+        profile_picture_url: '',
+        followers_count: 0,
+        follows_count: 0,
+        media_count: 0,
+        biography: '',
+        website: '',
+        connected: false,
         account_type: 'BUSINESS',
-        connection_status: 'MOCK_SIMULATED',
+        connection_status: 'DISCONNECTED',
       };
     }
 
@@ -71,51 +81,18 @@ export class InstagramService {
 
   // 2. GET RECENT MEDIA
   async getMedia(accountId?: string, limit = 12): Promise<InstagramMedia[]> {
-    const targetId = accountId || this.businessAccountId || '17841405309281745';
+    const targetId = accountId || this.businessAccountId;
 
-    if (this.isMock) {
-      return [
-        {
-          id: '17983419082347101',
-          caption: 'The anatomy of a hoodie that actually holds its boxy structure forever. 460 GSM combed French terry. #riiqx #streetwearfits',
-          media_type: 'VIDEO',
-          media_product_type: 'REELS',
-          media_url: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80',
-          thumbnail_url: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80',
-          permalink: 'https://instagram.com/p/riiqx_hoodie_reel',
-          timestamp: new Date(Date.now() - 3 * 86400000).toISOString(),
-          like_count: 3510,
-          comments_count: 275,
-        },
-        {
-          id: '17983419082347102',
-          caption: 'Tactical Wide-Leg Pleats. Structured Cordura waistband cinch. Now available. #cargopants #riiqx',
-          media_type: 'IMAGE',
-          media_product_type: 'FEED',
-          media_url: 'https://images.unsplash.com/photo-1517445312882-bc9910d016b7?w=800&auto=format&fit=crop&q=80',
-          permalink: 'https://instagram.com/p/riiqx_cargos',
-          timestamp: new Date(Date.now() - 6 * 86400000).toISOString(),
-          like_count: 2240,
-          comments_count: 162,
-        },
-        {
-          id: '17983419082347103',
-          caption: 'Raw Hem Selvedge Denim in charcoal wash. Made to wear hard. #rawdenim #japanesedenim',
-          media_type: 'IMAGE',
-          media_product_type: 'FEED',
-          media_url: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=800&auto=format&fit=crop&q=80',
-          permalink: 'https://instagram.com/p/riiqx_denim',
-          timestamp: new Date(Date.now() - 9 * 86400000).toISOString(),
-          like_count: 1890,
-          comments_count: 134,
-        },
-      ];
+    if (!this.isConfigured() || !targetId) {
+      return []; // Real empty list when disconnected — no fake posts
     }
 
     try {
       const url = `${this.baseUrl}/${targetId}/media?fields=id,caption,media_type,media_product_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=${limit}&access_token=${this.accessToken}`;
       const res = await fetch(url);
-      if (!res.ok) throw await this.handleErrorResponse(res);
+      if (!res.ok) {
+        throw await this.handleErrorResponse(res);
+      }
       const data = await res.json();
       return data.data || [];
     } catch (err: unknown) {
@@ -126,26 +103,12 @@ export class InstagramService {
 
   // 3. GET MEDIA DETAILS WITH INSIGHTS
   async getMediaDetails(mediaId: string): Promise<InstagramMediaDetails> {
-    if (this.isMock) {
-      return {
-        id: mediaId,
-        caption: 'The anatomy of a hoodie that actually holds its boxy structure forever.',
-        media_type: 'VIDEO',
-        media_product_type: 'REELS',
-        media_url: 'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&auto=format&fit=crop&q=80',
-        permalink: 'https://instagram.com/p/riiqx_sample',
-        timestamp: new Date().toISOString(),
-        like_count: 3510,
-        comments_count: 275,
-        insights: {
-          impressions: 51300,
-          reach: 40100,
-          saved: 1460,
-          shares: 930,
-          video_views: 38000,
-          total_interactions: 6175,
-        },
-      };
+    if (!this.isConfigured()) {
+      throw this.createError(
+        'INSTAGRAM_NOT_CONNECTED',
+        'BLOCKED — Meta Graph API access token is not configured. Media insights unavailable.',
+        false
+      );
     }
 
     try {
@@ -161,15 +124,15 @@ export class InstagramService {
 
   // 4. GET ACCOUNT INSIGHTS
   async getInsights(accountId?: string, period = 'day'): Promise<InstagramInsights> {
-    const targetId = accountId || this.businessAccountId || '17841405309281745';
+    const targetId = accountId || this.businessAccountId;
 
-    if (this.isMock) {
+    if (!this.isConfigured() || !targetId) {
       return {
-        impressions: 51300,
-        reach: 40100,
-        profile_views: 1080,
-        follower_count: 48920,
-        website_clicks: 412,
+        impressions: 0,
+        reach: 0,
+        profile_views: 0,
+        follower_count: 0,
+        website_clicks: 0,
         period: period as 'day',
         date: new Date().toISOString().split('T')[0],
       };
@@ -189,11 +152,14 @@ export class InstagramService {
 
   // 5. CREATE MEDIA CONTAINER (Official 2-step Instagram Publishing)
   async createMediaContainer(accountId: string, params: CreateMediaContainerParams): Promise<{ id: string }> {
-    const targetId = accountId || this.businessAccountId || '17841405309281745';
+    const targetId = accountId || this.businessAccountId;
 
-    if (this.isMock) {
-      const mockContainerId = `mock_container_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-      return { id: mockContainerId };
+    if (!this.isConfigured() || !targetId) {
+      throw this.createError(
+        'INSTAGRAM_NOT_CONNECTED',
+        'BLOCKED — Cannot create Meta media container: INSTAGRAM_ACCESS_TOKEN is not configured.',
+        false
+      );
     }
 
     try {
@@ -229,8 +195,8 @@ export class InstagramService {
 
   // 6. GET PUBLISHING STATUS (For video/Reels processing)
   async getPublishingStatus(containerId: string): Promise<{ status: string; id?: string }> {
-    if (this.isMock) {
-      return { status: 'FINISHED', id: containerId };
+    if (!this.isConfigured()) {
+      throw this.createError('INSTAGRAM_NOT_CONNECTED', 'Cannot check container status: not connected.', false);
     }
 
     try {
@@ -247,11 +213,14 @@ export class InstagramService {
 
   // 7. PUBLISH MEDIA
   async publishMedia(accountId: string, creationId: string): Promise<{ id: string }> {
-    const targetId = accountId || this.businessAccountId || '17841405309281745';
+    const targetId = accountId || this.businessAccountId;
 
-    if (this.isMock) {
-      const mockPublishedMediaId = `1799${Date.now().toString().slice(-8)}`;
-      return { id: mockPublishedMediaId };
+    if (!this.isConfigured() || !targetId) {
+      throw this.createError(
+        'INSTAGRAM_NOT_CONNECTED',
+        'BLOCKED — Cannot publish media: INSTAGRAM_ACCESS_TOKEN is not configured.',
+        false
+      );
     }
 
     try {
@@ -276,13 +245,7 @@ export class InstagramService {
 
   // 8. GET COMMENTS
   async getComments(mediaId: string): Promise<InstagramComment[]> {
-    if (this.isMock) {
-      return [
-        { id: 'c1', text: 'Where can I get the oversized hoodie? Link??', username: 'stylevanguard', timestamp: new Date(Date.now() - 3600000).toISOString(), like_count: 14 },
-        { id: 'c2', text: '460 GSM is crazy heavy. Appreciate the real cotton.', username: 'drapemaster', timestamp: new Date(Date.now() - 7200000).toISOString(), like_count: 8 },
-        { id: 'c3', text: 'Need the cargos in black ASAP please restock', username: 'kicks_and_fits', timestamp: new Date(Date.now() - 14400000).toISOString(), like_count: 5 },
-      ];
-    }
+    if (!this.isConfigured()) return [];
 
     try {
       const url = `${this.baseUrl}/${mediaId}/comments?fields=id,text,username,timestamp,like_count&access_token=${this.accessToken}`;
@@ -298,8 +261,8 @@ export class InstagramService {
 
   // 9. REPLY TO COMMENT
   async replyToComment(commentId: string, message: string): Promise<{ id: string }> {
-    if (this.isMock) {
-      return { id: `mock_reply_${Date.now()}` };
+    if (!this.isConfigured()) {
+      throw this.createError('INSTAGRAM_NOT_CONNECTED', 'Cannot reply to comment: access token not configured.', false);
     }
 
     try {
@@ -321,7 +284,7 @@ export class InstagramService {
   // 10. REFRESH CONNECTION
   async refreshConnection(): Promise<{ success: boolean; refreshedAt: string }> {
     return {
-      success: true,
+      success: this.isConfigured(),
       refreshedAt: new Date().toISOString(),
     };
   }

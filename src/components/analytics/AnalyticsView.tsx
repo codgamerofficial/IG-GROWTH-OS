@@ -98,33 +98,41 @@ export function AnalyticsView() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-2xl border border-white/10 bg-[#111114] p-5">
           <span className="text-xs font-medium text-zinc-400 block mb-1">Engagement Rate</span>
-          <div className="text-2xl font-bold text-white">{aggregates?.avgEngagementRate || 7.82}%</div>
-          <p className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
-            <ArrowUpRight className="h-3 w-3" /> Industry benchmark: 2.1%
+          <div className="text-2xl font-bold text-white">
+            {aggregates?.avgEngagementRate ? `${aggregates.avgEngagementRate}%` : '0.0%'}
+          </div>
+          <p className="text-[11px] text-zinc-400 font-medium mt-1 flex items-center gap-1">
+            <ArrowUpRight className="h-3 w-3 text-emerald-400" /> Industry benchmark: ~2.1%
           </p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-[#111114] p-5">
           <span className="text-xs font-medium text-zinc-400 block mb-1">Save Rate (Saves / Reach)</span>
-          <div className="text-2xl font-bold text-white">{aggregates?.avgSaveRate || 3.64}%</div>
-          <p className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
-            <ArrowUpRight className="h-3 w-3" /> +28.5% algorithmic boost
+          <div className="text-2xl font-bold text-white">
+            {aggregates?.avgSaveRate ? `${aggregates.avgSaveRate}%` : '0.0%'}
+          </div>
+          <p className="text-[11px] text-zinc-400 font-medium mt-1 flex items-center gap-1">
+            <ArrowUpRight className="h-3 w-3 text-emerald-400" /> Saves per 100 reached accounts
           </p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-[#111114] p-5">
           <span className="text-xs font-medium text-zinc-400 block mb-1">Share Rate (Shares / Reach)</span>
-          <div className="text-2xl font-bold text-white">{aggregates?.avgShareRate || 2.32}%</div>
-          <p className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
-            <ArrowUpRight className="h-3 w-3" /> Top viral driver for UGC
+          <div className="text-2xl font-bold text-white">
+            {aggregates?.avgShareRate ? `${aggregates.avgShareRate}%` : '0.0%'}
+          </div>
+          <p className="text-[11px] text-zinc-400 font-medium mt-1 flex items-center gap-1">
+            <ArrowUpRight className="h-3 w-3 text-cyan-400" /> Top algorithmic amplifier for Reels
           </p>
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-[#111114] p-5">
           <span className="text-xs font-medium text-zinc-400 block mb-1">Follower Conversion Rate</span>
-          <div className="text-2xl font-bold text-white">{aggregates?.followerConversionRate || 32.8}%</div>
-          <p className="text-[11px] text-emerald-400 font-semibold mt-1 flex items-center gap-1">
-            <ArrowUpRight className="h-3 w-3" /> Follows per profile visit
+          <div className="text-2xl font-bold text-white">
+            {aggregates?.followerConversionRate ? `${aggregates.followerConversionRate}%` : '0.0%'}
+          </div>
+          <p className="text-[11px] text-zinc-400 font-medium mt-1 flex items-center gap-1">
+            <ArrowUpRight className="h-3 w-3 text-purple-400" /> New followers per profile visit
           </p>
         </div>
       </div>

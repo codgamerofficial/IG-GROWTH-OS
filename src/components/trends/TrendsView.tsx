@@ -9,8 +9,28 @@ import { useGrowthOS } from '@/context/GrowthOSContext';
 import { TrendingUp, Sparkles, ExternalLink, Flame, Clock, ArrowRight, Compass } from 'lucide-react';
 
 export function TrendsView() {
-  const { trends, setActiveTab } = useGrowthOS();
+  const { trends, setActiveTab, refreshData } = useGrowthOS();
   const [researching, setResearching] = useState(false);
+
+  const handleResearchTrends = async () => {
+    try {
+      setResearching(true);
+      const res = await fetch('/api/trends', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'research', category: 'streetwear', count: 4 }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to research trends');
+      }
+      await refreshData();
+    } catch (err: any) {
+      alert(`Trend Research Diagnostic: ${err.message}`);
+    } finally {
+      setResearching(false);
+    }
+  };
 
   return (
     <div className="space-y-8 p-4 md:p-8 max-w-7xl mx-auto">
@@ -27,13 +47,7 @@ export function TrendsView() {
         </div>
 
         <button
-          onClick={() => {
-            setResearching(true);
-            setTimeout(() => {
-              setResearching(false);
-              alert('Trend index synced. 4 active streetwear trends updated.');
-            }, 1200);
-          }}
+          onClick={handleResearchTrends}
           disabled={researching}
           className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-rose-500 to-amber-500 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-rose-500/25 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
         >

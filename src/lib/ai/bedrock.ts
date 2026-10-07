@@ -1,15 +1,16 @@
 // =============================================================================
-// IG GrowthOS: Amazon Bedrock Runtime Provider (Section 1 & 3)
+// IG GrowthOS: Amazon Bedrock Runtime Provider (Strict Production Mode)
 // =============================================================================
 // Primary AI engine using AWS Bedrock Converse API with tool-calling support,
-// dynamic model routing via ModelRouter, and multi-tier fallback resilience.
+// dynamic model routing via ModelRouter, and zero silent mock fallbacks.
+// If Bedrock credentials, model access, or token quotas fail, throws loud
+// and actionable error diagnostics.
 // =============================================================================
 
 import {
   BedrockRuntimeClient,
   ConverseCommand,
   Message,
-  ContentBlock,
 } from '@aws-sdk/client-bedrock-runtime';
 import {
   AIProvider,
@@ -29,10 +30,13 @@ import { MockAIProvider } from './index';
 export class BedrockProvider implements AIProvider {
   public name = 'BedrockProvider';
   private client: BedrockRuntimeClient | null = null;
-  private fallback: MockAIProvider;
+  private fallback: MockAIProvider | null = null;
 
   constructor() {
-    this.fallback = new MockAIProvider();
+    // Only instantiate fallback if explicitly permitted for testing
+    if (process.env.MOCK_MODE === 'true' && process.env.NODE_ENV !== 'production') {
+      this.fallback = new MockAIProvider();
+    }
     this.initializeClient();
   }
 
@@ -54,7 +58,6 @@ export class BedrockProvider implements AIProvider {
             ...(sessionToken ? { sessionToken } : {}),
           },
         });
-        console.log(`[BedrockProvider] Configured Amazon Bedrock with IAM SigV4 credentials for region: ${region}`);
       } else if (bearerToken) {
         // Amazon Bedrock Bearer Token authentication (ABSK... key format)
         this.client = new BedrockRuntimeClient({
@@ -65,7 +68,6 @@ export class BedrockProvider implements AIProvider {
           },
         });
 
-        // Add middleware to inject the Bearer token into HTTP Authorization header
         (this.client.middlewareStack as any).add(
           (next: any) => async (args: any) => {
             const request = args.request;
@@ -79,19 +81,18 @@ export class BedrockProvider implements AIProvider {
           },
           { step: 'finalizeRequest', priority: 'low', name: 'bedrockBearerAuthMiddleware' }
         );
-        console.log(`[BedrockProvider] Configured Amazon Bedrock with Bearer Token auth for region: ${region}`);
       } else {
-        // AWS SDK default provider chain (IAM role, ECS task role, EC2 instance profile, AWS CLI profile)
+        // AWS SDK default provider chain (IAM role, ECS task role, AWS CLI profile)
         this.client = new BedrockRuntimeClient({ region });
       }
     } catch (err) {
-      console.warn('[BedrockProvider] AWS Bedrock client init error, fallback active:', err);
+      console.error('[BedrockProvider] AWS Bedrock client init error:', err);
       this.client = null;
     }
   }
 
   /**
-   * Helper to execute Amazon Bedrock ConverseCommand with tool-calling and timeout
+   * Helper to execute Amazon Bedrock ConverseCommand with tool-calling
    */
   private async runConverse(params: {
     workflow: AIWorkflowType;
@@ -101,8 +102,18 @@ export class BedrockProvider implements AIProvider {
     maxTokens?: number;
     temperature?: number;
   }): Promise<string> {
-    if (!this.client || process.env.MOCK_MODE === 'true' || !ModelRouter.isBedrockConfigured()) {
-      return ''; // Trigger fallback gracefully
+    if (!this.client) {
+      if (this.fallback && process.env.MOCK_MODE === 'true') {
+        return '';
+      }
+      throw new Error('BLOCKED — AWS BEDROCK CONFIGURATION REQUIRED: BedrockRuntimeClient is not initialized.');
+    }
+
+    if (!ModelRouter.isBedrockConfigured()) {
+      if (this.fallback && process.env.MOCK_MODE === 'true') {
+        return '';
+      }
+      throw new Error('BLOCKED — AWS BEDROCK CONFIGURATION REQUIRED: AWS credentials (Bearer Token or IAM keys) not found.');
     }
 
     const modelId = ModelRouter.getModelId(params.workflow);
@@ -178,11 +189,26 @@ export class BedrockProvider implements AIProvider {
           return textBlocks.map((b) => b.text).join('\n');
         }
       }
-    } catch (error: any) {
-      console.warn(`[BedrockProvider] Bedrock Converse failed (${error.name || error.message}): falling back.`);
-    }
 
-    return '';
+      return '';
+    } catch (error: any) {
+      console.error(`[BedrockProvider] Bedrock Converse failed (${modelId}):`, error.message);
+
+      // If in mock mode during unit test suite, allow fallback
+      if (this.fallback && process.env.MOCK_MODE === 'true' && process.env.NODE_ENV !== 'production') {
+        return '';
+      }
+
+      // FAIL LOUDLY — NO SILENT FALLBACK (Section 52)
+      if (error.message?.includes('use case details have not been submitted') || error.name === 'ResourceNotFoundException') {
+        throw new Error(`BLOCKED — AWS BEDROCK MODEL ACCESS REQUIRED: Model '${modelId}' requires submitting the Anthropic Use Case details form in the AWS Bedrock Console (Region: ${ModelRouter.getRegion()}).`);
+      }
+      if (error.message?.includes('Too many tokens per day') || error.name === 'ThrottlingException') {
+        throw new Error(`BLOCKED — AWS BEDROCK RATE LIMIT: Daily token limit reached for model '${modelId}'. Account verification or quota upgrade required.`);
+      }
+
+      throw new Error(`BEDROCK_CONVERSE_ERROR: ${error.name || 'Error'} — ${error.message}`);
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -191,7 +217,6 @@ export class BedrockProvider implements AIProvider {
 
   async generateIdeas(params: Parameters<AIProvider['generateIdeas']>[0]): Promise<GeneratedIdea[]> {
     const systemPrompt = `You are an elite Instagram Fashion & Lifestyle strategist for brand ${params.brandName || 'RIIQX'}. Return a JSON array of ${params.count || 10} high-performing content ideas matching the schema: title, hook, concept, why_it_could_work, target_audience, content_pillar, estimated_difficulty ('Low'|'Medium'|'High'), potential_reach ('Moderate'|'High'|'Viral'), share_potential (0-100), save_potential (0-100), conversion_potential (0-100), ai_score (0-100), recommended_format ('Reel'|'Carousel'|'Single Image'|'UGC'). Output valid JSON only.`;
-
     const userPrompt = `Generate ${params.count || 10} winning ideas for pillar "${params.pillar || 'Outfit Inspiration'}" targeting "${params.audience || 'Gen Z streetwear'}". Goal: ${params.goal || 'Reach & Engagement'}.`;
 
     const text = await this.runConverse({
@@ -202,23 +227,17 @@ export class BedrockProvider implements AIProvider {
     });
 
     if (text) {
-      try {
-        const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleaned);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      } catch {
-        // Parse error fallback
-      }
+      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
 
-    return this.fallback.generateIdeas(params);
+    if (this.fallback) return this.fallback.generateIdeas(params);
+    throw new Error('Bedrock returned empty response for idea generation.');
   }
 
   async generateReel(params: Parameters<AIProvider['generateReel']>[0]): Promise<GeneratedReel> {
     const systemPrompt = `You are a viral Instagram Reel scriptwriter and creative director for RIIQX. Return a complete Reel production package in JSON format: title, hook (0-3s), problem_context (3-8s), value_story (8-20s), payoff (20-30s), cta, voiceover, scene_by_scene_script (array of timestamp, visual, audio, on_screen_text), shot_list, b_roll, on_screen_text, cover_text, caption, hashtags, production_notes, ai_score (0-100). Output JSON only.`;
-
     const userPrompt = `Write a viral high-converting Reel for topic: "${params.topic}". Audience: ${params.audience || 'Gen Z fashionistas'}. Tone: ${params.tone || 'Confident & Premium'}.`;
 
     const text = await this.runConverse({
@@ -229,29 +248,26 @@ export class BedrockProvider implements AIProvider {
     });
 
     if (text) {
-      try {
-        const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleaned);
-        if (parsed.title && parsed.hook) {
-          return {
-            ...parsed,
-            ai_score_breakdown: parsed.ai_score_breakdown || {
-              hook_strength: 20,
-              audience_relevance: 20,
-              trend_relevance: 15,
-              shareability: 15,
-              save_potential: 10,
-              conversion_potential: 10,
-              brand_fit: 10,
-            },
-          };
-        }
-      } catch {
-        // Fallback
+      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      if (parsed.title && parsed.hook) {
+        return {
+          ...parsed,
+          ai_score_breakdown: parsed.ai_score_breakdown || {
+            hook_strength: 20,
+            audience_relevance: 20,
+            trend_relevance: 15,
+            shareability: 15,
+            save_potential: 10,
+            conversion_potential: 10,
+            brand_fit: 10,
+          },
+        };
       }
     }
 
-    return this.fallback.generateReel(params);
+    if (this.fallback) return this.fallback.generateReel(params);
+    throw new Error('Bedrock returned empty response for Reel generation.');
   }
 
   async generateUGC(params: Parameters<AIProvider['generateUGC']>[0]): Promise<GeneratedUGC> {
@@ -264,30 +280,114 @@ export class BedrockProvider implements AIProvider {
     });
 
     if (text) {
-      try {
-        const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleaned);
-        if (parsed.creator_persona) return parsed;
-      } catch {}
+      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      if (parsed.creator_persona) return parsed;
     }
 
-    return this.fallback.generateUGC(params);
+    if (this.fallback) return this.fallback.generateUGC(params);
+    throw new Error('Bedrock returned empty response for UGC generation.');
   }
 
   async generateProductContent(params: Parameters<AIProvider['generateProductContent']>[0]): Promise<GeneratedProductContent> {
-    return this.fallback.generateProductContent(params);
+    const systemPrompt = `You are a high-converting luxury streetwear copywriter. Output JSON format matching this schema:
+{
+  "product_name": string,
+  "reel_ideas": string[],
+  "carousel_ideas": string[],
+  "product_hooks": string[],
+  "captions": string[],
+  "ugc_concepts": string[],
+  "ctas": string[]
+}
+Output JSON only.`;
+
+    const text = await this.runConverse({
+      workflow: 'content',
+      systemPrompt,
+      messages: [{ role: 'user', content: `Create product campaign content for: ${params.product.name}. Description: ${params.product.description || ''}. Price: $${params.product.price}. Goal: ${params.goal || 'Conversion'}.` }],
+      maxTokens: 2500,
+    });
+
+    if (text) {
+      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      if (parsed.product_name || parsed.captions) return parsed;
+    }
+
+    if (this.fallback) return this.fallback.generateProductContent(params);
+    throw new Error('Bedrock returned empty response for Product Content generation.');
   }
 
   async generateAffiliateContent(params: Parameters<AIProvider['generateAffiliateContent']>[0]): Promise<GeneratedAffiliateContent> {
-    return this.fallback.generateAffiliateContent(params);
+    const systemPrompt = `You are a viral creator affiliate marketing strategist. Output JSON format matching this schema:
+{
+  "product_url": string,
+  "product_angle": string,
+  "hook": string,
+  "reel_concept": string,
+  "caption": string,
+  "cta": string,
+  "disclosure_recommendation": string,
+  "hashtag_suggestions": string[]
+}
+Output JSON only.`;
+
+    const text = await this.runConverse({
+      workflow: 'content',
+      systemPrompt,
+      messages: [{ role: 'user', content: `Generate affiliate creator kit for product URL "${params.productUrl}". Category: ${params.category || 'streetwear'}. Brand: ${params.brandName || 'RIIQX'}.` }],
+      maxTokens: 2000,
+    });
+
+    if (text) {
+      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      if (parsed.hook || parsed.caption) return parsed;
+    }
+
+    if (this.fallback) return this.fallback.generateAffiliateContent(params);
+    throw new Error('Bedrock returned empty response for Affiliate Content generation.');
   }
 
   async researchTrends(params: Parameters<AIProvider['researchTrends']>[0]): Promise<DiscoveredTrend[]> {
-    return this.fallback.researchTrends(params);
+    const systemPrompt = `You are a trend forecaster for fashion and streetwear. Output JSON array of trends: topic, source ('Instagram Audio'|'TikTok Viral'|'Runway'|'Streetwear Forum'), source_url, trend_score (0-100), relevance_score (0-100), content_angle. Output JSON only.`;
+
+    const text = await this.runConverse({
+      workflow: 'trend',
+      systemPrompt,
+      messages: [{ role: 'user', content: `Identify 5 current high-velocity trends in category: ${params.category || 'streetwear'} for brand ${params.brandName || 'RIIQX'}.` }],
+      maxTokens: 2000,
+    });
+
+    if (text) {
+      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+
+    if (this.fallback) return this.fallback.researchTrends(params);
+    throw new Error('Bedrock returned empty response for Trend Research.');
   }
 
   async analyzePerformance(params: Parameters<AIProvider['analyzePerformance']>[0]): Promise<AnalyticsDiagnostic> {
-    return this.fallback.analyzePerformance(params);
+    const systemPrompt = `You are an algorithmic Instagram growth data scientist. Analyze performance data and return JSON: what_worked (array), what_didnt (array), which_formats_worked (array), which_hooks_worked (array), which_topics_worked (array), which_content_generated_saves (array), which_content_generated_shares (array), what_should_we_stop_doing (array), what_should_we_do_more_of (array), what_should_we_test_next (array), next_10_recommendations (array of 10: rank, title, format, pillar, hook, expected_outcome). Output JSON only.`;
+
+    const text = await this.runConverse({
+      workflow: 'analytics',
+      systemPrompt,
+      messages: [{ role: 'user', content: `Analyze the performance for brand ${params.brandName}. Recent Metrics: ${JSON.stringify(params.recentMetrics)}. Top Posts: ${JSON.stringify(params.topPosts)}.` }],
+      maxTokens: 2500,
+    });
+
+    if (text) {
+      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const parsed = JSON.parse(cleaned);
+      if (parsed.what_worked && parsed.next_10_recommendations) return parsed;
+    }
+
+    if (this.fallback) return this.fallback.analyzePerformance(params);
+    throw new Error('Bedrock returned empty response for Performance Analysis.');
   }
 
   async chatCopilot(messages: CopilotMessage[], context?: Record<string, unknown>): Promise<string> {
@@ -309,7 +409,7 @@ Never fabricate Instagram analytics or follower numbers. Be authoritative, data-
     });
 
     if (response) return response;
-
-    return this.fallback.chatCopilot(messages, context);
+    if (this.fallback) return this.fallback.chatCopilot(messages, context);
+    throw new Error('Bedrock Copilot returned empty response.');
   }
 }

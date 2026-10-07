@@ -161,6 +161,7 @@ export interface AIProvider {
       category: string;
     };
     brandName?: string;
+    goal?: string;
   }): Promise<GeneratedProductContent>;
 
   generateAffiliateContent(params: {

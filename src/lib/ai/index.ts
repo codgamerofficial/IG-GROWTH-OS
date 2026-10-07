@@ -721,3 +721,5 @@ export function getAIProvider(): AIProvider {
   return new BedrockProvider();
 }
 
+export const aiProvider = getAIProvider();
+
