@@ -44,7 +44,18 @@ export class BedrockProvider implements AIProvider {
       const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
       const sessionToken = process.env.AWS_SESSION_TOKEN;
 
-      if (bearerToken) {
+      if (accessKeyId && secretAccessKey) {
+        // AWS IAM SigV4 Authentication (Access Key + Secret Key + optional Session Token)
+        this.client = new BedrockRuntimeClient({
+          region,
+          credentials: {
+            accessKeyId,
+            secretAccessKey,
+            ...(sessionToken ? { sessionToken } : {}),
+          },
+        });
+        console.log(`[BedrockProvider] Configured Amazon Bedrock with IAM SigV4 credentials for region: ${region}`);
+      } else if (bearerToken) {
         // Amazon Bedrock Bearer Token authentication (ABSK... key format)
         this.client = new BedrockRuntimeClient({
           region,
@@ -69,15 +80,6 @@ export class BedrockProvider implements AIProvider {
           { step: 'finalizeRequest', priority: 'low', name: 'bedrockBearerAuthMiddleware' }
         );
         console.log(`[BedrockProvider] Configured Amazon Bedrock with Bearer Token auth for region: ${region}`);
-      } else if (accessKeyId && secretAccessKey) {
-        this.client = new BedrockRuntimeClient({
-          region,
-          credentials: {
-            accessKeyId,
-            secretAccessKey,
-            ...(sessionToken ? { sessionToken } : {}),
-          },
-        });
       } else {
         // AWS SDK default provider chain (IAM role, ECS task role, EC2 instance profile, AWS CLI profile)
         this.client = new BedrockRuntimeClient({ region });
