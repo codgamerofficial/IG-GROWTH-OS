@@ -1,6 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "ig-growthos",
+  "name": "pujahop-kolkata",
+  "description": "PujaHop Kolkata — One Day. One City. Maximum Puja. AI-powered real-time Durga Puja itinerary planner and travel companion.",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -10,19 +11,22 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "node tests/run-all-tests.mjs",
-    "mcp": "node mcp/instagram-growth/index.mjs"
+    "mcp": "node mcp/pujahop-kolkata/index.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1147.0",
     "@modelcontextprotocol/sdk": "^1.32.1",
     "@supabase/supabase-js": "^2.46.1",
+    "@types/leaflet": "^1.9.22",
     "canvas-confetti": "^1.9.3",
     "clsx": "^2.1.1",
     "framer-motion": "^11.11.17",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.454.0",
     "next": "14.2.18",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "sharp": "^0.35.5",
     "tailwind-merge": "^2.5.4",
     "zod": "^3.23.8"
   },

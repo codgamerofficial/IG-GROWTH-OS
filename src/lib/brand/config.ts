@@ -1,29 +1,41 @@
 // =============================================================================
-// IG GrowthOS: Official Brand Configuration (Section 18)
+// PujaHop Kolkata: Official Brand & Festival Identity Configuration
+// Product: PujaHop Kolkata — One Day. One City. Maximum Puja.
+// Bengali Festival Aesthetics: Warm Saffron, Vermilion, Gold & Midnight Indigo
 // =============================================================================
 
 export const brandConfig = {
-  name: 'IG GrowthOS',
-  shortName: 'IG GrowthOS',
-  tagline: 'AI-POWERED SOCIAL GROWTH',
-  subTagline: 'Create • Automate • Grow',
-  primaryBrand: 'RIIQX',
-  category: 'Fashion • Clothing • Lifestyle • AI UGC • Affiliate Content',
+  name: 'PujaHop Kolkata',
+  nameBengali: 'পূজাহপ কলকাতা',
+  shortName: 'PujaHop',
+  tagline: 'One Day. One City. Maximum Puja.',
+  taglineBengali: 'একদিন। এক শহর। সেরা পুজো।',
+  subTagline: 'AI-Powered Durga Puja Hop Companion',
+  category: 'Durga Puja Pandal Hopping Planner & Travel Companion',
   description:
-    'AI-powered Instagram and cross-platform automation command center for content creation, scheduling, publishing, analytics, and growth automation.',
+    'Real-time AI-powered Kolkata Durga Puja pandal-hopping planner, metro navigator, and verified travel companion for the world’s grandest festival.',
+  philosophy:
+    '“সব প্যান্ডেল দেখানো নয় — তোমার হাতে যত সময় আছে তার মধ্যে সবচেয়ে ভালো combination দেখানো।”',
   seo: {
-    title: 'IG GrowthOS — AI-Powered Social Growth',
+    title: 'PujaHop Kolkata — One Day. One City. Maximum Puja.',
     description:
-      'AI-powered social media automation, content creation, scheduling and analytics for modern brands.',
+      'Plan your perfect Kolkata Durga Puja pandal-hopping day. Real verified pandals, live Metro routing, traffic alerts, walking directions, and AI travel copilot.',
   },
   colors: {
-    violet: '#7C3AED',
-    purple: '#9333EA',
-    magenta: '#C026D3',
-    pink: '#EC4899',
-    blue: '#2563EB',
-    cyan: '#06B6D4',
-    orange: '#F97316',
+    nightSky: '#0A0915',
+    vermilion: '#E11D48',
+    marigoldGold: '#F59E0B',
+    saffron: '#EA580C',
+    alponaWhite: '#FFFBEB',
+    metroBlue: '#005691',
+    metroGreen: '#008751',
+    cardDark: '#121124',
+    borderGlass: 'rgba(255, 255, 255, 0.1)',
+  },
+  creator: {
+    name: 'Saswata Dey (Riik)',
+    credit: 'Created & Conceptualized by Saswata Dey (Riik)',
+    tagline: 'An independent cultural-tech experience by Saswata Dey (Riik).',
   },
 } as const;
 

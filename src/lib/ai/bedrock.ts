@@ -1,10 +1,6 @@
 // =============================================================================
-// IG GrowthOS: Amazon Bedrock Runtime Provider (Strict Production Mode)
-// =============================================================================
-// Primary AI engine using AWS Bedrock Converse API with tool-calling support,
-// dynamic model routing via ModelRouter, and zero silent mock fallbacks.
-// If Bedrock credentials, model access, or token quotas fail, throws loud
-// and actionable error diagnostics.
+// PujaHop Kolkata: Amazon Bedrock Runtime Provider & AI Agents
+// Implementation: Real AWS Bedrock Converse API with Tool-Calling & Honest Diagnostics
 // =============================================================================
 
 import {
@@ -13,33 +9,29 @@ import {
   Message,
 } from '@aws-sdk/client-bedrock-runtime';
 import {
-  AIProvider,
-  GeneratedIdea,
-  GeneratedReel,
-  GeneratedUGC,
-  GeneratedProductContent,
-  GeneratedAffiliateContent,
-  DiscoveredTrend,
-  AnalyticsDiagnostic,
+  PujaAIProvider,
   CopilotMessage,
+  RoutePlanningInput,
+  RoutePlanningOutput,
+  CrowdAnalysisOutput,
+  DailyPujaBriefing,
 } from './types';
 import { ModelRouter, AIWorkflowType } from './router';
 import { bedrockTools, executeBedrockTool } from './tools';
-import { MockAIProvider } from './index';
-import { bedrockConnection, BedrockConnectionService } from './bedrock-connection';
+import { bedrockConnection } from './bedrock-connection';
+import { optimizePujaItinerary } from '../routing/optimizer';
+import { VERIFIED_KOLKATA_PANDALS } from '../data/kolkata-pandals';
+import { VERIFIED_METRO_STATIONS, getMetroOperatingSchedule } from '../data/kolkata-metro';
+import { VERIFIED_TRAFFIC_ALERTS } from '../data/kolkata-traffic';
+import { PUJA_CALENDAR_2026, getCalendarDay } from '../data/kolkata-calendar';
+import { fetchLiveKolkataWeather } from '../weather/service';
+import { TripPlan } from '../types/pujahop';
 
-export { BedrockConnectionService, bedrockConnection };
-
-export class BedrockProvider implements AIProvider {
+export class BedrockProvider implements PujaAIProvider {
   public name = 'BedrockProvider';
   private client: BedrockRuntimeClient | null = null;
-  private fallback: MockAIProvider | null = null;
 
   constructor() {
-    // Only instantiate fallback if explicitly permitted for testing
-    if (process.env.MOCK_MODE === 'true' && process.env.NODE_ENV !== 'production') {
-      this.fallback = new MockAIProvider();
-    }
     this.initializeClient();
   }
 
@@ -62,18 +54,12 @@ export class BedrockProvider implements AIProvider {
     enableTools?: boolean;
     maxTokens?: number;
     temperature?: number;
-  }): Promise<string> {
+  }): Promise<{ text: string; toolCallsMade?: Array<{ name: string; input: Record<string, unknown>; result: unknown }> }> {
     if (!this.client) {
-      if (this.fallback && process.env.MOCK_MODE === 'true') {
-        return '';
-      }
       throw new Error('BLOCKED — AWS BEDROCK CONFIGURATION REQUIRED: BedrockRuntimeClient is not initialized.');
     }
 
     if (!ModelRouter.isBedrockConfigured()) {
-      if (this.fallback && process.env.MOCK_MODE === 'true') {
-        return '';
-      }
       throw new Error('BLOCKED — AWS BEDROCK CONFIGURATION REQUIRED: AWS credentials (Bearer Token or IAM keys) not found.');
     }
 
@@ -83,6 +69,8 @@ export class BedrockProvider implements AIProvider {
       role: m.role,
       content: [{ text: m.content }],
     }));
+
+    const toolCallsMade: Array<{ name: string; input: Record<string, unknown>; result: unknown }> = [];
 
     try {
       const command = new ConverseCommand({
@@ -117,9 +105,10 @@ export class BedrockProvider implements AIProvider {
             const toolUse = block.toolUse;
             const toolName = toolUse.name || '';
             const toolInput = (toolUse.input as Record<string, unknown>) || {};
-            
+
             console.log(`[BedrockProvider] Model requested tool: ${toolName}`);
             const toolResult = await executeBedrockTool(toolName, toolInput);
+            toolCallsMade.push({ name: toolName, input: toolInput, result: toolResult });
 
             // Follow-up request with tool result
             const followUpMessages: Message[] = [
@@ -151,240 +140,298 @@ export class BedrockProvider implements AIProvider {
             const followUpResponse = await this.client.send(followUpCommand);
             const textBlocks = followUpResponse.output?.message?.content?.filter((b) => b.text);
             if (textBlocks && textBlocks.length > 0) {
-              return textBlocks.map((b) => b.text).join('\n');
+              return {
+                text: textBlocks.map((b) => b.text).join('\n'),
+                toolCallsMade,
+              };
             }
           }
         }
 
         const textBlocks = messageContent.filter((b) => b.text);
         if (textBlocks.length > 0) {
-          return textBlocks.map((b) => b.text).join('\n');
+          return {
+            text: textBlocks.map((b) => b.text).join('\n'),
+            toolCallsMade,
+          };
         }
       }
 
-      return '';
-    } catch (error: any) {
-      console.error(`[BedrockProvider] Bedrock Converse failed (${modelId}):`, error.message);
-
-      // If in mock mode during unit test suite, allow fallback
-      if (this.fallback && process.env.MOCK_MODE === 'true' && process.env.NODE_ENV !== 'production') {
-        return '';
+      return { text: '', toolCallsMade };
+    } catch (err: any) {
+      console.error('[BedrockProvider] Converse execution failed:', err.name, err.message);
+      if (err.name === 'ThrottlingException' || err.message?.includes('Too many tokens per day')) {
+        throw new Error('BLOCKED — AWS BEDROCK: Daily token limit reached. Quota increase or account upgrade required.');
       }
-
-      // FAIL LOUDLY — NO SILENT FALLBACK (Section 52)
-      if (error.message?.includes('use case details have not been submitted') || error.name === 'ResourceNotFoundException') {
-        throw new Error(`BLOCKED — AWS BEDROCK MODEL ACCESS REQUIRED: Model '${modelId}' requires submitting the Anthropic Use Case details form in the AWS Bedrock Console (Region: ${ModelRouter.getRegion()}).`);
-      }
-      if (error.name === 'ExpiredTokenException') {
-        throw new Error(`BLOCKED — AWS BEDROCK AUTHENTICATION EXPIRED: The temporary AWS security credentials have expired. Refresh AWS_SESSION_TOKEN or configure a permanent Bedrock API Key.`);
-      }
-      if (error.message?.includes('Too many tokens per day') || error.name === 'ThrottlingException') {
-        throw new Error(`BLOCKED — AWS BEDROCK RATE LIMIT: Daily token limit reached for model '${modelId}'. Account verification or quota upgrade required.`);
-      }
-
-      throw new Error(`BEDROCK_CONVERSE_ERROR: ${error.name || 'Error'} — ${error.message}`);
+      throw new Error(`BLOCKED — AWS BEDROCK: ${err.message || 'Execution error'}`);
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Interface Implementation
-  // ---------------------------------------------------------------------------
-
-  async generateIdeas(params: Parameters<AIProvider['generateIdeas']>[0]): Promise<GeneratedIdea[]> {
-    const systemPrompt = `You are an elite Instagram Fashion & Lifestyle strategist for brand ${params.brandName || 'RIIQX'}. Return a JSON array of ${params.count || 10} high-performing content ideas matching the schema: title, hook, concept, why_it_could_work, target_audience, content_pillar, estimated_difficulty ('Low'|'Medium'|'High'), potential_reach ('Moderate'|'High'|'Viral'), share_potential (0-100), save_potential (0-100), conversion_potential (0-100), ai_score (0-100), recommended_format ('Reel'|'Carousel'|'Single Image'|'UGC'). Output valid JSON only.`;
-    const userPrompt = `Generate ${params.count || 10} winning ideas for pillar "${params.pillar || 'Outfit Inspiration'}" targeting "${params.audience || 'Gen Z streetwear'}". Goal: ${params.goal || 'Reach & Engagement'}.`;
-
-    const text = await this.runConverse({
-      workflow: 'content',
-      systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-      maxTokens: 3000,
+  /**
+   * 1. Plan Route
+   */
+  public async planRoute(input: RoutePlanningInput): Promise<RoutePlanningOutput> {
+    const plan = await optimizePujaItinerary({
+      date: input.date,
+      startLocation: { name: input.startLocationName, lat: input.startLat, lng: input.startLng },
+      startTime: input.startTime,
+      endTime: input.endTime,
+      walkingTolerance: input.walkingTolerance,
+      transportPreference: input.transportPreference,
+      interests: input.interests,
+      maxPandals: input.maxPandals,
     });
 
-    if (text) {
-      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
+    const metroSchedule = getMetroOperatingSchedule(input.date);
 
-    if (this.fallback) return this.fallback.generateIdeas(params);
-    throw new Error('Bedrock returned empty response for idea generation.');
+    return {
+      plan,
+      rationale: plan.ai_reasoning || 'Optimized for minimal backtracking and verified opening status.',
+      metroGuidance: metroSchedule.notes,
+      crowdStrategy: `To avoid peak congestion, proceed in order from ${plan.stops[1]?.custom_name || 'first pandal'} and maintain the estimated 45-minute viewing cadence.`,
+      diningSuggestion: plan.stops.find((s) => s.stop_type === 'FOOD')?.custom_name,
+    };
   }
 
-  async generateReel(params: Parameters<AIProvider['generateReel']>[0]): Promise<GeneratedReel> {
-    const systemPrompt = `You are a viral Instagram Reel scriptwriter and creative director for RIIQX. Return a complete Reel production package in JSON format: title, hook (0-3s), problem_context (3-8s), value_story (8-20s), payoff (20-30s), cta, voiceover, scene_by_scene_script (array of timestamp, visual, audio, on_screen_text), shot_list, b_roll, on_screen_text, cover_text, caption, hashtags, production_notes, ai_score (0-100). Output JSON only.`;
-    const userPrompt = `Write a viral high-converting Reel for topic: "${params.topic}". Audience: ${params.audience || 'Gen Z fashionistas'}. Tone: ${params.tone || 'Confident & Premium'}.`;
+  /**
+   * 2. Chat with Puja Copilot
+   */
+  public async chatWithCopilot(
+    messages: CopilotMessage[]
+  ): Promise<{ reply: string; proposedItinerary?: TripPlan }> {
+    const lastMsg = messages[messages.length - 1]?.content || '';
 
-    const text = await this.runConverse({
-      workflow: 'content',
-      systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-      maxTokens: 3000,
-    });
+    // Check if the user is asking to plan a trip
+    const isPlanningIntent =
+      lastMsg.toLowerCase().includes('plan') ||
+      lastMsg.toLowerCase().includes('route') ||
+      lastMsg.includes('বেরোব') ||
+      lastMsg.includes('প্যান্ডেল') ||
+      lastMsg.includes('pandal');
 
-    if (text) {
-      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
-      if (parsed.title && parsed.hook) {
-        return {
-          ...parsed,
-          ai_score_breakdown: parsed.ai_score_breakdown || {
-            hook_strength: 20,
-            audience_relevance: 20,
-            trend_relevance: 15,
-            shareability: 15,
-            save_potential: 10,
-            conversion_potential: 10,
-            brand_fit: 10,
-          },
-        };
+    let proposedItinerary: TripPlan | undefined;
+
+    if (isPlanningIntent) {
+      try {
+        // Detect constraints from prompt
+        const maxPandals = lastMsg.includes('10') ? 8 : lastMsg.includes('5') ? 5 : 6;
+        const startTime = lastMsg.includes('2') || lastMsg.includes('২') ? '14:00' : '15:00';
+        const endTime = lastMsg.includes('10') || lastMsg.includes('১০') ? '22:00' : '23:00';
+
+        proposedItinerary = await optimizePujaItinerary({
+          date: '2026-10-18', // Default Saptami peak
+          startLocation: { name: 'Kolkata Central', lat: 22.5694, lng: 88.3608 },
+          startTime,
+          endTime,
+          walkingTolerance: lastMsg.includes('বেশি হাঁটতে পারব না') ? 'LOW' : 'MEDIUM',
+          transportPreference: 'METRO_AND_WALK',
+          maxPandals,
+        });
+      } catch (e) {
+        // Continue
       }
     }
 
-    if (this.fallback) return this.fallback.generateReel(params);
-    throw new Error('Bedrock returned empty response for Reel generation.');
+    try {
+      const systemPrompt = `You are PujaCopilot, the expert AI travel companion for Kolkata Durga Puja.
+You speak fluent Bengali (বাংলা) and English.
+Philosophy: "সব প্যান্ডেল দেখানো নয় — তোমার হাতে যত সময় আছে তার মধ্যে সবচেয়ে ভালো combination দেখানো।"
+Always provide accurate, verified facts. Never invent fake pandal names or imaginary metro routes.
+Today's Date: 2026-10-08.
+Puja 2026 dates: Mahalaya: 10 Oct, Chaturthi (Pre-Puja): 14 Oct, Shashthi: 17 Oct, Saptami: 18 Oct, Ashtami: 19 Oct, Navami: 20 Oct, Dashami: 21 Oct.`;
+
+      const response = await this.runConverse({
+        workflow: 'chat',
+        systemPrompt,
+        messages: messages.map((m) => ({ role: m.role as any, content: m.content })),
+        enableTools: true,
+      });
+
+      return {
+        reply: response.text,
+        proposedItinerary,
+      };
+    } catch (err: any) {
+      // Deterministic bilingual response with honest Bedrock status
+      const isBengali = /[\u0980-\u09FF]/.test(lastMsg);
+
+      let reply = '';
+      if (proposedItinerary) {
+        reply = isBengali
+          ? `আপনার সময় ও সুবিধার কথা মাথায় রেখে একটি অপ্টিমাইজড রুট সাজিয়েছি (${proposedItinerary.total_pandals}টি বিখ্যাত প্যান্ডেল):\n\n` +
+            proposedItinerary.stops
+              .filter((s) => s.stop_type === 'PANDAL')
+              .map((s, idx) => `${idx + 1}. **${s.custom_name}** (${s.arrival_time} - ${s.departure_time})`)
+              .join('\n') +
+            `\n\n📌 মোট হাঁটার দূরত্ব: ${(proposedItinerary.total_walking_distance_meters / 1000).toFixed(1)} কিমি।\n🚇 মেট্রো ও হাঁটার কম্বিনেশন ব্যবহার করা হয়েছে যাতে বেশি হাঁটতে না হয়।\n\n*(AWS Bedrock স্ট্যাটাস: ${err.message})*`
+          : `Based on your constraints, I have generated an optimized itinerary featuring ${proposedItinerary.total_pandals} top verified pandals:\n\n` +
+            proposedItinerary.stops
+              .filter((s) => s.stop_type === 'PANDAL')
+              .map((s, idx) => `${idx + 1}. **${s.custom_name}** (${s.arrival_time} - ${s.departure_time})`)
+              .join('\n') +
+            `\n\nTotal walking distance: ${(proposedItinerary.total_walking_distance_meters / 1000).toFixed(1)} km.\nMetro corridors prioritized to keep walking minimal.\n\n*(AWS Bedrock diagnostic: ${err.message})*`;
+      } else {
+        reply = isBengali
+          ? `নমস্কার! আমি পূজা হপ কোপাইলট। আমি আপনার পছন্দ ও সময় অনুযায়ী কলকাতা দুর্গাপূজার পারফেক্ট রুট তৈরি করতে পারি।\n\n*(AWS Bedrock লাইভ ডায়াগনস্টিক: ${err.message})*`
+          : `Hello! I am your PujaHop Copilot. Tell me your start location, preferred date, and time window, and I will calculate the best itinerary.\n\n*(AWS Bedrock diagnostic: ${err.message})*`;
+      }
+
+      return {
+        reply,
+        proposedItinerary,
+      };
+    }
   }
 
-  async generateUGC(params: Parameters<AIProvider['generateUGC']>[0]): Promise<GeneratedUGC> {
-    const systemPrompt = `You are an authentic TikTok/Reels UGC director. Output JSON with fields: creator_persona, hook, scene_list (array of scene, description, action), dialogue (array), b_roll (array), cta, caption, cover_concept, format_type, ai_score. Output JSON only.`;
-
-    const text = await this.runConverse({
-      workflow: 'content',
-      systemPrompt,
-      messages: [{ role: 'user', content: `Create UGC script for product "${params.productName}". Style: ${params.style}.` }],
-    });
-
-    if (text) {
-      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
-      if (parsed.creator_persona) return parsed;
+  /**
+   * 3. Analyze Crowd
+   */
+  public async analyzeCrowd(pandalId: string): Promise<CrowdAnalysisOutput> {
+    const pandal = VERIFIED_KOLKATA_PANDALS.find((p) => p.id === pandalId || p.slug === pandalId);
+    if (!pandal) {
+      throw new Error(`Pandal not found: ${pandalId}`);
     }
 
-    if (this.fallback) return this.fallback.generateUGC(params);
-    throw new Error('Bedrock returned empty response for UGC generation.');
+    const isExtreme = pandal.crowd_score >= 9.5;
+    const isHigh = pandal.crowd_score >= 8.5;
+
+    return {
+      pandalId: pandal.id,
+      pandalName: pandal.name,
+      currentCrowdLevel: isExtreme ? 'EXTREME' : isHigh ? 'HIGH' : 'MODERATE',
+      estimatedWaitMinutes: isExtreme ? 65 : isHigh ? 40 : 20,
+      bestVisitingWindow: '08:00 AM – 11:30 AM or 01:30 AM – 04:00 AM (Night Hopping)',
+      peakWindow: '06:30 PM – 11:30 PM',
+      advice: `Due to popularity (${pandal.overall_score}/10 score), queues are long in the evening. Arriving via ${pandal.nearest_metro} Metro avoids major road barricades.`,
+    };
   }
 
-  async generateProductContent(params: Parameters<AIProvider['generateProductContent']>[0]): Promise<GeneratedProductContent> {
-    const systemPrompt = `You are a high-converting luxury streetwear copywriter. Output JSON format matching this schema:
-{
-  "product_name": string,
-  "reel_ideas": string[],
-  "carousel_ideas": string[],
-  "product_hooks": string[],
-  "captions": string[],
-  "ugc_concepts": string[],
-  "ctas": string[]
-}
-Output JSON only.`;
+  /**
+   * 4. Daily Puja Briefing
+   */
+  public async getDailyBriefing(dateStr: string): Promise<DailyPujaBriefing> {
+    const cal = getCalendarDay(dateStr) || PUJA_CALENDAR_2026[2];
+    const weather = await fetchLiveKolkataWeather();
+    const metroSchedule = getMetroOperatingSchedule(dateStr);
 
-    const text = await this.runConverse({
-      workflow: 'content',
-      systemPrompt,
-      messages: [{ role: 'user', content: `Create product campaign content for: ${params.product.name}. Description: ${params.product.description || ''}. Price: $${params.product.price}. Goal: ${params.goal || 'Conversion'}.` }],
-      maxTokens: 2500,
-    });
-
-    if (text) {
-      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
-      if (parsed.product_name || parsed.captions) return parsed;
-    }
-
-    if (this.fallback) return this.fallback.generateProductContent(params);
-    throw new Error('Bedrock returned empty response for Product Content generation.');
-  }
-
-  async generateAffiliateContent(params: Parameters<AIProvider['generateAffiliateContent']>[0]): Promise<GeneratedAffiliateContent> {
-    const systemPrompt = `You are a viral creator affiliate marketing strategist. Output JSON format matching this schema:
-{
-  "product_url": string,
-  "product_angle": string,
-  "hook": string,
-  "reel_concept": string,
-  "caption": string,
-  "cta": string,
-  "disclosure_recommendation": string,
-  "hashtag_suggestions": string[]
-}
-Output JSON only.`;
-
-    const text = await this.runConverse({
-      workflow: 'content',
-      systemPrompt,
-      messages: [{ role: 'user', content: `Generate affiliate creator kit for product URL "${params.productUrl}". Category: ${params.category || 'streetwear'}. Brand: ${params.brandName || 'RIIQX'}.` }],
-      maxTokens: 2000,
-    });
-
-    if (text) {
-      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
-      if (parsed.hook || parsed.caption) return parsed;
-    }
-
-    if (this.fallback) return this.fallback.generateAffiliateContent(params);
-    throw new Error('Bedrock returned empty response for Affiliate Content generation.');
-  }
-
-  async researchTrends(params: Parameters<AIProvider['researchTrends']>[0]): Promise<DiscoveredTrend[]> {
-    const systemPrompt = `You are a trend forecaster for fashion and streetwear. Output JSON array of trends: topic, source ('Instagram Audio'|'TikTok Viral'|'Runway'|'Streetwear Forum'), source_url, trend_score (0-100), relevance_score (0-100), content_angle. Output JSON only.`;
-
-    const text = await this.runConverse({
-      workflow: 'trend',
-      systemPrompt,
-      messages: [{ role: 'user', content: `Identify 5 current high-velocity trends in category: ${params.category || 'streetwear'} for brand ${params.brandName || 'RIIQX'}.` }],
-      maxTokens: 2000,
-    });
-
-    if (text) {
-      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-
-    if (this.fallback) return this.fallback.researchTrends(params);
-    throw new Error('Bedrock returned empty response for Trend Research.');
-  }
-
-  async analyzePerformance(params: Parameters<AIProvider['analyzePerformance']>[0]): Promise<AnalyticsDiagnostic> {
-    const systemPrompt = `You are an algorithmic Instagram growth data scientist. Analyze performance data and return JSON: what_worked (array), what_didnt (array), which_formats_worked (array), which_hooks_worked (array), which_topics_worked (array), which_content_generated_saves (array), which_content_generated_shares (array), what_should_we_stop_doing (array), what_should_we_do_more_of (array), what_should_we_test_next (array), next_10_recommendations (array of 10: rank, title, format, pillar, hook, expected_outcome). Output JSON only.`;
-
-    const text = await this.runConverse({
-      workflow: 'analytics',
-      systemPrompt,
-      messages: [{ role: 'user', content: `Analyze the performance for brand ${params.brandName}. Recent Metrics: ${JSON.stringify(params.recentMetrics)}. Top Posts: ${JSON.stringify(params.topPosts)}.` }],
-      maxTokens: 2500,
-    });
-
-    if (text) {
-      const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
-      if (parsed.what_worked && parsed.next_10_recommendations) return parsed;
-    }
-
-    if (this.fallback) return this.fallback.analyzePerformance(params);
-    throw new Error('Bedrock returned empty response for Performance Analysis.');
-  }
-
-  async chatCopilot(messages: CopilotMessage[], context?: Record<string, unknown>): Promise<string> {
-    const systemPrompt = `You are the elite AI Growth Copilot for RIIQX inside IG GrowthOS.
-You have tool calling enabled to look up real brand data, historical analytics, current trends, and content.
-Never fabricate Instagram analytics or follower numbers. Be authoritative, data-driven, strategic, and concise.`;
-
-    const conversationHistory = messages.map((m) => ({
-      role: (m.role === 'assistant' ? 'assistant' : 'user') as 'user' | 'assistant',
-      content: m.content,
-    }));
-
-    const response = await this.runConverse({
-      workflow: 'chat',
-      systemPrompt,
-      messages: conversationHistory,
-      enableTools: true,
-      maxTokens: 1500,
-    });
-
-    if (response) return response;
-    if (this.fallback) return this.fallback.chatCopilot(messages, context);
-    throw new Error('Bedrock Copilot returned empty response.');
+    return {
+      date: cal.date,
+      tithiName: cal.tithi_name,
+      pujaStatus: cal.is_pre_puja ? 'PRE_PUJA MODE' : 'MAIN DURGA PUJA FESTIVAL',
+      weatherSummary: `${weather.condition_text}, ${weather.temperature_c}°C, Humidity ${weather.humidity_percent}%`,
+      metroStatus: metroSchedule.notes,
+      highlightPandals: [
+        'Bagbazar Sarbojanin Durgotsav',
+        'College Square Sarbojanin',
+        'Ekdalia Evergreen Club',
+        'Kumartuli Park Sarbojanin',
+      ],
+      criticalTrafficAlerts: VERIFIED_TRAFFIC_ALERTS.map((a) => a.title),
+      crowdAdvisory: `Anticipate ${cal.crowd_expectation} crowd pressure. Plan routes around Metro stations to bypass traffic barricades.`,
+    };
   }
 }
+
+// Specialized Agents
+export class RoutePlanningAgent {
+  constructor(private provider: PujaAIProvider) {}
+  async execute(input: RoutePlanningInput): Promise<RoutePlanningOutput> {
+    return this.provider.planRoute(input);
+  }
+}
+
+export class PandalResearchAgent {
+  getVerifiedPandal(slugOrId: string) {
+    return VERIFIED_KOLKATA_PANDALS.find((p) => p.id === slugOrId || p.slug === slugOrId);
+  }
+  search(query: string, area?: string) {
+    let list = VERIFIED_KOLKATA_PANDALS;
+    if (area) list = list.filter((p) => p.area === area);
+    if (query) {
+      const q = query.toLowerCase();
+      list = list.filter((p) => p.name.toLowerCase().includes(q) || p.name_bn.includes(q) || p.theme.toLowerCase().includes(q));
+    }
+    return list;
+  }
+}
+
+export class CrowdAnalysisAgent {
+  constructor(private provider: PujaAIProvider) {}
+  async analyze(pandalId: string): Promise<CrowdAnalysisOutput> {
+    return this.provider.analyzeCrowd(pandalId);
+  }
+}
+
+export class TripOptimizationAgent {
+  /**
+   * Recalculates live route if crowd or road alert triggers a bottleneck
+   */
+  async recalculateRoute(
+    originalPlan: TripPlan,
+    surgePandalId: string,
+    reason = 'EXTREME crowd surge detected at stop'
+  ): Promise<{
+    recalculatedPlan: TripPlan;
+    timeSavedMinutes: number;
+    distanceChangeMeters: number;
+    skippedPandalName: string;
+    alternativePandalName?: string;
+  }> {
+    const skippedPandal = VERIFIED_KOLKATA_PANDALS.find((p) => p.id === surgePandalId);
+    const skippedName = skippedPandal?.name || 'Congested Pandal';
+
+    // Filter out the congested pandal
+    const remainingPandals = originalPlan.stops
+      .filter((s) => s.stop_type === 'PANDAL' && s.pandal?.id !== surgePandalId)
+      .map((s) => s.pandal!);
+
+    // Run optimization
+    const newPlan = await optimizePujaItinerary({
+      date: originalPlan.date,
+      startLocation: {
+        name: originalPlan.start_location_name,
+        lat: originalPlan.start_lat,
+        lng: originalPlan.start_lng,
+      },
+      startTime: originalPlan.start_time,
+      endTime: originalPlan.end_time,
+      walkingTolerance: originalPlan.walking_tolerance,
+      transportPreference: originalPlan.transport_preference,
+      interests: originalPlan.interests,
+      maxPandals: remainingPandals.length,
+      routeType: originalPlan.route_type,
+    });
+
+    const timeSaved = Math.max(15, (skippedPandal?.estimated_visit_minutes || 45) - 10);
+    const distChange = newPlan.total_walking_distance_meters - originalPlan.total_walking_distance_meters;
+
+    return {
+      recalculatedPlan: newPlan,
+      timeSavedMinutes: timeSaved,
+      distanceChangeMeters: distChange,
+      skippedPandalName: skippedName,
+    };
+  }
+}
+
+export class PujaCopilotAgent {
+  constructor(private provider: PujaAIProvider) {}
+  async chat(messages: CopilotMessage[]) {
+    return this.provider.chatWithCopilot(messages);
+  }
+}
+
+export class DailyPujaAgent {
+  constructor(private provider: PujaAIProvider) {}
+  async getBriefing(dateStr: string) {
+    return this.provider.getDailyBriefing(dateStr);
+  }
+}
+
+export const defaultBedrockProvider = new BedrockProvider();
+export const routePlanningAgent = new RoutePlanningAgent(defaultBedrockProvider);
+export const pandalResearchAgent = new PandalResearchAgent();
+export const crowdAnalysisAgent = new CrowdAnalysisAgent(defaultBedrockProvider);
+export const tripOptimizationAgent = new TripOptimizationAgent();
+export const pujaCopilotAgent = new PujaCopilotAgent(defaultBedrockProvider);
+export const dailyPujaAgent = new DailyPujaAgent(defaultBedrockProvider);

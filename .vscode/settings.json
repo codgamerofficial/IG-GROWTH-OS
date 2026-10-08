@@ -1,5 +1,20 @@
 {
   "css.lint.unknownAtRules": "ignore",
+  "files.associations": {
+    "*.sql": "plaintext",
+    "supabase/**/*.sql": "plaintext",
+    "supabase/migrations/*.sql": "plaintext",
+    "supabase/seed.sql": "plaintext"
+  },
+  "files.exclude": {
+    "supabase/migrations/20261007000000_ig_growthos_schema.sql": true,
+    "supabase/migrations/20261008000000_pujahop_kolkata_schema.sql": true,
+    "supabase/seed.sql": true
+  },
+  "sql.validate.enable": false,
+  "[sql]": {
+    "editor.suggest.showSnippets": false
+  },
   "json.schemas": [
     {
       "fileMatch": ["package.json"],
@@ -7,3 +22,4 @@
     }
   ]
 }
+

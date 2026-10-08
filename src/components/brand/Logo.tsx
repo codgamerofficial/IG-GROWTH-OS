@@ -1,141 +1,102 @@
 'use client';
 
+// =============================================================================
+// PujaHop Kolkata: Brand Identity & Official Emblem
+// Design: Bengali Festival Alpona Motif • Dhak Drum Curves • Saffron & Vermilion
+// =============================================================================
+
 import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { brandConfig } from '@/lib/brand/config';
 
-export type LogoVariant = 'icon' | 'horizontal' | 'stacked' | 'light' | 'dark' | 'monochrome';
-export type LogoSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-
-export interface LogoProps {
-  variant?: LogoVariant;
-  size?: LogoSize;
-  className?: string;
+interface LogoProps {
+  variant?: 'horizontal' | 'stacked' | 'icon';
+  size?: 'sm' | 'md' | 'lg';
   showTagline?: boolean;
-  animated?: boolean;
-  href?: string;
-  priority?: boolean;
+  className?: string;
 }
-
-const sizeMap: Record<LogoSize, { iconSize: number; titleClass: string; taglineClass: string }> = {
-  xs: {
-    iconSize: 22,
-    titleClass: 'text-sm font-extrabold',
-    taglineClass: 'text-[9px] tracking-widest',
-  },
-  sm: {
-    iconSize: 32,
-    titleClass: 'text-base font-extrabold',
-    taglineClass: 'text-[10px] tracking-widest',
-  },
-  md: {
-    iconSize: 42,
-    titleClass: 'text-xl font-black',
-    taglineClass: 'text-[11px] tracking-widest',
-  },
-  lg: {
-    iconSize: 56,
-    titleClass: 'text-2xl font-black',
-    taglineClass: 'text-xs tracking-widest',
-  },
-  xl: {
-    iconSize: 84,
-    titleClass: 'text-4xl font-black',
-    taglineClass: 'text-sm tracking-widest',
-  },
-};
 
 export function Logo({
   variant = 'horizontal',
   size = 'md',
-  className = '',
   showTagline = true,
-  animated = false,
-  href,
-  priority = false,
+  className = '',
 }: LogoProps) {
-  const { iconSize, titleClass, taglineClass } = sizeMap[size];
+  const iconSizes = {
+    sm: 'w-7 h-7',
+    md: 'w-9 h-9',
+    lg: 'w-12 h-12',
+  };
 
-  const iconElement = (
-    <div
-      className={`relative flex items-center justify-center shrink-0 rounded-xl overflow-hidden transition-all duration-300 ${
-        animated ? 'animate-pulse drop-shadow-[0_0_16px_rgba(236,72,153,0.45)]' : ''
-      }`}
-      style={{ width: iconSize, height: iconSize }}
-    >
-      {/* 3D Glassmorphic Master Icon with Upward Growth Arrow */}
-      <Image
-        src="/brand/icon-192.png"
-        alt={brandConfig.name}
-        width={iconSize}
-        height={iconSize}
-        className="w-full h-full object-contain select-none"
-        priority={priority}
-      />
+  const textSizes = {
+    sm: 'text-base',
+    md: 'text-lg',
+    lg: 'text-2xl',
+  };
+
+  const IconSvg = (
+    <div className={`relative flex items-center justify-center ${iconSizes[size]}`}>
+      <svg
+        viewBox="0 0 64 64"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="w-full h-full drop-shadow-[0_0_12px_rgba(225,29,72,0.4)]"
+      >
+        <circle cx="32" cy="32" r="30" fill="#151226" stroke="#F59E0B" strokeWidth="1.5" />
+        <path
+          d="M32 8C33.5 18 46 20 46 32C46 41 39 48 32 54C25 48 18 41 18 32C18 20 30.5 18 32 8Z"
+          fill="url(#festiveGrad)"
+        />
+        <circle cx="32" cy="32" r="6" fill="#FDE047" />
+        <path
+          d="M26 44C29 47 35 47 38 44"
+          stroke="#F59E0B"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M16 32C20 28 20 36 24 32"
+          stroke="#FFFBEB"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+        />
+        <path
+          d="M48 32C44 28 44 36 40 32"
+          stroke="#FFFBEB"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+        />
+        <defs>
+          <linearGradient id="festiveGrad" x1="18" y1="8" x2="46" y2="54" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#E11D48" />
+            <stop offset="0.6" stopColor="#F59E0B" />
+            <stop offset="1" stopColor="#EA580C" />
+          </linearGradient>
+        </defs>
+      </svg>
     </div>
   );
 
   if (variant === 'icon') {
-    if (href) {
-      return (
-        <Link href={href} className={`inline-flex items-center ${className}`} aria-label={brandConfig.name}>
-          {iconElement}
-        </Link>
-      );
-    }
-    return <div className={`inline-flex items-center ${className}`}>{iconElement}</div>;
+    return <div className={`inline-flex items-center ${className}`}>{IconSvg}</div>;
   }
 
-  const wordmark = (
-    <div className="flex flex-col select-none leading-none">
-      <div className={`tracking-tight flex items-center gap-1 ${titleClass}`}>
-        <span className="text-white">IG</span>
-        <span className="text-slate-100">Growth</span>
-        <span className="brand-gradient-text drop-shadow-[0_0_12px_rgba(236,72,153,0.35)]">OS</span>
+  return (
+    <div className={`inline-flex items-center gap-2.5 ${className}`}>
+      {IconSvg}
+      <div className="flex flex-col leading-tight">
+        <div className="flex items-center gap-1.5">
+          <span className={`font-extrabold tracking-tight text-white ${textSizes[size]}`}>
+            PujaHop
+          </span>
+          <span className="bg-gradient-to-r from-amber-400 via-rose-500 to-red-500 bg-clip-text font-black text-transparent">
+            Kolkata
+          </span>
+        </div>
+        {showTagline && (
+          <span className="text-[10px] font-medium tracking-wide text-amber-200/70">
+            One Day. One City. Maximum Puja.
+          </span>
+        )}
       </div>
-      {showTagline && (
-        <span className={`text-slate-400 font-bold uppercase mt-1 ${taglineClass}`}>
-          {brandConfig.tagline}
-        </span>
-      )}
     </div>
   );
-
-  if (variant === 'stacked') {
-    const content = (
-      <div className={`flex flex-col items-center text-center gap-3 ${className}`}>
-        {iconElement}
-        {wordmark}
-      </div>
-    );
-    if (href) {
-      return (
-        <Link href={href} className="inline-block" aria-label={brandConfig.name}>
-          {content}
-        </Link>
-      );
-    }
-    return content;
-  }
-
-  // Default: Horizontal lockup
-  const content = (
-    <div className={`flex items-center gap-3 ${className}`}>
-      {iconElement}
-      {wordmark}
-    </div>
-  );
-
-  if (href) {
-    return (
-      <Link href={href} className="inline-flex items-center" aria-label={brandConfig.name}>
-        {content}
-      </Link>
-    );
-  }
-
-  return content;
 }
-
-export default Logo;

@@ -1,11 +1,16 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter, Playfair_Display, Noto_Serif_Bengali } from 'next/font/google';
 import './globals.css';
-import { GrowthOSProvider } from '@/context/GrowthOSContext';
+import { PujaHopProvider } from '@/context/PujaHopContext';
 import { Header } from '@/components/layout/Header';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav';
-import { GrowthCopilotDrawer } from '@/components/copilot/GrowthCopilotDrawer';
+import { Footer } from '@/components/layout/Footer';
+import { OneDayWizard } from '@/components/planner/OneDayWizard';
+import { PandalDetailModal } from '@/components/pandals/PandalDetailModal';
+import { EmergencyModal } from '@/components/sos/EmergencyModal';
+import { PujaCopilotDrawer } from '@/components/copilot/PujaCopilotDrawer';
+import { brandConfig } from '@/lib/brand/config';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -14,41 +19,53 @@ const inter = Inter({
   weight: ['400', '500', '600', '700', '800'],
 });
 
-import { brandConfig } from '@/lib/brand/config';
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-serif',
+  weight: ['400', '600', '700', '800', '900'],
+});
+
+const notoSerifBengali = Noto_Serif_Bengali({
+  subsets: ['bengali'],
+  display: 'swap',
+  variable: '--font-bengali',
+  weight: ['400', '500', '600', '700', '800'],
+});
 
 export const metadata: Metadata = {
   title: brandConfig.seo.title,
   description: brandConfig.seo.description,
   keywords: [
-    'IG GrowthOS',
-    'AI-Powered Social Growth',
-    'Instagram Automation',
-    'Amazon Bedrock',
-    'RIIQX Fashion',
-    'AI Reel Generator',
-    'Content Scheduling',
-    'Instagram Analytics',
+    'PujaHop Kolkata',
+    'Durga Puja 2026',
+    'Kolkata Durga Puja Planner',
+    'Pandal Hopping Route',
+    'Kolkata Metro Puja Timetable',
+    'Bagbazar Sarbojanin',
+    'College Square',
+    'Ekdalia Evergreen',
+    'Kumartuli Park',
+    'Sreebhumi Sporting Club',
+    'Puja Copilot AI',
   ],
-  authors: [{ name: 'IG GrowthOS Engineering' }],
+  authors: [{ name: 'Saswata Dey (Riik)' }],
+  creator: 'Saswata Dey (Riik)',
+  publisher: 'Saswata Dey (Riik)',
   icons: {
     icon: [
-      { url: '/brand/favicon-32.png', sizes: '32x32', type: 'image/png' },
-      { url: '/brand/favicon-16.png', sizes: '16x16', type: 'image/png' },
       { url: '/favicon.ico' },
-    ],
-    apple: [
-      { url: '/brand/icon-192.png', sizes: '192x192', type: 'image/png' },
     ],
   },
   openGraph: {
     title: brandConfig.seo.title,
     description: brandConfig.seo.description,
-    images: [{ url: '/brand/brand-mark.png', width: 1024, height: 1024, alt: brandConfig.name }],
+    images: [{ url: '/favicon.ico', width: 512, height: 512, alt: brandConfig.name }],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#070812',
+  themeColor: '#0A0915',
   width: 'device-width',
   initialScale: 1,
 };
@@ -59,17 +76,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${inter.variable}`}>
-      <body className="min-h-screen bg-[#09090B] text-zinc-100 antialiased selection:bg-rose-500/30 selection:text-white flex flex-col font-sans">
-        <GrowthOSProvider>
+    <html lang="bn" className={`dark ${inter.variable} ${playfair.variable} ${notoSerifBengali.variable}`}>
+      <body className="min-h-screen bg-[#070611] text-zinc-100 antialiased selection:bg-rose-500/30 selection:text-white flex flex-col font-sans">
+        <PujaHopProvider>
           <Header />
           <div className="flex flex-1">
             <Sidebar />
-            <main className="flex-1 pb-24 lg:pb-12 overflow-y-auto">{children}</main>
+            <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
+              <main className="flex-1 pb-20 lg:pb-8">{children}</main>
+              <Footer />
+            </div>
           </div>
           <MobileBottomNav />
-          <GrowthCopilotDrawer />
-        </GrowthOSProvider>
+          <OneDayWizard />
+          <PandalDetailModal />
+          <EmergencyModal />
+          <PujaCopilotDrawer />
+        </PujaHopProvider>
       </body>
     </html>
   );

@@ -49,6 +49,22 @@ const config: Config = {
             dark: "#F8B4B4",
           },
         },
+        // PujaHop Kolkata Master Color Tokens
+        pujahop: {
+          charcoal: "#09090B",
+          midnight: "#11111A",
+          warmblack: "#171216",
+          durgared: "#C62828",
+          sindoor: "#E53935",
+          orange: "#FF8A3D",
+          gold: "#D6A84F",
+          softgold: "#F1D28A",
+          ivory: "#FFF7E8",
+          cream: "#E8DCC8",
+          success: "#35C98A",
+          warning: "#F4B942",
+          danger: "#EF4444",
+        },
         // Premium Dark Visual Language Tokens
         dark: {
           primary: "#09090B",
@@ -72,7 +88,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        serif: ["var(--font-fraunces)", "Playfair Display", "Georgia", "serif"],
+        serif: ["var(--font-serif)", "Playfair Display", "Cormorant Garamond", "Georgia", "serif"],
+        bengali: ["var(--font-bengali)", "Noto Serif Bengali", "serif"],
         sans: ["var(--font-inter)", "system-ui", "-apple-system", "sans-serif"],
       },
       boxShadow: {

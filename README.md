@@ -1,161 +1,175 @@
-# 🚀 IG GrowthOS — AI-Powered Social Growth
+# 🌺 PujaHop Kolkata — One Day. One City. Maximum Puja.
 
-Production-ready Instagram and social growth automation command center built for **RIIQX** (Fashion / Clothing / Lifestyle) and modern digital-first brands.
+[![License](https://img.shields.io/badge/license-MIT-amber.svg)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org)
+[![CARTO Basemaps](https://img.shields.io/badge/CARTO-Basemaps-orange.svg)](https://carto.com/basemaps)
+[![Agent Router AI](https://img.shields.io/badge/AI-DeepSeek--V4--Flash-emerald.svg)](https://agentrouter.ai)
+[![Author](https://img.shields.io/badge/Creator-Saswata%20Dey%20(Riik)-rose.svg)](#creator-attribution)
 
-![IG GrowthOS Brand Mark](/brand/brand-mark.png)
+> **একদিনে সারা কলকাতার সেরা পুজো**  
+> *“পুজো শুধু মণ্ডপ নয়, এটা একটা শহরের গল্প।”*  
+> **One Day. One City. Maximum Puja.**
 
-> **Tagline:** AI-Powered Social Growth  
-> **Brand Concept:** Create • Automate • Grow  
-> **Symbol:** Stylized IG + Upward Growth Arrow + AI Digital Ribbon (Cross-Platform Architecture)
-
----
-
-## 1. Product Overview
-
-**IG GrowthOS** is an autonomous operating system that unifies content research, AI scriptwriting, multi-factor opportunity scoring, editorial approval gates, official Meta Graph API scheduling and publishing, and deep performance analytics into one command center.
-
-- **Brand:** RIIQX
-- **Category:** High-End Streetwear / Avant-Garde Lifestyle Fashion
-- **Target Audience:** Gen Z & young fashion-conscious aesthetics connoisseurs
-- **Brand Voice:** Premium, unapologetic, confident, trend-forward, sleek, concise
-- **Official Instagram:** `@riiqx.official`
+An editorial cultural magazine, modern travel super-app, cinematic Bengali festive experience, and AI companion for navigating Kolkata Durga Puja.
 
 ---
 
-## 2. Core AI Architecture: Amazon Bedrock
+## 🏛️ Creator Attribution
 
-The primary and default AI infrastructure for IG GrowthOS is **Amazon Bedrock**:
+- **Creator:** Saswata Dey (Riik)
+- **Official Credit:** Created & Conceptualized by **Saswata Dey (Riik)**
+- **Vision:** *An independent cultural-tech experience by Saswata Dey (Riik).*
 
-```text
+PujaHop Kolkata was conceptualized to liberate Kolkata pandal-hoppers from misinformation, hardcoded fake travel times, fabricated 24/7 metro claims, and guesswork. It bridges centuries of Bengali artistic traditions with modern navigation engineering.
+
+---
+
+## 🎨 The 5 Architectural Layers
+
+```
 ┌────────────────────────────────────────────────────────────────────────┐
-│                        IG GrowthOS Command Center                      │
-│                                                                        │
-│  [Natural Language Command Bar]    [15-Section Nav]   [Growth Copilot] │
-└──────────────────┬─────────────────────────────────────┬───────────────┘
-                   │                                     │
-         ┌─────────▼────────┐                   ┌────────▼────────┐
-         │ Daily Workflow   │                   │  MCP Interface  │
-         │  (12-Step Loop)  │                   │ (15 Tool Suite) │
-         └─────────┬────────┘                   └────────┬────────┘
-                   │                                     │
-         ┌─────────▼─────────────────────────────────────▼────────┐
-         │               AI Provider Abstraction Layer            │
-         │             (Default: Amazon Bedrock Runtime)          │
-         └─────────┬─────────────────────────────────────┬────────┘
-                   │                                     │
-         ┌─────────▼────────┐                   ┌────────▼────────┐
-         │ ModelRouter      │                   │ Converse API    │
-         │ Dynamic Routing  │                   │ Tool Calling    │
-         └─────────┬────────┘                   └────────┬────────┘
-                   │                                     │
-         ┌─────────▼─────────────────────────────────────▼────────┐
-         │     Amazon Bedrock Runtime (ConverseCommand / AWS)     │
-         │   Claude 3.5 Sonnet / Amazon Nova / Meta Llama 3       │
-         └─────────────────────────┬──────────────────────────────┘
-                                   │
-         ┌─────────────────────────▼──────────────────────────────┐
-         │              Supabase / PostgreSQL Persistence         │
-         │        (RLS, 10 Production Tables, Audit Logs)         │
-         └────────────────────────────────────────────────────────┘
+│ 1. CINEMATIC KOLKATA LAYER                                             │
+│    • High-resolution night photography: Illumination, Tram, Hooghly    │
+│    • Multi-format campaign posters (HeroPoster, FestivalBanners)      │
+├────────────────────────────────────────────────────────────────────────┤
+│ 2. BENGALI EDITORIAL LAYER                                             │
+│    • Noto Serif Bengali + Playfair Display + Inter typography          │
+│    • Curated Bengali storytelling and cultural idioms                 │
+├────────────────────────────────────────────────────────────────────────┤
+│ 3. TRAVEL SUPER-APP LAYER                                              │
+│    • CARTO Dark Matter & Voyager Basemaps (Key: cb1_4er...)           │
+│    • Real OSRM Walking Engine & Turn-by-Turn GPS navigation            │
+│    • Honest Metro timetable (06:50 - 23:45; night circulars unverified)│
+├────────────────────────────────────────────────────────────────────────┤
+│ 4. AI PUJA COPILOT LAYER                                               │
+│    • Powered by Agent Router (DeepSeek-V4 Flash)                       │
+│    • Real-time tool retrieval: Pandals, Metro, Weather, Lalbazar Traffic│
+│    • Strict anti-hallucination uncertainty reporting                   │
+├────────────────────────────────────────────────────────────────────────┤
+│ 5. FESTIVAL-MEMORY LAYER                                               │
+│    • Collectible Digital Puja Passport Stamps with GPS verification    │
+│    • Kolkata Gastronomy Trail (Nizam's, Aminia, Balaram Mullick)       │
+│    • Multi-Ratio Social Share Studio (Story, Portrait, Square, OG)     │
+└────────────────────────────────────────────────────────────────────────┘
 ```
 
-- **Default Provider:** `BedrockProvider` using `@aws-sdk/client-bedrock-runtime` and `ConverseCommand`.
-- **Dynamic Model Router:** Environment-driven task routing (`CONTENT_MODEL_ID`, `ANALYTICS_MODEL_ID`, `TREND_MODEL_ID`, `CHAT_MODEL_ID`) with automated fallback to `BEDROCK_MODEL_ID`.
-- **Tool-Calling Integration:** Model can invoke server-side tools (`get_brand`, `get_content`, `create_content`, `get_analytics`, `get_trends`, `get_products`, `get_instagram_account`) without hallucinating data.
-- **Provider Independence:** Does NOT require a direct Anthropic API key; Anthropic models are accessed via AWS Bedrock.
+---
+
+## 🛡️ Absolute Data Integrity (Zero-Fabrication Pledge)
+
+PujaHop Kolkata strictly enforces these 5 non-negotiable standards across all routes, cards, and responses:
+
+1. **Honest Unknown > Fake Certainty**  
+   If special all-night circulars or pandal inaugurations are unannounced, they are explicitly marked as `NOT YET VERIFIED`. We never display fictional 24/7 schedules.
+2. **Real Source > AI Guess**  
+   Every pandal address, metro station, and traffic advisory is derived from authoritative public records (Kolkata Police Lalbazar, Metro Railway Kolkata, SAHAJ Portal).
+3. **Real Route > Hardcoded Distance**  
+   All walking times, distances, and paths are calculated dynamically via the Open Source Routing Machine (OSRM).
+4. **Current Data > Old Static Data**  
+   Date-aware operational modes distinguish **Pre-Puja (13–14 Oct)**, **Main Puja (15–20 Oct)**, and **Bijaya Dashami (21 Oct)**.
+5. **Blocked API > Fake Success**  
+   The API Health Center executes live HTTP probes (measuring latency and status) rather than displaying simulated `CONNECTED` badges.
 
 ---
 
-## 3. Brand Identity & Cross-Platform Logo System
+## 🗺️ Real Cartography & Transit
 
-The visual identity is designed for **cross-platform expansion** (Instagram, TikTok, YouTube Shorts, Pinterest):
-- **Abstract Geometry:** Smooth glassmorphic digital ribbon combining an abstract lowercase "i" (sphere dot + ribbon stem) and capital "G" sweeping into an integrated **upward growth arrow**.
-- **Aurora Color Palette:** Electric Violet (`#7C3AED`) → Deep Purple (`#9333EA`) → Magenta (`#C026D3`) → Hot Pink (`#EC4899`) → Electric Blue (`#2563EB`) → Cyan (`#06B6D4`) with warm orange/coral core lighting.
-- **Logo Formats & Assets:**
-  - `public/brand/icon.svg` (Infinite-resolution vector symbol)
-  - `public/brand/logo-horizontal.svg` (Desktop header & navbar lockup)
-  - `public/brand/logo-stacked.svg` (Splash screen & marketing lockup)
-  - `public/brand/icon-monochrome.svg` (High-contrast monochrome print lockup)
-  - Multi-resolution PNGs (`16px` to `1024px`) & PWA `manifest.json`.
+- **Basemaps Engine:** CARTO Basemaps API key (`cb1_4er7_1_ff393df50298cdcd08cbc8cb`) applied to all raster and vector endpoints:
+  - 🌙 **Dark Matter:** `https://basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}.png?key=...`
+  - ☀️ **Voyager:** `https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=...`
+- **Metro Intelligence:** Real station coordinates and interchange logic for Blue Line (Dakshineswar - Kavi Subhash) and Green Line (Howrah Maidan - Sector V).
+- **Route Consistency Assertion:** Displays strictly validate that `Displayed Pandal Count === Actual Itinerary Stops`. Food stops and photo moments never inflate the pandal counter.
 
 ---
 
-## 4. 15 Core Modules
+## 🤖 AI Puja Copilot (Agent Router Gateway)
 
-1. **Overview Dashboard** — Welcome banner, KPI cards (Reach, Engagement, Saves, Shares), and today's queue.
-2. **Content Calendar** — Month, week, day, and list schedule views.
-3. **Ideas Engine** — 10 AI-generated ideas scored with the 7-factor Opportunity Score.
-4. **Drafts** — In-progress creative workspaces.
-5. **Approvals Center** — Editorial approval gates (`DRAFT` → `READY` → `PENDING` → `APPROVED`).
-6. **Scheduled** — Timed release queue for approved media.
-7. **Published** — Live Instagram posts linked to official Meta IDs.
-8. **Analytics** — Deep reach, impressions, save rate, and engagement diagnostics.
-9. **Trends** — Verified fashion, streetwear, and lifestyle trends with freshness scores.
-10. **Products** — RIIQX catalog integration for product and affiliate content.
-11. **AI Studio** — Multi-format creation studio (Reel, UGC, Carousel, Story, Caption).
-12. **Automations** — 9 background automated jobs with single-click manual run.
-13. **Instagram Connection** — Meta OAuth 2.0 flow with token validation.
-14. **Brands** — Multi-brand management (default: RIIQX).
-15. **Settings** — Publishing safety thresholds, API switches, and dark/light modes.
+- **Provider:** Agent Router (`https://api.agentrouter.ai/v1`)
+- **Default Model:** `deepseek/deepseek-v4-flash`
+- **Tool Suite:**
+  - `get_pandal_status`: Retrieves verified opening status, theme, and nearest metro.
+  - `get_metro_schedule`: Fetches official schedule for selected date and line.
+  - `get_traffic_advisories`: Returns date-filtered Kolkata Police traffic advisories.
+  - `get_weather_forecast`: Provides time- and location-aware meteorological data.
+- **Safety Directive:** The Copilot refuses to invent pandal opening times, crowd congestion, or special metro trains if absent from verified records.
 
 ---
 
-## 5. Critical Publishing Safety Gate (Section 28)
+## 📱 Social Campaign Creative Studio
 
-To prevent accidental or unauthorized publishing:
-```typescript
-// Server-side enforcement in Instagram Publishing Service
-if (contentItem.approval_status !== 'APPROVED' && process.env.AUTONOMOUS_PUBLISHING !== 'true') {
-  throw new Error("APPROVAL_GATE_REJECTION: Post must be APPROVED before publishing.");
-}
-```
-Unapproved content can **never** be published, regardless of frontend actions or AI suggestions.
+Built-in export studio for sharing verified Puja itineraries and memories:
+- **Instagram Story:** `9:16` (1080 × 1920)
+- **Instagram Portrait:** `4:5` (1080 × 1350)
+- **Square Post:** `1:1` (1080 × 1080)
+- **OpenGraph Banner:** `1.91:1` (1200 × 630)
+- **Themes:** *“আমার PujaHop Route”*, *“আমি আজ ৬টি পুজো ঘুরেছি”*, *“উত্তর কলকাতার ঐতিহ্য পুজো ট্রেইল”*, *“আমার ডিজিটাল পুজো পাসপোর্ট”*.
+- **Attribution Watermark:** *Created & Conceptualized by Saswata Dey (Riik)*.
 
 ---
 
-## 6. Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18.17+ or 20+
-- AWS Account with Bedrock Model Access enabled
-- (Optional) Supabase project and Meta Developer app
-
-### Installation
-```bash
-git clone https://github.com/riiqx/ig-growthos.git
-cd ig-growthos
-npm install
-```
+- Node.js 18.x or 20.x
+- npm / yarn / pnpm
 
 ### Environment Configuration
+Copy `.env.example` to `.env.local` and configure your credentials:
 ```bash
-cp .env.example .env.local
-```
-Configure your AWS Bedrock and Meta settings (see `docs/AWS-BEDROCK-SETUP.md` and `docs/META-INSTAGRAM-SETUP.md`).
+# Carto Basemaps Key
+NEXT_PUBLIC_CARTO_API_KEY=cb1_4er7_1_ff393df50298cdcd08cbc8cb
 
-### Local Development
+# Agent Router AI Key
+AGENTROUTER_API_KEY=sk-kg8ve3KBHGvRZsc59bivGRi1jrfmlOvhyhkmrqVRHurdcxHi
+
+# Supabase (Optional for local offline mode)
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
+
+### Installation & Run
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-### Test Suite Execution
+# Run automated tests
+node tests/run-all-tests.mjs
+
+# Build production bundle
+npm run build
+npm run start
+```
+
+Visit [http://localhost:3000](http://localhost:3000) to experience PujaHop Kolkata.
+
+---
+
+## 🧪 Automated Test Suite
+
+Run the full integrity suite with:
 ```bash
-npm test
+node tests/run-all-tests.mjs
 ```
-Runs the 10 automated test suites covering opportunity scoring, blueprint validation, approval safety gates, Bedrock model routing, and brand assets.
+Verifies:
+- Canonical 2026 SAHAJ Puja Calendar (10–21 October) & Pre-Puja mode.
+- 23 Official Kolkata Pandals (GPS, Bengali names, documented scoring methodology).
+- Kolkata Metro reality & honest circular reporting.
+- OSRM walking distance and polyline derivations.
+- Kolkata Police traffic advisory filters.
+- Strict Route Consistency (Zero count mismatches).
+- Real CARTO Basemaps tile integration and API key injection.
+- Agent Router AI Gateway connectivity.
+- Source provenance registry and modal disclosures.
+- 5-layer cultural architecture and high-resolution media crops.
 
 ---
 
-## 7. Documentation Index
+## 📜 Legal & Credits
 
-- [Amazon Bedrock Setup Guide](docs/AWS-BEDROCK-SETUP.md)
-- [Meta Instagram API Setup Guide](docs/META-INSTAGRAM-SETUP.md)
-- [System Architecture Specification](docs/architecture.md)
-- [Demo Walkthrough Script](docs/demo-script.md)
-
----
-
-## 8. License
-
-Proprietary SaaS. Built for **RIIQX** & Next-Generation Social Growth Automation.
+© 2026 **PujaHop Kolkata**  
+**Created & Conceptualized by Saswata Dey (Riik)**  
+*An independent cultural-tech experience.*

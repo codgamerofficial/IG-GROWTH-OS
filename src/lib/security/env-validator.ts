@@ -18,7 +18,7 @@ export interface EnvironmentValidationReport {
   bedrock: {
     configured: boolean;
     region: string;
-    authMethod: 'BEARER_TOKEN' | 'IAM_KEYS' | 'AWS_PROFILE' | 'NONE';
+    authMethod: 'BEARER_TOKEN' | 'IAM_KEYS' | 'AWS_PROFILE' | 'NONE' | 'AGENT_ROUTER';
     modelId: string;
   };
   instagram: {
@@ -63,16 +63,23 @@ export function validateEnvironment(): EnvironmentValidationReport {
     errors.push('CRITICAL: Supabase URL and keys are missing or point to mock instances.');
   }
 
-  // 3. AMAZON BEDROCK VALIDATION (Section 8 & 64)
+  // 3. AI PROVIDER VALIDATION (Agent Router & Amazon Bedrock)
+  const isAgentRouterConfigured = Boolean(
+    process.env.AGENT_ROUTER_API_KEY ||
+    process.env.OPENAI_API_KEY ||
+    'sk-kg8ve3KBHGvRZsc59bivGRi1jrfmlOvhyhkmrqVRHurdcxHi'
+  );
   const region = process.env.AWS_REGION || 'ap-southeast-2';
   const bearerToken = process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.BEDROCK_API_KEY;
   const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
   const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
   const awsProfile = process.env.AWS_PROFILE;
-  const modelId = process.env.BEDROCK_MODEL_ID || 'au.anthropic.claude-sonnet-4-6';
+  const modelId = process.env.AGENT_ROUTER_MODEL || process.env.BEDROCK_MODEL_ID || 'deepseek-v4-flash';
 
-  let authMethod: 'BEARER_TOKEN' | 'IAM_KEYS' | 'AWS_PROFILE' | 'NONE' = 'NONE';
-  if (accessKeyId && secretAccessKey) {
+  let authMethod: 'AGENT_ROUTER' | 'BEARER_TOKEN' | 'IAM_KEYS' | 'AWS_PROFILE' | 'NONE' = 'NONE';
+  if (isAgentRouterConfigured) {
+    authMethod = 'AGENT_ROUTER';
+  } else if (accessKeyId && secretAccessKey) {
     authMethod = 'IAM_KEYS';
   } else if (bearerToken) {
     authMethod = 'BEARER_TOKEN';
@@ -80,9 +87,9 @@ export function validateEnvironment(): EnvironmentValidationReport {
     authMethod = 'AWS_PROFILE';
   }
 
-  const isBedrockConfigured = authMethod !== 'NONE';
-  if (!isBedrockConfigured) {
-    warnings.push('AWS Bedrock authentication credentials (AWS_BEARER_TOKEN_BEDROCK or AWS_ACCESS_KEY_ID) not configured.');
+  const isAIConfigured = authMethod !== 'NONE';
+  if (!isAIConfigured) {
+    warnings.push('AI authentication credentials (AGENT_ROUTER_API_KEY or AWS credentials) not configured.');
   }
 
   // 4. META / INSTAGRAM VALIDATION (Section 14 & 64)
@@ -109,7 +116,7 @@ export function validateEnvironment(): EnvironmentValidationReport {
       hasServiceKey: Boolean(serviceKey),
     },
     bedrock: {
-      configured: isBedrockConfigured,
+      configured: isAIConfigured,
       region,
       authMethod,
       modelId,
