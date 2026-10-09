@@ -1,0 +1,72 @@
+{
+  "expo": {
+    "name": "PujaHop Kolkata",
+    "slug": "pujahop-kolkata",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "pujahop",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#09090b"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.pujahop.kolkata",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "PujaHop Kolkata uses your location to show nearby pandals, calculate real walking routes, and verify Puja Passport stamps.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "PujaHop Kolkata uses your location for active turn-by-turn pandal navigation during your festival route.",
+        "NSCameraUsageDescription": "PujaHop Kolkata uses your camera for optional photo verification when stamping your digital Puja Passport.",
+        "NSPhotoLibraryUsageDescription": "PujaHop Kolkata uses your photo library to save and share your branded festival trip cards."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#09090b"
+      },
+      "package": "com.pujahop.kolkata",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "POST_NOTIFICATIONS",
+        "VIBRATE"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow PujaHop to show nearby pandals and navigation."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#f59e0b"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "pujahop-kolkata-prod"
+      },
+      "creator": "Saswata Dey (Riik)",
+      "tagline": "One Day. One City. Maximum Puja.",
+      "apiBaseUrl": "http://localhost:3000/api"
+    }
+  }
+}

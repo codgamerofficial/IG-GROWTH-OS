@@ -11,7 +11,11 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test": "node tests/run-all-tests.mjs",
-    "mcp": "node mcp/pujahop-kolkata/index.mjs"
+    "mcp": "node mcp/pujahop-kolkata/index.mjs",
+    "mobile:start": "cd mobile && npx expo start",
+    "mobile:android": "cd mobile && npx expo start --android",
+    "mobile:ios": "cd mobile && npx expo start --ios",
+    "mobile:typecheck": "cd mobile && npx tsc --noEmit"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1147.0",
