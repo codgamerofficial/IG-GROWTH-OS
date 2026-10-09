@@ -14,6 +14,7 @@ import { PandalPhotoGallery } from '@/components/pandals/PandalPhotoGallery';
 import { CrowdStatusBadge } from '@/components/crowd/CrowdStatusBadge';
 import { PandalAudioStoryPlayer } from '@/components/audio/PandalAudioStoryPlayer';
 import { BhogAndFoodTrail } from '@/components/food/BhogAndFoodTrail';
+import Image from 'next/image';
 import {
   X,
   MapPin,
@@ -27,10 +28,15 @@ import {
   Info,
   HelpCircle,
   ShieldCheck,
+  ChevronLeft,
+  Heart,
+  Share2,
+  Star,
 } from 'lucide-react';
 
 export function PandalDetailModal() {
   const { selectedPandal, setSelectedPandal, markPandalVisited, selectedDate } = usePujaHop();
+  const [isSaved, setIsSaved] = React.useState(false);
 
   if (!selectedPandal) return null;
 
@@ -42,57 +48,175 @@ export function PandalDetailModal() {
     (scoreBreakdown?.data_confidence || selectedPandal.confidence || 0.85) * 100
   );
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-150 overflow-y-auto">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0F0D20] border border-amber-500/20 shadow-2xl p-4 sm:p-6 md:p-8 space-y-6">
-        {/* Close Button */}
-        <button
-          onClick={() => setSelectedPandal(null)}
-          className="absolute top-5 right-5 text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-white/10"
-        >
-          <X className="w-5 h-5" />
-        </button>
+  // High-res authentic image mapping
+  const pandalImage =
+    selectedPandal.images?.[0] ||
+    (selectedPandal.slug.includes('bagbazar')
+      ? '/images/palace-pandal-reflection.jpg'
+      : selectedPandal.slug.includes('kumartuli')
+      ? '/images/kumartuli-tradition.jpg'
+      : selectedPandal.area === 'North Kolkata'
+      ? '/images/hero-pandal-night.jpg'
+      : selectedPandal.area === 'South Kolkata'
+      ? '/images/palace-pandal-reflection.jpg'
+      : '/images/sharadiya-vintage-lamp.jpg');
 
-        {/* Top Badges */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
-            {selectedPandal.area}
-          </span>
-          <SourceBadge
-            source={selectedPandal.source}
-            sourceUrl={selectedPandal.source_url}
-            sourceType={selectedPandal.source_type}
-            verifiedAt={selectedPandal.verified_at}
-            retrievedAt={selectedPandal.retrieved_at}
-            confidence={selectedPandal.confidence}
+  // Mini photo previews
+  const previewThumbnails = [
+    '/images/palace-pandal-reflection.jpg',
+    '/images/hero-pandal-night.jpg',
+    '/images/kumartuli-tradition.jpg',
+    '/images/sharadiya-vintage-lamp.jpg',
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200 overflow-y-auto">
+      <div className="relative w-full max-w-2xl max-h-[92vh] overflow-y-auto rounded-3xl bg-[#0C0B14] border border-amber-500/20 shadow-2xl space-y-6 pb-6">
+        {/* CINEMATIC HERO PHOTOGRAPHY (Mockup 4) */}
+        <div className="relative w-full h-64 sm:h-80 overflow-hidden rounded-t-3xl bg-zinc-950">
+          <Image
+            src={pandalImage}
+            alt={selectedPandal.name}
+            fill
+            className="object-cover object-center"
+            priority
           />
-          <div className="ml-auto flex items-center gap-2">
-            <span className="text-xs font-bold text-amber-400">
-              Editorial Index {editorialScore.toFixed(1)} / 10
-            </span>
-            <span className="text-[10px] px-2 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-300 font-semibold">
-              {confidencePct}% Confidence
-            </span>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0C0B14] via-[#0C0B14]/40 to-black/60" />
+
+          {/* Top Bar Navigation over Image */}
+          <div className="absolute top-4 inset-x-4 flex items-center justify-between z-10">
+            <button
+              onClick={() => setSelectedPandal(null)}
+              className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white flex items-center justify-center hover:bg-black/80 transition-all"
+              aria-label="Back"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsSaved(!isSaved)}
+                className={`w-10 h-10 rounded-full backdrop-blur-md border flex items-center justify-center transition-all ${
+                  isSaved
+                    ? 'bg-rose-600/90 border-rose-500 text-white'
+                    : 'bg-black/60 border-white/15 text-white hover:bg-black/80'
+                }`}
+                aria-label="Save"
+              >
+                <Heart className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+              </button>
+
+              <button
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: selectedPandal.name,
+                      text: `Check out ${selectedPandal.name} (${selectedPandal.name_bn}) on PujaHop Kolkata!`,
+                      url: window.location.href,
+                    });
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('Link copied to clipboard!');
+                  }
+                }}
+                className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white flex items-center justify-center hover:bg-black/80 transition-all"
+                aria-label="Share"
+              >
+                <Share2 className="w-4 h-4" />
+              </button>
+
+              <button
+                onClick={() => setSelectedPandal(null)}
+                className="w-10 h-10 rounded-full bg-black/60 backdrop-blur-md border border-white/15 text-white flex items-center justify-center hover:bg-black/80 transition-all"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Hero Bottom Overlay: Title & Ratings */}
+          <div className="absolute bottom-4 inset-x-5 space-y-1.5 z-10">
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-white leading-tight drop-shadow-md">
+              {selectedPandal.name}
+            </h2>
+            <p className="font-bengali text-amber-300 text-base font-semibold drop-shadow">
+              {selectedPandal.name_bn}
+            </p>
+
+            <div className="flex flex-wrap items-center gap-2.5 pt-1 text-xs">
+              <span className="inline-flex items-center gap-1 font-bold text-amber-300 bg-amber-500/20 px-2.5 py-0.5 rounded-full border border-amber-500/30">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                <span>{editorialScore.toFixed(1)} / 10 (Verified)</span>
+              </span>
+
+              <span className="text-zinc-300 flex items-center gap-1 text-[11px] bg-black/50 px-2 py-0.5 rounded-full border border-white/10">
+                <Train className="w-3 h-3 text-cyan-400" />
+                <span>{selectedPandal.walking_distance}m walk from {selectedPandal.nearest_metro}</span>
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Header Titles */}
-        <div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-white">{selectedPandal.name}</h2>
-          <p className="text-base text-amber-300 font-semibold mt-1">{selectedPandal.name_bn}</p>
-          <p className="text-xs text-zinc-400 mt-2 flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-zinc-500 flex-shrink-0" />
-            <span>{selectedPandal.address}</span>
-          </p>
-        </div>
+        {/* BODY CONTAINER */}
+        <div className="px-4 sm:px-6 space-y-5">
+          {/* CATEGORY & ZONE PILLS (Mockup 4) */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/5 border border-white/15 text-zinc-200">
+              Traditional
+            </span>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/5 border border-white/15 text-zinc-200">
+              Heritage
+            </span>
+            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-300">
+              {selectedPandal.area}
+            </span>
+            <SourceBadge
+              source={selectedPandal.source}
+              sourceUrl={selectedPandal.source_url}
+              sourceType={selectedPandal.source_type}
+              verifiedAt={selectedPandal.verified_at}
+              retrievedAt={selectedPandal.retrieved_at}
+              confidence={selectedPandal.confidence}
+            />
+          </div>
 
-        {/* Date-Aware Opening Banner (Phase 3) */}
-        <div
-          className={`p-4 rounded-2xl border text-xs space-y-1.5 ${
-            dateStatus.status === 'OPEN'
-              ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
-              : dateStatus.status === 'EARLY OPENING'
-              ? 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+          {/* EDITORIAL SUMMARY */}
+          {selectedPandal.description && (
+            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed font-light">
+              {selectedPandal.description}
+            </p>
+          )}
+
+          {/* MINI PHOTO PREVIEW STRIP (Mockup 4) */}
+          <div>
+            <div className="text-[11px] font-semibold text-zinc-400 mb-2 uppercase tracking-wider">
+              Pandal Darshan Preview
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {previewThumbnails.map((thumb, idx) => (
+                <div
+                  key={idx}
+                  className="relative aspect-video rounded-xl overflow-hidden border border-white/10 group cursor-pointer hover:border-amber-400/50 transition-all"
+                >
+                  <Image
+                    src={thumb}
+                    alt={`Preview ${idx + 1}`}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Date-Aware Opening Banner (Phase 3) */}
+          <div
+            className={`p-4 rounded-2xl border text-xs space-y-1.5 ${
+              dateStatus.status === 'OPEN'
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+                : dateStatus.status === 'EARLY OPENING'
+                ? 'bg-amber-500/10 border-amber-500/30 text-amber-200'
               : dateStatus.status === 'UNDER PREPARATION'
               ? 'bg-blue-500/10 border-blue-500/30 text-blue-200'
               : 'bg-zinc-800/80 border-zinc-700 text-zinc-300'
@@ -241,44 +365,45 @@ export function PandalDetailModal() {
         {/* Community Darshan Photo Gallery with EXIF Geocoding */}
         <PandalPhotoGallery pandal={selectedPandal} />
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
-          <a
-            href={`https://www.google.com/maps/dir/?api=1&destination=${selectedPandal.lat},${selectedPandal.lng}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-black font-bold text-xs shadow-lg shadow-amber-950/40"
-          >
-            <Navigation className="w-4 h-4" />
-            <span>NAVIGATE (WALK)</span>
-          </a>
+          {/* Action Buttons (Mockup 4) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+            <a
+              href={`https://www.google.com/maps/dir/?api=1&destination=${selectedPandal.lat},${selectedPandal.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#D6A84F] hover:bg-[#c59841] text-black font-extrabold text-xs shadow-lg shadow-amber-950/40 transition-all uppercase tracking-wider"
+            >
+              <Navigation className="w-4 h-4 fill-current" />
+              <span>NAVIGATE (WALK)</span>
+            </a>
 
-          <button
-            onClick={() => {
-              markPandalVisited(selectedPandal);
-              setSelectedPandal(null);
-            }}
-            className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-semibold text-xs"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            <span>MARK VISITED</span>
-          </button>
+            <button
+              onClick={() => {
+                alert(`Pandal '${selectedPandal.name}' added to your route itinerary.`);
+              }}
+              className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-amber-500/30 font-semibold text-xs transition-all"
+            >
+              <Star className="w-4 h-4 text-amber-400" />
+              <span>ADD TO ROUTE</span>
+            </button>
 
-          <button
-            onClick={() => {
-              alert(`Pandal '${selectedPandal.name}' saved to your collection.`);
-            }}
-            className="flex items-center justify-center gap-1.5 py-3 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/15 font-semibold text-xs"
-          >
-            <Bookmark className="w-4 h-4" />
-            <span>SAVE TO LIST</span>
-          </button>
-        </div>
+            <button
+              onClick={() => {
+                markPandalVisited(selectedPandal);
+                setSelectedPandal(null);
+              }}
+              className="flex items-center justify-center gap-2 py-3.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 font-semibold text-xs transition-all"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              <span>MARK VISITED</span>
+            </button>
+          </div>
 
-        {/* Data Source & Verification Footer */}
-        <div className="pt-2 border-t border-white/10 text-[11px] text-zinc-500 flex flex-col sm:flex-row justify-between gap-1">
-          <span>Source: {selectedPandal.source}</span>
-          <span>Verified: {new Date(selectedPandal.verified_at).toLocaleDateString()}</span>
+          {/* Data Source & Verification Footer */}
+          <div className="pt-2 border-t border-white/10 text-[11px] text-zinc-500 flex flex-col sm:flex-row justify-between gap-1">
+            <span>Source: {selectedPandal.source}</span>
+            <span>Verified: {new Date(selectedPandal.verified_at).toLocaleDateString()}</span>
+          </div>
         </div>
       </div>
     </div>

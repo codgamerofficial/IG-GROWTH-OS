@@ -54,83 +54,88 @@ export function HeroPoster({ onPlanClick, onExploreClick }: HeroPosterProps) {
 
       {/* Hero Content Container */}
       <div className="relative z-10 px-4 py-7 sm:px-8 sm:py-14 md:py-20 lg:py-24 max-w-4xl space-y-4 sm:space-y-6 w-full max-w-full">
-        {/* Campaign Pill */}
-        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-[11px] sm:text-xs font-semibold text-amber-300 shadow-sm backdrop-blur-md">
+        {/* Campaign Badge */}
+        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-3.5 py-1 text-xs font-semibold text-amber-300 shadow-sm backdrop-blur-md">
           <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse shrink-0" />
-          <span>Kolkata Durga Puja 2026 • AI One-Day Companion</span>
+          <span>KOLKATA DURGA PUJA 2026 • AI TRAVEL COMPANION</span>
         </div>
 
-        {/* Bengali Headline in Authentic Editorial Serif */}
-        <div className="space-y-1">
-          <h1 className="font-bengali text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#FFF7E8] tracking-tight leading-[1.18] drop-shadow-lg break-words">
-            একদিনে <br />
-            <span className="bg-gradient-to-r from-[#D6A84F] via-[#FF8A3D] to-[#E53935] bg-clip-text text-transparent">
-              সারা কলকাতার
-            </span> <br />
-            সেরা পুজো
-          </h1>
+        {/* Master Bengali Calligraphy & English Editorial Headline */}
+        <div className="space-y-2">
+          <div className="font-bengali text-4xl sm:text-6xl md:text-7xl font-extrabold text-[#FFF7E8] tracking-tight leading-[1.15] drop-shadow-[0_4px_24px_rgba(0,0,0,0.8)]">
+            মায়ের ডাকে <br />
+            <span className="bg-gradient-to-r from-[#F5D887] via-[#D6A84F] to-[#FF8A3D] bg-clip-text text-transparent">
+              কলকাতা
+            </span>
+          </div>
 
-          <p className="font-serif italic text-base sm:text-xl md:text-2xl text-amber-200/90 pt-1 tracking-wide font-medium">
-            One Day. One City. Maximum Puja.
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white/95 leading-tight tracking-tight">
+            The best Puja experience for the time you have.
+          </h2>
+
+          <p className="font-serif italic text-base sm:text-xl text-amber-200/90 tracking-wide font-medium">
+            One Day. One City. Maximum Puja. <span className="font-bengali not-italic text-sm sm:text-base text-amber-300 font-normal">| একদিনে সম্পূর্ণ কলকাতা দর্শন</span>
           </p>
         </div>
 
-        {/* Emotional Subtitle & Value Statement */}
-        <p className="text-xs sm:text-sm md:text-base text-zinc-300 max-w-2xl leading-relaxed">
-          সব প্যান্ডেল এক দিনে সম্ভব নয় — কিন্তু তোমার হাতে যত ঘণ্টা সময় আছে, তার মধ্যে সবচেয়ে সুন্দর
-          রুটটি সম্ভব। Real-time Metro • OSRM walking routes • Verified pandal darshan windows.
+        {/* Supporting Trust Statement */}
+        <p className="text-xs sm:text-sm text-[#B7B1BC] max-w-2xl leading-relaxed">
+          Discover Kolkata&apos;s pandals, plan practical routes and explore the city with trustworthy travel information.
+          Real-time Metro • OSRM walking road calculations • Verified pandal darshan timings.
         </p>
 
-        {/* 5 Feature Pill Badges */}
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1 text-xs">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm text-[11px] sm:text-xs">
-            <Compass className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-            <span>Best Routes</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm text-[11px] sm:text-xs">
-            <Train className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-            <span>Metro Guides</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm text-[11px] sm:text-xs">
-            <Clock className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-            <span>Live Updates</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm text-[11px] sm:text-xs">
-            <ShieldCheck className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-            <span>Pandal Details</span>
-          </div>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm text-[11px] sm:text-xs">
-            <Utensils className="w-3.5 h-3.5 text-amber-300 shrink-0" />
-            <span>Food Stops</span>
-          </div>
-        </div>
-
-        {/* Call to Actions */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2 sm:pt-4 w-full">
+        {/* 3 Quick Action Buttons (Matching Reference Mockup 1) */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-2">
           <button
             onClick={handlePlan}
-            className="w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#D6A84F] via-[#E53935] to-[#C62828] hover:from-[#E53935] hover:to-[#D6A84F] text-white font-bold px-6 py-3.5 sm:py-4 text-sm sm:text-base shadow-xl shadow-rose-950/60 transition-all duration-300 hover:scale-[1.02] active:scale-95"
+            className="flex items-center justify-center gap-2.5 p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-[#E53935] to-[#C62828] hover:from-[#EF4444] hover:to-[#B71C1C] text-white font-bold text-sm shadow-xl shadow-rose-950/50 transition-all duration-300 hover:scale-[1.02] active:scale-95 border border-rose-400/30"
           >
-            <Compass className="w-4 h-4 shrink-0" />
-            <span>PLAN MY PUJA DAY</span>
-            <ArrowRight className="w-4 h-4 shrink-0" />
+            <Compass className="w-4 h-4 shrink-0 text-amber-200" />
+            <span>Plan My Puja Day</span>
           </button>
 
           <button
             onClick={handleExplore}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-semibold px-5 py-3.5 sm:py-4 text-sm sm:text-base border border-white/15 backdrop-blur-md transition-all duration-300 hover:border-amber-400/40 active:scale-95"
+            className="flex items-center justify-center gap-2.5 p-3.5 sm:p-4 rounded-2xl bg-[#171821] hover:bg-[#211923] text-[#FFF7E8] font-semibold text-sm border border-white/10 hover:border-amber-400/40 transition-all duration-300 active:scale-95 shadow-md"
           >
             <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>EXPLORE PANDALS</span>
+            <span>Explore Map</span>
           </button>
 
           <button
-            onClick={() => setCopilotOpen(true)}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-semibold px-4 py-3 sm:py-4 text-xs sm:text-base border border-amber-500/30 backdrop-blur-md transition-all active:scale-95"
+            onClick={() => setActiveTab('pandals')}
+            className="flex items-center justify-center gap-2.5 p-3.5 sm:p-4 rounded-2xl bg-[#171821] hover:bg-[#211923] text-[#FFF7E8] font-semibold text-sm border border-white/10 hover:border-amber-400/40 transition-all duration-300 active:scale-95 shadow-md"
           >
-            <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
-            <span>ASK COPILOT AI</span>
+            <ShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>Pandal Guide</span>
           </button>
+        </div>
+
+        {/* Dedicated AI Route Planner Card (Matching Reference Mockup 1) */}
+        <div
+          onClick={() => setWizardOpen(true)}
+          className="group relative flex items-center justify-between p-4 sm:p-5 rounded-2xl bg-[#171821]/90 hover:bg-[#211923] border border-amber-500/25 hover:border-amber-400/50 transition-all duration-300 cursor-pointer shadow-xl"
+        >
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0 group-hover:scale-105 transition-transform">
+              <Sparkles className="w-5 h-5 text-amber-400" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <span>AI Route Planner</span>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                  SMART
+                </span>
+              </div>
+              <div className="text-xs text-[#B7B1BC] truncate">
+                Let PujaCopilot plan your perfect one-day route
+              </div>
+            </div>
+          </div>
+
+          <div className="w-9 h-9 rounded-full bg-gradient-to-r from-[#E53935] to-[#C62828] text-white flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 group-hover:from-amber-500 group-hover:to-rose-600 transition-all">
+            <ArrowRight className="w-4 h-4" />
+          </div>
         </div>
       </div>
     </div>

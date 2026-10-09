@@ -87,75 +87,48 @@ export function PujaCopilotDrawer() {
 
   return (
     <div className="fixed inset-y-0 right-0 z-50 w-full max-w-full sm:max-w-md min-w-0 bg-[#0C0A1A] border-l border-amber-500/20 shadow-2xl flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#121024]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 to-rose-600 flex items-center justify-center text-white">
-            <Sparkles className="w-4 h-4" />
+      {/* Header (Matching Screen 6) */}
+      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#111017]">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#D6A84F] to-[#E53935] flex items-center justify-center text-white shadow-md">
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
           <div>
-            <div className="font-bold text-white text-sm">Puja Copilot AI</div>
-            <div className="text-[10px] text-amber-300 font-medium">Kolkata Travel Assistant</div>
+            <div className="font-bold text-white text-base">PujaCopilot AI</div>
+            <div className="text-[11px] text-[#B7B1BC]">Ask anything about Kolkata Puja...</div>
           </div>
         </div>
 
         <button
           onClick={() => setCopilotOpen(false)}
-          className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-white/10"
+          className="text-zinc-400 hover:text-white p-1.5 rounded-xl hover:bg-white/10 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Quick Prompt Chips (Phase 17) */}
-      <div className="p-3 bg-white/5 border-b border-white/5 flex items-center gap-1.5 overflow-x-auto text-[11px] no-scrollbar">
-        <button
-          onClick={() =>
-            handleSend('আমরা ৪ জন। দুপুর ২টা থেকে রাত ১০টা পর্যন্ত বেরোব। বেশি হাঁটতে পারব না। ১০টা best pandal দেখতে চাই।')
-          }
-          className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 whitespace-nowrap"
-        >
-          আমাদের ৪ জন (দুপুর ২টা - রাত ১০টা)
-        </button>
-
-        <button
-          onClick={() => handleSend('বেশি হাঁটতে চাই না, মেট্রো দিয়ে সেরা প্যান্ডেলগুলো দেখাও।')}
-          className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 whitespace-nowrap"
-        >
-          বেশি হাঁটতে চাই না
-        </button>
-
-        <button
-          onClick={() => handleSend('সেরা ১০টা pandal-এর রুট বানাও।')}
-          className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 whitespace-nowrap"
-        >
-          সেরা ১০টা pandal
-        </button>
-
-        <button
-          onClick={() => handleSend('North Kolkata route plan করে দাও।')}
-          className="px-2.5 py-1 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 whitespace-nowrap"
-        >
-          North Kolkata route
-        </button>
-
-        <button
-          onClick={() => handleSend('South Kolkata route plan করে দাও।')}
-          className="px-2.5 py-1 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30 whitespace-nowrap"
-        >
-          South Kolkata route
-        </button>
-
-        <button
-          onClick={() => handleSend('আজকের জন্য একটি বাস্তবসম্মত route বানাও।')}
-          className="px-2.5 py-1 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 whitespace-nowrap"
-        >
-          আজকের route বানাও
-        </button>
+      {/* Quick Prompt Chips (Section 16 & Mockup Screen 6) */}
+      <div className="p-3 bg-[#171821] border-b border-white/5 flex items-center gap-2 overflow-x-auto text-[11px] no-scrollbar">
+        {[
+          'আজ কোন পুজোগুলো খোলা?',
+          'আমার Route বানাও',
+          'Metro দিয়ে কোথায় যাব?',
+          'কম হাঁটতে হয় এমন Route',
+          'খাবার কোথায় পাব?',
+          'বৃষ্টি হলে Plan বদলাও',
+        ].map((chip) => (
+          <button
+            key={chip}
+            onClick={() => handleSend(chip)}
+            className="px-3 py-1.5 rounded-full bg-[#211923] hover:bg-[#D6A84F]/20 text-[#FFF7E8] hover:text-[#F5D887] border border-amber-500/25 whitespace-nowrap transition-all shadow-sm"
+          >
+            {chip}
+          </button>
+        ))}
       </div>
 
       {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs bg-[#08070D]">
         {messages.map((m) => (
           <div
             key={m.id}
@@ -163,20 +136,20 @@ export function PujaCopilotDrawer() {
           >
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs ${
-                m.role === 'user' ? 'bg-amber-500 text-black font-bold' : 'bg-rose-600 text-white'
+                m.role === 'user' ? 'bg-[#D6A84F] text-black font-bold' : 'bg-[#E53935] text-white'
               }`}
             >
               {m.role === 'user' ? <User className="w-3.5 h-3.5" /> : <Bot className="w-3.5 h-3.5" />}
             </div>
 
             <div
-              className={`max-w-[85%] p-3.5 rounded-2xl space-y-2 ${
+              className={`max-w-[85%] p-4 rounded-2xl space-y-2 ${
                 m.role === 'user'
-                  ? 'bg-amber-500/20 text-white border border-amber-500/30 rounded-tr-none'
-                  : 'bg-[#15132B] text-zinc-200 border border-white/10 rounded-tl-none leading-relaxed'
+                  ? 'bg-[#1F1929] text-white border border-white/10 rounded-tr-none shadow-md'
+                  : 'bg-[#171821] text-[#FFF7E8] border border-white/10 rounded-tl-none leading-relaxed shadow-lg'
               }`}
             >
-              <div className="whitespace-pre-line">{m.content}</div>
+              <div className="whitespace-pre-line text-[13px]">{m.content}</div>
 
               {/* Proposed Itinerary CTA if returned */}
               {m.itineraryRecommendation && (
@@ -187,7 +160,7 @@ export function PujaCopilotDrawer() {
                       setActiveTab('route');
                       setCopilotOpen(false);
                     }}
-                    className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 text-white font-bold text-[11px] shadow-md shadow-rose-950/40"
+                    className="w-full flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-gradient-to-r from-[#D6A84F] to-[#E53935] text-white font-bold text-[11px] shadow-md shadow-rose-950/40"
                   >
                     <Route className="w-3.5 h-3.5" />
                     <span>LOAD RECOMMENDED ITINERARY</span>
@@ -195,40 +168,45 @@ export function PujaCopilotDrawer() {
                 </div>
               )}
 
-              <div className="text-[9px] text-zinc-500 text-right">{m.timestamp}</div>
+              <div className="text-[10px] text-zinc-500 text-right">{m.timestamp}</div>
             </div>
           </div>
         ))}
 
         {isLoading && (
-          <div className="flex items-center gap-2 text-zinc-400 text-xs italic p-2">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-            <span>Puja Copilot reasoning with Kolkata pandal & metro data...</span>
+          <div className="flex items-center gap-2 text-zinc-400 text-xs italic p-2 bg-[#171821] rounded-2xl border border-white/10">
+            <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
+            <span>Puja Copilot reasoning with Kolkata pandal &amp; metro data...</span>
           </div>
         )}
       </div>
 
-      {/* Input Bar */}
+      {/* Input Bar (Matching Screen 6) */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSend();
         }}
-        className="p-3 border-t border-white/10 bg-[#121024] flex items-center gap-2"
+        className="p-3 border-t border-white/10 bg-[#111017] flex items-center gap-2"
       >
-        <input
-          type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          placeholder="Ask in Bengali or English..."
-          className="flex-1 bg-[#1A1830] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-zinc-500 focus:outline-none focus:border-amber-500/50"
-        />
+        <div className="flex-1 flex items-center bg-[#171821] border border-white/10 rounded-2xl px-3.5 py-2 text-white shadow-inner focus-within:border-amber-400/40">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder="Type in Bengali or English..."
+            disabled={isLoading}
+            className="flex-1 bg-transparent text-xs text-white placeholder-[#B7B1BC] focus:outline-none"
+          />
+        </div>
+
         <button
           type="submit"
           disabled={!inputValue.trim() || isLoading}
-          className="w-9 h-9 rounded-xl bg-amber-500 hover:bg-amber-600 text-black flex items-center justify-center disabled:opacity-50 transition-all flex-shrink-0"
+          className="w-10 h-10 rounded-full bg-gradient-to-r from-[#D6A84F] to-[#F5D887] text-black font-bold flex items-center justify-center shadow-lg transition-all disabled:opacity-40 hover:scale-105 active:scale-95 flex-shrink-0"
+          title="Send message"
         >
-          <Send className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4" />
         </button>
       </form>
     </div>

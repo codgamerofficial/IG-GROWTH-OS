@@ -6,6 +6,7 @@
 // =============================================================================
 
 import React, { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { usePujaHop } from '@/context/PujaHopContext';
 import { Pandal, MetroStation, Restaurant, Hospital, PoliceStation } from '@/lib/types/pujahop';
 import { VERIFIED_HOSPITALS, VERIFIED_POLICE_STATIONS, VERIFIED_RESTAURANTS } from '@/lib/data/kolkata-amenities';
@@ -25,9 +26,12 @@ import {
   Phone,
   Clock,
   Compass,
+  Star,
+  Sparkles,
 } from 'lucide-react';
 
 type LayerType = 'all' | 'pandals' | 'metro' | 'emergency' | 'food';
+type AreaFilter = 'ALL' | 'North Kolkata' | 'Central Kolkata' | 'South Kolkata' | 'East Kolkata / Salt Lake';
 
 export function MapView() {
   const {
@@ -37,6 +41,7 @@ export function MapView() {
     selectedDate,
     setSelectedPandal,
     markPandalVisited,
+    setActiveTab,
   } = usePujaHop();
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -48,6 +53,7 @@ export function MapView() {
   const CARTO_API_KEY = process.env.NEXT_PUBLIC_CARTO_API_KEY || 'cb1_4er7_1_ff393df50298cdcd08cbc8cb';
   type MapTheme = 'dark_all' | 'voyager';
   const [mapTheme, setMapTheme] = useState<MapTheme>('dark_all');
+  const [selectedArea, setSelectedArea] = useState<AreaFilter>('ALL');
 
   const getTileUrl = (theme: MapTheme) => {
     if (theme === 'voyager') {
@@ -61,6 +67,15 @@ export function MapView() {
     type: 'PANDAL' | 'METRO' | 'HOSPITAL' | 'POLICE' | 'FOOD';
     data: any;
   } | null>({ type: 'PANDAL', data: pandals[0] });
+
+  const getPandalThumb = (p: Pandal) => {
+    if (p.images?.[0]) return p.images[0];
+    if (p.slug.includes('bagbazar')) return '/images/palace-pandal-reflection.jpg';
+    if (p.slug.includes('kumartuli')) return '/images/kumartuli-tradition.jpg';
+    if (p.area === 'North Kolkata') return '/images/hero-pandal-night.jpg';
+    if (p.area === 'South Kolkata') return '/images/palace-pandal-reflection.jpg';
+    return '/images/sharadiya-vintage-lamp.jpg';
+  };
 
   // Initialize Real Leaflet Map
   useEffect(() => {
@@ -129,14 +144,14 @@ export function MapView() {
     });
   }, [mapTheme]);
 
-  // Re-render markers when filter or trip changes
+  // Re-render markers when filter, area, or trip changes
   useEffect(() => {
     if (!mapInstanceRef.current || !layerGroupRef.current || !routeLayerRef.current) return;
 
     import('leaflet').then((L) => {
       renderMarkers(L, mapInstanceRef.current, layerGroupRef.current, routeLayerRef.current, filterLayer);
     });
-  }, [filterLayer, currentTrip, pandals, metroStations]);
+  }, [filterLayer, selectedArea, currentTrip, pandals, metroStations]);
 
   const renderMarkers = (L: any, map: any, layerGroup: any, routeGroup: any, layer: LayerType) => {
     layerGroup.clearLayers();
@@ -158,7 +173,12 @@ export function MapView() {
 
     // 2. Pandals
     if (layer === 'all' || layer === 'pandals') {
-      pandals.forEach((p) => {
+      const displayPandals =
+        selectedArea === 'ALL'
+          ? pandals
+          : pandals.filter((p) => p.area === selectedArea);
+
+      displayPandals.forEach((p) => {
         const areaColor =
           p.area === 'North Kolkata'
             ? '#E11D48'
@@ -265,59 +285,129 @@ export function MapView() {
         {/* Real Leaflet Map mount */}
         <div ref={mapContainerRef} className="w-full h-full z-0" />
 
-        {/* Layer Filters */}
-        <div className="absolute top-3 left-3 z-[500] flex items-center gap-1 bg-[#121124]/95 backdrop-blur-md p-1 rounded-2xl border border-white/10 text-xs shadow-2xl overflow-x-auto max-w-[calc(100vw-110px)] sm:max-w-none no-scrollbar">
-          <Layers className="w-3.5 h-3.5 text-amber-400 ml-1.5 shrink-0" />
-          {(
-            [
-              { id: 'all', label: 'All' },
-              { id: 'pandals', label: 'Pandals' },
-              { id: 'metro', label: 'Metro' },
-              { id: 'emergency', label: 'Police/Hosp' },
-              { id: 'food', label: 'Food' },
-            ] as const
-          ).map((l) => (
-            <button
-              key={l.id}
-              onClick={() => setFilterLayer(l.id)}
-              className={`px-2.5 py-1 rounded-xl capitalize font-medium whitespace-nowrap transition-all text-[11px] sm:text-xs shrink-0 ${
-                filterLayer === l.id
-                  ? 'bg-rose-600 text-white font-bold shadow-sm'
-                  : 'text-zinc-400 hover:text-white'
-              }`}
-            >
-              {l.label}
-            </button>
-          ))}
+        {/* TOP CONTROLS OVERLAY (Mockup 2: Explore Kolkata) */}
+        <div className="absolute top-3 inset-x-3 z-[500] flex flex-col gap-2 max-w-lg mx-auto pointer-events-none">
+          {/* Top Row: Map / List Toggle & Basemap Switcher */}
+          <div className="flex items-center justify-between gap-2 pointer-events-auto">
+            {/* Map / List View Switcher */}
+            <div className="flex items-center p-1 rounded-2xl bg-[#0F0E1A]/90 backdrop-blur-xl border border-white/10 shadow-2xl">
+              <button
+                className="px-3 py-1 rounded-xl font-bold text-xs bg-[#D6A84F] text-black shadow-md transition-all flex items-center gap-1.5"
+              >
+                <Compass className="w-3.5 h-3.5" />
+                <span>Map View</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('pandals')}
+                className="px-3 py-1 rounded-xl font-medium text-xs text-zinc-400 hover:text-white transition-all flex items-center gap-1.5"
+              >
+                <span>List View</span>
+              </button>
+            </div>
+
+            {/* Layer & Basemap Switcher */}
+            <div className="flex items-center gap-1 p-1 rounded-2xl bg-[#0F0E1A]/90 backdrop-blur-xl border border-white/10 shadow-2xl">
+              <button
+                onClick={() => setMapTheme(mapTheme === 'dark_all' ? 'voyager' : 'dark_all')}
+                className="px-2.5 py-1 rounded-xl text-xs font-semibold text-zinc-300 hover:text-white flex items-center gap-1"
+                title="Toggle Basemap Style"
+              >
+                <span>{mapTheme === 'dark_all' ? '🌙 Dark' : '☀️ Day'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Zone Filter Row: All, North, Central, South, East */}
+          <div className="flex items-center gap-1.5 overflow-x-auto p-1 rounded-2xl bg-[#0F0E1A]/90 backdrop-blur-xl border border-white/10 shadow-2xl no-scrollbar pointer-events-auto">
+            {(
+              [
+                { id: 'ALL', label: 'All' },
+                { id: 'North Kolkata', label: 'North' },
+                { id: 'Central Kolkata', label: 'Central' },
+                { id: 'South Kolkata', label: 'South' },
+                { id: 'East Kolkata / Salt Lake', label: 'East' },
+              ] as const
+            ).map((zone) => (
+              <button
+                key={zone.id}
+                onClick={() => setSelectedArea(zone.id as AreaFilter)}
+                className={`px-3 py-1 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                  selectedArea === zone.id
+                    ? 'bg-[#E53935] text-white shadow-md'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {zone.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* CARTO Basemap Theme Switcher */}
-        <div className="absolute top-3 right-3 z-[500] flex items-center bg-[#121124]/95 backdrop-blur-md p-1 rounded-2xl border border-white/10 text-xs shadow-2xl shrink-0">
-          <button
-            onClick={() => setMapTheme('dark_all')}
-            className={`px-2 py-1 rounded-xl font-medium transition-all flex items-center gap-1 text-[11px] sm:text-xs ${
-              mapTheme === 'dark_all'
-                ? 'bg-amber-500 text-black font-bold shadow-sm'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-            title="CartoDB Dark Matter (Festive Dark Mode)"
-          >
-            <span>🌙</span>
-            <span className="hidden sm:inline">Dark</span>
-          </button>
-          <button
-            onClick={() => setMapTheme('voyager')}
-            className={`px-2 py-1 rounded-xl font-medium transition-all flex items-center gap-1 text-[11px] sm:text-xs ${
-              mapTheme === 'voyager'
-                ? 'bg-amber-500 text-black font-bold shadow-sm'
-                : 'text-zinc-400 hover:text-white'
-            }`}
-            title="CartoDB Voyager (Day Street Mode)"
-          >
-            <span>☀️</span>
-            <span className="hidden sm:inline">Day</span>
-          </button>
-        </div>
+        {/* FLOATING PANDAL PREVIEW CARD (Mockup 2) */}
+        {selectedEntity?.type === 'PANDAL' && (
+          <div className="absolute bottom-3 inset-x-3 sm:inset-x-auto sm:left-4 z-[500] max-w-sm w-auto bg-[#141324]/95 backdrop-blur-xl border border-amber-500/30 rounded-2xl p-2.5 shadow-2xl flex items-center gap-3 transition-all animate-in fade-in slide-in-from-bottom-3">
+            <div
+              onClick={() => setSelectedPandal(selectedEntity.data)}
+              className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-amber-500/25 cursor-pointer bg-zinc-900 group"
+            >
+              <Image
+                src={getPandalThumb(selectedEntity.data)}
+                alt={selectedEntity.data.name}
+                fill
+                className="object-cover group-hover:scale-110 transition-transform"
+              />
+            </div>
+
+            <div
+              onClick={() => setSelectedPandal(selectedEntity.data)}
+              className="flex-1 min-w-0 cursor-pointer"
+            >
+              <h4 className="font-bold text-white text-xs truncate hover:text-amber-300 transition-colors">
+                {selectedEntity.data.name}
+              </h4>
+              <p className="font-bengali text-amber-300/90 text-[11px] truncate">
+                {selectedEntity.data.name_bn}
+              </p>
+              <div className="flex items-center gap-1.5 mt-0.5 text-[10px] text-zinc-300">
+                <span className="font-bold text-amber-400 flex items-center gap-0.5">
+                  <Star className="w-3 h-3 fill-amber-400 text-amber-400 inline" />
+                  {(selectedEntity.data.score_breakdown?.editorial_score || selectedEntity.data.overall_score).toFixed(1)}/10
+                </span>
+                <span>•</span>
+                <span className="text-zinc-400">
+                  {selectedEntity.data.walking_distance}m walk
+                </span>
+              </div>
+              <div className="flex items-center gap-1 mt-1">
+                <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-white/5 border border-white/10 text-zinc-300">
+                  Traditional
+                </span>
+                <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-rose-500/20 border border-rose-500/30 text-rose-300">
+                  {selectedEntity.data.area}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-1 shrink-0">
+              <a
+                href={`https://www.google.com/maps/dir/?api=1&destination=${selectedEntity.data.lat},${selectedEntity.data.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-xl bg-[#D6A84F] hover:bg-[#c59841] text-black font-bold shadow-md flex items-center justify-center transition-all"
+                title="Walk Navigation"
+              >
+                <Navigation className="w-3.5 h-3.5 fill-current" />
+              </a>
+              <button
+                onClick={() => setSelectedPandal(selectedEntity.data)}
+                className="p-2 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-white/10 flex items-center justify-center transition-all"
+                title="View Full Details"
+              >
+                <ExternalLink className="w-3.5 h-3.5 text-zinc-300" />
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Map Legend */}
         <div className="absolute bottom-4 left-4 z-[500] hidden sm:flex items-center gap-3 bg-[#121124]/95 backdrop-blur-md px-3.5 py-2 rounded-xl border border-white/10 text-[11px] text-zinc-300 shadow-xl">

@@ -27,6 +27,8 @@ import {
   Utensils,
   Share2,
   ShieldAlert,
+  Star,
+  Bookmark,
 } from 'lucide-react';
 
 export function RouteView() {
@@ -274,13 +276,13 @@ export function RouteView() {
                   </div>
                 )}
 
-                {/* Stop Card */}
+                {/* Stop Card (Mockup 3) */}
                 <div
-                  className={`p-5 rounded-2xl border transition-all ${
+                  className={`p-4 sm:p-5 rounded-2xl border transition-all ${
                     stop.visited
                       ? 'bg-emerald-950/20 border-emerald-500/40'
                       : isFood
-                      ? 'bg-amber-950/20 border-amber-500/30'
+                      ? 'bg-[#1F1612] border-amber-500/40 shadow-lg shadow-amber-950/20'
                       : isStart
                       ? 'bg-[#151429] border-white/10'
                       : isEnd
@@ -289,97 +291,143 @@ export function RouteView() {
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      <div className={`w-8 h-8 rounded-full border flex items-center justify-center font-bold text-xs flex-shrink-0 ${
-                        isStart
-                          ? 'bg-blue-500/20 border-blue-500/40 text-blue-300'
-                          : isEnd
-                          ? 'bg-purple-500/20 border-purple-500/40 text-purple-300'
-                          : isFood
-                          ? 'bg-amber-500/20 border-amber-500/40 text-amber-300'
-                          : 'bg-rose-500/20 border-rose-500/30 text-rose-300'
-                      }`}>
-                        {isStart ? 'START' : isEnd ? 'END' : isFood ? '🍴' : idx}
+                    <div className="flex items-start gap-3.5">
+                      {/* Numbered Circular Badge (Mockup 3) */}
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-xs shrink-0 shadow-md ${
+                          isStart
+                            ? 'bg-blue-600 text-white'
+                            : isEnd
+                            ? 'bg-purple-600 text-white'
+                            : isFood
+                            ? 'bg-[#F97316] text-white'
+                            : 'bg-[#E53935] text-white'
+                        }`}
+                      >
+                        {isStart ? 'S' : isEnd ? 'E' : isFood ? idx : idx}
                       </div>
 
                       <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-white text-base">{stop.custom_name}</h3>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-bold text-white text-base">
+                            {stop.custom_name}
+                            {isFood && <span className="text-amber-400 ml-1.5 font-bold">(Food)</span>}
+                          </h3>
                           {stop.pandal?.name_bn && (
-                            <span className="text-xs text-amber-200/80 font-medium">
+                            <span className="text-xs text-amber-300/80 font-medium font-bengali">
                               {stop.pandal.name_bn}
                             </span>
                           )}
                         </div>
 
                         {stop.pandal && (
-                          <div className="text-xs text-zinc-300 mt-1 line-clamp-1 italic">
-                            Theme: {stop.pandal.theme}
+                          <div className="text-xs text-zinc-300 mt-0.5 line-clamp-1 italic">
+                            {stop.pandal.theme}
                           </div>
                         )}
 
                         {stop.restaurant && (
-                          <div className="text-xs text-amber-300/90 mt-1">
+                          <div className="text-xs text-amber-300 mt-0.5">
                             Specialty: {stop.restaurant.specialty}
                           </div>
                         )}
 
                         <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400 mt-2">
-                          <span className="flex items-center gap-1 font-mono text-zinc-200">
+                          <span className="flex items-center gap-1 font-mono text-zinc-200 bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
                             <Clock className="w-3.5 h-3.5 text-amber-400" />
                             {stop.arrival_time} – {stop.departure_time}
                           </span>
 
                           {stop.pandal && (
-                            <>
-                              <span>•</span>
-                              <span>🚇 {stop.pandal.nearest_metro} ({stop.pandal.walking_distance}m)</span>
-                              <span>•</span>
-                              <span className="text-amber-400 font-bold">
-                                Index: {stop.pandal.overall_score.toFixed(1)}/10
-                              </span>
-                            </>
+                            <span className="flex items-center gap-1 text-zinc-300">
+                              <Footprints className="w-3 h-3 text-amber-400" />
+                              <span>{stop.pandal.walking_distance}m walk from {stop.pandal.nearest_metro}</span>
+                            </span>
+                          )}
+
+                          {leg && (
+                            <span className="text-zinc-400 text-[11px]">
+                              ({leg.estimated_walking_minutes} min walk)
+                            </span>
                           )}
                         </div>
                       </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="flex flex-col sm:flex-row items-end gap-2">
-                      {isPandal && stop.pandal && !stop.visited && (
-                        <button
-                          onClick={() => markPandalVisited(stop.pandal!)}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1"
-                        >
-                          <CheckCircle2 className="w-3.5 h-3.5" />
-                          <span>MARK VISITED</span>
-                        </button>
+                    {/* Actions & Rating */}
+                    <div className="flex flex-col items-end gap-2 shrink-0">
+                      {isPandal && stop.pandal && (
+                        <div className="flex items-center gap-1 text-amber-400 text-xs font-bold">
+                          <Star className="w-3.5 h-3.5 fill-amber-400" />
+                          <span>{stop.pandal.overall_score.toFixed(1)}</span>
+                        </div>
                       )}
 
-                      {stop.visited && (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold">
-                          <CheckCircle2 className="w-3 h-3" />
-                          Visited
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1.5">
+                        {isPandal && stop.pandal && !stop.visited && (
+                          <button
+                            onClick={() => markPandalVisited(stop.pandal!)}
+                            className="px-2.5 py-1 rounded-lg bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 text-xs font-semibold flex items-center gap-1"
+                          >
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">VISITED</span>
+                          </button>
+                        )}
 
-                      {stop.navigation_url && (
-                        <a
-                          href={stop.navigation_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold flex items-center gap-1 shadow-md shadow-amber-950/30"
-                        >
-                          <Navigation className="w-3.5 h-3.5" />
-                          <span>NAVIGATE</span>
-                        </a>
-                      )}
+                        {stop.visited && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold">
+                            <CheckCircle2 className="w-3 h-3" />
+                            <span>Visited</span>
+                          </span>
+                        )}
+
+                        {stop.navigation_url && (
+                          <a
+                            href={stop.navigation_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 rounded-lg bg-[#D6A84F] hover:bg-[#c59841] text-black text-xs font-bold flex items-center gap-1 shadow-md shadow-amber-950/30"
+                            title="Start Walking Navigation"
+                          >
+                            <Navigation className="w-3.5 h-3.5 fill-current" />
+                            <span>WALK</span>
+                          </a>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               </React.Fragment>
             );
           })}
+        </div>
+      </div>
+
+      {/* STICKY BOTTOM ACTIONS (Mockup 3: Start Navigation & Save Route) */}
+      <div className="sticky bottom-16 sm:bottom-4 inset-x-0 z-30 pt-3">
+        <div className="p-3 rounded-2xl bg-[#0F0E1A]/95 backdrop-blur-xl border border-amber-500/30 shadow-2xl flex items-center gap-3 max-w-xl mx-auto">
+          <a
+            href={
+              currentTrip.stops.find((s) => !s.visited)?.navigation_url ||
+              `https://www.google.com/maps/dir/?api=1&destination=${currentTrip.stops[1]?.lat},${currentTrip.stops[1]?.lng}`
+            }
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 py-3.5 px-6 rounded-xl bg-[#D6A84F] hover:bg-[#c59841] text-black font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/40 uppercase tracking-wider transition-all"
+          >
+            <Navigation className="w-4 h-4 fill-current" />
+            <span>START NAVIGATION</span>
+          </a>
+
+          <button
+            onClick={() => {
+              alert(`Trip '${currentTrip.title}' saved to your local offline routes!`);
+            }}
+            className="py-3.5 px-5 rounded-xl bg-white/10 hover:bg-white/15 text-white border border-amber-500/30 font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all"
+          >
+            <Bookmark className="w-4 h-4 text-amber-400" />
+            <span>SAVE ROUTE</span>
+          </button>
         </div>
       </div>
 

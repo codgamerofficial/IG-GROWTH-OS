@@ -76,33 +76,38 @@ export function MetroView() {
         </div>
       </div>
 
-      {/* LINE SELECTOR TABS */}
+      {/* LINE SELECTOR TABS (Matching Screen 5) */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar max-w-full">
         <button
           onClick={() => setSelectedLine('all')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
             selectedLine === 'all'
-              ? 'bg-white/20 text-white font-bold'
-              : 'bg-white/5 text-zinc-400 hover:text-white'
+              ? 'bg-[#D6A84F] text-black shadow-lg shadow-amber-950/40'
+              : 'bg-[#171821] text-[#B7B1BC] hover:text-white border border-white/10'
           }`}
         >
-          All Operational Lines
+          All Lines
         </button>
 
-        {metroLines.map((line) => (
-          <button
-            key={line.id}
-            onClick={() => setSelectedLine(line.id)}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-2 ${
-              selectedLine === line.id
-                ? 'bg-rose-600 text-white font-bold shadow-md'
-                : 'bg-white/5 text-zinc-400 hover:text-white border border-white/5'
-            }`}
-          >
-            <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: line.color }} />
-            <span>{line.name.split('(')[0].trim()}</span>
-          </button>
-        ))}
+        {metroLines.map((line) => {
+          const isSelected = selectedLine === line.id;
+          const shortName = line.name.includes('Blue') ? 'Blue' : line.name.includes('Green') ? 'Green' : line.name.includes('Purple') ? 'Purple' : line.name.includes('Orange') ? 'Orange' : line.name.split('(')[0].trim();
+
+          return (
+            <button
+              key={line.id}
+              onClick={() => setSelectedLine(line.id)}
+              className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 ${
+                isSelected
+                  ? 'bg-rose-600 text-white shadow-md border border-rose-400/40'
+                  : 'bg-[#171821] text-[#B7B1BC] hover:text-white border border-white/10'
+              }`}
+            >
+              <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: line.color }} />
+              <span>{shortName}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* STATIONS LIST GRID */}

@@ -6,6 +6,7 @@
 // =============================================================================
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { usePujaHop } from '@/context/PujaHopContext';
 import { Pandal, PujaArea } from '@/lib/types/pujahop';
 import { getPandalOpeningStatusForDate } from '@/lib/data/kolkata-pandals';
@@ -24,6 +25,7 @@ import {
   Calendar,
   AlertCircle,
   HelpCircle,
+  Star,
 } from 'lucide-react';
 
 export function PandalDirectoryView() {
@@ -34,6 +36,15 @@ export function PandalDirectoryView() {
 
   const selectedCalendarDay = getCalendarDay(selectedDate);
   const dateLabel = selectedCalendarDay?.display_label || selectedDate;
+
+  const getPandalThumb = (p: Pandal) => {
+    if (p.images?.[0]) return p.images[0];
+    if (p.slug.includes('bagbazar')) return '/images/palace-pandal-reflection.jpg';
+    if (p.slug.includes('kumartuli')) return '/images/kumartuli-tradition.jpg';
+    if (p.area === 'North Kolkata') return '/images/hero-pandal-night.jpg';
+    if (p.area === 'South Kolkata') return '/images/palace-pandal-reflection.jpg';
+    return '/images/sharadiya-vintage-lamp.jpg';
+  };
 
   const filtered = pandals.filter((p) => {
     const matchesArea = selectedArea === 'ALL' || p.area === selectedArea;
@@ -122,30 +133,54 @@ export function PandalDirectoryView() {
           return (
             <div
               key={p.id}
-              className="p-5 rounded-2xl bg-[#121124] border border-white/10 hover:border-amber-500/30 transition-all flex flex-col justify-between space-y-4 group"
+              className="p-4 sm:p-5 rounded-2xl bg-[#121124] border border-white/10 hover:border-amber-500/30 transition-all flex flex-col justify-between space-y-3.5 group shadow-xl"
             >
               <div className="space-y-3">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                {/* PHOTOGRAPHY BANNER */}
+                <div
+                  onClick={() => setSelectedPandal(p)}
+                  className="relative w-full h-36 rounded-xl overflow-hidden cursor-pointer bg-zinc-900 border border-white/10 group-hover:border-amber-500/40 transition-all"
+                >
+                  <Image
+                    src={getPandalThumb(p)}
+                    alt={p.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#121124] via-transparent to-black/50" />
+
+                  {/* Top Badges */}
+                  <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between z-10">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-600/90 text-white shadow-md">
                       {p.area}
                     </span>
-                    <SourceBadge
-                      source={p.source}
-                      sourceUrl={p.source_url}
-                      sourceType={p.source_type}
-                      verifiedAt={p.verified_at}
-                      retrievedAt={p.retrieved_at}
-                      confidence={p.confidence}
-                    />
-                  </div>
-                  <div className="text-right">
-                    <span className="text-xs font-bold text-amber-400">
-                      Index {score.toFixed(1)}/10
+                    <span className="text-xs font-bold text-amber-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded-full border border-amber-500/30 flex items-center gap-1 shadow-md">
+                      <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                      <span>{score.toFixed(1)}</span>
                     </span>
-                    <div className="text-[9px] text-zinc-500">
-                      {confidencePct}% Confidence
-                    </div>
+                  </div>
+
+                  {/* Metro walking overlay */}
+                  <div className="absolute bottom-2 left-2.5 z-10">
+                    <span className="text-[10px] text-zinc-200 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-md border border-white/10 flex items-center gap-1">
+                      <Train className="w-3 h-3 text-cyan-400" />
+                      <span>{p.walking_distance}m from {p.nearest_metro}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Provenance Badge */}
+                <div className="flex items-center justify-between gap-2">
+                  <SourceBadge
+                    source={p.source}
+                    sourceUrl={p.source_url}
+                    sourceType={p.source_type}
+                    verifiedAt={p.verified_at}
+                    retrievedAt={p.retrieved_at}
+                    confidence={p.confidence}
+                  />
+                  <div className="text-[10px] text-zinc-400">
+                    {confidencePct}% Confidence
                   </div>
                 </div>
 
@@ -157,7 +192,7 @@ export function PandalDirectoryView() {
                   >
                     {p.name}
                   </h3>
-                  <p className="text-xs text-amber-300/90 font-medium">{p.name_bn}</p>
+                  <p className="text-xs text-amber-300/90 font-medium font-bengali">{p.name_bn}</p>
                   <p className="text-xs text-zinc-400 mt-1 line-clamp-1">{p.address}</p>
                 </div>
 
@@ -225,7 +260,7 @@ export function PandalDirectoryView() {
               <div className="flex items-center gap-2 pt-2 border-t border-white/5">
                 <button
                   onClick={() => setSelectedPandal(p)}
-                  className="flex-1 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-200 text-xs font-semibold border border-white/10"
+                  className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-200 text-xs font-semibold border border-white/10 transition-all"
                 >
                   View Details & Scores
                 </button>
@@ -234,10 +269,10 @@ export function PandalDirectoryView() {
                   href={`https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-black text-xs font-bold flex items-center gap-1 shadow-md shadow-amber-950/30"
+                  className="px-3.5 py-2.5 rounded-xl bg-[#D6A84F] hover:bg-[#c59841] text-black text-xs font-extrabold flex items-center gap-1.5 shadow-md shadow-amber-950/30 transition-all uppercase tracking-wider"
                   title="Start walking navigation"
                 >
-                  <Navigation className="w-3.5 h-3.5" />
+                  <Navigation className="w-3.5 h-3.5 fill-current" />
                   <span>Navigate</span>
                 </a>
               </div>

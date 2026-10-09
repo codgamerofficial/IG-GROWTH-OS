@@ -18,6 +18,7 @@ import {
   Compass,
   Train,
   ShieldAlert,
+  Search,
 } from 'lucide-react';
 
 export function Header() {
@@ -29,6 +30,7 @@ export function Header() {
     copilotOpen,
     setSosOpen,
     setWizardOpen,
+    setActiveTab,
   } = usePujaHop();
 
   const isPrePuja = isPrePujaDate(selectedDate);
@@ -36,31 +38,53 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 w-full max-w-full overflow-hidden border-b border-amber-500/10 bg-[#0A0915]/95 backdrop-blur-xl">
-      <div className="flex h-14 sm:h-16 items-center justify-between px-2.5 sm:px-4 md:px-6 w-full max-w-full min-w-0 gap-2">
+      <div className="flex h-14 sm:h-16 items-center justify-between px-2.5 sm:px-4 md:px-6 w-full max-w-full min-w-0 gap-2 sm:gap-4">
         {/* Brand Logo */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
           <Logo variant="horizontal" size="sm" showTagline={false} />
           {isPrePuja && (
-            <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400 border border-amber-500/30 shrink-0">
+            <span className="hidden xl:inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-[11px] font-semibold text-amber-400 border border-amber-500/30 shrink-0">
               <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
               PRE-PUJA MODE
             </span>
           )}
         </div>
 
+        {/* Central Search Input (Matching Reference Mockups 1 & 2) */}
+        <div
+          onClick={() => setActiveTab('pandals')}
+          className="hidden md:flex flex-1 max-w-md items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-[#171821] border border-white/10 hover:border-amber-400/30 text-xs text-[#B7B1BC] cursor-pointer transition-all shadow-inner"
+        >
+          <Search className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <span className="truncate">Search pandal, area, theme...</span>
+          <span className="ml-auto text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-zinc-400">
+            23 Pandals
+          </span>
+        </div>
+
         {/* Date Selector & Action Buttons */}
-        <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Quick Search on Mobile */}
+          <button
+            onClick={() => setActiveTab('pandals')}
+            className="md:hidden flex items-center justify-center p-2 rounded-xl bg-white/5 hover:bg-white/10 text-[#FFF7E8] border border-white/10 transition-colors"
+            title="Search pandals"
+            aria-label="Search pandals"
+          >
+            <Search className="w-4 h-4 text-amber-400" />
+          </button>
+
           {/* 2026 Canonical Date Switcher */}
-          <div className="relative flex items-center bg-white/5 border border-white/10 rounded-xl px-2 sm:px-3 py-1.5 text-xs text-white shadow-sm max-w-[105px] min-[390px]:max-w-[125px] sm:max-w-none min-w-0">
+          <div className="relative flex items-center bg-[#171821] border border-amber-500/30 rounded-xl px-2 sm:px-3 py-1.5 text-xs text-white shadow-sm max-w-[105px] min-[390px]:max-w-[125px] sm:max-w-none min-w-0">
             <Calendar className="w-3.5 h-3.5 mr-1.5 text-amber-400 shrink-0" />
             <select
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer pr-1 text-xs truncate w-full"
+              className="bg-transparent text-[#FFF7E8] font-bold focus:outline-none cursor-pointer pr-1 text-xs truncate w-full"
               aria-label="Select Durga Puja trip date"
             >
               {PUJA_CALENDAR_2026.map((day) => (
-                <option key={day.date} value={day.date} className="bg-[#121124] text-white py-1">
+                <option key={day.date} value={day.date} className="bg-[#171821] text-white py-1">
                   {day.display_label || `${day.date} • ${day.tithi_name}`}
                 </option>
               ))}
@@ -69,9 +93,9 @@ export function Header() {
 
           {/* Live Weather Pill */}
           {weather && (
-            <div className="hidden lg:flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-zinc-200">
+            <div className="hidden lg:flex items-center gap-1.5 bg-[#171821] border border-white/10 rounded-xl px-2.5 py-1.5 text-xs text-zinc-200">
               <CloudSun className="w-3.5 h-3.5 text-amber-300" />
-              <span>{weather.temperature_c}°C</span>
+              <span className="font-semibold text-white">{weather.temperature_c}°C</span>
               <span className="text-[10px] text-zinc-400 font-normal">Kolkata</span>
             </div>
           )}
@@ -93,11 +117,11 @@ export function Header() {
           {/* AI Copilot Trigger */}
           <button
             onClick={() => setCopilotOpen(!copilotOpen)}
-            className="flex items-center justify-center p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white text-xs font-semibold shadow-md shadow-rose-950/40 transition-all active:scale-95 shrink-0"
+            className="flex items-center justify-center p-1.5 sm:px-3 sm:py-1.5 rounded-xl bg-gradient-to-r from-[#D6A84F] to-[#E53935] hover:from-[#F5D887] hover:to-[#C62828] text-white text-xs font-bold shadow-md shadow-rose-950/40 transition-all active:scale-95 shrink-0"
             title="Puja Copilot AI"
             aria-label="Puja Copilot AI"
           >
-            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-200" />
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#FFF7E8]" />
             <span className="hidden md:inline ml-1">Copilot</span>
           </button>
         </div>

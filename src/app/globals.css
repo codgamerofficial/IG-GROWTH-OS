@@ -4,38 +4,47 @@
 @import 'leaflet/dist/leaflet.css';
 
 :root {
-  --background: #070611;
-  --background-secondary: #0D0A1C;
-  --surface: #121024;
-  --surface-elevated: #181530;
-  --surface-glass: rgba(255, 255, 255, 0.05);
-  --border: rgba(255, 255, 255, 0.1);
-  --foreground: #FFFBEB;
-  --foreground-secondary: #CBD5E1;
-  --muted: #64748B;
+  --background: #08070D;
+  --background-secondary: #111017;
+  --warm-black: #191116;
+  --surface: #171821;
+  --surface-elevated: #211923;
+  --surface-glass: rgba(23, 24, 33, 0.75);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-gold: rgba(214, 168, 79, 0.25);
+  --foreground: #FFF7E8;
+  --foreground-secondary: #E8DCC8;
+  --muted: #B7B1BC;
 
-  /* Festive Durga Puja Bengal Design Tokens */
-  --festive-crimson: #E11D48;
-  --festive-vermilion: #BE123C;
-  --festive-gold: #F59E0B;
-  --festive-amber: #EA580C;
-  --festive-cream: #FFFBEB;
+  /* Authentic Bengali Durga Puja Master Tokens */
+  --durga-red: #C62828;
+  --sindoor: #E53935;
+  --festival-orange: #FF8A3D;
+  --antique-gold: #D6A84F;
+  --soft-gold: #F5D887;
+  --ivory: #FFF7E8;
+  --muted-cream: #E8DCC8;
   --metro-blue: #005691;
   --metro-green: #008751;
-  --festive-gradient: linear-gradient(135deg, #E11D48 0%, #F59E0B 50%, #EA580C 100%);
-  --festive-glow: 0 0 35px -5px rgba(225, 29, 72, 0.35);
+  --festive-gradient: linear-gradient(135deg, #D6A84F 0%, #FF8A3D 50%, #E53935 100%);
+  --crimson-gradient: linear-gradient(135deg, #E53935 0%, #C62828 100%);
+  --gold-gradient: linear-gradient(135deg, #F5D887 0%, #D6A84F 100%);
+  --festive-glow: 0 0 35px -5px rgba(214, 168, 79, 0.35);
+  --crimson-glow: 0 0 35px -5px rgba(229, 57, 53, 0.4);
 }
 
 .dark {
-  --background: #070611;
-  --background-secondary: #0D0A1C;
-  --surface: #121024;
-  --surface-elevated: #181530;
-  --surface-glass: rgba(255, 255, 255, 0.05);
-  --border: rgba(255, 255, 255, 0.1);
-  --foreground: #FFFBEB;
-  --foreground-secondary: #CBD5E1;
-  --muted: #64748B;
+  --background: #08070D;
+  --background-secondary: #111017;
+  --warm-black: #191116;
+  --surface: #171821;
+  --surface-elevated: #211923;
+  --surface-glass: rgba(23, 24, 33, 0.75);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-gold: rgba(214, 168, 79, 0.25);
+  --foreground: #FFF7E8;
+  --foreground-secondary: #E8DCC8;
+  --muted: #B7B1BC;
 }
 
 body {
@@ -62,10 +71,37 @@ body {
 
 /* Glassmorphism card surfaces */
 .glass-panel {
-  background: rgba(18, 16, 36, 0.75);
+  background: rgba(23, 24, 33, 0.78);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: #171821;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.6);
+}
+
+.glass-card-gold {
+  background: #1B1824;
+  border: 1px solid rgba(214, 168, 79, 0.28);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.7);
+}
+
+.gold-glow {
+  box-shadow: 0 0 30px -5px rgba(214, 168, 79, 0.35);
+}
+
+.crimson-glow {
+  box-shadow: 0 0 30px -5px rgba(229, 57, 53, 0.4);
+}
+
+/* 3D Realistic Gold-Embossed Leather Passport Surface */
+.passport-leather {
+  background: linear-gradient(135deg, #2D1418 0%, #1A0D12 50%, #12090D 100%);
+  border: 2px dashed rgba(214, 168, 79, 0.45);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), inset 0 1px 2px rgba(255, 255, 255, 0.1);
 }
 
 /* Custom Scrollbars */

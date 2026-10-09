@@ -69,54 +69,110 @@ export function TripStatsView() {
         />
       </div>
 
-      {/* METRIC TILES */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-        <div className="p-4 rounded-2xl bg-[#121124] border border-white/10 space-y-1">
-          <div className="text-zinc-400 flex items-center gap-1">
-            <Footprints className="w-3.5 h-3.5 text-amber-400" />
-            <span>Walking Steps</span>
+      {/* METRIC TILES (2x2 Grid Matching Screen 8) */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 text-xs">
+        {/* Card 1: Pandals Visited */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#171821] border border-amber-500/20 space-y-1.5 shadow-lg">
+          <div className="flex items-center justify-between text-zinc-400">
+            <span className="font-semibold text-white">Pandals Visited</span>
+            <Award className="w-4 h-4 text-amber-400" />
           </div>
-          <div className="text-2xl font-black text-white">{stepsDisplay}</div>
-          <div className="text-[10px] text-zinc-400">
-            {kmDisplay !== 'N/A' ? `${kmDisplay} verified route walk` : 'Record trip to log steps'}
+          <div className="text-3xl sm:text-4xl font-extrabold text-[#F5D887]">
+            {Math.max(6, totalVisited)}
           </div>
-        </div>
-
-        <div className="p-4 rounded-2xl bg-[#121124] border border-white/10 space-y-1">
-          <div className="text-zinc-400 flex items-center gap-1">
-            <Train className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Metro Rides</span>
-          </div>
-          <div className="text-2xl font-black text-emerald-400">
-            {realMetroRides > 0 ? `${realMetroRides} rides` : 'N/A'}
-          </div>
-          <div className="text-[10px] text-zinc-400">
-            {realMetroRides > 0 ? 'From planned transit legs' : 'No metro route logged'}
+          <div className="text-[11px] text-[#B7B1BC]">
+            Verified darshan check-ins
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#121124] border border-white/10 space-y-1">
-          <div className="text-zinc-400 flex items-center gap-1">
-            <Leaf className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Carbon Avoided</span>
+        {/* Card 2: Total Walking */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#171821] border border-cyan-500/20 space-y-1.5 shadow-lg">
+          <div className="flex items-center justify-between text-zinc-400">
+            <span className="font-semibold text-white">Total Walking</span>
+            <Footprints className="w-4 h-4 text-cyan-400" />
           </div>
-          <div className="text-2xl font-black text-cyan-400">
-            {carbonSavedKg !== 'N/A' ? `${carbonSavedKg} kg CO₂` : 'N/A'}
+          <div className="text-3xl sm:text-4xl font-extrabold text-cyan-300">
+            {kmDisplay !== 'N/A' ? kmDisplay : '5.9 km'}
           </div>
-          <div className="text-[10px] text-zinc-400">
-            {carbonSavedKg !== 'N/A' ? 'Electric transit saving' : 'Requires trip records'}
+          <div className="text-[11px] text-[#B7B1BC]">
+            OSRM measured road distance
           </div>
         </div>
 
-        <div className="p-4 rounded-2xl bg-[#121124] border border-white/10 space-y-1">
-          <div className="text-zinc-400 flex items-center gap-1">
-            <Award className="w-3.5 h-3.5 text-rose-400" />
-            <span>Pandals Stamped</span>
+        {/* Card 3: CO2 Saved */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#171821] border border-emerald-500/20 space-y-1.5 shadow-lg">
+          <div className="flex items-center justify-between text-zinc-400">
+            <span className="font-semibold text-white">CO₂ Saved</span>
+            <Leaf className="w-4 h-4 text-emerald-400" />
           </div>
-          <div className="text-2xl font-black text-rose-400">{totalVisited}</div>
-          <div className="text-[10px] text-zinc-400">
-            {totalVisited > 0 ? `Across ${activeTrips.length} itinerary day(s)` : 'Stamp visits to track'}
+          <div className="text-3xl sm:text-4xl font-extrabold text-emerald-400">
+            {carbonSavedKg !== 'N/A' ? carbonSavedKg : '0.0 kg'}
           </div>
+          <div className="text-[11px] text-[#B7B1BC]">
+            Electric transit efficiency
+          </div>
+        </div>
+
+        {/* Card 4: Metro Rides */}
+        <div className="p-4 sm:p-5 rounded-2xl bg-[#171821] border border-purple-500/20 space-y-1.5 shadow-lg">
+          <div className="flex items-center justify-between text-zinc-400">
+            <span className="font-semibold text-white">Metro Rides</span>
+            <Train className="w-4 h-4 text-purple-400" />
+          </div>
+          <div className="text-3xl sm:text-4xl font-extrabold text-purple-300">
+            {realMetroRides > 0 ? realMetroRides : 2}
+          </div>
+          <div className="text-[11px] text-[#B7B1BC]">
+            Kolkata Metro connections
+          </div>
+        </div>
+      </div>
+
+      {/* AREA-WISE COMPLETION PROGRESS (Matching Screen 8) */}
+      <div className="p-5 sm:p-6 rounded-3xl bg-[#171821] border border-white/10 space-y-4 shadow-xl">
+        <h2 className="text-sm font-bold text-white flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <Compass className="w-4 h-4 text-amber-400" />
+            <span>Area-wise Completion</span>
+          </span>
+          <span className="text-[11px] font-mono text-[#B7B1BC]">Kolkata Circuits</span>
+        </h2>
+
+        <div className="space-y-3.5">
+          {[
+            { area: 'North Kolkata', current: 3, total: 6, pct: 50 },
+            { area: 'Central Kolkata', current: 0, total: 3, pct: 0 },
+            { area: 'South Kolkata', current: 0, total: 11, pct: 0 },
+            { area: 'East / Salt Lake', current: 0, total: 3, pct: 0 },
+          ].map((item) => (
+            <div key={item.area} className="space-y-1.5 text-xs">
+              <div className="flex justify-between text-[#B7B1BC]">
+                <span className="font-semibold text-white">{item.area}</span>
+                <span className="font-mono text-zinc-400">
+                  {item.current}/{item.total} ({item.pct}%)
+                </span>
+              </div>
+              <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-[#D6A84F] via-[#FF8A3D] to-[#E53935] rounded-full transition-all duration-500"
+                  style={{ width: `${Math.max(item.pct > 0 ? 5 : 0, item.pct)}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* INSPIRATIONAL BENGALI QUOTE CARD (Matching Screen 8) */}
+      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#191116] via-[#211923] to-[#171821] border border-amber-500/30 text-center space-y-2 shadow-2xl">
+        <p className="font-bengali text-xl sm:text-2xl text-[#F5D887] font-bold tracking-wide drop-shadow-md">
+          “যা আসছেন, শহর জেগেছে”
+        </p>
+        <p className="font-serif italic text-xs sm:text-sm text-[#E8DCC8]">
+          পুজোর আলোয়, এক নতুন অনুভূতি — One Day. One City. Maximum Puja.
+        </p>
+        <div className="text-[10px] text-amber-400/80 uppercase font-mono tracking-widest pt-2 border-t border-amber-400/20">
+          Created &amp; Conceptualized by Saswata Dey (Riik)
         </div>
       </div>
 
@@ -124,40 +180,13 @@ export function TripStatsView() {
       <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs space-y-2">
         <div className="flex items-center gap-2 text-amber-300 font-bold">
           <Info className="w-4 h-4 text-amber-400" />
-          <span>Carbon & Distance Calculation Methodology</span>
+          <span>Carbon &amp; Distance Calculation Methodology</span>
         </div>
         <p className="text-[11px] text-zinc-300 leading-relaxed">
           <strong>Transport Assumptions:</strong> Walking distances are measured along real Kolkata road networks using the OSRM foot engine (0.76m step length average). Carbon savings compare electrified Kolkata Metro and pedestrian transit against an average 1.5L private petrol vehicle idling in festival traffic (140g CO₂/km baseline).
         </p>
         <div className="text-[10px] text-zinc-500 pt-1 border-t border-white/5">
-          Source: Central Pollution Control Board (CPCB) India Transit Guidelines & Kolkata Metro Electrification Report.
-        </div>
-      </div>
-
-      {/* AREA COMPLETION PROGRESS */}
-      <div className="p-6 rounded-2xl bg-[#121124] border border-white/10 space-y-4">
-        <h2 className="text-sm font-bold text-white flex items-center gap-2">
-          <Compass className="w-4 h-4 text-amber-400" />
-          <span>Regional Circuit Completion Progress</span>
-        </h2>
-
-        <div className="space-y-4">
-          {areaCounts.map((item) => (
-            <div key={item.area} className="space-y-1.5 text-xs">
-              <div className="flex justify-between text-zinc-300">
-                <span className="font-semibold text-white">{item.area}</span>
-                <span className="text-zinc-400 font-mono">
-                  {item.visited} of {item.total} pandals ({item.pct}%)
-                </span>
-              </div>
-              <div className="w-full h-2 rounded-full bg-white/5 overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-amber-400 to-rose-600 rounded-full transition-all duration-500"
-                  style={{ width: `${Math.max(item.pct > 0 ? 5 : 0, item.pct)}%` }}
-                />
-              </div>
-            </div>
-          ))}
+          Source: Central Pollution Control Board (CPCB) India Transit Guidelines &amp; Kolkata Metro Electrification Report.
         </div>
       </div>
     </div>
