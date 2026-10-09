@@ -144,7 +144,7 @@ export default function SettingsScreen() {
               </View>
               <Switch
                 value={notificationsEnabled}
-                onValueChange={(val) => {
+                onValueChange={(val: boolean) => {
                   haptics.selection();
                   setNotificationsEnabled(val);
                 }}
@@ -184,7 +184,7 @@ export default function SettingsScreen() {
               </View>
               <Switch
                 value={bengaliPreferred}
-                onValueChange={(val) => {
+                onValueChange={(val: boolean) => {
                   haptics.selection();
                   setBengaliPreferred(val);
                 }}

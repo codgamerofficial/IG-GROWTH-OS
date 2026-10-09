@@ -6,7 +6,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, FlatList } from 'react-native';
 import { MapPin, Train, Layers, Compass, Crosshair } from 'lucide-react-native';
-import { Pandal } from '../../../../../src/lib/types/pujahop';
+import { Pandal } from '../../../../src/lib/types/pujahop';
 import { colors } from '../../theme/colors';
 import { PandalBottomSheet } from './PandalBottomSheet';
 import { useHaptics } from '../../hooks/useHaptics';

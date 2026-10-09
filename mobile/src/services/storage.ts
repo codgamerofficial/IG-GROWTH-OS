@@ -5,7 +5,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { TripPlan, PandalVisitRecord } from '../../../../src/lib/types/pujahop';
+import { TripPlan, PandalVisitRecord } from '../../../src/lib/types/pujahop';
 
 const KEYS = {
   OFFLINE_TRIP: '@pujahop:offline_trip',

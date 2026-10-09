@@ -4,8 +4,8 @@
 // =============================================================================
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { Pandal, TripPlan, PandalVisitRecord, WeatherSnapshot, TrafficAlert } from '../../../../src/lib/types/pujahop';
-import { VERIFIED_KOLKATA_PANDALS } from '../../../../src/lib/data/kolkata-pandals';
+import { Pandal, TripPlan, PandalVisitRecord, WeatherSnapshot, TrafficAlert } from '../../../src/lib/types/pujahop';
+import { VERIFIED_KOLKATA_PANDALS } from '../../../src/lib/data/kolkata-pandals';
 import { api } from '../services/api';
 import { storage } from '../services/storage';
 import { locationService, UserCoordinates } from '../services/location';

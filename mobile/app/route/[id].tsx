@@ -30,7 +30,7 @@ export function RouteDetailScreen() {
     );
   }
 
-  const pandalStops = currentTrip.stops.filter((s) => s.stop_type === 'PANDAL');
+  const pandalStops = currentTrip.stops.filter((s: any) => s.stop_type === 'PANDAL');
   const walkingKm = (currentTrip.total_walking_distance_meters / 1000).toFixed(1);
   const travelHours = Math.floor(currentTrip.total_travel_time_minutes / 60);
   const travelMins = currentTrip.total_travel_time_minutes % 60;
@@ -99,7 +99,7 @@ export function RouteDetailScreen() {
 
         {/* Timeline Itinerary */}
         <ScrollView style={styles.timelineList} contentContainerStyle={styles.timelineContent}>
-          {currentTrip.stops.map((stop, index) => {
+          {currentTrip.stops.map((stop: any, index: number) => {
             const isLast = index === currentTrip.stops.length - 1;
             const isPandal = stop.stop_type === 'PANDAL';
 

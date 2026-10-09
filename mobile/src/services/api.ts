@@ -3,10 +3,10 @@
 // Connects to PujaHop Next.js backend with local fallback to shared verified datasets
 // =============================================================================
 
-import { VERIFIED_KOLKATA_PANDALS } from '../../../../src/lib/data/kolkata-pandals';
-import { VERIFIED_METRO_STATIONS, METRO_LINES } from '../../../../src/lib/data/kolkata-metro';
-import { VERIFIED_TRAFFIC_ALERTS } from '../../../../src/lib/data/kolkata-traffic';
-import { Pandal, TripPlan, WeatherSnapshot, TrafficAlert } from '../../../../src/lib/types/pujahop';
+import { VERIFIED_KOLKATA_PANDALS } from '../../../src/lib/data/kolkata-pandals';
+import { VERIFIED_METRO_STATIONS, METRO_LINES } from '../../../src/lib/data/kolkata-metro';
+import { VERIFIED_TRAFFIC_ALERTS } from '../../../src/lib/data/kolkata-traffic';
+import { Pandal, TripPlan, WeatherSnapshot, TrafficAlert } from '../../../src/lib/types/pujahop';
 
 const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
 

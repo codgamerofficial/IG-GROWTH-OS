@@ -106,8 +106,8 @@ export default function EmergencyScreen() {
 
   const handleShareLocation = async () => {
     haptics.success();
-    const lat = userLocation?.coords.latitude || 22.5726;
-    const lng = userLocation?.coords.longitude || 88.3639;
+    const lat = userLocation?.latitude || 22.5726;
+    const lng = userLocation?.longitude || 88.3639;
     const mapUrl = `https://maps.google.com/?q=${lat},${lng}`;
     const message = `[PujaHop SOS Alert] I am currently in Kolkata at Coordinates: ${lat.toFixed(5)}, ${lng.toFixed(5)}.\nGoogle Maps: ${mapUrl}\nPlease assist if needed.`;
 
@@ -149,7 +149,7 @@ export default function EmergencyScreen() {
           <Text style={styles.sosTitle}>Share Location with Family or Police</Text>
           <Text style={styles.sosDesc}>
             {userLocation
-              ? `GPS Fixed: ${userLocation.coords.latitude.toFixed(4)}, ${userLocation.coords.longitude.toFixed(4)}`
+              ? `GPS Fixed: ${userLocation.latitude.toFixed(4)}, ${userLocation.longitude.toFixed(4)}`
               : 'GPS fixed to Kolkata city center. Enable precise location for exact lane pinpointing.'}
           </Text>
           <TouchableOpacity

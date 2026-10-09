@@ -8,7 +8,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView } fr
 import { useRouter } from 'expo-router';
 import { ArrowLeft, Train, Clock, ShieldCheck, AlertCircle, MapPin } from 'lucide-react-native';
 import { colors } from '../../src/theme/colors';
-import { VERIFIED_METRO_STATIONS, METRO_LINES } from '../../../../src/lib/data/kolkata-metro';
+import { VERIFIED_METRO_STATIONS, METRO_LINES } from '../../../src/lib/data/kolkata-metro';
 import { useHaptics } from '../../src/hooks/useHaptics';
 
 export function MetroScreen() {
@@ -16,8 +16,8 @@ export function MetroScreen() {
   const [selectedLine, setSelectedLine] = useState<'blue' | 'green'>('blue');
   const haptics = useHaptics();
 
-  const stations = VERIFIED_METRO_STATIONS.filter((s) => s.line_id === selectedLine);
-  const activeLineInfo = METRO_LINES.find((l) => l.id === selectedLine);
+  const stations = VERIFIED_METRO_STATIONS.filter((s: any) => s.line_id === selectedLine);
+  const activeLineInfo = METRO_LINES.find((l: any) => l.id === selectedLine);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -81,7 +81,7 @@ export function MetroScreen() {
 
         {/* Stations List */}
         <ScrollView style={styles.stationList} contentContainerStyle={styles.stationListContent}>
-          {stations.map((st, index) => (
+          {stations.map((st: any, index: number) => (
             <View key={st.id} style={styles.stationCard}>
               <View style={styles.stationHeader}>
                 <View style={styles.numberBadge}>

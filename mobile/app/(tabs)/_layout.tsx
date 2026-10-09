@@ -34,35 +34,35 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'HOME',
-          tabBarIcon: ({ color, size }) => <Home size={size - 2} color={color} />,
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Home size={size - 2} color={color} />,
         }}
       />
       <Tabs.Screen
         name="explore"
         options={{
           title: 'EXPLORE',
-          tabBarIcon: ({ color, size }) => <Compass size={size - 2} color={color} />,
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Compass size={size - 2} color={color} />,
         }}
       />
       <Tabs.Screen
         name="plan"
         options={{
           title: 'PLAN',
-          tabBarIcon: ({ color, size }) => <Route size={size - 2} color={color} />,
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Route size={size - 2} color={color} />,
         }}
       />
       <Tabs.Screen
         name="passport"
         options={{
           title: 'PASSPORT',
-          tabBarIcon: ({ color, size }) => <Award size={size - 2} color={color} />,
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Award size={size - 2} color={color} />,
         }}
       />
       <Tabs.Screen
         name="more"
         options={{
           title: 'MORE',
-          tabBarIcon: ({ color, size }) => <Menu size={size - 2} color={color} />,
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Menu size={size - 2} color={color} />,
         }}
       />
     </Tabs>

@@ -7,7 +7,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Navigation, MapPin, Train, CheckCircle2, X } from 'lucide-react-native';
-import { Pandal } from '../../../../../src/lib/types/pujahop';
+import { Pandal } from '../../../../src/lib/types/pujahop';
 import { colors } from '../../theme/colors';
 import { StatusBadge } from '../common/StatusBadge';
 import { useHaptics } from '../../hooks/useHaptics';

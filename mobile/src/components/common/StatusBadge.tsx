@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { PandalOpeningStatus } from '../../../../../src/lib/types/pujahop';
+import { PandalOpeningStatus } from '../../../../src/lib/types/pujahop';
 import { colors } from '../../theme/colors';
 
 interface StatusBadgeProps {

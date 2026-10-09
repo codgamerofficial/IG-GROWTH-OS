@@ -11,7 +11,7 @@ import { colors } from '../../src/theme/colors';
 import { useHaptics } from '../../src/hooks/useHaptics';
 import { usePujaHop } from '../../src/hooks/usePujaHop';
 import { api } from '../../src/services/api';
-import { WeatherSnapshot } from '../../../../src/lib/types/pujahop';
+import { WeatherSnapshot } from '../../../src/lib/types/pujahop';
 
 export default function WeatherScreen() {
   const router = useRouter();
