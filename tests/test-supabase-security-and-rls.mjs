@@ -160,6 +160,22 @@ async function runTests() {
   assert.ok(dossier.pandal_name, 'Verification dossier includes pandal name');
   assert.ok(dossier.sources.length > 0, 'Verification dossier includes verified sources');
 
+  // Ensure fresh weather snapshot for RPC validation
+  await adminClient.from('weather_snapshots').insert({
+    latitude: 22.5726,
+    longitude: 88.3639,
+    forecast_for: new Date().toISOString(),
+    temperature: 28.5,
+    feels_like: 31.0,
+    rain_probability: 20,
+    precipitation: 0.0,
+    wind_speed: 9.5,
+    weather_code: 1,
+    source: 'Open-Meteo Kolkata Live',
+    retrieved_at: new Date().toISOString(),
+    expires_at: new Date(Date.now() + 3 * 3600 * 1000).toISOString(),
+  });
+
   // Test get_current_weather
   const { data: weather, error: wErr } = await adminClient.rpc('get_current_weather');
   assert.strictEqual(wErr, null, 'get_current_weather RPC executes');
