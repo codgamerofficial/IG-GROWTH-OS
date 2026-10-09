@@ -9,6 +9,7 @@ import React, { useState } from 'react';
 import { usePujaHop } from '@/context/PujaHopContext';
 import { SourceBadge } from '@/components/common/SourceBadge';
 import { calculateHaversineDistance } from '@/lib/routing/router';
+import { SocialPassportCardGenerator } from './SocialPassportCardGenerator';
 import {
   Award,
   CheckCircle2,
@@ -22,6 +23,8 @@ import {
   Navigation,
   ShieldCheck,
   AlertTriangle,
+  Camera,
+  Share2,
 } from 'lucide-react';
 
 export function PassportView() {
@@ -31,6 +34,7 @@ export function PassportView() {
   const [rating, setRating] = useState(5);
   const [notes, setNotes] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showCardGenerator, setShowCardGenerator] = useState(false);
   const [gpsStatus, setGpsStatus] = useState<string | null>(null);
   const [isVerifyingGps, setIsVerifyingGps] = useState(false);
 
@@ -96,13 +100,24 @@ export function PassportView() {
           </p>
         </div>
 
-        <button
-          onClick={() => setShowAddForm(!showAddForm)}
-          className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 text-white font-bold text-xs shadow-lg shadow-rose-950/40 self-start md:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Stamp Pandal Visit</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+          <button
+            onClick={() => setShowCardGenerator(true)}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-amber-300 hover:text-white font-bold text-xs border border-amber-500/30 shadow-lg shadow-black/40 transition-all"
+            title="Generate high-res 1080x1920 Instagram Story / WhatsApp status card"
+          >
+            <Camera className="w-4 h-4 text-amber-400" />
+            <span>Export Story Card (HD)</span>
+          </button>
+
+          <button
+            onClick={() => setShowAddForm(!showAddForm)}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 text-white font-bold text-xs shadow-lg shadow-rose-950/40"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Stamp Pandal Visit</span>
+          </button>
+        </div>
       </div>
 
       {/* PASSPORT SUMMARY METRICS */}
@@ -269,6 +284,14 @@ export function PassportView() {
           </div>
         )}
       </div>
+
+      {/* VIRAL SOCIAL PASSPORT STORY CARD GENERATOR (Phase 28) */}
+      <SocialPassportCardGenerator
+        visits={visits}
+        totalPandals={pandals.length}
+        isOpen={showCardGenerator}
+        onClose={() => setShowCardGenerator(false)}
+      />
     </div>
   );
 }

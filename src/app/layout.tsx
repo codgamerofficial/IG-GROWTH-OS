@@ -12,6 +12,7 @@ import { EmergencyModal } from '@/components/sos/EmergencyModal';
 import { PujaCopilotDrawer } from '@/components/copilot/PujaCopilotDrawer';
 import { OpenInAppBanner } from '@/components/common/OpenInAppBanner';
 import { PWARegister } from '@/components/common/PWARegister';
+import { FestiveSoundscapePlayer } from '@/components/audio/FestiveSoundscapePlayer';
 import { brandConfig } from '@/lib/brand/config';
 
 const inter = Inter({
@@ -96,6 +97,7 @@ export default function RootLayout({
           <PandalDetailModal />
           <EmergencyModal />
           <PujaCopilotDrawer />
+          <FestiveSoundscapePlayer />
         </PujaHopProvider>
       </body>
     </html>

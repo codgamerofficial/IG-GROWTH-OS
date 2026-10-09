@@ -11,6 +11,7 @@ import { Pandal, PujaArea } from '@/lib/types/pujahop';
 import { getPandalOpeningStatusForDate } from '@/lib/data/kolkata-pandals';
 import { getCalendarDay } from '@/lib/data/kolkata-calendar';
 import { SourceBadge } from '@/components/common/SourceBadge';
+import { CrowdStatusBadge } from '@/components/crowd/CrowdStatusBadge';
 import {
   Compass,
   Search,
@@ -158,6 +159,11 @@ export function PandalDirectoryView() {
                   </h3>
                   <p className="text-xs text-amber-300/90 font-medium">{p.name_bn}</p>
                   <p className="text-xs text-zinc-400 mt-1 line-clamp-1">{p.address}</p>
+                </div>
+
+                {/* Real-time Darshan Queue Badge (Phase 24) */}
+                <div className="flex items-center justify-between">
+                  <CrowdStatusBadge pandal={p} variant="compact" />
                 </div>
 
                 {/* Date-Aware Opening Status */}

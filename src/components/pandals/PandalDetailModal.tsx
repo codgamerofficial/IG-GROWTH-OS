@@ -11,6 +11,9 @@ import { getPandalOpeningStatusForDate } from '@/lib/data/kolkata-pandals';
 import { getCalendarDay } from '@/lib/data/kolkata-calendar';
 import { SourceBadge } from '@/components/common/SourceBadge';
 import { PandalPhotoGallery } from '@/components/pandals/PandalPhotoGallery';
+import { CrowdStatusBadge } from '@/components/crowd/CrowdStatusBadge';
+import { PandalAudioStoryPlayer } from '@/components/audio/PandalAudioStoryPlayer';
+import { BhogAndFoodTrail } from '@/components/food/BhogAndFoodTrail';
 import {
   X,
   MapPin,
@@ -118,6 +121,9 @@ export function PandalDetailModal() {
           <p className="text-[11px] opacity-90">{dateStatus.display_text}</p>
         </div>
 
+        {/* Real-time Darshan Queue Telemetry (Phase 24) */}
+        <CrowdStatusBadge pandal={selectedPandal} variant="detailed" showReportButton={true} />
+
         {/* Description & Theme */}
         <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2 text-xs">
           <div className="flex items-center justify-between">
@@ -135,6 +141,9 @@ export function PandalDetailModal() {
             </p>
           )}
         </div>
+
+        {/* Bilingual Heritage Audio Story Narrator (Phase 27) */}
+        <PandalAudioStoryPlayer pandal={selectedPandal} />
 
         {/* Key Logistics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
@@ -225,6 +234,9 @@ export function PandalDetailModal() {
             Methodology: {scoreBreakdown?.methodology || 'Weighted composite index calculated from verified field data.'}
           </p>
         </div>
+
+        {/* Kolkata Bhog & Street Food Trail (Phase 25) */}
+        <BhogAndFoodTrail pandal={selectedPandal} />
 
         {/* Community Darshan Photo Gallery with EXIF Geocoding */}
         <PandalPhotoGallery pandal={selectedPandal} />
