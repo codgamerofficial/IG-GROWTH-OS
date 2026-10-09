@@ -87,7 +87,7 @@ export function PassportView() {
   };
 
   return (
-    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6 sm:space-y-8 w-full max-w-full min-w-0 overflow-x-hidden">
+    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6 sm:space-y-8 w-full min-w-0 overflow-x-hidden">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

@@ -50,7 +50,7 @@ export function TripStatsView() {
   });
 
   return (
-    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
+    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6 w-full min-w-0 overflow-x-hidden">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-2.5">

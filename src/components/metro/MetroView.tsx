@@ -29,7 +29,7 @@ export function MetroView() {
   );
 
   return (
-    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
+    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 w-full min-w-0 overflow-x-hidden">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

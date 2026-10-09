@@ -109,7 +109,7 @@ export function RouteView() {
   const confidencePct = Math.round(currentTrip.route_confidence * 100);
 
   return (
-    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
+    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6 w-full min-w-0 overflow-x-hidden">
       {/* HEADER & SUMMARY BAR */}
       <div className="p-4 sm:p-6 rounded-3xl bg-[#121124] border border-white/10 space-y-4 shadow-xl min-w-0">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">

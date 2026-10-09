@@ -53,7 +53,7 @@ export function HeroPoster({ onPlanClick, onExploreClick }: HeroPosterProps) {
       <div className="absolute bottom-0 left-12 w-80 h-80 rounded-full bg-rose-600/15 blur-3xl pointer-events-none" />
 
       {/* Hero Content Container */}
-      <div className="relative z-10 px-4 py-7 sm:px-8 sm:py-14 md:py-20 lg:py-24 max-w-4xl space-y-4 sm:space-y-6 w-full max-w-full">
+      <div className="relative z-10 px-4 py-7 sm:px-8 sm:py-14 md:py-20 lg:py-24 max-w-4xl space-y-4 sm:space-y-6 w-full">
         {/* Campaign Badge */}
         <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-3.5 py-1 text-xs font-semibold text-amber-300 shadow-sm backdrop-blur-md">
           <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse shrink-0" />
