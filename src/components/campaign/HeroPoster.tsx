@@ -32,20 +32,20 @@ export function HeroPoster({ onPlanClick, onExploreClick }: HeroPosterProps) {
 
   return (
     <div className="relative w-full overflow-hidden rounded-3xl border border-amber-500/20 bg-[#09090B] shadow-2xl">
-      {/* Background Cinematic Visual with Dark Gradient Vignette */}
+      {/* Background Cinematic Visual with Targeted Vignette */}
       <div className="absolute inset-0 z-0">
         <Image
           src="/images/hero-pandal-night.jpg"
           alt="Kolkata Durga Puja Night Pandal Illumination with Dhak and Crowds"
           fill
           priority
+          unoptimized
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
-          className="object-cover object-center opacity-40 scale-105 transition-transform duration-1000 ease-out hover:scale-100"
+          className="object-cover object-right md:object-right-center opacity-95 scale-100 transition-transform duration-1000 ease-out hover:scale-[1.02]"
         />
-        {/* Multidirectional atmospheric vignette */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-[#09090B]/75 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#09090B] via-[#09090B]/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#09090B]/80 via-transparent to-[#09090B]" />
+        {/* Targeted velvet gradient protecting left typography while letting golden Durga face shine on right */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#09090B] via-[#09090B]/95 to-transparent w-full md:w-[62%] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#09090B] via-[#09090B]/50 to-transparent h-48 bottom-0 top-auto pointer-events-none" />
       </div>
 
       {/* Atmospheric Gold/Rose Festive Glow */}

@@ -80,6 +80,7 @@ export function FestivalBanner({ theme = 'story', className = '' }: FestivalBann
             src={current.image}
             alt={current.headline_en}
             fill
+            unoptimized
             sizes="(max-width: 768px) 100vw, 50vw"
             className="object-cover object-center scale-105 transition-transform duration-700 hover:scale-100"
           />

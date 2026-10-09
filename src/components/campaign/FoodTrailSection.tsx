@@ -65,6 +65,7 @@ export function FoodTrailSection() {
             src="/images/kolkata-food-flavours.jpg"
             alt="Kolkata Durga Puja Food Flavours - Kulhad Chai, Kathi Roll, Mishti Doi"
             fill
+            unoptimized
             sizes="(max-width: 1024px) 100vw, 40vw"
             className="object-cover object-center scale-105 transition-transform duration-700 hover:scale-100"
           />

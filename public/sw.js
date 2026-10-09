@@ -5,8 +5,8 @@
 // Created & Conceptualized by Saswata Dey (Riik)
 // =============================================================================
 
-const CACHE_NAME = 'pujahop-cache-v1.2';
-const API_CACHE_NAME = 'pujahop-api-v1.2';
+const CACHE_NAME = 'pujahop-cache-v2.0';
+const API_CACHE_NAME = 'pujahop-api-v2.0';
 
 const PRECACHE_ASSETS = [
   '/',
@@ -33,6 +33,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME && key !== API_CACHE_NAME) {
+            console.log('[PujaHop SW] Deleting obsolete cache:', key);
             return caches.delete(key);
           }
         })
@@ -89,10 +90,30 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-First for static assets, fonts, icons, and images
+  // Network-First for images and Next.js dynamic image endpoints (with Cache fallback)
+  if (
+    url.pathname.startsWith('/images/') ||
+    url.pathname.startsWith('/_next/image') ||
+    url.pathname.match(/\.(png|jpg|jpeg|webp)$/)
+  ) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Cache-First for versioned immutable static assets, fonts, icons
   if (
     url.pathname.startsWith('/_next/static/') ||
-    url.pathname.match(/\.(png|jpg|jpeg|svg|webp|woff2|woff|css|js)$/) ||
+    url.pathname.match(/\.(svg|woff2|woff|css|js)$/) ||
     url.hostname.includes('basemaps.cartocdn.com')
   ) {
     event.respondWith(

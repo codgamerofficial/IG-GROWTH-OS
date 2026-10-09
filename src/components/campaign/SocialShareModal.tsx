@@ -111,6 +111,7 @@ export function SocialShareModal({ trip, isOpen, onClose }: SocialShareModalProp
               src={currentThemeData.bg}
               alt="PujaHop Social Creative"
               fill
+              unoptimized
               className="object-cover object-center brightness-60"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#090814] via-[#090814]/40 to-[#090814]/80 pointer-events-none" />

@@ -6,6 +6,7 @@
 // =============================================================================
 
 import React from 'react';
+import Image from 'next/image';
 import { usePujaHop } from '@/context/PujaHopContext';
 import {
   Compass,
@@ -111,64 +112,93 @@ export function SmartRoutePreview() {
         </button>
       </div>
 
-      {/* Timeline Steps */}
-      <div className="relative border-l-2 border-amber-500/30 ml-3 sm:ml-4 pl-4 sm:pl-6 space-y-6">
-        {stops.map((stop, idx) => {
-          const isPandal = stop.type === 'PANDAL';
-          const isMetro = stop.type === 'METRO';
-          const isReturn = stop.type === 'RETURN';
+      {/* Grid Layout: Phone Mockup on Left + Timeline Steps on Right */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left: Mobile App Screen Preview from Campaign Master */}
+        <div className="hidden lg:flex lg:col-span-4 flex-col items-center space-y-3 sticky top-24">
+          <div className="relative w-full max-w-[280px] aspect-[9/16] rounded-3xl overflow-hidden border-2 border-amber-500/30 shadow-2xl shadow-amber-950/30 bg-black group">
+            <Image
+              src="/images/app-route-preview.jpg"
+              alt="PujaHop Mobile App Route View with Polyline and Checkpoints"
+              fill
+              unoptimized
+              sizes="280px"
+              className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-4 left-4 right-4 text-white text-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-600/30 text-rose-300 border border-rose-500/40 backdrop-blur-md">
+                Live ReRoute Engine
+              </span>
+              <p className="text-xs font-semibold text-zinc-200 mt-1">
+                Real-Time Metro + Walking Nav
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] text-zinc-400 font-mono">
+            Optimized for Zero Gridlock
+          </span>
+        </div>
 
-          return (
-            <div key={idx} className="relative group">
-              {/* Timeline Node Icon */}
-              <div
-                className={`absolute -left-[27px] sm:-left-[35px] top-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] font-bold shadow-md transition-transform group-hover:scale-110 ${
-                  isPandal
-                    ? 'bg-gradient-to-br from-amber-400 to-rose-600 text-white'
-                    : isMetro
-                    ? 'bg-emerald-500 text-black'
-                    : 'bg-zinc-700 text-zinc-200'
-                }`}
-              >
-                {isPandal ? idx : isMetro ? <Train className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
-              </div>
+        {/* Right: Timeline Steps */}
+        <div className="lg:col-span-8 relative border-l-2 border-amber-500/30 ml-3 sm:ml-4 pl-4 sm:pl-6 space-y-5">
+          {stops.map((stop, idx) => {
+            const isPandal = stop.type === 'PANDAL';
+            const isMetro = stop.type === 'METRO';
+            const isReturn = stop.type === 'RETURN';
 
-              {/* Step Card */}
-              <div
-                onClick={() => isPandal && handlePandalClick(stop.pandalSlug)}
-                className={`p-3.5 sm:p-4 rounded-xl border transition-all ${
-                  isPandal
-                    ? 'bg-[#151226]/80 hover:bg-[#1A1630] border-white/10 hover:border-amber-400/30 cursor-pointer shadow-sm'
-                    : 'bg-white/5 border-white/5'
-                }`}
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">
-                      {stop.time}
-                    </span>
-                    <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-amber-300 transition-colors">
-                      {stop.title}
-                    </h3>
-                  </div>
-
-                  <span className="text-[11px] font-medium text-zinc-400">
-                    ⏱ {stop.dwell}
-                  </span>
+            return (
+              <div key={idx} className="relative group">
+                {/* Timeline Node Icon */}
+                <div
+                  className={`absolute -left-[27px] sm:-left-[35px] top-1 w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] font-bold shadow-md transition-transform group-hover:scale-110 ${
+                    isPandal
+                      ? 'bg-gradient-to-br from-amber-400 to-rose-600 text-white'
+                      : isMetro
+                      ? 'bg-emerald-500 text-black'
+                      : 'bg-zinc-700 text-zinc-200'
+                  }`}
+                >
+                  {isPandal ? idx : isMetro ? <Train className="w-3.5 h-3.5" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
                 </div>
 
-                <p className="text-xs text-zinc-300 mt-1">{stop.subtitle}</p>
+                {/* Step Card */}
+                <div
+                  onClick={() => isPandal && handlePandalClick(stop.pandalSlug)}
+                  className={`p-3.5 sm:p-4 rounded-xl border transition-all ${
+                    isPandal
+                      ? 'bg-[#151226]/80 hover:bg-[#1A1630] border-white/10 hover:border-amber-400/30 cursor-pointer shadow-sm'
+                      : 'bg-white/5 border-white/5'
+                  }`}
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md">
+                        {stop.time}
+                      </span>
+                      <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-amber-300 transition-colors">
+                        {stop.title}
+                      </h3>
+                    </div>
 
-                {stop.leg && (
-                  <div className="mt-2.5 pt-2 border-t border-white/5 flex items-center gap-2 text-[11px] text-zinc-400 font-mono">
-                    <Footprints className="w-3.5 h-3.5 text-amber-400/80" />
-                    <span>Next leg: {stop.leg}</span>
+                    <span className="text-[11px] font-medium text-zinc-400">
+                      ⏱ {stop.dwell}
+                    </span>
                   </div>
-                )}
+
+                  <p className="text-xs text-zinc-300 mt-1">{stop.subtitle}</p>
+
+                  {stop.leg && (
+                    <div className="mt-2.5 pt-2 border-t border-white/5 flex items-center gap-2 text-[11px] text-zinc-400 font-mono">
+                      <Footprints className="w-3.5 h-3.5 text-amber-400/80" />
+                      <span>Next leg: {stop.leg}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* Summary Footer */}

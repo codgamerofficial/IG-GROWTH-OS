@@ -64,11 +64,12 @@ export function PhotoMomentsSection() {
             key={idx}
             className="group relative overflow-hidden rounded-2xl border border-white/10 bg-[#121124] hover:border-amber-400/40 transition-all duration-500 hover:-translate-y-1 shadow-lg"
           >
-            <div className="relative h-64 sm:h-72 w-full overflow-hidden">
+            <div className="relative h-80 sm:h-96 w-full overflow-hidden">
               <Image
                 src={m.image}
                 alt={m.title}
                 fill
+                unoptimized
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                 className="object-cover object-center scale-105 transition-transform duration-700 ease-out group-hover:scale-110"
               />

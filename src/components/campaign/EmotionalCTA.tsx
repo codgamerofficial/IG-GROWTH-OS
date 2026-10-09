@@ -16,15 +16,16 @@ export function EmotionalCTA() {
   return (
     <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-br from-[#1A0E2E] via-[#0E0B1F] to-[#0A0915] p-8 sm:p-12 md:p-16 text-center space-y-6 shadow-2xl">
       {/* Background Graphic Asset */}
-      <div className="absolute inset-0 z-0 opacity-20">
+      <div className="absolute inset-0 z-0 opacity-60">
         <Image
           src="/images/sharadiya-vintage-lamp.jpg"
           alt="Vintage Kolkata festive street lamp"
           fill
+          unoptimized
           sizes="100vw"
-          className="object-cover object-center filter blur-sm"
+          className="object-cover object-center transition-transform duration-1000 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0915] via-[#0A0915]/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0915] via-[#0A0915]/80 to-[#0A0915]/50" />
       </div>
 
       {/* Floating Lights */}
