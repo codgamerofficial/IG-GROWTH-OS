@@ -102,8 +102,8 @@ html, body {
   width: 100%;
   max-width: 100%;
   overflow-x: hidden;
-  overscroll-behavior-y: contain;
-  touch-action: manipulation;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Android Safe Area Padding Helpers */

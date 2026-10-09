@@ -115,7 +115,7 @@ export default function RootLayout({
             <Sidebar />
             <div
               id="pujahop-scroll-container"
-              className="flex-1 flex flex-col min-h-0 min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden"
+              className="flex-1 flex flex-col min-h-0 min-w-0 w-full max-w-full"
             >
               <main className="flex-1 pb-24 lg:pb-8 w-full max-w-full min-w-0">{children}</main>
               <Footer />
