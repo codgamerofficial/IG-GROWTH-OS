@@ -416,14 +416,31 @@ ALTER TABLE public.api_health ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
 
 -- POLICIES: Public read access for verified directory
+DROP POLICY IF EXISTS "Public read pandals" ON public.pandals;
 CREATE POLICY "Public read pandals" ON public.pandals FOR SELECT USING (active = true);
+
+DROP POLICY IF EXISTS "Public read metro stations" ON public.metro_stations;
 CREATE POLICY "Public read metro stations" ON public.metro_stations FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read traffic alerts" ON public.traffic_alerts;
 CREATE POLICY "Public read traffic alerts" ON public.traffic_alerts FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read crowd reports" ON public.crowd_reports;
 CREATE POLICY "Public read crowd reports" ON public.crowd_reports FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read restaurants" ON public.restaurants;
 CREATE POLICY "Public read restaurants" ON public.restaurants FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read hospitals" ON public.hospitals;
 CREATE POLICY "Public read hospitals" ON public.hospitals FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read police stations" ON public.police_stations;
 CREATE POLICY "Public read police stations" ON public.police_stations FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read puja calendar" ON public.puja_calendar;
 CREATE POLICY "Public read puja calendar" ON public.puja_calendar FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public read api health" ON public.api_health;
 CREATE POLICY "Public read api health" ON public.api_health FOR SELECT USING (true);
 
 -- INDEXES FOR GEOGRAPHIC & SEARCH PERFORMANCE

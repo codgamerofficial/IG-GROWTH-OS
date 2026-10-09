@@ -1,7 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
+// =============================================================================
+// PujaHop Kolkata: Supabase Admin / Service Role Client
+// STRICT SERVER-SIDE ONLY • NEVER BUNDLED IN CLIENT JAVASCRIPT
+// =============================================================================
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://mock.supabase.co';
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'mock-service-role-key';
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@/lib/types/database.types';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ojtngzqsrdralrhipjzt.supabase.co';
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 export const isServiceRoleConfigured = (): boolean => {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -15,7 +21,11 @@ export const createAdminClient = () => {
     throw new Error('SECURITY VIOLATION: createAdminClient cannot be called from the browser client.');
   }
 
-  return createClient(supabaseUrl, serviceRoleKey, {
+  if (!serviceRoleKey) {
+    throw new Error('FATAL CONFIGURATION ERROR: SUPABASE_SERVICE_ROLE_KEY is missing in server environment.');
+  }
+
+  return createClient<Database>(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

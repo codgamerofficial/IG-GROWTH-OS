@@ -125,7 +125,14 @@ export const repository = {
         let q = supabase.from('pandals').select('*');
         if (filter?.area) q = q.eq('area', filter.area);
         const { data, error } = await q;
-        if (!error && data && data.length > 0) return data as Pandal[];
+        if (!error && data && data.length > 0) {
+          return data.map((d: any) => ({
+            ...d,
+            lat: d.lat ?? d.latitude ?? 22.5726,
+            lng: d.lng ?? d.longitude ?? 88.3639,
+            walking_distance: d.walking_distance ?? d.walking_distance_meters ?? 500,
+          })) as Pandal[];
+        }
       } catch (e) {
         // Fall back to verified store
       }
