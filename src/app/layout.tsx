@@ -17,6 +17,7 @@ import { AndroidBackButtonHandler } from '@/components/common/AndroidBackButtonH
 import { NavigationScrollReset } from '@/components/common/NavigationScrollReset';
 import { FestiveSoundscapePlayer } from '@/components/audio/FestiveSoundscapePlayer';
 import { brandConfig } from '@/lib/brand/config';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -128,6 +129,7 @@ export default function RootLayout({
           <PujaCopilotDrawer />
           <FestiveSoundscapePlayer />
         </PujaHopProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
