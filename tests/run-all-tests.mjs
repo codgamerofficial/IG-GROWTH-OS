@@ -270,4 +270,13 @@ try {
   assert.fail('Supabase Security and RLS test suite failed');
 }
 
-console.log('🎉 ALL 13 CRITICAL PUJAHOP PRODUCTION VERIFICATIONS PASSED SUCCESSFULLY!\n');
+// 14. ANDROID WEBAPP & PWA STRICT VERIFICATION SUITE
+console.log('--- Test 14: Android WebApp & PWA Standalone Ecosystem ---');
+try {
+  execSync('node tests/test-android-webapp.mjs', { stdio: 'inherit' });
+  console.log('✅ PASS: Android WebApp, Manifest, Icons, TWA & Safe Areas Verified.\n');
+} catch (e) {
+  assert.fail('Android WebApp verification test suite failed');
+}
+
+console.log('🎉 ALL 14 CRITICAL PUJAHOP PRODUCTION VERIFICATIONS PASSED SUCCESSFULLY!\n');

@@ -12,6 +12,8 @@ import { EmergencyModal } from '@/components/sos/EmergencyModal';
 import { PujaCopilotDrawer } from '@/components/copilot/PujaCopilotDrawer';
 import { OpenInAppBanner } from '@/components/common/OpenInAppBanner';
 import { PWARegister } from '@/components/common/PWARegister';
+import { AndroidPWAInstallPrompt } from '@/components/common/AndroidPWAInstallPrompt';
+import { AndroidBackButtonHandler } from '@/components/common/AndroidBackButtonHandler';
 import { FestiveSoundscapePlayer } from '@/components/audio/FestiveSoundscapePlayer';
 import { brandConfig } from '@/lib/brand/config';
 
@@ -55,22 +57,42 @@ export const metadata: Metadata = {
   authors: [{ name: 'Saswata Dey (Riik)' }],
   creator: 'Saswata Dey (Riik)',
   publisher: 'Saswata Dey (Riik)',
+  manifest: '/manifest.webmanifest',
   icons: {
     icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
       { url: '/favicon.ico' },
     ],
+    apple: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'PujaHop',
+  },
+  other: {
+    'mobile-web-app-capable': 'yes',
+    'application-name': 'PujaHop',
+    'theme-color': '#070611',
   },
   openGraph: {
     title: brandConfig.seo.title,
     description: brandConfig.seo.description,
-    images: [{ url: '/favicon.ico', width: 512, height: 512, alt: brandConfig.name }],
+    images: [{ url: '/icon-512.png', width: 512, height: 512, alt: brandConfig.name }],
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0A0915',
+  themeColor: '#070611',
+  colorScheme: 'dark',
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -83,6 +105,8 @@ export default function RootLayout({
       <body className="min-h-screen bg-[#070611] text-zinc-100 antialiased selection:bg-rose-500/30 selection:text-white flex flex-col font-sans">
         <PujaHopProvider>
           <PWARegister />
+          <AndroidBackButtonHandler />
+          <AndroidPWAInstallPrompt />
           <OpenInAppBanner />
           <Header />
           <div className="flex flex-1">

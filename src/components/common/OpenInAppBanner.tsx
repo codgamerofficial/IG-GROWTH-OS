@@ -14,8 +14,18 @@ interface OpenInAppBannerProps {
 
 export function OpenInAppBanner({ routePath = '' }: OpenInAppBannerProps) {
   const [dismissed, setDismissed] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
-  if (dismissed) return null;
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const standalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+      setIsStandalone(standalone);
+    }
+  }, []);
+
+  if (dismissed || isStandalone) return null;
 
   const appDeepLink = `pujahop://${routePath.replace(/^\//, '')}`;
 

@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.pujahop.kolkata",
+      "sha256_cert_fingerprints": [
+        "14:6D:E9:7D:0F:52:AB:7E:85:47:A6:5E:7A:B6:51:7A:49:50:5D:34:B6:B7:6E:9B:65:2B:65:47:6B:5D:84:65"
+      ]
+    }
+  }
+]

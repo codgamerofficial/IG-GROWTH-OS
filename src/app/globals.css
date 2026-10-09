@@ -86,3 +86,28 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(225, 29, 72, 0.5);
 }
+
+/* =============================================================================
+   Android Mobile WebApp Ergonomics & Safe Area Support
+   ============================================================================= */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  overscroll-behavior-y: contain;
+  touch-action: manipulation;
+}
+
+/* Android Safe Area Padding Helpers */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pb-safe-nav {
+  padding-bottom: max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem));
+}

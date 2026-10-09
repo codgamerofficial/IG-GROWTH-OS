@@ -1,4 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
+
+const svgEmblem = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <radialGradient id="bgGrad" cx="50%" cy="45%" r="65%">
       <stop offset="0%" stop-color="#24143D" />
@@ -57,4 +61,49 @@
     stroke-linecap="round"
     opacity="0.9"
   />
-</svg>
+</svg>`;
+
+async function generate() {
+  const buf = Buffer.from(svgEmblem);
+  fs.writeFileSync('public/brand/icon.svg', svgEmblem);
+
+  const targets = [
+    { file: 'public/icon-192.png', size: 192 },
+    { file: 'public/icon-512.png', size: 512 },
+    { file: 'public/brand/icon-192.png', size: 192 },
+    { file: 'public/brand/icon-512.png', size: 512 },
+    { file: 'public/icon-maskable-192.png', size: 192 },
+    { file: 'public/icon-maskable-512.png', size: 512 },
+    { file: 'public/favicon.ico', size: 48 },
+  ];
+
+  for (const t of targets) {
+    await sharp(buf)
+      .resize(t.size, t.size)
+      .png()
+      .toFile(t.file);
+    console.log(`Generated ${t.file} (${t.size}x${t.size})`);
+  }
+
+  // Also generate 2 Android screenshot previews for manifest
+  const masterPoster = 'public/images/pujahop-campaign-master.jpg';
+  if (fs.existsSync(masterPoster)) {
+    // Narrow screenshot (phone: 540x960)
+    await sharp(masterPoster)
+      .resize(540, 960, { fit: 'cover', position: 'top' })
+      .jpeg({ quality: 90 })
+      .toFile('public/screenshot-mobile.jpg');
+    console.log('Generated public/screenshot-mobile.jpg (540x960)');
+
+    // Wide screenshot (tablet / desktop: 1024x576)
+    await sharp(masterPoster)
+      .resize(1024, 576, { fit: 'cover', position: 'center' })
+      .jpeg({ quality: 90 })
+      .toFile('public/screenshot-wide.jpg');
+    console.log('Generated public/screenshot-wide.jpg (1024x576)');
+  }
+
+  console.log('🎉 All Android WebApp visual assets generated successfully!');
+}
+
+generate().catch(console.error);
