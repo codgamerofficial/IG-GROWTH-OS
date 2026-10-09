@@ -125,16 +125,65 @@ export function PujaHopProvider({ children }: { children: React.ReactNode }) {
       if (visitsRes.status === 'fulfilled' && visitsRes.value?.visits) {
         setVisits(visitsRes.value.visits);
       }
+
+      // Persist to local offline cache for Durga Puja cellular congestion resilience
+      if (typeof window !== 'undefined') {
+        try {
+          const offlineSnapshot = {
+            pandals: pandalRes.status === 'fulfilled' ? pandalRes.value?.pandals : undefined,
+            metroStations: metroRes.status === 'fulfilled' ? metroRes.value?.stations : undefined,
+            trafficAlerts: trafficRes.status === 'fulfilled' ? trafficRes.value?.alerts : undefined,
+            weather: weatherRes.status === 'fulfilled' ? weatherRes.value?.weather : undefined,
+            cachedAt: new Date().toISOString(),
+          };
+          localStorage.setItem('pujahop_offline_cache', JSON.stringify(offlineSnapshot));
+        } catch {
+          // localStorage full or restricted
+        }
+      }
     } catch (err) {
       console.error('Failed to load PujaHop data:', err);
+      // Restore from offline cache if network failure in crowded alleys
+      if (typeof window !== 'undefined') {
+        try {
+          const cachedStr = localStorage.getItem('pujahop_offline_cache');
+          if (cachedStr) {
+            const cached = JSON.parse(cachedStr);
+            if (cached.pandals?.length) setPandals(cached.pandals);
+            if (cached.metroStations?.length) setMetroStations(cached.metroStations);
+            if (cached.trafficAlerts?.length) setTrafficAlerts(cached.trafficAlerts);
+            if (cached.weather) setWeather(cached.weather);
+          }
+        } catch {
+          // Defaults preserved
+        }
+      }
     } finally {
       setLoading(false);
     }
   }, [selectedDate, currentTrip]);
 
+  // Load offline cache on initial mount before network resolves
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cachedStr = localStorage.getItem('pujahop_offline_cache');
+        if (cachedStr) {
+          const cached = JSON.parse(cachedStr);
+          if (cached.pandals?.length) setPandals(cached.pandals);
+          if (cached.metroStations?.length) setMetroStations(cached.metroStations);
+          if (cached.trafficAlerts?.length) setTrafficAlerts(cached.trafficAlerts);
+          if (cached.weather) setWeather(cached.weather);
+        }
+      } catch {
+        // Defaults preserved
+      }
+    }
+  }, []);
+
   useEffect(() => {
     refreshAllData();
-  }, [selectedDate]);
+  }, [selectedDate, refreshAllData]);
 
   // Generate Trip via Route Engine
   const generateTrip = async (params: any): Promise<TripPlan> => {

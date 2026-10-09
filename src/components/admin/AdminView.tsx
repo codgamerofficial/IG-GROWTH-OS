@@ -38,6 +38,7 @@ import {
   Check,
   AlertCircle,
   Compass,
+  Send,
 } from 'lucide-react';
 
 interface AdminMetrics {
@@ -159,6 +160,48 @@ export function AdminView() {
   const [editReason, setEditReason] = useState('Routine 2026 pre-puja verification');
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+
+  // Emergency Broadcast Form State
+  const [broadcastTitle, setBroadcastTitle] = useState('');
+  const [broadcastBody, setBroadcastBody] = useState('');
+  const [broadcastType, setBroadcastType] = useState<'TRAFFIC_ALERT' | 'WEATHER_WARNING' | 'PANDAL_STATUS'>('TRAFFIC_ALERT');
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
+  const [broadcastResult, setBroadcastResult] = useState<string | null>(null);
+
+  const handleDispatchBroadcast = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!broadcastTitle || !broadcastBody) return;
+
+    setIsBroadcasting(true);
+    setBroadcastResult(null);
+
+    try {
+      const res = await fetch('/api/notifications/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: broadcastTitle,
+          body: broadcastBody,
+          type: broadcastType,
+          data: { sender: 'Lalbazar Traffic Desk / Admin' },
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setBroadcastResult(`✔ Dispatched to ${data.recipient_count} devices (${data.expo_mobile_recipients} Expo mobile, ${data.web_recipients} Web push).`);
+        setBroadcastTitle('');
+        setBroadcastBody('');
+        await fetchMetrics();
+      } else {
+        setBroadcastResult(`Error: ${data.error}`);
+      }
+    } catch (err: any) {
+      setBroadcastResult(`Dispatch error: ${err.message}`);
+    } finally {
+      setIsBroadcasting(false);
+    }
+  };
 
   // Fetch live metrics from Supabase API
   const fetchMetrics = useCallback(async () => {
@@ -1091,7 +1134,82 @@ export function AdminView() {
           TAB 3: TRAFFIC ADVISORIES MANAGEMENT
           ========================================================================= */}
       {activeTab === 'traffic' && (
-        <div className="space-y-3">
+        <div className="space-y-4">
+          {/* Emergency Police & Weather Broadcast Console */}
+          <div className="p-5 rounded-3xl bg-[#15132B] border border-rose-500/30 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center">
+                  <Radio className="w-4 h-4 text-rose-400" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-sm">Emergency Broadcast Dispatcher</h3>
+                  <p className="text-[10px] text-zinc-400">Push to all active Web &amp; Expo mobile devices via Supabase</p>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300">
+                Lalbazar Control Desk
+              </span>
+            </div>
+
+            <form onSubmit={handleDispatchBroadcast} className="space-y-3 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block text-zinc-300 font-medium mb-1">Advisory Headline:</label>
+                  <input
+                    type="text"
+                    required
+                    value={broadcastTitle}
+                    onChange={(e) => setBroadcastTitle(e.target.value)}
+                    placeholder="e.g. VIP Convoy Diversion at Ultadanga Flyover"
+                    className="w-full bg-[#0D0B1C] border border-white/15 rounded-xl px-3 py-2 text-white placeholder-zinc-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-zinc-300 font-medium mb-1">Alert Category:</label>
+                  <select
+                    value={broadcastType}
+                    onChange={(e) => setBroadcastType(e.target.value as any)}
+                    className="w-full bg-[#0D0B1C] border border-white/15 rounded-xl px-3 py-2 text-white"
+                  >
+                    <option value="TRAFFIC_ALERT">TRAFFIC_ALERT (Police Directive)</option>
+                    <option value="WEATHER_WARNING">WEATHER_WARNING (IMD Radar)</option>
+                    <option value="PANDAL_STATUS">PANDAL_STATUS (Crowd Surge)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-zinc-300 font-medium mb-1">Advisory Body &amp; Routing Directives:</label>
+                <textarea
+                  rows={2}
+                  required
+                  value={broadcastBody}
+                  onChange={(e) => setBroadcastBody(e.target.value)}
+                  placeholder="e.g. Traffic on EM Bypass southbound diverted via Canal Circular Road. Expect 25-minute delay near Sreebhumi."
+                  className="w-full bg-[#0D0B1C] border border-white/15 rounded-xl px-3 py-2 text-white placeholder-zinc-500"
+                />
+              </div>
+
+              {broadcastResult && (
+                <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/40 text-emerald-300 text-[11px] animate-in fade-in">
+                  {broadcastResult}
+                </div>
+              )}
+
+              <div className="flex justify-end pt-1">
+                <button
+                  type="submit"
+                  disabled={isBroadcasting}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs flex items-center gap-2 shadow-lg shadow-rose-950/40 transition-all disabled:opacity-50"
+                >
+                  <Send className={`w-3.5 h-3.5 ${isBroadcasting ? 'animate-pulse' : ''}`} />
+                  <span>{isBroadcasting ? 'Broadcasting via Gateway...' : 'Broadcast Emergency Alert'}</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
           <div className="p-4 rounded-2xl bg-rose-950/20 border border-rose-500/30 text-xs text-rose-300 flex items-center justify-between">
             <span>Official Directives from Kolkata Police Traffic Headquarters (Lalbazar)</span>
             <span className="font-bold text-[10px] uppercase px-2 py-0.5 rounded-full bg-rose-500/20">LIVE ENFORCEMENT</span>

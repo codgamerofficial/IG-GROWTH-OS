@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -1197,31 +1197,61 @@ export type Database = {
         Row: {
           caption: string | null
           created_at: string | null
+          exif_metadata: Json | null
+          file_size: number | null
           id: string
+          is_flagged: boolean | null
+          is_verified: boolean | null
+          latitude: number | null
+          location: unknown
+          longitude: number | null
+          mime_type: string | null
           pandal_id: string
           photo_url: string
           source: string
+          storage_path: string | null
           taken_at: string | null
+          user_id: string | null
           verified: boolean | null
         }
         Insert: {
           caption?: string | null
           created_at?: string | null
+          exif_metadata?: Json | null
+          file_size?: number | null
           id?: string
+          is_flagged?: boolean | null
+          is_verified?: boolean | null
+          latitude?: number | null
+          location?: unknown
+          longitude?: number | null
+          mime_type?: string | null
           pandal_id: string
           photo_url: string
           source?: string
+          storage_path?: string | null
           taken_at?: string | null
+          user_id?: string | null
           verified?: boolean | null
         }
         Update: {
           caption?: string | null
           created_at?: string | null
+          exif_metadata?: Json | null
+          file_size?: number | null
           id?: string
+          is_flagged?: boolean | null
+          is_verified?: boolean | null
+          latitude?: number | null
+          location?: unknown
+          longitude?: number | null
+          mime_type?: string | null
           pandal_id?: string
           photo_url?: string
           source?: string
+          storage_path?: string | null
           taken_at?: string | null
+          user_id?: string | null
           verified?: boolean | null
         }
         Relationships: [
@@ -3026,6 +3056,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      broadcast_emergency_notification: {
+        Args: { p_body: string; p_data?: Json; p_title: string; p_type: string }
+        Returns: Json
+      }
       get_active_traffic: {
         Args: never
         Returns: {
@@ -3041,6 +3075,25 @@ export type Database = {
       }
       get_current_weather: { Args: never; Returns: Json }
       get_latest_source: { Args: { p_entity_id: string }; Returns: Json }
+      get_nearby_pandal_photos: {
+        Args: {
+          p_latitude: number
+          p_limit?: number
+          p_longitude: number
+          p_radius_meters?: number
+        }
+        Returns: {
+          caption: string
+          created_at: string
+          distance_meters: number
+          id: string
+          latitude: number
+          longitude: number
+          pandal_id: string
+          photo_url: string
+          taken_at: string
+        }[]
+      }
       get_nearby_pandals: {
         Args: { p_lat: number; p_lng: number; p_radius_meters?: number }
         Returns: {
@@ -3061,6 +3114,10 @@ export type Database = {
       get_route_summary: { Args: { p_route_id: string }; Returns: Json }
       get_user_passport: { Args: { p_user_id: string }; Returns: Json }
       is_admin: { Args: never; Returns: boolean }
+      register_device_token: {
+        Args: { p_platform: string; p_push_token: string; p_user_id?: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

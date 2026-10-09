@@ -8,6 +8,7 @@
 import React from 'react';
 import { usePujaHop } from '@/context/PujaHopContext';
 import { Logo } from '@/components/brand/Logo';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { PUJA_CALENDAR_2026, isPrePujaDate } from '@/lib/data/kolkata-calendar';
 import {
   Sparkles,
@@ -74,6 +75,9 @@ export function Header() {
               <span className="text-[10px] text-zinc-400 font-normal">Kolkata</span>
             </div>
           )}
+
+          {/* Emergency Push Notification Bell */}
+          <NotificationBell />
 
           {/* Emergency SOS Button */}
           <button

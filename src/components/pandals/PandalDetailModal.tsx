@@ -10,6 +10,7 @@ import { usePujaHop } from '@/context/PujaHopContext';
 import { getPandalOpeningStatusForDate } from '@/lib/data/kolkata-pandals';
 import { getCalendarDay } from '@/lib/data/kolkata-calendar';
 import { SourceBadge } from '@/components/common/SourceBadge';
+import { PandalPhotoGallery } from '@/components/pandals/PandalPhotoGallery';
 import {
   X,
   MapPin,
@@ -224,6 +225,9 @@ export function PandalDetailModal() {
             Methodology: {scoreBreakdown?.methodology || 'Weighted composite index calculated from verified field data.'}
           </p>
         </div>
+
+        {/* Community Darshan Photo Gallery with EXIF Geocoding */}
+        <PandalPhotoGallery pandal={selectedPandal} />
 
         {/* Action Buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">

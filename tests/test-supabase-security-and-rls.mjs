@@ -203,6 +203,42 @@ async function runTests() {
   console.log('  ✔ All 2026 Puja dates verified against official Almanac in database.');
   console.log('✅ PASS: 2026 Canonical Festival Calendar Verified.\n');
 
+  // --- TEST 7: PWA PUSH TOKENS & POSTGIS PHOTO GALLERY GEOCODING ---
+  console.log('--- Test 7: Push Tokens & PostGIS Photo Gallery Geocoding ---');
+  
+  // 1. Register Token RPC
+  const testToken = `test_token_${Date.now()}`;
+  const { data: regRes, error: regErr } = await adminClient.rpc('register_device_token', {
+    p_push_token: testToken,
+    p_platform: 'web',
+  });
+  assert.strictEqual(regErr, null, 'register_device_token RPC executes');
+  assert.strictEqual(regRes.success, true, 'Token registered successfully');
+
+  // 2. Broadcast RPC
+  const { data: bcRes, error: bcErr } = await adminClient.rpc('broadcast_emergency_notification', {
+    p_title: 'Test Police Directive',
+    p_body: 'VIP Diversion Active',
+    p_type: 'TRAFFIC_ALERT',
+  });
+  assert.strictEqual(bcErr, null, 'broadcast_emergency_notification RPC executes');
+  assert.strictEqual(bcRes.success, true, 'Broadcast returned success');
+  assert.ok(bcRes.recipients_count > 0, 'Broadcast counted registered devices');
+
+  // 3. PostGIS get_nearby_pandal_photos RPC
+  const { data: nearbyPhotos, error: npErr } = await adminClient.rpc('get_nearby_pandal_photos', {
+    p_latitude: 22.5992,
+    p_longitude: 88.3644,
+    p_radius_meters: 10000,
+    p_limit: 5,
+  });
+  assert.strictEqual(npErr, null, 'get_nearby_pandal_photos RPC executes');
+  assert.ok(Array.isArray(nearbyPhotos), 'Nearby photos returned as array');
+
+  console.log('  ✔ Push token registration & emergency broadcast RPC verified.');
+  console.log(`  ✔ PostGIS get_nearby_pandal_photos returned ${nearbyPhotos.length} geocoded photos with distance.`);
+  console.log('✅ PASS: Push Notifications & PostGIS Photo Geocoding Verified.\n');
+
   console.log('🎉 ALL SUPABASE RLS, STORAGE & SCHEMA SECURITY TESTS PASSED SUCCESSFULLY!\n');
 }
 

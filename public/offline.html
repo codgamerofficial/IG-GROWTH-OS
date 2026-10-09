@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>উৎসবের ভিড়ে অফলাইন মোড | PujaHop Kolkata</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #070611;
+      color: #F3F4F6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      background: #121124;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 36px 24px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #FBBF24;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 8px;
+    }
+    .bn-title {
+      font-size: 18px;
+      color: #FCD34D;
+      margin-bottom: 14px;
+    }
+    p {
+      font-size: 13px;
+      color: #9CA3AF;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .retry-btn {
+      background: linear-gradient(135deg, #E11D48, #BE123C);
+      color: white;
+      border: none;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 12px 28px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4);
+      margin-bottom: 24px;
+    }
+    .retry-btn:hover {
+      background: #E11D48;
+    }
+    .emergency-box {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 18px;
+      text-align: left;
+    }
+    .emergency-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #E11D48;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .emergency-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #D1D5DB;
+      padding: 4px 0;
+    }
+    .emergency-item a {
+      color: #38BDF8;
+      text-decoration: none;
+      font-weight: bold;
+      font-family: monospace;
+    }
+    .credit {
+      margin-top: 20px;
+      font-size: 10px;
+      color: #6B7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">Offline Festival Mode Active</div>
+    <h1>Network Congestion Detected</h1>
+    <div class="bn-title">ইন্টারনেট সংযোগ সাময়িকভাবে বিচ্ছিন্ন</div>
+    <p>
+      Durga Puja crowds often overwhelm mobile cell towers in Kolkata. PujaHop's cached pandal lists, metro timetable and emergency numbers remain accessible offline.
+    </p>
+
+    <button class="retry-btn" onclick="window.location.reload()">
+      পুনরায় চেষ্টা করুন (Retry Connection)
+    </button>
+
+    <div class="emergency-box">
+      <div class="emergency-title">Kolkata Emergency Helplines (Works Offline)</div>
+      <div class="emergency-item">
+        <span>Kolkata Police Control Room</span>
+        <a href="tel:100">100</a>
+      </div>
+      <div class="emergency-item">
+        <span>Lalbazar Traffic Control Room</span>
+        <a href="tel:1073">1073</a>
+      </div>
+      <div class="emergency-item">
+        <span>Women Safety Helpline</span>
+        <a href="tel:1091">1091</a>
+      </div>
+      <div class="emergency-item">
+        <span>Medical Ambulance & First Aid</span>
+        <a href="tel:102">102</a>
+      </div>
+    </div>
+
+    <div class="credit">
+      PujaHop Kolkata • Created & Conceptualized by Saswata Dey (Riik)
+    </div>
+  </div>
+</body>
+</html>

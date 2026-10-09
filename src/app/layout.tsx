@@ -11,6 +11,7 @@ import { PandalDetailModal } from '@/components/pandals/PandalDetailModal';
 import { EmergencyModal } from '@/components/sos/EmergencyModal';
 import { PujaCopilotDrawer } from '@/components/copilot/PujaCopilotDrawer';
 import { OpenInAppBanner } from '@/components/common/OpenInAppBanner';
+import { PWARegister } from '@/components/common/PWARegister';
 import { brandConfig } from '@/lib/brand/config';
 
 const inter = Inter({
@@ -80,6 +81,7 @@ export default function RootLayout({
     <html lang="bn" className={`dark ${inter.variable} ${playfair.variable} ${notoSerifBengali.variable}`}>
       <body className="min-h-screen bg-[#070611] text-zinc-100 antialiased selection:bg-rose-500/30 selection:text-white flex flex-col font-sans">
         <PujaHopProvider>
+          <PWARegister />
           <OpenInAppBanner />
           <Header />
           <div className="flex flex-1">
