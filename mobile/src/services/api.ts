@@ -68,14 +68,18 @@ export const api = {
         temperature_c: 28.5,
         apparent_temp_c: 31.0,
         humidity_percent: 74,
+        precipitation_mm: 0,
         precipitation_probability: 20,
         weather_code: 1,
         condition_text: 'Partly Cloudy',
         wind_speed_kmh: 9.5,
         uv_index: 6,
+        is_safe_for_walking: true,
         is_rain_likely: false,
         retrieved_at: new Date().toISOString(),
         source: 'Open-Meteo Kolkata (Offline Cache)',
+        source_url: 'https://open-meteo.com',
+        fetched_at: new Date().toISOString(),
         confidence: 0.8,
       };
     }

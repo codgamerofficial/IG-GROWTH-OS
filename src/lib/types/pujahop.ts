@@ -366,7 +366,12 @@ export interface WeatherSnapshot {
   is_safe_for_walking: boolean;
   source: string;
   source_url: string;
-  fetched_at: string;
+  fetched_at?: string;
+  retrieved_at?: string;
+  precipitation_probability?: number;
+  is_rain_likely?: boolean;
+  uv_index?: number;
+  confidence?: number;
 }
 
 export interface APIHealthItem {
@@ -390,5 +395,9 @@ export interface PandalVisitRecord {
   rating?: number;
   photo_url?: string;
   notes?: string;
+  source?: string;
+  source_type?: string;
+  verified_by_user?: boolean;
+  dwell_time_minutes?: number;
   crowd_experienced?: CrowdLevel;
 }
