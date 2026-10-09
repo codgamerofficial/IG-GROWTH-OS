@@ -26,8 +26,8 @@ export function AboutView() {
   const { setActiveTab, setWizardOpen } = usePujaHop();
 
   return (
-    <div className="min-h-screen bg-[#070611] text-zinc-300 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-12">
+    <div className="min-h-screen bg-[#070611] text-zinc-300 py-6 sm:py-10 px-3 sm:px-6 lg:px-8 w-full max-w-full min-w-0 overflow-x-hidden">
+      <div className="max-w-4xl mx-auto space-y-8 sm:space-y-12">
         {/* Editorial Header */}
         <div className="space-y-4 text-center md:text-left border-b border-white/10 pb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-semibold tracking-widest uppercase">
@@ -35,7 +35,7 @@ export function AboutView() {
             <span>Editorial Story &amp; Cultural Manifesto</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold text-white font-serif tracking-tight leading-tight">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-white font-serif tracking-tight leading-tight break-words">
             একদিনে সারা কলকাতার সেরা পুজো
           </h1>
 

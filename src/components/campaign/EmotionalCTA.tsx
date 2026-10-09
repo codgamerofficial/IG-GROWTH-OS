@@ -14,7 +14,7 @@ export function EmotionalCTA() {
   const { setWizardOpen, setActiveTab } = usePujaHop();
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-br from-[#1A0E2E] via-[#0E0B1F] to-[#0A0915] p-8 sm:p-12 md:p-16 text-center space-y-6 shadow-2xl">
+    <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-br from-[#1A0E2E] via-[#0E0B1F] to-[#0A0915] p-5 sm:p-10 md:p-16 text-center space-y-6 shadow-2xl w-full max-w-full min-w-0">
       {/* Background Graphic Asset */}
       <div className="absolute inset-0 z-0 opacity-60">
         <Image
@@ -38,7 +38,7 @@ export function EmotionalCTA() {
           <span>Sharadiya 2026 • Real One-Day Navigation</span>
         </div>
 
-        <h2 className="font-bengali text-3xl sm:text-5xl font-extrabold text-[#FFF7E8] tracking-tight leading-tight">
+        <h2 className="font-bengali text-2xl sm:text-4xl md:text-5xl font-extrabold text-[#FFF7E8] tracking-tight leading-tight">
           কলকাতা অপেক্ষা করছে। <br />
           <span className="bg-gradient-to-r from-[#D6A84F] via-[#FF8A3D] to-[#E53935] bg-clip-text text-transparent">
             তুমি প্রস্তুত তো?
@@ -54,10 +54,10 @@ export function EmotionalCTA() {
           স্মরণীয় করে তোলো।
         </p>
 
-        <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-3 w-full">
           <button
             onClick={() => setWizardOpen(true)}
-            className="flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#D6A84F] via-[#E53935] to-[#C62828] hover:from-[#E53935] hover:to-[#D6A84F] text-white font-bold px-8 py-4 text-sm sm:text-base shadow-xl shadow-rose-950/60 transition-all hover:scale-105 active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#D6A84F] via-[#E53935] to-[#C62828] hover:from-[#E53935] hover:to-[#D6A84F] text-white font-bold px-8 py-3.5 sm:py-4 text-sm sm:text-base shadow-xl shadow-rose-950/60 transition-all hover:scale-105 active:scale-95"
           >
             <Compass className="w-4 h-4" />
             <span>PLAN MY PUJA DAY</span>
@@ -66,7 +66,7 @@ export function EmotionalCTA() {
 
           <button
             onClick={() => setActiveTab('explore')}
-            className="flex items-center gap-2 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-4 text-sm sm:text-base border border-white/15 backdrop-blur-md transition-all active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-3.5 sm:py-4 text-sm sm:text-base border border-white/15 backdrop-blur-md transition-all active:scale-95"
           >
             <MapPin className="w-4 h-4 text-amber-400" />
             <span>EXPLORE PANDALS</span>

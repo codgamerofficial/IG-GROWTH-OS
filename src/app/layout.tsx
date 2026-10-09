@@ -14,6 +14,7 @@ import { OpenInAppBanner } from '@/components/common/OpenInAppBanner';
 import { PWARegister } from '@/components/common/PWARegister';
 import { AndroidPWAInstallPrompt } from '@/components/common/AndroidPWAInstallPrompt';
 import { AndroidBackButtonHandler } from '@/components/common/AndroidBackButtonHandler';
+import { NavigationScrollReset } from '@/components/common/NavigationScrollReset';
 import { FestiveSoundscapePlayer } from '@/components/audio/FestiveSoundscapePlayer';
 import { brandConfig } from '@/lib/brand/config';
 
@@ -102,17 +103,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="bn" className={`dark ${inter.variable} ${playfair.variable} ${notoSerifBengali.variable}`}>
-      <body className="min-h-screen bg-[#070611] text-zinc-100 antialiased selection:bg-rose-500/30 selection:text-white flex flex-col font-sans">
+      <body className="min-h-screen bg-[#070611] text-zinc-100 antialiased selection:bg-rose-500/30 selection:text-white flex flex-col font-sans w-full max-w-full overflow-x-hidden">
         <PujaHopProvider>
           <PWARegister />
           <AndroidBackButtonHandler />
           <AndroidPWAInstallPrompt />
+          <NavigationScrollReset />
           <OpenInAppBanner />
           <Header />
-          <div className="flex flex-1">
+          <div className="flex flex-1 w-full max-w-full min-w-0">
             <Sidebar />
-            <div className="flex-1 flex flex-col min-h-0 overflow-y-auto">
-              <main className="flex-1 pb-20 lg:pb-8">{children}</main>
+            <div
+              id="pujahop-scroll-container"
+              className="flex-1 flex flex-col min-h-0 min-w-0 w-full max-w-full overflow-y-auto overflow-x-hidden"
+            >
+              <main className="flex-1 pb-24 lg:pb-8 w-full max-w-full min-w-0">{children}</main>
               <Footer />
             </div>
           </div>

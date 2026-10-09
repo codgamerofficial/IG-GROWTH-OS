@@ -53,16 +53,16 @@ export function HeroPoster({ onPlanClick, onExploreClick }: HeroPosterProps) {
       <div className="absolute bottom-0 left-12 w-80 h-80 rounded-full bg-rose-600/15 blur-3xl pointer-events-none" />
 
       {/* Hero Content Container */}
-      <div className="relative z-10 px-6 py-10 sm:px-10 sm:py-16 md:py-20 lg:py-24 max-w-4xl space-y-6">
+      <div className="relative z-10 px-4 py-7 sm:px-8 sm:py-14 md:py-20 lg:py-24 max-w-4xl space-y-4 sm:space-y-6 w-full max-w-full">
         {/* Campaign Pill */}
-        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-3.5 py-1 text-xs font-semibold text-amber-300 shadow-sm backdrop-blur-md">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+        <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-[11px] sm:text-xs font-semibold text-amber-300 shadow-sm backdrop-blur-md">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse shrink-0" />
           <span>Kolkata Durga Puja 2026 • AI One-Day Companion</span>
         </div>
 
         {/* Bengali Headline in Authentic Editorial Serif */}
         <div className="space-y-1">
-          <h1 className="font-bengali text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#FFF7E8] tracking-tight leading-[1.15] drop-shadow-lg">
+          <h1 className="font-bengali text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#FFF7E8] tracking-tight leading-[1.18] drop-shadow-lg break-words">
             একদিনে <br />
             <span className="bg-gradient-to-r from-[#D6A84F] via-[#FF8A3D] to-[#E53935] bg-clip-text text-transparent">
               সারা কলকাতার
@@ -70,7 +70,7 @@ export function HeroPoster({ onPlanClick, onExploreClick }: HeroPosterProps) {
             সেরা পুজো
           </h1>
 
-          <p className="font-serif italic text-lg sm:text-2xl text-amber-200/90 pt-2 tracking-wide font-medium">
+          <p className="font-serif italic text-base sm:text-xl md:text-2xl text-amber-200/90 pt-1 tracking-wide font-medium">
             One Day. One City. Maximum Puja.
           </p>
         </div>
@@ -82,53 +82,53 @@ export function HeroPoster({ onPlanClick, onExploreClick }: HeroPosterProps) {
         </p>
 
         {/* 5 Feature Pill Badges */}
-        <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm">
-            <Compass className="w-3.5 h-3.5 text-amber-400" />
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 pt-1 text-xs">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm text-[11px] sm:text-xs">
+            <Compass className="w-3.5 h-3.5 text-amber-400 shrink-0" />
             <span>Best Routes</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm">
-            <Train className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm text-[11px] sm:text-xs">
+            <Train className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
             <span>Metro Guides</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm">
-            <Clock className="w-3.5 h-3.5 text-cyan-400" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm text-[11px] sm:text-xs">
+            <Clock className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
             <span>Live Updates</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm">
-            <ShieldCheck className="w-3.5 h-3.5 text-rose-400" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm text-[11px] sm:text-xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-rose-400 shrink-0" />
             <span>Pandal Details</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm">
-            <Utensils className="w-3.5 h-3.5 text-amber-300" />
+          <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-200 backdrop-blur-sm text-[11px] sm:text-xs">
+            <Utensils className="w-3.5 h-3.5 text-amber-300 shrink-0" />
             <span>Food Stops</span>
           </div>
         </div>
 
         {/* Call to Actions */}
-        <div className="flex flex-wrap items-center gap-3 pt-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2 sm:pt-4 w-full">
           <button
             onClick={handlePlan}
-            className="flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#D6A84F] via-[#E53935] to-[#C62828] hover:from-[#E53935] hover:to-[#D6A84F] text-white font-bold px-7 py-4 text-sm sm:text-base shadow-xl shadow-rose-950/60 transition-all duration-300 hover:scale-[1.02] active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#D6A84F] via-[#E53935] to-[#C62828] hover:from-[#E53935] hover:to-[#D6A84F] text-white font-bold px-6 py-3.5 sm:py-4 text-sm sm:text-base shadow-xl shadow-rose-950/60 transition-all duration-300 hover:scale-[1.02] active:scale-95"
           >
-            <Compass className="w-4 h-4" />
+            <Compass className="w-4 h-4 shrink-0" />
             <span>PLAN MY PUJA DAY</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 shrink-0" />
           </button>
 
           <button
             onClick={handleExplore}
-            className="flex items-center gap-2 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-semibold px-6 py-4 text-sm sm:text-base border border-white/15 backdrop-blur-md transition-all duration-300 hover:border-amber-400/40 active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-semibold px-5 py-3.5 sm:py-4 text-sm sm:text-base border border-white/15 backdrop-blur-md transition-all duration-300 hover:border-amber-400/40 active:scale-95"
           >
-            <MapPin className="w-4 h-4 text-amber-400" />
+            <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
             <span>EXPLORE PANDALS</span>
           </button>
 
           <button
             onClick={() => setCopilotOpen(true)}
-            className="flex items-center gap-2 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-semibold px-5 py-4 text-sm sm:text-base border border-amber-500/30 backdrop-blur-md transition-all active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 font-semibold px-4 py-3 sm:py-4 text-xs sm:text-base border border-amber-500/30 backdrop-blur-md transition-all active:scale-95"
           >
-            <Sparkles className="w-4 h-4 text-amber-400" />
+            <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
             <span>ASK COPILOT AI</span>
           </button>
         </div>

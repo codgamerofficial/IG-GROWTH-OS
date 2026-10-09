@@ -266,21 +266,21 @@ export function MapView() {
         <div ref={mapContainerRef} className="w-full h-full z-0" />
 
         {/* Layer Filters */}
-        <div className="absolute top-4 left-4 z-[500] flex flex-wrap items-center gap-1.5 bg-[#121124]/95 backdrop-blur-md p-1.5 rounded-2xl border border-white/10 text-xs shadow-2xl">
-          <Layers className="w-4 h-4 text-amber-400 ml-1.5" />
+        <div className="absolute top-3 left-3 z-[500] flex items-center gap-1 bg-[#121124]/95 backdrop-blur-md p-1 rounded-2xl border border-white/10 text-xs shadow-2xl overflow-x-auto max-w-[calc(100vw-110px)] sm:max-w-none no-scrollbar">
+          <Layers className="w-3.5 h-3.5 text-amber-400 ml-1.5 shrink-0" />
           {(
             [
               { id: 'all', label: 'All' },
               { id: 'pandals', label: 'Pandals' },
               { id: 'metro', label: 'Metro' },
-              { id: 'emergency', label: 'Police & Hospitals' },
-              { id: 'food', label: 'Food Stops' },
+              { id: 'emergency', label: 'Police/Hosp' },
+              { id: 'food', label: 'Food' },
             ] as const
           ).map((l) => (
             <button
               key={l.id}
               onClick={() => setFilterLayer(l.id)}
-              className={`px-3 py-1 rounded-xl capitalize font-medium transition-all ${
+              className={`px-2.5 py-1 rounded-xl capitalize font-medium whitespace-nowrap transition-all text-[11px] sm:text-xs shrink-0 ${
                 filterLayer === l.id
                   ? 'bg-rose-600 text-white font-bold shadow-sm'
                   : 'text-zinc-400 hover:text-white'
@@ -292,10 +292,10 @@ export function MapView() {
         </div>
 
         {/* CARTO Basemap Theme Switcher */}
-        <div className="absolute top-4 right-4 z-[500] flex items-center bg-[#121124]/95 backdrop-blur-md p-1 rounded-2xl border border-white/10 text-xs shadow-2xl">
+        <div className="absolute top-3 right-3 z-[500] flex items-center bg-[#121124]/95 backdrop-blur-md p-1 rounded-2xl border border-white/10 text-xs shadow-2xl shrink-0">
           <button
             onClick={() => setMapTheme('dark_all')}
-            className={`px-2.5 py-1 rounded-xl font-medium transition-all flex items-center gap-1.5 ${
+            className={`px-2 py-1 rounded-xl font-medium transition-all flex items-center gap-1 text-[11px] sm:text-xs ${
               mapTheme === 'dark_all'
                 ? 'bg-amber-500 text-black font-bold shadow-sm'
                 : 'text-zinc-400 hover:text-white'
@@ -303,11 +303,11 @@ export function MapView() {
             title="CartoDB Dark Matter (Festive Dark Mode)"
           >
             <span>🌙</span>
-            <span className="hidden sm:inline">Dark Matter</span>
+            <span className="hidden sm:inline">Dark</span>
           </button>
           <button
             onClick={() => setMapTheme('voyager')}
-            className={`px-2.5 py-1 rounded-xl font-medium transition-all flex items-center gap-1.5 ${
+            className={`px-2 py-1 rounded-xl font-medium transition-all flex items-center gap-1 text-[11px] sm:text-xs ${
               mapTheme === 'voyager'
                 ? 'bg-amber-500 text-black font-bold shadow-sm'
                 : 'text-zinc-400 hover:text-white'
@@ -315,7 +315,7 @@ export function MapView() {
             title="CartoDB Voyager (Day Street Mode)"
           >
             <span>☀️</span>
-            <span className="hidden sm:inline">Voyager</span>
+            <span className="hidden sm:inline">Day</span>
           </button>
         </div>
 
@@ -349,7 +349,7 @@ export function MapView() {
       </div>
 
       {/* RIGHT SIDEBAR: SELECTED ENTITY DOSSIER */}
-      <div className="w-full lg:w-96 h-[40vh] lg:h-full bg-[#121124] overflow-y-auto p-5 space-y-4 border-t lg:border-t-0 lg:border-l border-white/10 shadow-2xl">
+      <div className="w-full lg:w-96 h-[40vh] lg:h-full bg-[#121124] overflow-y-auto p-4 sm:p-5 space-y-4 border-t lg:border-t-0 lg:border-l border-white/10 shadow-2xl min-w-0 max-w-full">
         {selectedEntity?.type === 'PANDAL' && (
           <div className="space-y-4">
             {(() => {

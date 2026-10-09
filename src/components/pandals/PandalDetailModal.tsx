@@ -43,8 +43,8 @@ export function PandalDetailModal() {
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0F0D20] border border-amber-500/20 shadow-2xl p-6 md:p-8 space-y-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-3 sm:p-4 animate-in fade-in duration-150 overflow-y-auto">
+      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0F0D20] border border-amber-500/20 shadow-2xl p-4 sm:p-6 md:p-8 space-y-6">
         {/* Close Button */}
         <button
           onClick={() => setSelectedPandal(null)}

@@ -22,7 +22,7 @@ export function CopilotHighlightCard() {
   ];
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-amber-500/25 bg-gradient-to-br from-[#151128] via-[#0E0C1C] to-[#0A0915] p-6 sm:p-8 space-y-6 shadow-2xl">
+    <div className="relative overflow-hidden rounded-3xl border border-amber-500/25 bg-gradient-to-br from-[#151128] via-[#0E0C1C] to-[#0A0915] p-4 sm:p-6 md:p-8 space-y-6 shadow-2xl w-full max-w-full min-w-0">
       {/* Background Subtle AI Glow */}
       <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-amber-500/10 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-rose-500/10 blur-3xl pointer-events-none" />
@@ -46,7 +46,7 @@ export function CopilotHighlightCard() {
 
         <button
           onClick={() => setCopilotOpen(true)}
-          className="self-start md:self-auto flex items-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-600 to-red-600 hover:from-amber-600 hover:to-red-700 text-white font-bold px-6 py-3.5 text-xs sm:text-sm shadow-xl shadow-rose-950/50 transition-all hover:scale-105 active:scale-95 shrink-0"
+          className="w-full md:w-auto self-start md:self-auto flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 via-rose-600 to-red-600 hover:from-amber-600 hover:to-red-700 text-white font-bold px-6 py-3.5 text-xs sm:text-sm shadow-xl shadow-rose-950/50 transition-all hover:scale-105 active:scale-95 shrink-0"
         >
           <Sparkles className="w-4 h-4" />
           <span>START COPILOT CHAT</span>

@@ -49,7 +49,7 @@ export function PandalDirectoryView() {
   });
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -78,7 +78,7 @@ export function PandalDirectoryView() {
 
       {/* SEARCH & FILTERS BAR */}
       <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
@@ -90,7 +90,7 @@ export function PandalDirectoryView() {
         </div>
 
         {/* Area Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar max-w-full">
           {['ALL', 'North Kolkata', 'Central Kolkata', 'South Kolkata', 'East Kolkata / Salt Lake'].map(
             (area) => (
               <button

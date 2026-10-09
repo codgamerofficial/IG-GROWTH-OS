@@ -29,12 +29,12 @@ export function MetroView() {
   );
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-7xl mx-auto space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-2.5">
-            <Train className="w-7 h-7 text-emerald-400" />
+            <Train className="w-7 h-7 text-emerald-400 shrink-0" />
             <span>Kolkata Metro Intelligence</span>
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
@@ -42,17 +42,17 @@ export function MetroView() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-zinc-300 text-xs font-semibold">
-          <Clock className="w-3.5 h-3.5 text-amber-400" />
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 text-zinc-300 text-xs font-semibold self-start md:self-auto">
+          <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
           <span>{schedule.statusLabel}</span>
         </div>
       </div>
 
       {/* TIMETABLE NOTICE BOX WITH REAL SOURCE CITATION */}
-      <div className="p-5 rounded-2xl bg-[#121124] border border-white/10 space-y-2">
-        <div className="flex items-center justify-between">
+      <div className="p-4 sm:p-5 rounded-2xl bg-[#121124] border border-white/10 space-y-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
-            <Train className="w-4 h-4" />
+            <Train className="w-4 h-4 shrink-0" />
             <span>Kolkata Metro Schedule ({selectedDate})</span>
           </div>
           <span className="text-[10px] text-zinc-400 font-mono">
@@ -60,7 +60,7 @@ export function MetroView() {
           </span>
         </div>
         <p className="text-xs text-zinc-300 leading-relaxed">{schedule.notes}</p>
-        <div className="flex flex-wrap gap-4 text-xs text-zinc-400 pt-1 border-t border-white/5">
+        <div className="flex flex-wrap gap-3 sm:gap-4 text-xs text-zinc-400 pt-1 border-t border-white/5">
           <span>
             Operating Hours: <strong className="text-white">06:50 – {schedule.lastTrainTime}</strong>
           </span>
@@ -77,7 +77,7 @@ export function MetroView() {
       </div>
 
       {/* LINE SELECTOR TABS */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar max-w-full">
         <button
           onClick={() => setSelectedLine('all')}
           className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${

@@ -87,12 +87,12 @@ export function PassportView() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-8">
+    <div className="px-3 py-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6 sm:space-y-8 w-full max-w-full min-w-0 overflow-x-hidden">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-2.5">
-            <Award className="w-7 h-7 text-amber-400" />
+            <Award className="w-7 h-7 text-amber-400 shrink-0" />
             <span>Kolkata Puja Passport</span>
           </h1>
           <p className="text-xs text-zinc-400 mt-1">
@@ -100,22 +100,22 @@ export function PassportView() {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 self-start md:self-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <button
             onClick={() => setShowCardGenerator(true)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-amber-300 hover:text-white font-bold text-xs border border-amber-500/30 shadow-lg shadow-black/40 transition-all"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-amber-300 hover:text-white font-bold text-xs border border-amber-500/30 shadow-lg shadow-black/40 transition-all"
             title="Generate high-res 1080x1920 Instagram Story / WhatsApp status card"
           >
-            <Camera className="w-4 h-4 text-amber-400" />
-            <span>Export Story Card (HD)</span>
+            <Camera className="w-4 h-4 text-amber-400 shrink-0" />
+            <span>Export Story Card</span>
           </button>
 
           <button
             onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 text-white font-bold text-xs shadow-lg shadow-rose-950/40"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 text-white font-bold text-xs shadow-lg shadow-rose-950/40"
           >
-            <Plus className="w-4 h-4" />
-            <span>Stamp Pandal Visit</span>
+            <Plus className="w-4 h-4 shrink-0" />
+            <span>Stamp Visit</span>
           </button>
         </div>
       </div>

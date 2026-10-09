@@ -294,16 +294,16 @@ export function AdminView() {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
+    <div className="w-full max-w-7xl mx-auto min-w-0 overflow-x-hidden p-3 sm:p-6 md:p-8 space-y-6">
       {/* Header with Creator Attribution */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-white/10 pb-6">
         <div>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/40 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-teal-500/10 border border-emerald-500/40 flex items-center justify-center shrink-0">
               <ShieldCheck className="w-6 h-6 text-emerald-400" />
             </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight flex items-center gap-2">
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight flex flex-wrap items-center gap-2">
                 <span>PujaHop Admin &amp; Provenance Control</span>
                 <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300">
                   Section 41 Live
@@ -316,7 +316,7 @@ export function AdminView() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3 text-[11px] text-zinc-400 font-mono mt-3">
-            <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10">
+            <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 break-all">
               Host: <span className="text-zinc-200">db.ojtngzqsrdralrhipjzt.supabase.co</span>
             </span>
             <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10">
@@ -352,7 +352,7 @@ export function AdminView() {
       </div>
 
       {/* Top Navigation Tabs */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 bg-[#0D0B1C] p-1.5 rounded-2xl border border-white/10 text-xs">
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 bg-[#0D0B1C] p-1.5 rounded-2xl border border-white/10 text-xs no-scrollbar max-w-full w-full min-w-0">
         <button
           onClick={() => setActiveTab('overview')}
           className={`px-4 py-2 rounded-xl font-bold transition-all flex items-center gap-2 whitespace-nowrap ${

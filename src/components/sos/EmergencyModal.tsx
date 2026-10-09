@@ -24,8 +24,8 @@ export function EmergencyModal() {
   if (!sosOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in">
-      <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#1A0C16] border border-rose-500/40 shadow-2xl p-6 md:p-8 space-y-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-3 sm:p-4 animate-in fade-in overflow-y-auto">
+      <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#1A0C16] border border-rose-500/40 shadow-2xl p-4 sm:p-6 md:p-8 space-y-6">
         {/* Close Button */}
         <button
           onClick={() => setSosOpen(false)}

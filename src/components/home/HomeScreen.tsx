@@ -48,7 +48,7 @@ export function HomeScreen() {
   const topPandals = pandals.slice(0, 4);
 
   return (
-    <div className="space-y-10 sm:space-y-12 p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
+    <div className="space-y-8 sm:space-y-12 px-3 py-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full max-w-full min-w-0 overflow-x-hidden">
       {/* 1. CINEMATIC HERO POSTER (Layer 1 + Layer 2) */}
       <HeroPoster />
 

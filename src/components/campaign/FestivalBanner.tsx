@@ -71,7 +71,7 @@ export function FestivalBanner({ theme = 'story', className = '' }: FestivalBann
 
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl border border-amber-500/20 bg-[#09090B] shadow-2xl ${className}`}
+      className={`relative overflow-hidden rounded-3xl border border-amber-500/20 bg-[#09090B] shadow-2xl w-full max-w-full min-w-0 ${className}`}
     >
       <div className="grid grid-cols-1 md:grid-cols-12 items-center">
         {/* Visual Column */}
@@ -89,7 +89,7 @@ export function FestivalBanner({ theme = 'story', className = '' }: FestivalBann
         </div>
 
         {/* Text Editorial Column */}
-        <div className="p-6 md:p-8 lg:p-10 md:col-span-6 lg:col-span-5 space-y-4">
+        <div className="p-4 sm:p-6 md:p-8 lg:p-10 md:col-span-6 lg:col-span-5 space-y-4">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-0.5 text-[11px] font-semibold text-amber-300">
             <Sparkles className="w-3 h-3 text-amber-400" />
             <span>{current.badge}</span>
@@ -110,7 +110,7 @@ export function FestivalBanner({ theme = 'story', className = '' }: FestivalBann
           <div className="pt-2">
             <button
               onClick={current.action}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#D6A84F] to-[#E53935] hover:from-[#E53935] hover:to-[#D6A84F] text-white font-bold px-5 py-3 text-xs sm:text-sm shadow-lg shadow-rose-950/40 transition-all hover:scale-105 active:scale-95"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#D6A84F] to-[#E53935] hover:from-[#E53935] hover:to-[#D6A84F] text-white font-bold px-5 py-3 text-xs sm:text-sm shadow-lg shadow-rose-950/40 transition-all hover:scale-105 active:scale-95"
             >
               <span>{current.ctaText}</span>
               <ArrowRight className="w-4 h-4" />

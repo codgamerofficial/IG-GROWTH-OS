@@ -86,7 +86,7 @@ export function PujaCopilotDrawer() {
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full max-w-md bg-[#0C0A1A] border-l border-amber-500/20 shadow-2xl flex flex-col">
+    <div className="fixed inset-y-0 right-0 z-50 w-full max-w-full sm:max-w-md min-w-0 bg-[#0C0A1A] border-l border-amber-500/20 shadow-2xl flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#121024]">
         <div className="flex items-center gap-2.5">

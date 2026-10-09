@@ -80,19 +80,19 @@ export function Logo({
   }
 
   return (
-    <div className={`inline-flex items-center gap-2.5 ${className}`}>
+    <div className={`inline-flex items-center gap-2 sm:gap-2.5 min-w-0 shrink-0 ${className}`}>
       {IconSvg}
-      <div className="flex flex-col leading-tight">
-        <div className="flex items-center gap-1.5">
+      <div className="flex flex-col leading-tight min-w-0">
+        <div className="flex items-center gap-1 sm:gap-1.5 min-w-0">
           <span className={`font-extrabold tracking-tight text-white ${textSizes[size]}`}>
             PujaHop
           </span>
-          <span className="bg-gradient-to-r from-amber-400 via-rose-500 to-red-500 bg-clip-text font-black text-transparent">
+          <span className="hidden min-[380px]:inline bg-gradient-to-r from-amber-400 via-rose-500 to-red-500 bg-clip-text font-black text-transparent">
             Kolkata
           </span>
         </div>
         {showTagline && (
-          <span className="text-[10px] font-medium tracking-wide text-amber-200/70">
+          <span className="text-[10px] font-medium tracking-wide text-amber-200/70 truncate hidden sm:inline">
             One Day. One City. Maximum Puja.
           </span>
         )}

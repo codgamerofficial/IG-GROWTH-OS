@@ -57,7 +57,7 @@ export function FoodTrailSection() {
   ];
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0E0B19] p-6 sm:p-8 space-y-6 shadow-2xl">
+    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0E0B19] p-4 sm:p-6 md:p-8 space-y-6 shadow-2xl w-full max-w-full min-w-0">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
         {/* Visual Banner */}
         <div className="relative h-64 sm:h-80 lg:h-96 lg:col-span-5 rounded-2xl overflow-hidden border border-amber-500/20 shadow-xl">

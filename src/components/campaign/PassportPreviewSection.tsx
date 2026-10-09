@@ -49,7 +49,7 @@ export function PassportPreviewSection() {
   ];
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0E0C1C] p-6 sm:p-8 space-y-6 shadow-2xl">
+    <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#0E0C1C] p-4 sm:p-6 md:p-8 space-y-6 shadow-2xl w-full max-w-full min-w-0">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-1.5 text-xs text-amber-400 font-semibold">
@@ -66,7 +66,7 @@ export function PassportPreviewSection() {
 
         <button
           onClick={() => setActiveTab('passport')}
-          className="self-start sm:self-auto flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-bold px-5 py-2.5 text-xs sm:text-sm shadow-lg shadow-rose-950/40 transition-all hover:scale-105 active:scale-95"
+          className="w-full sm:w-auto self-start sm:self-auto flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-600 hover:to-rose-700 text-white font-bold px-5 py-2.5 text-xs sm:text-sm shadow-lg shadow-rose-950/40 transition-all hover:scale-105 active:scale-95"
         >
           <span>OPEN MY PASSPORT</span>
           <ArrowRight className="w-4 h-4" />

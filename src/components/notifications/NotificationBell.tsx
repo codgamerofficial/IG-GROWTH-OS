@@ -100,8 +100,8 @@ export function NotificationBell() {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-md bg-[#121124] border border-white/15 rounded-3xl p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+          <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-[#121124] border border-white/15 rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">

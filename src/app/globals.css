@@ -90,11 +90,18 @@ body {
 /* =============================================================================
    Android Mobile WebApp Ergonomics & Safe Area Support
    ============================================================================= */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 * {
   -webkit-tap-highlight-color: transparent;
 }
 
 html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
   overscroll-behavior-y: contain;
   touch-action: manipulation;
 }
@@ -111,3 +118,13 @@ html, body {
 .pb-safe-nav {
   padding-bottom: max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem));
 }
+
+/* Mobile Horizontal Scrollers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
