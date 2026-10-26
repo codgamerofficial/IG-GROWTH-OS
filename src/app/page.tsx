@@ -1,48 +1,43 @@
 'use client';
 
 // =============================================================================
-// PujaHop Kolkata: Primary Application View Router
-// Product: PujaHop Kolkata — One Day. One City. Maximum Puja.
+// RIIQX — Master Workspace Router
+// One Goal. An AI That Gets It Done.
+// Online-First Agentic AI • Autonomous Social Creator • Level 3 Autopilot
 // =============================================================================
 
 import React from 'react';
-import { usePujaHop } from '@/context/PujaHopContext';
-import { HomeScreen } from '@/components/home/HomeScreen';
-import { MapView } from '@/components/map/MapView';
-import { RouteView } from '@/components/route/RouteView';
-import { MetroView } from '@/components/metro/MetroView';
-import { PandalDirectoryView } from '@/components/pandals/PandalDirectoryView';
-import { PassportView } from '@/components/passport/PassportView';
-import { TripStatsView } from '@/components/stats/TripStatsView';
-import { APIHealthView } from '@/components/settings/APIHealthView';
-import { AdminView } from '@/components/admin/AdminView';
-import { AboutView } from '@/components/about/AboutView';
+import { useRiiqx } from '@/context/RiiqxContext';
+import { RiiqxChatView } from '@/components/riiqx/RiiqxChatView';
+import { RiiqxCreatorStudio } from '@/components/riiqx/RiiqxCreatorStudio';
+import { RiiqxAutopilotCenter } from '@/components/riiqx/RiiqxAutopilotCenter';
+import { RiiqxResearchView } from '@/components/riiqx/RiiqxResearchView';
+import { RiiqxCodeView } from '@/components/riiqx/RiiqxCodeView';
+import { RiiqxTaskView } from '@/components/riiqx/RiiqxTaskView';
+import { RiiqxAnalyticsView } from '@/components/riiqx/RiiqxAnalyticsView';
+import { RiiqxSettingsView } from '@/components/riiqx/RiiqxSettingsView';
 
-export default function HomePage() {
-  const { activeTab } = usePujaHop();
+export default function RiiqxWorkspacePage() {
+  const { activeTab } = useRiiqx();
 
   switch (activeTab) {
-    case 'home':
-      return <HomeScreen />;
-    case 'explore':
-      return <MapView />;
-    case 'route':
-      return <RouteView />;
-    case 'metro':
-      return <MetroView />;
-    case 'pandals':
-      return <PandalDirectoryView />;
-    case 'passport':
-      return <PassportView />;
-    case 'stats':
-      return <TripStatsView />;
+    case 'chat':
+      return <RiiqxChatView />;
+    case 'creator':
+      return <RiiqxCreatorStudio />;
+    case 'autopilot':
+      return <RiiqxAutopilotCenter />;
+    case 'research':
+      return <RiiqxResearchView />;
+    case 'code':
+      return <RiiqxCodeView />;
+    case 'tasks':
+      return <RiiqxTaskView />;
+    case 'analytics':
+      return <RiiqxAnalyticsView />;
     case 'settings':
-      return <APIHealthView />;
-    case 'admin':
-      return <AdminView />;
-    case 'about':
-      return <AboutView />;
+      return <RiiqxSettingsView />;
     default:
-      return <HomeScreen />;
+      return <RiiqxChatView />;
   }
 }

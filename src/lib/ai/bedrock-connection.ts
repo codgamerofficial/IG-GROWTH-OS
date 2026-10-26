@@ -89,7 +89,9 @@ export class BedrockConnectionService {
     const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
     const sessionToken = process.env.AWS_SESSION_TOKEN;
 
-    if (!forceBearer && accessKeyId && secretAccessKey) {
+    const preferBearer = forceBearer || process.env.USE_BEDROCK_BEARER === 'true';
+
+    if (!preferBearer && accessKeyId && secretAccessKey) {
       return new BedrockRuntimeClient({
         region,
         credentials: {
@@ -163,11 +165,20 @@ export class BedrockConnectionService {
       try {
         response = await attemptConverse(client);
       } catch (firstErr: any) {
-        // If expired token exception on IAM keys and a Bearer token is available, retry with Bearer token
+        // If IAM keys are expired or hit quota throttling, retry with Bedrock API Key if present
         const hasBearer = Boolean(process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.BEDROCK_API_KEY);
-        if (firstErr.name === 'ExpiredTokenException' && hasBearer) {
-          client = this.createClient(true);
-          response = await attemptConverse(client);
+        if (
+          (firstErr.name === 'ExpiredTokenException' ||
+            firstErr.name === 'ThrottlingException' ||
+            firstErr.name === 'AccessDeniedException') &&
+          hasBearer
+        ) {
+          try {
+            client = this.createClient(true);
+            response = await attemptConverse(client);
+          } catch {
+            throw firstErr;
+          }
         } else {
           throw firstErr;
         }
@@ -252,9 +263,18 @@ export class BedrockConnectionService {
         res = await client.send(new ConverseCommand(input));
       } catch (firstErr: any) {
         const hasBearer = Boolean(process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.BEDROCK_API_KEY);
-        if (firstErr.name === 'ExpiredTokenException' && hasBearer) {
-          client = this.createClient(true);
-          res = await client.send(new ConverseCommand(input));
+        if (
+          (firstErr.name === 'ExpiredTokenException' ||
+            firstErr.name === 'ThrottlingException' ||
+            firstErr.name === 'AccessDeniedException') &&
+          hasBearer
+        ) {
+          try {
+            client = this.createClient(true);
+            res = await client.send(new ConverseCommand(input));
+          } catch {
+            throw firstErr;
+          }
         } else {
           throw firstErr;
         }

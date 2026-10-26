@@ -1,61 +1,67 @@
 // =============================================================================
-// PujaHop Kolkata Mobile: Pandal Opening Status & Provenance Badges
-// Sections 14 & 45: Honest status indicators without defaulting everything to OPEN
+// RIIQX Mobile — Status Badge Component
 // =============================================================================
 
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { PandalOpeningStatus } from '../../../../src/lib/types/pujahop';
 import { colors } from '../../theme/colors';
 
+export type RiiqxMobileStatus =
+  | 'ONLINE'
+  | 'STANDBY'
+  | 'QUEUED'
+  | 'RENDERING'
+  | 'PUBLISHED'
+  | 'ERROR'
+  | 'HALTED';
+
 interface StatusBadgeProps {
-  status: PandalOpeningStatus;
+  status: RiiqxMobileStatus | string;
 }
 
 export function StatusBadge({ status }: StatusBadgeProps) {
+  const normalized = (status || '').toUpperCase();
+
   const getBadgeConfig = () => {
-    switch (status) {
-      case 'OPEN':
+    switch (normalized) {
+      case 'ONLINE':
+      case 'PUBLISHED':
         return {
-          bg: 'rgba(53, 201, 138, 0.15)',
-          border: 'rgba(53, 201, 138, 0.4)',
-          text: colors.success,
-          label: 'OPEN FOR DARSHAN',
+          bg: 'rgba(16, 185, 129, 0.15)',
+          border: 'rgba(16, 185, 129, 0.4)',
+          text: colors.emerald,
+          label: normalized,
         };
-      case 'EARLY OPENING':
+      case 'RENDERING':
+      case 'RUNNING':
         return {
-          bg: 'rgba(214, 168, 79, 0.15)',
-          border: 'rgba(214, 168, 79, 0.4)',
-          text: colors.softGold,
-          label: 'EARLY OPENING',
+          bg: 'rgba(6, 182, 212, 0.15)',
+          border: 'rgba(6, 182, 212, 0.4)',
+          text: colors.cyan,
+          label: normalized,
         };
-      case 'INAUGURATION':
+      case 'QUEUED':
+      case 'STANDBY':
         return {
-          bg: 'rgba(255, 138, 61, 0.15)',
-          border: 'rgba(255, 138, 61, 0.4)',
-          text: colors.festiveOrange,
-          label: 'INAUGURATION TODAY',
+          bg: 'rgba(139, 92, 246, 0.15)',
+          border: 'rgba(139, 92, 246, 0.4)',
+          text: colors.violet,
+          label: normalized,
         };
-      case 'UNDER PREPARATION':
+      case 'HALTED':
+      case 'ERROR':
         return {
-          bg: 'rgba(244, 185, 66, 0.15)',
-          border: 'rgba(244, 185, 66, 0.4)',
-          text: colors.warning,
-          label: 'UNDER PREPARATION',
-        };
-      case 'CLOSED':
-        return {
-          bg: 'rgba(239, 68, 68, 0.15)',
-          border: 'rgba(239, 68, 68, 0.4)',
-          text: colors.danger,
-          label: 'TEMPORARILY CLOSED',
+          bg: 'rgba(244, 63, 94, 0.15)',
+          border: 'rgba(244, 63, 94, 0.4)',
+          text: colors.rose,
+          label: normalized,
         };
       default:
         return {
-          bg: 'rgba(113, 113, 122, 0.15)',
-          border: 'rgba(113, 113, 122, 0.3)',
+          bg: 'rgba(100, 116, 139, 0.15)',
+          border: 'rgba(100, 116, 139, 0.3)',
           text: colors.textSecondary,
-          label: 'STATUS UNVERIFIED',
+          label: normalized || 'UNKNOWN',
         };
     }
   };

@@ -1,11 +1,11 @@
 // =============================================================================
-// PujaHop Kolkata Mobile: Native Bottom Tab Navigator
-// Section 5: HOME, EXPLORE, PLAN, PASSPORT, MORE with gold/red active glow
+// RIIQX Mobile — Primary Tab Navigator
+// One Goal. An AI That Gets It Done.
 // =============================================================================
 
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { Home, Compass, Route, Award, Menu } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../src/theme/colors';
 
 export default function TabLayout() {
@@ -14,55 +14,83 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.cardDark,
+          backgroundColor: colors.surface,
           borderTopColor: colors.cardBorder,
-          borderTopWidth: 1,
-          height: 62,
+          height: 60,
           paddingBottom: 8,
-          paddingTop: 6,
+          paddingTop: 8,
         },
-        tabBarActiveTintColor: colors.softGold,
-        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarActiveTintColor: colors.cyan,
+        tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '700',
-          letterSpacing: 0.4,
+          fontSize: 11,
+          fontWeight: '600',
         },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: 'HOME',
-          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Home size={size - 2} color={color} />,
+          title: 'Chat',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'}
+              size={size - 2}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="creator"
         options={{
-          title: 'EXPLORE',
-          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Compass size={size - 2} color={color} />,
+          title: 'Creator',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'videocam' : 'videocam-outline'}
+              size={size - 2}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
-        name="plan"
+        name="autopilot"
         options={{
-          title: 'PLAN',
-          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Route size={size - 2} color={color} />,
+          title: 'Autopilot',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'sync' : 'sync-outline'}
+              size={size - 2}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
-        name="passport"
+        name="tasks"
         options={{
-          title: 'PASSPORT',
-          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Award size={size - 2} color={color} />,
+          title: 'Tasks',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'checkbox' : 'checkbox-outline'}
+              size={size - 2}
+              color={color}
+            />
+          ),
         }}
       />
       <Tabs.Screen
-        name="more"
+        name="settings"
         options={{
-          title: 'MORE',
-          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Menu size={size - 2} color={color} />,
+          title: 'Settings',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'settings' : 'settings-outline'}
+              size={size - 2}
+              color={color}
+            />
+          ),
         }}
       />
     </Tabs>

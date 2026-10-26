@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
-  "name": "pujahop-kolkata",
-  "description": "PujaHop Kolkata — One Day. One City. Maximum Puja. AI-powered real-time Durga Puja itinerary planner and travel companion.",
-  "version": "1.0.0",
+  "name": "riiqx",
+  "description": "RIIQX — One Goal. An AI That Gets It Done. Advanced Online-First Agentic AI Platform, Social Media Autopilot & Native Mobile App.",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,8 +10,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "node tests/run-all-tests.mjs",
-    "mcp": "node mcp/pujahop-kolkata/index.mjs",
+    "test": "node tests/test-riiqx.mjs",
+    "test:riiqx": "node tests/test-riiqx.mjs",
     "mobile:start": "cd mobile && npx expo start",
     "mobile:android": "cd mobile && npx expo start --android",
     "mobile:ios": "cd mobile && npx expo start --ios",

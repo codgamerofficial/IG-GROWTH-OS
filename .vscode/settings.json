@@ -17,7 +17,7 @@
   },
   "json.schemas": [
     {
-      "fileMatch": ["package.json"],
+      "fileMatch": ["package.json", "**/package.json"],
       "url": "https://json.schemastore.org/package.json"
     }
   ]

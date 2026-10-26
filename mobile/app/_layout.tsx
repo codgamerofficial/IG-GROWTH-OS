@@ -1,58 +1,30 @@
 // =============================================================================
-// PujaHop Kolkata Mobile: Root Application Layout
-// Section 4 & 10: Stack navigator, SafeAreaProvider, and PujaHop Context
+// RIIQX Mobile — Root Application Layout
+// Stack navigator, SafeAreaProvider, and RIIQX Mobile Context
 // =============================================================================
 
 import React from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { PujaHopProvider } from '../src/hooks/usePujaHop';
+import { RiiqxMobileProvider } from '../src/context/RiiqxMobileContext';
 import { colors } from '../src/theme/colors';
 
 export default function RootLayout() {
   return (
     <SafeAreaProvider>
-      <PujaHopProvider>
-        <StatusBar style="light" backgroundColor={colors.deepCharcoal} />
+      <RiiqxMobileProvider>
+        <StatusBar style="light" backgroundColor={colors.bg} />
         <Stack
           screenOptions={{
             headerShown: false,
-            contentStyle: { backgroundColor: colors.deepCharcoal },
+            contentStyle: { backgroundColor: colors.bg },
             animation: 'slide_from_right',
           }}
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="pandal/[id]"
-            options={{
-              presentation: 'card',
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="route/[id]"
-            options={{
-              presentation: 'card',
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="copilot/index"
-            options={{
-              presentation: 'modal',
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="emergency/index"
-            options={{
-              presentation: 'modal',
-              headerShown: false,
-            }}
-          />
         </Stack>
-      </PujaHopProvider>
+      </RiiqxMobileProvider>
     </SafeAreaProvider>
   );
 }

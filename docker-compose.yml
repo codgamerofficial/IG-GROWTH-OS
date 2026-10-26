@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # Next.js 14 Frontend PWA
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - SEARXNG_BASE_URL=http://searxng:8080
+    depends_on:
+      - backend
+      - ollama
+
+  # Python 3.14 FastAPI Backend Engine
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - SEARXNG_BASE_URL=http://searxng:8080
+      - DATABASE_URL=postgresql://nuvexa:nuvexa2026@postgres:5432/nuvexa_db
+    depends_on:
+      - postgres
+
+  # PostgreSQL with pgvector for Document Embeddings & Account Vault
+  postgres:
+    image: pgvector/pgvector:pg16
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=nuvexa
+      - POSTGRES_PASSWORD=nuvexa2026
+      - POSTGRES_DB=nuvexa_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Ollama Open-Weight Model Runner
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+
+  # SearXNG Privacy-First Search Gateway
+  searxng:
+    image: searxng/searxng:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - SEARXNG_BASE_URL=http://localhost:8080/
+    volumes:
+      - searxng_data:/etc/searxng
+
+volumes:
+  postgres_data:
+  ollama_models:
+  searxng_data:

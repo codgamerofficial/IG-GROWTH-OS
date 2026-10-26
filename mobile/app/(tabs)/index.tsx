@@ -1,334 +1,273 @@
 // =============================================================================
-// PujaHop Kolkata Mobile: Native Home Screen
-// Section 6: Mobile-first editorial composition (Header -> Hero -> Status -> Pandals -> Route -> Metro -> CTA)
+// RIIQX Mobile — AI Chat Screen
+// Online-First AWS Bedrock & Claude Sonnet • Real Citations
 // =============================================================================
 
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, RefreshControl } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Sparkles, Calendar, Train, CloudSun, Utensils, Award, ArrowRight } from 'lucide-react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRiiqxMobile } from '../../src/context/RiiqxMobileContext';
 import { colors } from '../../src/theme/colors';
-import { Header } from '../../src/components/common/Header';
-import { MobileHero } from '../../src/components/home/MobileHero';
-import { FeaturedPandalCarousel } from '../../src/components/home/FeaturedPandalCarousel';
-import { usePujaHop } from '../../src/hooks/usePujaHop';
-import { useHaptics } from '../../src/hooks/useHaptics';
 
-export function HomeScreen() {
-  const router = useRouter();
-  const { pandals, selectedDate, weather, trafficAlerts, loading, refreshData, currentTrip } = usePujaHop();
-  const haptics = useHaptics();
+export default function ChatScreen() {
+  const { messages, isGenerating, sendMessage, selectedModel } = useRiiqxMobile();
+  const [inputText, setInputText] = useState('');
 
-  const isPrePuja = selectedDate === '2026-10-13' || selectedDate === '2026-10-14';
+  const handleSend = () => {
+    if (!inputText.trim() || isGenerating) return;
+    const text = inputText;
+    setInputText('');
+    sendMessage(text);
+  };
+
+  const quickPrompts = [
+    'Synthesize an Instagram Reel hook for AI productivity',
+    'Explain RIIQX Level 3 Autopilot architecture',
+    'Write a TypeScript function for PBKDF2 hashing',
+  ];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <Header />
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refreshData} tintColor={colors.softGold} />}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Cultural Welcome Greeting */}
-        <View style={styles.greetingBox}>
-          <Text style={styles.greetingBn}>চলো, আজ কলকাতাকে একটু অন্যভাবে দেখি।</Text>
-          <Text style={styles.greetingEn}>Explore Kolkata’s grandest festival with verified intelligence.</Text>
-        </View>
-
-        {/* Cinematic Mobile Hero */}
-        <MobileHero />
-
-        {/* Puja Status Card */}
-        <View style={styles.statusCard}>
-          <View style={styles.statusHeader}>
-            <View style={styles.statusDot} />
-            <Text style={styles.statusTitle}>TODAY IN KOLKATA • {isPrePuja ? 'PRE-PUJA' : 'MAIN PUJA'}</Text>
-          </View>
-          <Text style={styles.statusDescription}>
-            {isPrePuja
-              ? 'Selected early pandal openings & lighting rehearsals in progress. Major police traffic barricades active from 16:00.'
-              : 'Full festival mode active across North, Central, and South Kolkata. Heavy crowds expected near major metro hubs.'}
-          </Text>
-        </View>
-
-        {/* Quick Route Planner Teaser */}
-        <View style={styles.plannerTeaser}>
-          <View style={styles.plannerText}>
-            <Text style={styles.plannerTitle}>Plan Your One-Day Hop</Text>
-            <Text style={styles.plannerSubtitle}>3 to 10+ pandals with real walking routes and Metro connections.</Text>
-          </View>
-          <TouchableOpacity
-            onPress={() => {
-              haptics.heavy();
-              router.push('/plan');
-            }}
-            style={styles.plannerButton}
-          >
-            <ArrowRight size={18} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Featured Pandals Carousel */}
-        <FeaturedPandalCarousel pandals={pandals} />
-
-        {/* Metro Intelligence Quick Card */}
-        <TouchableOpacity
-          onPress={() => {
-            haptics.selection();
-            router.push('/metro');
+        {/* Top Header */}
+        <View
+          style={{
+            paddingHorizontal: 16,
+            paddingVertical: 12,
+            borderBottomWidth: 1,
+            borderBottomColor: colors.cardBorder,
+            backgroundColor: colors.surface,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
           }}
-          style={styles.featureCard}
         >
-          <View style={styles.featureIconBox}>
-            <Train size={20} color={colors.metroBlue} />
+          <View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: '800', letterSpacing: 0.5 }}>
+                RIIQX
+              </Text>
+              <View
+                style={{
+                  backgroundColor: 'rgba(6, 182, 212, 0.15)',
+                  borderColor: 'rgba(6, 182, 212, 0.4)',
+                  borderWidth: 1,
+                  borderRadius: 4,
+                  paddingHorizontal: 6,
+                  paddingVertical: 2,
+                }}
+              >
+                <Text style={{ color: colors.cyan, fontSize: 10, fontWeight: '700' }}>ONLINE</Text>
+              </View>
+            </View>
+            <Text style={{ color: colors.textSecondary, fontSize: 11, marginTop: 2 }}>
+              {selectedModel?.name || 'AWS Bedrock Claude Sonnet 4 / 3.7'}
+            </Text>
           </View>
-          <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Kolkata Metro Reality</Text>
-            <Text style={styles.featureSubtitle}>Regular timetable active (06:50 - 23:45). Night circulars unverified.</Text>
-          </View>
-          <ArrowRight size={16} color={colors.textSecondary} />
-        </TouchableOpacity>
 
-        {/* Weather Snapshot Quick Card */}
-        {weather && (
-          <TouchableOpacity
-            onPress={() => {
-              haptics.selection();
-              router.push('/weather');
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              backgroundColor: colors.card,
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
+              gap: 4,
             }}
-            style={styles.featureCard}
           >
-            <View style={styles.featureIconBox}>
-              <CloudSun size={20} color={colors.warning} />
-            </View>
-            <View style={styles.featureContent}>
-              <Text style={styles.featureTitle}>{weather.temperature_c}°C • {weather.condition_text}</Text>
-              <Text style={styles.featureSubtitle}>Feels like {weather.apparent_temp_c}°C • Rain prob: {weather.precipitation_probability}%</Text>
-            </View>
-            <ArrowRight size={16} color={colors.textSecondary} />
-          </TouchableOpacity>
-        )}
+            <Ionicons name="hardware-chip-outline" size={12} color={colors.cyan} />
+            <Text style={{ color: colors.textSecondary, fontSize: 10 }}>ap-southeast-2</Text>
+          </View>
+        </View>
 
-        {/* Food Trail Quick Card */}
-        <TouchableOpacity
-          onPress={() => {
-            haptics.selection();
-            router.push('/food');
+        {/* Messages List */}
+        <ScrollView
+          style={{ flex: 1, padding: 16 }}
+          contentContainerStyle={{ paddingBottom: 24, gap: 14 }}
+        >
+          {messages.map((msg) => {
+            const isUser = msg.role === 'user';
+            return (
+              <View
+                key={msg.id}
+                style={{
+                  alignSelf: isUser ? 'flex-end' : 'flex-start',
+                  maxWidth: '86%',
+                  backgroundColor: isUser ? colors.cyan : colors.surface,
+                  borderRadius: 16,
+                  borderBottomRightRadius: isUser ? 4 : 16,
+                  borderBottomLeftRadius: isUser ? 16 : 4,
+                  padding: 12,
+                  borderWidth: isUser ? 0 : 1,
+                  borderColor: colors.cardBorder,
+                }}
+              >
+                <Text
+                  style={{
+                    color: isUser ? '#030712' : colors.textPrimary,
+                    fontSize: 14,
+                    lineHeight: 20,
+                    fontWeight: isUser ? '500' : '400',
+                  }}
+                >
+                  {msg.content}
+                </Text>
+
+                {msg.citations && msg.citations.length > 0 && (
+                  <View
+                    style={{
+                      marginTop: 8,
+                      paddingTop: 8,
+                      borderTopWidth: 1,
+                      borderTopColor: colors.cardBorder,
+                      gap: 4,
+                    }}
+                  >
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                      <Ionicons name="globe-outline" size={11} color={colors.cyan} />
+                      <Text style={{ color: colors.cyan, fontSize: 10, fontWeight: '700' }}>
+                        VERIFIED SOURCES
+                      </Text>
+                    </View>
+                    {msg.citations.map((c, idx) => (
+                      <Text key={idx} style={{ color: colors.textSecondary, fontSize: 10 }} numberOfLines={1}>
+                        [{idx + 1}] {c.title}
+                      </Text>
+                    ))}
+                  </View>
+                )}
+
+                <Text
+                  style={{
+                    color: isUser ? '#072730' : colors.textMuted,
+                    fontSize: 10,
+                    alignSelf: 'flex-end',
+                    marginTop: 4,
+                  }}
+                >
+                  {msg.timestamp}
+                </Text>
+              </View>
+            );
+          })}
+
+          {isGenerating && (
+            <View
+              style={{
+                alignSelf: 'flex-start',
+                backgroundColor: colors.surface,
+                borderRadius: 14,
+                padding: 12,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+                borderWidth: 1,
+                borderColor: colors.cardBorder,
+              }}
+            >
+              <ActivityIndicator size="small" color={colors.cyan} />
+              <Text style={{ color: colors.textSecondary, fontSize: 12 }}>
+                RIIQX engine thinking...
+              </Text>
+            </View>
+          )}
+
+          {/* Quick Prompts when only 1 message exists */}
+          {messages.length === 1 && (
+            <View style={{ marginTop: 12, gap: 8 }}>
+              <Text style={{ color: colors.textMuted, fontSize: 11, fontWeight: '700' }}>
+                SUGGESTED STARTERS
+              </Text>
+              {quickPrompts.map((prompt, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => sendMessage(prompt)}
+                  style={{
+                    backgroundColor: colors.surface,
+                    borderColor: colors.cardBorder,
+                    borderWidth: 1,
+                    borderRadius: 12,
+                    padding: 10,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <Ionicons name="sparkles" size={14} color={colors.cyan} />
+                  <Text style={{ color: colors.textPrimary, fontSize: 12, flex: 1 }}>{prompt}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+        </ScrollView>
+
+        {/* Input Bar */}
+        <View
+          style={{
+            padding: 12,
+            borderTopWidth: 1,
+            borderTopColor: colors.cardBorder,
+            backgroundColor: colors.surface,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
           }}
-          style={styles.featureCard}
         >
-          <View style={styles.featureIconBox}>
-            <Utensils size={20} color={colors.festiveOrange} />
-          </View>
-          <View style={styles.featureContent}>
-            <Text style={styles.featureTitle}>Kolkata Food Trail</Text>
-            <Text style={styles.featureSubtitle}>Iconic kathi rolls, biryani, and mishti near your pandal hops.</Text>
-          </View>
-          <ArrowRight size={16} color={colors.textSecondary} />
-        </TouchableOpacity>
-
-        {/* Closing Emotional CTA */}
-        <View style={styles.closingBox}>
-          <Text style={styles.closingBn}>কলকাতা অপেক্ষা করছে।{'\n'}তুমি প্রস্তুত তো?</Text>
-          <Text style={styles.closingEn}>One Day. One City. Maximum Puja.</Text>
-          <TouchableOpacity
-            onPress={() => {
-              haptics.heavy();
-              router.push('/plan');
+          <TextInput
+            value={inputText}
+            onChangeText={setInputText}
+            placeholder="Ask RIIQX or execute a task..."
+            placeholderTextColor={colors.textMuted}
+            multiline
+            style={{
+              flex: 1,
+              backgroundColor: colors.bg,
+              color: colors.textPrimary,
+              borderRadius: 20,
+              paddingHorizontal: 16,
+              paddingVertical: 10,
+              fontSize: 14,
+              maxHeight: 100,
+              borderWidth: 1,
+              borderColor: colors.cardBorder,
             }}
-            style={styles.closingButton}
+          />
+          <TouchableOpacity
+            onPress={handleSend}
+            disabled={!inputText.trim() || isGenerating}
+            style={{
+              backgroundColor: inputText.trim() && !isGenerating ? colors.cyan : colors.card,
+              width: 42,
+              height: 42,
+              borderRadius: 21,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            <Text style={styles.closingButtonText}>PLAN MY PUJA DAY</Text>
+            <Ionicons
+              name="send"
+              size={18}
+              color={inputText.trim() && !isGenerating ? '#030712' : colors.textMuted}
+            />
           </TouchableOpacity>
         </View>
-
-        {/* Creator Attribution */}
-        <View style={styles.footerCredit}>
-          <Text style={styles.footerBrand}>PUJAHOP KOLKATA 2026</Text>
-          <Text style={styles.footerCreator}>Created &amp; Conceptualized by Saswata Dey (Riik)</Text>
-        </View>
-      </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
-
-export default HomeScreen;
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.deepCharcoal,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: colors.deepCharcoal,
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 40,
-  },
-  greetingBox: {
-    marginBottom: 16,
-  },
-  greetingBn: {
-    color: colors.softGold,
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 2,
-  },
-  greetingEn: {
-    color: colors.textSecondary,
-    fontSize: 12,
-  },
-  statusCard: {
-    backgroundColor: colors.cardDark,
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-    marginBottom: 16,
-  },
-  statusHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 6,
-  },
-  statusDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.antiqueGold,
-  },
-  statusTitle: {
-    color: colors.antiqueGold,
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.8,
-  },
-  statusDescription: {
-    color: colors.textSecondary,
-    fontSize: 12,
-    lineHeight: 18,
-  },
-  plannerTeaser: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(198, 40, 40, 0.12)',
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(198, 40, 40, 0.3)',
-    marginBottom: 20,
-  },
-  plannerText: {
-    flex: 1,
-    paddingRight: 12,
-  },
-  plannerTitle: {
-    color: colors.textPrimary,
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  plannerSubtitle: {
-    color: colors.textSecondary,
-    fontSize: 12,
-    lineHeight: 16,
-  },
-  plannerButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.durgaRed,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  featureCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.cardDark,
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
-    marginBottom: 10,
-    gap: 12,
-  },
-  featureIconBox: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  featureContent: {
-    flex: 1,
-  },
-  featureTitle: {
-    color: colors.textPrimary,
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  featureSubtitle: {
-    color: colors.textSecondary,
-    fontSize: 11,
-    marginTop: 2,
-  },
-  closingBox: {
-    backgroundColor: 'rgba(214, 168, 79, 0.08)',
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(214, 168, 79, 0.25)',
-    alignItems: 'center',
-    marginVertical: 16,
-  },
-  closingBn: {
-    color: colors.textPrimary,
-    fontSize: 18,
-    fontWeight: '700',
-    textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 6,
-  },
-  closingEn: {
-    color: colors.antiqueGold,
-    fontSize: 12,
-    fontWeight: '600',
-    marginBottom: 16,
-  },
-  closingButton: {
-    backgroundColor: colors.durgaRed,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 12,
-    width: '100%',
-    alignItems: 'center',
-  },
-  closingButtonText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '800',
-    letterSpacing: 0.6,
-  },
-  footerCredit: {
-    alignItems: 'center',
-    paddingVertical: 16,
-    gap: 4,
-  },
-  footerBrand: {
-    color: colors.textMuted,
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-  footerCreator: {
-    color: colors.antiqueGold,
-    fontSize: 11,
-    fontWeight: '600',
-  },
-});

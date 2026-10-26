@@ -1,65 +1,63 @@
 // =============================================================================
-// PujaHop Kolkata Mobile: Persistent Offline Storage & Secure Store
-// Section 32 & 38: Offline trips, cached pandal stamps, and secure session tokens
+// RIIQX Mobile — Persistent Offline Storage & Hardware Secure Store
+// Encrypted session tokens, offline conversations, and storyboard drafts
 // =============================================================================
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
-import { TripPlan, PandalVisitRecord } from '../../../src/lib/types/pujahop';
 
 const KEYS = {
-  OFFLINE_TRIP: '@pujahop:offline_trip',
-  PASSPORT_VISITS: '@pujahop:passport_visits',
-  SAVED_PANDALS: '@pujahop:saved_pandals',
-  SELECTED_DATE: '@pujahop:selected_date',
-  LAST_SYNC: '@pujahop:last_sync',
-  AUTH_TOKEN: 'pujahop_auth_token',
+  OFFLINE_CONVERSATIONS: '@riiqx:offline_conversations',
+  CREATOR_DRAFTS: '@riiqx:creator_drafts',
+  AUTOPILOT_CONFIG: '@riiqx:autopilot_config',
+  LAST_SYNC: '@riiqx:last_sync',
+  AUTH_TOKEN: 'riiqx_auth_token',
 };
 
 export const storage = {
-  // Offline Trip Itinerary
-  async saveOfflineTrip(trip: TripPlan): Promise<void> {
+  // Offline Conversations
+  async saveConversations(convos: any[]): Promise<void> {
     try {
-      await AsyncStorage.setItem(KEYS.OFFLINE_TRIP, JSON.stringify(trip));
+      await AsyncStorage.setItem(KEYS.OFFLINE_CONVERSATIONS, JSON.stringify(convos));
       await AsyncStorage.setItem(KEYS.LAST_SYNC, new Date().toISOString());
     } catch (e) {
-      console.warn('Failed to save offline trip', e);
+      console.warn('Failed to save offline conversations', e);
     }
   },
 
-  async getOfflineTrip(): Promise<TripPlan | null> {
+  async getConversations(): Promise<any[]> {
     try {
-      const data = await AsyncStorage.getItem(KEYS.OFFLINE_TRIP);
-      return data ? JSON.parse(data) : null;
-    } catch {
-      return null;
-    }
-  },
-
-  async getLastSync(): Promise<string | null> {
-    return await AsyncStorage.getItem(KEYS.LAST_SYNC);
-  },
-
-  // Puja Passport Stamp Records
-  async saveVisits(visits: PandalVisitRecord[]): Promise<void> {
-    await AsyncStorage.setItem(KEYS.PASSPORT_VISITS, JSON.stringify(visits));
-  },
-
-  async getVisits(): Promise<PandalVisitRecord[]> {
-    try {
-      const data = await AsyncStorage.getItem(KEYS.PASSPORT_VISITS);
+      const data = await AsyncStorage.getItem(KEYS.OFFLINE_CONVERSATIONS);
       return data ? JSON.parse(data) : [];
     } catch {
       return [];
     }
   },
 
-  // Secure Auth Token (Biometric / Hardware-backed)
+  // Creator Drafts
+  async saveDrafts(drafts: any[]): Promise<void> {
+    try {
+      await AsyncStorage.setItem(KEYS.CREATOR_DRAFTS, JSON.stringify(drafts));
+    } catch (e) {
+      console.warn('Failed to save creator drafts', e);
+    }
+  },
+
+  async getDrafts(): Promise<any[]> {
+    try {
+      const data = await AsyncStorage.getItem(KEYS.CREATOR_DRAFTS);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  // Hardware-Backed Secure Store for Auth Tokens
   async setSecureToken(token: string): Promise<void> {
     try {
       await SecureStore.setItemAsync(KEYS.AUTH_TOKEN, token);
     } catch (e) {
-      console.warn('SecureStore unavailable, using fallback', e);
+      console.warn('SecureStore fallback to AsyncStorage', e);
       await AsyncStorage.setItem(KEYS.AUTH_TOKEN, token);
     }
   },
@@ -74,8 +72,8 @@ export const storage = {
 
   async clearCache(): Promise<void> {
     try {
-      await AsyncStorage.removeItem(KEYS.OFFLINE_TRIP);
-      await AsyncStorage.removeItem(KEYS.SAVED_PANDALS);
+      await AsyncStorage.removeItem(KEYS.OFFLINE_CONVERSATIONS);
+      await AsyncStorage.removeItem(KEYS.CREATOR_DRAFTS);
     } catch (e) {
       console.warn('Failed to clear cache', e);
     }

@@ -1,65 +1,47 @@
 // =============================================================================
-// PujaHop Kolkata Mobile: Native Header Component
-// Section 7: PujaHop Logo, SOS Trigger, Copilot Quick-Access, and Date Chip
+// RIIQX Mobile — Header Component
+// Brand lockup with active model status and quick actions
 // =============================================================================
 
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Sparkles, ShieldAlert } from 'lucide-react-native';
+import { Cpu, Settings } from 'lucide-react-native';
 import { colors } from '../../theme/colors';
-import { usePujaHop } from '../../hooks/usePujaHop';
-import { useHaptics } from '../../hooks/useHaptics';
+import { useRiiqxMobile } from '../../context/RiiqxMobileContext';
 
 export function Header() {
   const router = useRouter();
-  const { selectedDate } = usePujaHop();
-  const haptics = useHaptics();
-
-  const isPrePuja = selectedDate === '2026-10-13' || selectedDate === '2026-10-14';
-  const dateLabel = isPrePuja ? '14 OCT • PRE-PUJA' : '18 OCT • MAHA SAPTAMI';
+  const { selectedModel } = useRiiqxMobile();
 
   return (
     <View style={styles.container}>
       {/* Brand Lockup */}
       <View style={styles.brandContainer}>
         <View style={styles.logoMark}>
-          <Text style={styles.logoSymbol}>🪔</Text>
+          <Text style={styles.logoSymbol}>R</Text>
         </View>
         <View>
-          <Text style={styles.brandTitle}>PujaHop</Text>
-          <Text style={styles.brandCity}>KOLKATA</Text>
+          <Text style={styles.brandTitle}>RIIQX</Text>
+          <Text style={styles.brandTagline}>ONLINE AGENTIC AI</Text>
         </View>
       </View>
 
-      {/* Date & Actions */}
+      {/* Model & Settings Actions */}
       <View style={styles.actionsContainer}>
-        <View style={[styles.dateChip, isPrePuja ? styles.dateChipPrePuja : styles.dateChipMain]}>
-          <Text style={styles.dateChipText}>{dateLabel}</Text>
+        <View style={styles.modelChip}>
+          <Cpu size={12} color={colors.cyan} />
+          <Text style={styles.modelChipText}>
+            {selectedModel?.provider === 'bedrock' ? 'AWS Bedrock' : 'Agent Router'}
+          </Text>
         </View>
 
-        {/* SOS */}
         <TouchableOpacity
-          onPress={() => {
-            haptics.heavy();
-            router.push('/emergency');
-          }}
-          style={styles.sosButton}
-          accessibilityLabel="Emergency SOS"
+          onPress={() => router.push('/(tabs)/settings')}
+          style={styles.settingsButton}
+          accessibilityLabel="System Settings"
         >
-          <ShieldAlert size={16} color={colors.danger} />
-        </TouchableOpacity>
-
-        {/* Copilot */}
-        <TouchableOpacity
-          onPress={() => {
-            haptics.medium();
-            router.push('/copilot');
-          }}
-          style={styles.copilotButton}
-          accessibilityLabel="Puja Copilot AI"
-        >
-          <Sparkles size={16} color="#FFFFFF" />
+          <Settings size={15} color={colors.textSecondary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -73,7 +55,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: colors.deepCharcoal,
+    backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.cardBorder,
   },
@@ -83,70 +65,60 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   logoMark: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.cardDark,
+    width: 30,
+    height: 30,
+    borderRadius: 8,
+    backgroundColor: 'rgba(6, 182, 212, 0.15)',
     borderWidth: 1,
-    borderColor: colors.antiqueGold,
+    borderColor: colors.cyan,
     alignItems: 'center',
     justifyContent: 'center',
   },
   logoSymbol: {
+    color: colors.cyan,
     fontSize: 16,
+    fontWeight: '800',
   },
   brandTitle: {
     color: colors.textPrimary,
     fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: -0.3,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
-  brandCity: {
-    color: colors.antiqueGold,
-    fontSize: 9,
+  brandTagline: {
+    color: colors.textMuted,
+    fontSize: 8,
     fontWeight: '700',
-    letterSpacing: 1.2,
+    letterSpacing: 1,
   },
   actionsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  dateChip: {
+  modelChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 8,
+    backgroundColor: colors.card,
     borderWidth: 1,
+    borderColor: colors.cardBorder,
   },
-  dateChipPrePuja: {
-    backgroundColor: 'rgba(214, 168, 79, 0.15)',
-    borderColor: 'rgba(214, 168, 79, 0.4)',
-  },
-  dateChipMain: {
-    backgroundColor: 'rgba(198, 40, 40, 0.15)',
-    borderColor: 'rgba(198, 40, 40, 0.4)',
-  },
-  dateChipText: {
-    color: colors.softGold,
+  modelChipText: {
+    color: colors.textSecondary,
     fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.5,
+    fontWeight: '600',
   },
-  sosButton: {
+  settingsButton: {
     width: 32,
     height: 32,
     borderRadius: 8,
-    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    backgroundColor: colors.card,
     borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  copilotButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: colors.durgaRed,
+    borderColor: colors.cardBorder,
     alignItems: 'center',
     justifyContent: 'center',
   },

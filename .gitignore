@@ -19,6 +19,7 @@ mobile/node_modules/
 # misc
 .DS_Store
 *.pem
+scratch/
 
 # debug
 npm-debug.log*
@@ -47,3 +48,8 @@ mobile/.expo/
 *.key
 *.mobileprovision
 *.orig.*
+
+# python
+__pycache__/
+*.py[cod]
+*$py.class
