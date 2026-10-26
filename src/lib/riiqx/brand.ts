@@ -25,6 +25,11 @@ export interface RiiqxBrandConfig {
     textSecondary: string;
     textMuted: string;
   };
+  theme?: {
+    light: Record<string, string>;
+    dark: Record<string, string>;
+    accents: Record<string, string>;
+  };
   seo: {
     title: string;
     description: string;
@@ -38,7 +43,7 @@ export const riiqxBrand: RiiqxBrandConfig = {
   subheadline: 'The Online-First Agentic AI Platform • Autonomous Creator Studio & Social Autopilot',
   version: '2.0.0-production',
   palette: {
-    bg: '#030712', // Obsidian Black
+    bg: '#030712', // Obsidian Black (Legacy Fallback)
     surface: '#070D1F', // Deep Midnight Navy
     card: '#0B132B', // Structured Slate
     cardElevated: '#111C3A', // Elevated Panel
@@ -54,6 +59,43 @@ export const riiqxBrand: RiiqxBrandConfig = {
     textSecondary: '#94A3B8', // Slate Text
     textMuted: '#64748B', // Muted Commentary
   },
+  theme: {
+    light: {
+      canvas: '#F8FAFC',
+      canvasSubtle: '#F1F5F9',
+      surface: '#FFFFFF',
+      card: '#FFFFFF',
+      cardHover: '#F8FAFC',
+      border: '#E2E8F0',
+      borderSubtle: '#F1F5F9',
+      borderHighlight: '#DDD6FE',
+      textPrimary: '#0F172A',
+      textSecondary: '#475569',
+      textMuted: '#94A3B8',
+    },
+    dark: {
+      canvas: '#0B0F19',
+      canvasSubtle: '#111827',
+      surface: '#111827',
+      card: '#1E293B',
+      cardHover: '#334155',
+      border: '#334155',
+      borderSubtle: '#1E293B',
+      borderHighlight: '#4C1D95',
+      textPrimary: '#F8FAFC',
+      textSecondary: '#94A3B8',
+      textMuted: '#64748B',
+    },
+    accents: {
+      violet: '#7C3AED',
+      pink: '#EC4899',
+      emerald: '#10B981',
+      sky: '#0EA5E9',
+      amber: '#F59E0B',
+      gradient: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)',
+    },
+  },
+
   seo: {
     title: 'RIIQX — One Goal. An AI That Gets It Done.',
     description:

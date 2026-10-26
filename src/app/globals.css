@@ -4,44 +4,43 @@
 @import 'leaflet/dist/leaflet.css';
 
 :root {
-  --background: #030712;
-  --background-secondary: #070D1F;
-  --surface: #0B132B;
-  --surface-elevated: #132147;
-  --surface-glass: rgba(11, 19, 43, 0.75);
-  --border: #1E2A4A;
-  --border-accent: #2D4170;
-  --foreground: #F8FAFC;
-  --foreground-secondary: #94A3B8;
+  --background: #F8FAFC;
+  --background-secondary: #F1F5F9;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --surface-glass: rgba(255, 255, 255, 0.85);
+  --border: #E2E8F0;
+  --border-subtle: #F1F5F9;
+  --border-accent: #DDD6FE;
+  --foreground: #0F172A;
+  --foreground-secondary: #334155;
   --muted: #64748B;
 
-  /* NUVEXA Master Palette */
-  --nuvexa-bg: #030712;
-  --nuvexa-navy: #070D1F;
-  --nuvexa-card: #0B132B;
-  --nuvexa-surface: #0D1734;
-  --nuvexa-elevated: #132147;
-  --nuvexa-border: #1E2A4A;
-  --nuvexa-cyan: #06B6D4;
-  --nuvexa-blue: #3B82F6;
-  --nuvexa-violet: #8B5CF6;
-  --nuvexa-magenta: #EC4899;
+  /* RIIQX 2.0 Master Palette (Modern Creator First) */
+  --riiqx-canvas: #F8FAFC;
+  --riiqx-surface: #FFFFFF;
+  --riiqx-card: #FFFFFF;
+  --riiqx-border: #E2E8F0;
+  --riiqx-charcoal: #0F172A;
+  --riiqx-violet: #7C3AED;
+  --riiqx-pink: #EC4899;
+  --riiqx-emerald: #10B981;
 
   /* Gradients */
-  --nuvexa-gradient-primary: linear-gradient(135deg, #06B6D4 0%, #3B82F6 50%, #8B5CF6 100%);
-  --nuvexa-gradient-glow: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(139, 92, 246, 0.15) 100%);
-  --nuvexa-gradient-magenta: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
-  --nuvexa-gradient-card: linear-gradient(180deg, rgba(13, 23, 52, 0.8) 0%, rgba(11, 19, 43, 0.95) 100%);
+  --riiqx-gradient-primary: linear-gradient(135deg, #7C3AED 0%, #9333EA 50%, #EC4899 100%);
+  --riiqx-gradient-subtle: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%);
+  --riiqx-gradient-glow: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
 }
 
 .dark {
-  --background: #030712;
-  --background-secondary: #070D1F;
-  --surface: #0B132B;
-  --surface-elevated: #132147;
-  --surface-glass: rgba(11, 19, 43, 0.75);
-  --border: #1E2A4A;
-  --border-accent: #2D4170;
+  --background: #0B0F19;
+  --background-secondary: #111827;
+  --surface: #1E293B;
+  --surface-elevated: #334155;
+  --surface-glass: rgba(17, 24, 39, 0.85);
+  --border: #334155;
+  --border-subtle: #1E293B;
+  --border-accent: #6D28D9;
   --foreground: #F8FAFC;
   --foreground-secondary: #94A3B8;
   --muted: #64748B;
@@ -51,6 +50,14 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+/* RIIQX Gradient Text Utility */
+.riiqx-gradient-text {
+  background: var(--riiqx-gradient-primary);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* NUVEXA Typography & Gradients */

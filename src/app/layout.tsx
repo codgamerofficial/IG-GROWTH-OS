@@ -32,8 +32,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#030712',
-  colorScheme: 'dark',
+  themeColor: '#7C3AED',
+  colorScheme: 'light dark',
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
@@ -43,10 +43,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`dark ${inter.variable}`}>
-      <body className="min-h-screen bg-[#030712] text-[#F8FAFC] antialiased selection:bg-cyan-500/30 selection:text-white flex flex-col font-sans w-full max-w-full overflow-x-hidden">
+    <html lang="en" className={inter.variable}>
+      <body className="min-h-screen bg-[#F8FAFC] text-[#0F172A] dark:bg-[#0B0F19] dark:text-[#F8FAFC] antialiased selection:bg-violet-500/20 selection:text-violet-900 flex flex-col font-sans w-full max-w-full overflow-x-hidden">
         <RiiqxProvider>
-          <div className="flex h-screen w-full flex-col overflow-hidden bg-[#030712]">
+          <div className="flex h-screen w-full flex-col overflow-hidden bg-[#F8FAFC] dark:bg-[#0B0F19]">
             <RiiqxHeader />
             <div className="flex flex-1 overflow-hidden">
               <RiiqxSidebar />
@@ -59,3 +59,4 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+

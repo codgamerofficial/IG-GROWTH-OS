@@ -858,78 +858,76 @@ export function RiiqxCreatorStudio() {
   ];
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-y-auto bg-[#030712] p-4 sm:p-6 lg:p-8">
+    <div className="flex h-full flex-1 flex-col overflow-y-auto bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-900 dark:text-white p-4 sm:p-6 lg:p-8">
       <div className="mx-auto w-full max-w-7xl space-y-6">
         {/* Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#1E2A4A] pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <Video className="h-5 w-5 text-cyan-400" />
-              <h1 className="text-xl font-bold tracking-tight text-white">RIIQX Creator Studio 2.0</h1>
-              <span className="rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-0.5 text-[10px] font-bold text-cyan-400">
-                AI REELS &amp; SHORTS FACTORY
-              </span>
-              <span className="hidden sm:inline-flex rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
-                ONLINE AI VERIFIED
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-violet-600 to-pink-500 text-white flex items-center justify-center shadow-xs">
+                <Video className="h-4 w-4" />
+              </div>
+              <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Creator Studio</h1>
+              <span className="rounded-full bg-violet-50 dark:bg-violet-950/40 border border-violet-200 dark:border-violet-800 px-2.5 py-0.5 text-[10px] font-bold text-violet-600 dark:text-violet-400">
+                AI Viral Reels & Shorts Factory
               </span>
             </div>
-            <p className="mt-1 text-xs text-[#94A3B8]">
-              Upload photos or videos → AI analyzes media → Choose a style → 1-Click Viral Reels &amp; Shorts generation.
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              Turn your ideas, photos & videos into viral Reels, Shorts & more. Simple. Powerful. Professional.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             {/* View Mode Switcher */}
-            <div className="flex rounded-xl border border-[#1E2A4A] bg-[#070D1F] p-0.5">
+            <div className="flex rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1 text-xs">
               <button
                 onClick={() => setActiveSubTab('studio')}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-bold transition ${
                   activeSubTab === 'studio'
-                    ? 'bg-cyan-500 text-black shadow-md'
-                    : 'text-[#94A3B8] hover:text-white'
+                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <Film className="h-3.5 w-3.5" />
-                <span>Studio</span>
+                <span>Create</span>
               </button>
               <button
                 onClick={() => setActiveSubTab('trend_assist')}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-bold transition ${
                   activeSubTab === 'trend_assist'
-                    ? 'bg-cyan-500 text-black shadow-md'
-                    : 'text-[#94A3B8] hover:text-white'
+                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <TrendingUp className="h-3.5 w-3.5" />
-                <span>Trend Assist</span>
+                <span>Trending</span>
               </button>
               <button
                 onClick={() => setActiveSubTab('projects')}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-bold transition ${
                   activeSubTab === 'projects'
-                    ? 'bg-cyan-500 text-black shadow-md'
-                    : 'text-[#94A3B8] hover:text-white'
+                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-2xs'
+                    : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 <FolderOpen className="h-3.5 w-3.5" />
-                <span>Library ({savedProjects.length})</span>
+                <span>My Projects ({savedProjects.length})</span>
               </button>
             </div>
 
             <button
-              onClick={handleSendToAutopilot}
-              className="hidden sm:flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-lg shadow-cyan-950/40 hover:brightness-110 transition"
+              onClick={() => setActiveTab('editor')}
+              className="flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-violet-600 to-pink-500 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:from-violet-700 hover:to-pink-600 transition"
             >
-              <Send className="h-3.5 w-3.5" />
-              <span>Autopilot</span>
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>+ Open Video Editor</span>
             </button>
           </div>
         </div>
 
-        {/* =========================================================================
-            PROMINENT REMINDER BANNER: UPLOAD ANY FOOTAGE/PHOTOS FOR VIRAL REELS
-           ========================================================================= */}
-        <div className="relative overflow-hidden rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-[#070D1F] via-[#0B132B] to-[#111C3A] p-5 shadow-2xl">
+        {/* Upload Reminder Card */}
+        <div className="relative overflow-hidden rounded-3xl border border-violet-100 dark:border-violet-900/40 bg-gradient-to-r from-violet-50/60 via-purple-50/40 to-pink-50/60 dark:from-violet-950/20 dark:via-purple-950/10 dark:to-pink-950/20 p-5 shadow-2xs">
+
           <div className="absolute -top-12 -right-12 h-44 w-44 rounded-full bg-cyan-500/10 blur-3xl pointer-events-none" />
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1.5 max-w-3xl">

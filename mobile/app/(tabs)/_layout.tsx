@@ -1,10 +1,12 @@
 // =============================================================================
-// RIIQX Mobile — Primary Tab Navigator
-// One Goal. An AI That Gets It Done.
+// RIIQX Mobile 2.0 — Primary 5-Tab Navigator
+// Home • AI Chat • Create (+) • Studio • Apps
+// Matching Reference Image 2 Screen 2 & Screen 13
 // =============================================================================
 
 import React from 'react';
 import { Tabs } from 'expo-router';
+import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../src/theme/colors';
 
@@ -16,83 +18,134 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: colors.surface,
           borderTopColor: colors.cardBorder,
-          height: 60,
+          height: 64,
           paddingBottom: 8,
           paddingTop: 8,
+          borderTopWidth: 1,
         },
-        tabBarActiveTintColor: colors.cyan,
+        tabBarActiveTintColor: colors.violet,
         tabBarInactiveTintColor: colors.textMuted,
         tabBarLabelStyle: {
-          fontSize: 11,
-          fontWeight: '600',
+          fontSize: 10,
+          fontWeight: '700',
         },
       }}
     >
+      {/* Tab 1: Home */}
       <Tabs.Screen
         name="index"
+        options={{
+          title: 'Home',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'home' : 'home-outline'}
+              size={size - 2}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* Tab 2: AI Chat */}
+      <Tabs.Screen
+        name="chat"
         options={{
           title: 'Chat',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
-              name={focused ? 'chatbubble-ellipses' : 'chatbubble-ellipses-outline'}
+              name={focused ? 'chatbubbles' : 'chatbubbles-outline'}
               size={size - 2}
               color={color}
             />
           ),
         }}
       />
+
+      {/* Tab 3: Create (Prominent Elevated Central Action Button) */}
       <Tabs.Screen
         name="creator"
         options={{
-          title: 'Creator',
+          title: '',
+          tabBarIcon: () => (
+            <View style={styles.createButtonContainer}>
+              <View style={styles.createButton}>
+                <Ionicons name="add" size={26} color="#FFFFFF" />
+              </View>
+            </View>
+          ),
+        }}
+      />
+
+      {/* Tab 4: Studio */}
+      <Tabs.Screen
+        name="studio"
+        options={{
+          title: 'Studio',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
-              name={focused ? 'videocam' : 'videocam-outline'}
+              name={focused ? 'film' : 'film-outline'}
               size={size - 2}
               color={color}
             />
           ),
         }}
       />
+
+      {/* Tab 5: Apps / Tools */}
       <Tabs.Screen
-        name="autopilot"
+        name="apps"
         options={{
-          title: 'Autopilot',
+          title: 'Apps',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
-              name={focused ? 'sync' : 'sync-outline'}
+              name={focused ? 'grid' : 'grid-outline'}
               size={size - 2}
               color={color}
             />
           ),
+        }}
+      />
+
+      {/* Hidden Auxiliary Screens in Tab Router */}
+      <Tabs.Screen
+        name="autopilot"
+        options={{
+          href: null,
         }}
       />
       <Tabs.Screen
         name="tasks"
         options={{
-          title: 'Tasks',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'checkbox' : 'checkbox-outline'}
-              size={size - 2}
-              color={color}
-            />
-          ),
+          href: null,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'settings' : 'settings-outline'}
-              size={size - 2}
-              color={color}
-            />
-          ),
+          href: null,
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  createButtonContainer: {
+    top: -12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  createButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#7C3AED',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+});

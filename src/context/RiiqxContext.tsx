@@ -19,12 +19,16 @@ import {
 } from '@/lib/riiqx/storage';
 
 export type RiiqxViewTab =
+  | 'home'
   | 'chat'
   | 'creator'
+  | 'editor'
   | 'autopilot'
   | 'tasks'
   | 'research'
   | 'code'
+  | 'integrations'
+  | 'files'
   | 'analytics'
   | 'settings';
 
@@ -32,6 +36,16 @@ interface RiiqxContextType {
   // Navigation & View
   activeTab: RiiqxViewTab;
   setActiveTab: (tab: RiiqxViewTab) => void;
+
+  // Visual Theme (Light/Dark)
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+  setTheme: (theme: 'light' | 'dark') => void;
+
+  // Global Quick Prompt / Task Handoff
+  globalPrompt: string;
+  setGlobalPrompt: (val: string) => void;
+  executeGlobalTask: (prompt: string, targetTab?: RiiqxViewTab) => void;
 
   // Identity & Session
   user: RiiqxUser;
@@ -82,7 +96,48 @@ interface RiiqxContextType {
 const RiiqxContext = createContext<RiiqxContextType | undefined>(undefined);
 
 export function RiiqxProvider({ children }: { children: ReactNode }) {
-  const [activeTab, setActiveTab] = useState<RiiqxViewTab>('chat');
+  const [activeTab, setActiveTab] = useState<RiiqxViewTab>('home');
+  const [theme, setThemeState] = useState<'light' | 'dark'>('light');
+  const [globalPrompt, setGlobalPrompt] = useState<string>('');
+
+  const setTheme = useCallback((newTheme: 'light' | 'dark') => {
+    setThemeState(newTheme);
+    if (typeof document !== 'undefined') {
+      if (newTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+      try {
+        localStorage.setItem('riiqx_theme', newTheme);
+      } catch {}
+    }
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  }, [theme, setTheme]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('riiqx_theme') as 'light' | 'dark' | null;
+        if (saved === 'dark' || saved === 'light') {
+          setTheme(saved);
+        }
+      } catch {}
+    }
+  }, [setTheme]);
+
+  const executeGlobalTask = useCallback((prompt: string, targetTab?: RiiqxViewTab) => {
+    setGlobalPrompt(prompt);
+    if (targetTab) {
+      setActiveTab(targetTab);
+    } else {
+      setActiveTab('chat');
+    }
+  }, []);
+
   const [user, setUser] = useState<RiiqxUser>(getDefaultUser());
   const [models] = useState<RiiqxModel[]>(RIIQX_MODELS);
   const [selectedModel, setSelectedModel] = useState<RiiqxModel>(RIIQX_MODELS[0]); // Default: AWS Bedrock Claude Sonnet
@@ -345,6 +400,12 @@ export function RiiqxProvider({ children }: { children: ReactNode }) {
       value={{
         activeTab,
         setActiveTab,
+        theme,
+        toggleTheme,
+        setTheme,
+        globalPrompt,
+        setGlobalPrompt,
+        executeGlobalTask,
         user,
         setUser,
         models,
