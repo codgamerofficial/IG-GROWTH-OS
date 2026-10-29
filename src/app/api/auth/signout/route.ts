@@ -1,9 +1,10 @@
 // =============================================================================
 // RIIQX — Sign Out Route Handler
-// Clears Supabase Session and Deletes Session Cookies
+// Clears Supabase Session and Deletes All Session Cookies
 // =============================================================================
 
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
@@ -18,7 +19,22 @@ export async function POST() {
       message: 'Signed out successfully',
     });
 
-    // Clear session cookies
+    const cookieStore = cookies();
+    cookieStore.getAll().forEach((c) => {
+      if (
+        c.name.includes('supabase') ||
+        c.name.includes('sb-') ||
+        c.name === 'riiqx_session' ||
+        c.name === 'riiqx_auth_next'
+      ) {
+        response.cookies.set(c.name, '', {
+          path: '/',
+          maxAge: 0,
+        });
+      }
+    });
+
+    // Explicitly guarantee riiqx_session is purged
     response.cookies.set('riiqx_session', '', {
       path: '/',
       maxAge: 0,

@@ -90,14 +90,22 @@ export async function updateSession(request: NextRequest) {
     if (pathname !== '/') {
       loginUrl.searchParams.set('next', pathname);
     }
-    return NextResponse.redirect(loginUrl);
+    const redirectRes = NextResponse.redirect(loginUrl);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectRes.cookies.set(cookie.name, cookie.value);
+    });
+    return redirectRes;
   }
 
   // 2. Authenticated user trying to access login/signup -> Redirect to App
   if (isAuthenticated && (pathname === '/auth/login' || pathname === '/auth/signup')) {
     const nextParam = request.nextUrl.searchParams.get('next');
     const redirectUrl = new URL(nextParam && nextParam.startsWith('/') ? nextParam : '/', request.url);
-    return NextResponse.redirect(redirectUrl);
+    const redirectRes = NextResponse.redirect(redirectUrl);
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      redirectRes.cookies.set(cookie.name, cookie.value);
+    });
+    return redirectRes;
   }
 
   return supabaseResponse;

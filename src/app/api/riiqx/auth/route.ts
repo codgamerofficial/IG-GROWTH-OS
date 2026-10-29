@@ -88,45 +88,13 @@ export async function POST(req: NextRequest) {
     }
 
     // -------------------------------------------------------------------------
-    // ACTION: DEMO / QUICK CREATOR LOGIN
+    // ACTION: DEMO LOGIN (DISABLED FOR SECURITY)
     // -------------------------------------------------------------------------
     if (action === 'demo_login') {
-      const demoUserId = 'usr_riiqx_primary';
-      const demoEmail = email ? email.toLowerCase().trim() : 'creator@riiqx.ai';
-      const demoName = name || 'Saswata Dey';
-
-      const profile = await ensureUserProfile({
-        id: demoUserId,
-        email: demoEmail,
-        user_metadata: {
-          full_name: demoName,
-          display_name: demoName,
-        },
-      });
-
-      const token = createSessionToken(demoUserId);
-      const res = NextResponse.json({
-        success: true,
-        user: {
-          id: demoUserId,
-          email: demoEmail,
-          name: profile?.displayName || demoName,
-          role: profile?.role || 'creator',
-          createdAt: new Date().toISOString(),
-        },
-        token,
-        provider: 'demo_creator',
-      });
-
-      res.cookies.set('riiqx_session', token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 7 * 24 * 60 * 60,
-        sameSite: 'lax',
-      });
-
-      return res;
+      return NextResponse.json(
+        { error: 'Unauthorized: Demo login bypass has been removed for production security.' },
+        { status: 403 }
+      );
     }
 
     if (!email || !password) {

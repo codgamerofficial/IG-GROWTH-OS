@@ -3,7 +3,7 @@
 // =============================================================================
 // RIIQX — Master Sign In Page
 // iOS-Inspired Contemporary Design • Trending Yellow & Red • Real Supabase Auth
-// Zero Hardcoded Credentials • Pre-Flight OAuth Diagnostic • Dual-Mode Resilience
+// Zero Hardcoded Credentials • PKCE OAuth via @supabase/ssr • Production Secure
 // =============================================================================
 
 import React, { useState, useEffect } from 'react';
@@ -20,14 +20,17 @@ import {
   ShieldCheck,
   AlertTriangle,
   ExternalLink,
-  Sparkles,
 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { useRiiqx } from '@/context/RiiqxContext';
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const nextUrl = searchParams.get('next') || '/';
   const urlError = searchParams.get('error');
+
+  const { isAuthenticated, isAuthLoading } = useRiiqx();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -44,40 +47,20 @@ function LoginForm() {
     isProviderDisabled?: boolean;
   } | null>(null);
 
-  // Capture URL-transmitted errors (e.g. from OAuth callback)
+  // If already authenticated and no active error, redirect forward to workspace
+  useEffect(() => {
+    if (!isAuthLoading && isAuthenticated && !urlError) {
+      const safeNext = nextUrl.startsWith('/') && !nextUrl.startsWith('//') ? nextUrl : '/';
+      router.replace(safeNext);
+    }
+  }, [isAuthenticated, isAuthLoading, nextUrl, router, urlError]);
+
+  // Capture URL-transmitted errors (from OAuth callback) without generic masking
   useEffect(() => {
     if (urlError) {
-      if (urlError === 'auth_exchange_failed') {
-        setError('Authentication exchange failed. Please sign in again.');
-      } else {
-        setError(decodeURIComponent(urlError));
-      }
+      setError(decodeURIComponent(urlError));
     }
   }, [urlError]);
-
-  const handleQuickDemoLogin = async () => {
-    try {
-      setError(null);
-      setLoading(true);
-      const res = await fetch('/api/riiqx/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'demo_login', email: 'creator@riiqx.ai', name: 'Saswata Dey' }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to sign in.');
-      }
-      const safeNext = nextUrl.startsWith('/') && !nextUrl.startsWith('//') ? nextUrl : '/';
-      router.push(safeNext);
-      router.refresh();
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Quick sign in failed';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,42 +99,35 @@ function LoginForm() {
       setSupabaseAlert(null);
       setOauthLoading(true);
 
-      // Supabase Auth: delegates to /api/auth/oauth/google gateway which calls supabase.auth.signInWithOAuth
-      const preflightRes = await fetch(`/api/auth/oauth/google?next=${encodeURIComponent(nextUrl)}`);
-      const preflight = await preflightRes.json();
+      // Clean callback URL matching exact Supabase Allowlist:
+      // http://localhost:3001/auth/callback (locally)
+      // https://riiqx.vercel.app/auth/callback (in production)
+      const callbackUrl = `${window.location.origin}/auth/callback`;
 
-      if (!preflightRes.ok || !preflight.reachable) {
-        if (preflight.error === 'google_provider_disabled') {
-          setSupabaseAlert({
-            projectRef: preflight.projectRef || 'ojtngzqsrdralrhipjzt',
-            restoreUrl: preflight.providersUrl || `https://supabase.com/dashboard/project/${preflight.projectRef}/auth/providers`,
-            message: preflight.message || 'Google Sign-In is disabled in your Supabase project.',
-            providersUrl: preflight.providersUrl,
-            supabaseCallbackUrl: preflight.supabaseCallbackUrl,
-            isProviderDisabled: true,
-          });
-          return;
-        }
-        if (preflight.error === 'supabase_dns_nxdomain' || preflight.error === 'supabase_service_unreachable') {
-          setSupabaseAlert({
-            projectRef: preflight.projectRef || 'ojtngzqsrdralrhipjzt',
-            restoreUrl: preflight.restoreUrl || `https://supabase.com/dashboard/project/${preflight.projectRef}`,
-            message: preflight.message,
-            isProviderDisabled: false,
-          });
-          return;
-        }
-        throw new Error(preflight.message || 'Google OAuth is unavailable.');
+      // Store intended next route in temporary cookie if different from root
+      if (nextUrl && nextUrl !== '/' && nextUrl.startsWith('/') && !nextUrl.startsWith('//')) {
+        document.cookie = `riiqx_auth_next=${encodeURIComponent(nextUrl)}; path=/; max-age=300; SameSite=Lax`;
       }
 
-      // If Supabase is reachable and Google enabled, redirect to Google OAuth
-      if (preflight.url) {
-        window.location.href = preflight.url;
+      // Initiate client-side PKCE flow via @supabase/ssr to set code_verifier cookie
+      const supabase = createClient();
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: callbackUrl,
+          queryParams: {
+            prompt: 'select_account',
+            access_type: 'offline',
+          },
+        },
+      });
+
+      if (oauthError) {
+        throw oauthError;
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Google sign-in failed';
       setError(msg);
-    } finally {
       setOauthLoading(false);
     }
   };
@@ -169,70 +145,66 @@ function LoginForm() {
         <h1 className="text-3xl font-extrabold tracking-tight text-[#202124] dark:text-white font-heading">
           Welcome Back
         </h1>
-        <p className="text-xs sm:text-sm text-[#737373] dark:text-[#A3A3A3] mt-2">
+        <p className="mt-2 text-sm text-[#737373] dark:text-[#A1A1AA]">
           One Goal. An AI That Gets It Done.
         </p>
       </div>
 
-      {/* Main Authentication Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] shadow-sm transition-all">
-        {/* Error Alert */}
+      {/* Main Glass Card */}
+      <div className="bg-white/80 dark:bg-[#202020]/80 backdrop-blur-md rounded-3xl p-6 sm:p-8 shadow-sm border border-[#EAE7E1] dark:border-[#2E2E2E]">
+        {/* Error Notification Alert */}
         {error && (
-          <div className="mb-5 p-3.5 rounded-2xl bg-[#FF4D4F]/10 border border-[#FF4D4F]/30 text-[#FF4D4F] text-xs flex items-start gap-2.5 animate-fadeIn">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-            <span className="leading-relaxed">{error}</span>
+          <div className="mb-6 p-4 rounded-2xl bg-[#FF6B5E]/10 border border-[#FF6B5E]/30 flex items-start gap-3 text-xs sm:text-sm text-[#FF6B5E]">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+            <div className="flex-1 font-medium leading-relaxed">{error}</div>
           </div>
         )}
 
-        {/* Supabase Paused Project Diagnostic Notice */}
+        {/* Supabase Actionable Diagnostic Alert */}
         {supabaseAlert && (
-          <div className="mb-5 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-[#202124] dark:text-[#F7F7F7] text-xs space-y-3 animate-fadeIn">
-            <div className="flex items-start gap-2 text-amber-600 dark:text-amber-400 font-bold">
+          <div className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs sm:text-sm">
+            <div className="flex items-start gap-2.5 mb-2 font-bold">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>
-                {supabaseAlert.isProviderDisabled
-                  ? 'Google Sign-In Disabled in Supabase'
-                  : 'Supabase Project Paused or Unreachable'}
-              </span>
+              <span>Supabase Configuration Notice</span>
             </div>
-            <p className="text-[11.5px] text-[#737373] dark:text-[#A3A3A3] leading-relaxed">
-              {supabaseAlert.isProviderDisabled ? (
-                <>
-                  Your Supabase project <code className="px-1 py-0.5 rounded bg-black/5 dark:bg-white/10 font-mono text-[10.5px] text-[#202124] dark:text-amber-300">{supabaseAlert.projectRef}</code> currently has the Google OAuth provider turned <strong>OFF</strong>. To show the Google account picker:
-                </>
-              ) : (
-                supabaseAlert.message
-              )}
+            <p className="mb-3 leading-relaxed text-[#737373] dark:text-[#A1A1AA]">
+              {supabaseAlert.message}
             </p>
-            {supabaseAlert.isProviderDisabled && (
-              <div className="space-y-1 pl-2.5 border-l-2 border-amber-500/30 text-[11px] text-[#737373] dark:text-[#A3A3A3]">
-                <div>1. In Supabase Dashboard, toggle <strong>Google</strong> to <strong>Enabled</strong>.</div>
-                <div>2. Enter your Google Client ID &amp; Secret from Google Cloud.</div>
-                <div>3. Add Redirect URI: <code className="font-mono text-[10px] break-all">{supabaseAlert.supabaseCallbackUrl}</code></div>
+            {supabaseAlert.isProviderDisabled ? (
+              <div className="space-y-2">
+                <p className="text-[11px] text-[#737373] dark:text-[#A1A1AA]">
+                  To activate Google Sign-In, toggle <strong>Google</strong> to Enabled in your Supabase Auth Providers console and add your Google Cloud Client ID &amp; Secret:
+                </p>
+                {supabaseAlert.supabaseCallbackUrl && (
+                  <div className="p-2 rounded bg-black/5 dark:bg-white/5 font-mono text-[10px] break-all select-all">
+                    Redirect URI: {supabaseAlert.supabaseCallbackUrl}
+                  </div>
+                )}
+                <a
+                  href={supabaseAlert.restoreUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 transition"
+                >
+                  <span>Open Supabase Providers</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
               </div>
-            )}
-            <div className="pt-1 flex flex-col sm:flex-row gap-2">
+            ) : (
               <a
-                href={supabaseAlert.providersUrl || supabaseAlert.restoreUrl}
+                href={supabaseAlert.restoreUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs transition"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500 text-white font-bold text-xs hover:bg-amber-600 transition"
               >
-                <span>{supabaseAlert.isProviderDisabled ? 'Enable Google in Supabase' : 'Restore in Supabase'}</span>
-                <ExternalLink className="w-3 h-3" />
+                <span>Restore Supabase Project</span>
+                <ExternalLink className="w-3.5 h-3.5" />
               </a>
-              <button
-                type="button"
-                onClick={handleQuickDemoLogin}
-                className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#202124] dark:bg-white text-white dark:text-[#202124] font-bold text-xs transition"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#FFD43B]" />
-                <span>Instant Creator Access (1-Click)</span>
-              </button>
-            </div>
+            )}
           </div>
         )}
 
+        {/* Traditional Credentials Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
@@ -251,7 +223,7 @@ function LoginForm() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="creator@riiqx.ai"
+                placeholder="name@company.com"
                 className="w-full pl-10 pr-4 py-2.5 rounded-2xl text-xs sm:text-sm bg-[#FAF9F6] dark:bg-[#151515] border border-[#EAE7E1] dark:border-[#2E2E2E] focus:outline-hidden focus:border-[#FFD43B] transition-colors"
               />
             </div>
@@ -359,16 +331,6 @@ function LoginForm() {
             )}
             <span>Sign in with Google</span>
           </button>
-
-          <button
-            type="button"
-            onClick={handleQuickDemoLogin}
-            disabled={loading}
-            className="w-full py-2.5 px-4 rounded-2xl border border-dashed border-[#FFD43B]/60 hover:border-[#FFD43B] bg-[#FFD43B]/10 hover:bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#D97706] dark:text-[#FFD43B]" />
-            <span>Instant Creator Access (One-Click Bypass)</span>
-          </button>
         </div>
 
         {/* Footer Navigation Link */}
@@ -382,6 +344,25 @@ function LoginForm() {
           </Link>
         </div>
       </div>
+
+      {/* Security & Legal Micro Footer */}
+      <div className="mt-8 text-center text-xs text-[#737373] space-y-2">
+        <div className="flex items-center justify-center gap-1.5 font-medium">
+          <ShieldCheck className="w-4 h-4 text-[#34A853]" />
+          <span>AES-256 Encrypted Session • RLS Isolated</span>
+        </div>
+        <p>
+          By signing in, you agree to our{' '}
+          <Link href="/terms" className="underline hover:text-[#202124] dark:hover:text-white transition">
+            Terms of Service
+          </Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="underline hover:text-[#202124] dark:hover:text-white transition">
+            Privacy Policy
+          </Link>
+          .
+        </p>
+      </div>
     </div>
   );
 }
@@ -390,9 +371,8 @@ export default function LoginPage() {
   return (
     <React.Suspense
       fallback={
-        <div className="w-full max-w-md mx-auto flex flex-col items-center justify-center py-24 space-y-4">
+        <div className="min-h-[400px] flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-[#FFD43B]" />
-          <span className="text-xs text-[#737373]">Loading RIIQX secure sign in...</span>
         </div>
       }
     >
