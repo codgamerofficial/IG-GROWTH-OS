@@ -1,9 +1,10 @@
 // =============================================================================
-// PujaHop Kolkata: Supabase Browser Client
+// RIIQX — Supabase Browser Client (SSR-Compatible)
+// Uses @supabase/ssr createBrowserClient with Cookie-Backed Sessions
 // Public Anon Access Only • Never exposes Service Role Key
 // =============================================================================
 
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import type { Database } from '@/lib/types/database.types';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ojtngzqsrdralrhipjzt.supabase.co';
@@ -21,12 +22,8 @@ export const isSupabaseConfigured = (): boolean => {
 };
 
 export const createClient = () => {
-  return createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-    },
-  });
+  return createBrowserClient<Database>(supabaseUrl, supabaseAnonKey);
 };
 
+// Singleton instance for client components
 export const supabase = createClient();

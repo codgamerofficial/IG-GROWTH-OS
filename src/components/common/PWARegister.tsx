@@ -14,18 +14,20 @@ export function PWARegister() {
   const [justReconnected, setJustReconnected] = useState(false);
 
   useEffect(() => {
-    // 1. Register Service Worker
+    // 1. Unregister any existing service worker and purge stale caches
     if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('/sw.js')
-          .then((registration) => {
-            console.log('[PujaHop PWA] Service worker registered with scope:', registration.scope);
-          })
-          .catch((err) => {
-            console.warn('[PujaHop PWA] Service worker registration failed:', err);
-          });
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) {
+          registration.unregister();
+        }
       });
+      if ('caches' in window) {
+        caches.keys().then((keys) => {
+          for (const key of keys) {
+            caches.delete(key);
+          }
+        });
+      }
     }
 
     // 2. Online / Offline Listeners

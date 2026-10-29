@@ -8,7 +8,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { NuvexaConversation, NuvexaMessage, NuvexaProject, NuvexaTaskPlan, NuvexaDocument } from '@/lib/nuvexa/types';
 import { NUVEXA_MODELS, NuvexaModel, ProviderHealth } from '@/lib/nuvexa/models';
-import { NuvexaUser, getDefaultUser } from '@/lib/nuvexa/auth';
+import { NuvexaUser, getDefaultUser } from '@/lib/nuvexa/user';
 
 export type NuvexaViewTab =
   | 'chat'

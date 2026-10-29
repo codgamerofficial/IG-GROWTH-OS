@@ -2,10 +2,11 @@
 
 // =============================================================================
 // RIIQX — Level 3 Social Media Autopilot Command Center
-// 12-State Machine • Emergency STOP • Bounded Rules & Telegram/WhatsApp Telemetry
+// iOS-Inspired Design System • Trending Yellow (#FFD43B) & Red/Coral (#FF4D4F)
+// 12-State Machine • Emergency STOP • Bounded Rules & Safe Telemetry
 // =============================================================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Rocket,
   ShieldAlert,
@@ -20,6 +21,7 @@ import {
   Instagram,
   Youtube,
   Plus,
+  ArrowRight,
 } from 'lucide-react';
 import { AutopilotJob, AutopilotRule, AutopilotSystemStatus } from '@/lib/riiqx/autopilot-types';
 import {
@@ -69,28 +71,32 @@ export function RiiqxAutopilotCenter() {
   };
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-y-auto bg-[#030712] p-4 sm:p-6 lg:p-8">
-      <div className="mx-auto w-full max-w-7xl space-y-6">
+    <div className="flex h-full flex-1 flex-col overflow-y-auto bg-[#FAF9F6] dark:bg-[#151515] p-4 sm:p-6 lg:p-8 transition-colors">
+      <div className="mx-auto w-full max-w-6xl space-y-6">
         {/* Header & Global Circuit Breaker */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#1E2A4A] pb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#EAE7E1] dark:border-[#2E2E2E] pb-5">
           <div>
-            <div className="flex items-center gap-2">
-              <Rocket className="h-5 w-5 text-cyan-400" />
-              <h1 className="text-xl font-bold tracking-tight text-white">Social Media Autopilot</h1>
-              <span className="rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 text-[10px] font-bold text-cyan-400">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] flex items-center justify-center">
+                <Rocket className="h-4 w-4" />
+              </div>
+              <h1 className="text-xl font-bold tracking-tight text-[#202124] dark:text-white">
+                Social Media Autopilot
+              </h1>
+              <span className="rounded-full bg-[#FFD43B]/20 border border-[#FFD43B]/40 px-2.5 py-0.5 text-[10px] font-bold text-[#202124] dark:text-[#FFD43B] uppercase">
                 LEVEL 3 AUTONOMY
               </span>
             </div>
-            <p className="mt-1 text-xs text-[#94A3B8]">
-              Continuous Multi-Channel Publishing Pipeline • Bounded Rules • Bounded Spending Envelopes
+            <p className="mt-1.5 text-xs text-[#737373] dark:text-[#A3A3A3]">
+              Continuous Multi-Channel Publishing Pipeline • Bounded Rules • Guarded Spending Envelopes
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             {status.isEmergencyStopped ? (
               <button
                 onClick={handleResume}
-                className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-emerald-950/40 hover:brightness-110 transition"
+                className="flex items-center gap-1.5 rounded-2xl bg-[#16865D] hover:bg-[#16865D]/90 px-4 py-2.5 text-xs font-bold text-white shadow-xs transition"
               >
                 <Play className="h-4 w-4" />
                 <span>Resume Autopilot</span>
@@ -98,7 +104,7 @@ export function RiiqxAutopilotCenter() {
             ) : (
               <button
                 onClick={handleEmergencyStop}
-                className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 px-4 py-2 text-xs font-bold text-white shadow-lg shadow-rose-950/50 hover:brightness-110 transition active:scale-95"
+                className="flex items-center gap-1.5 rounded-2xl bg-gradient-to-r from-[#FF4D4F] to-[#FF6B5E] hover:opacity-95 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition active:scale-95"
               >
                 <ShieldAlert className="h-4 w-4" />
                 <span>EMERGENCY STOP</span>
@@ -108,7 +114,7 @@ export function RiiqxAutopilotCenter() {
             <button
               onClick={handleCreateJob}
               disabled={status.isEmergencyStopped}
-              className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 px-3.5 py-2 text-xs font-bold text-white shadow-lg shadow-cyan-950/40 hover:brightness-110 transition disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-2xl bg-[#FFD43B] hover:bg-[#FFC928] px-4 py-2.5 text-xs font-bold text-[#202124] shadow-xs transition disabled:opacity-50"
             >
               <Plus className="h-3.5 w-3.5" />
               <span>Queue Video Job</span>
@@ -118,16 +124,16 @@ export function RiiqxAutopilotCenter() {
 
         {/* Emergency Stop Banner (if triggered) */}
         {status.isEmergencyStopped && (
-          <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-4 text-xs text-rose-300 flex items-center justify-between">
+          <div className="rounded-2xl border border-[#FF4D4F]/40 bg-[#FF4D4F]/10 p-4 text-xs text-[#FF4D4F] dark:text-rose-300 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0" />
+              <AlertTriangle className="h-5 w-5 text-[#FF4D4F] shrink-0" />
               <div>
                 <span className="font-bold">CIRCUIT BREAKER ACTIVE:</span> All background scheduling and publishing tasks are immediately halted.
               </div>
             </div>
             <button
               onClick={handleResume}
-              className="rounded-lg bg-rose-600 px-3 py-1 font-bold text-white hover:bg-rose-500 transition"
+              className="rounded-xl bg-[#FF4D4F] px-3.5 py-1.5 text-xs font-bold text-white hover:opacity-90 transition"
             >
               Resume
             </button>
@@ -135,71 +141,73 @@ export function RiiqxAutopilotCenter() {
         )}
 
         {/* System Vitals Metric Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-          <div className="rounded-2xl border border-[#1E2A4A] bg-[#070D1F] p-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">Active Rules</span>
-            <div className="mt-1 text-2xl font-black text-white">{status.activeRulesCount}</div>
-            <span className="text-[11px] text-[#94A3B8]">Timezone: {status.timeZone}</span>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="rounded-3xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] p-4 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#A3A3A3]">Active Rules</span>
+            <div className="mt-1 text-2xl font-black text-[#202124] dark:text-white">{status.activeRulesCount}</div>
+            <span className="text-[11px] text-[#737373] dark:text-[#A3A3A3]">Timezone: {status.timeZone}</span>
           </div>
 
-          <div className="rounded-2xl border border-[#1E2A4A] bg-[#070D1F] p-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">Queued / Scheduled</span>
-            <div className="mt-1 text-2xl font-black text-cyan-400">{status.queuedJobsCount}</div>
-            <span className="text-[11px] text-[#94A3B8]">Next execution in 10m</span>
+          <div className="rounded-3xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] p-4 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#A3A3A3]">Queued / Scheduled</span>
+            <div className="mt-1 text-2xl font-black text-[#FF6B5E]">{status.queuedJobsCount}</div>
+            <span className="text-[11px] text-[#737373] dark:text-[#A3A3A3]">Autonomous dispatch</span>
           </div>
 
-          <div className="rounded-2xl border border-[#1E2A4A] bg-[#070D1F] p-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">In Pipeline</span>
-            <div className="mt-1 text-2xl font-black text-blue-400">{status.inProgressJobsCount}</div>
-            <span className="text-[11px] text-[#94A3B8]">Rendering &amp; QC</span>
+          <div className="rounded-3xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] p-4 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#A3A3A3]">In Pipeline</span>
+            <div className="mt-1 text-2xl font-black text-[#D97706] dark:text-[#FFD43B]">{status.inProgressJobsCount}</div>
+            <span className="text-[11px] text-[#737373] dark:text-[#A3A3A3]">Rendering &amp; QC</span>
           </div>
 
-          <div className="rounded-2xl border border-[#1E2A4A] bg-[#070D1F] p-4">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#64748B]">Published Today</span>
-            <div className="mt-1 text-2xl font-black text-emerald-400">{status.publishedTodayCount}</div>
-            <span className="text-[11px] text-[#94A3B8]">100% verified status</span>
+          <div className="rounded-3xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] p-4 shadow-2xs">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#A3A3A3]">Published Today</span>
+            <div className="mt-1 text-2xl font-black text-[#16865D]">{status.publishedTodayCount}</div>
+            <span className="text-[11px] text-[#737373] dark:text-[#A3A3A3]">100% verified status</span>
           </div>
         </div>
 
         {/* Section: Autonomous Queue & State Machine */}
-        <div className="rounded-2xl border border-[#1E2A4A] bg-[#070D1F] p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#1E2A4A] pb-3">
+        <div className="rounded-3xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] p-6 space-y-4 shadow-2xs">
+          <div className="flex items-center justify-between border-b border-[#EAE7E1] dark:border-[#2E2E2E] pb-3.5">
             <div className="flex items-center gap-2">
-              <Layers className="h-4 w-4 text-cyan-400" />
-              <h2 className="text-sm font-bold text-white">Continuous Video Pipeline Queue ({jobs.length})</h2>
+              <Layers className="h-4 w-4 text-[#FF6B5E]" />
+              <h2 className="text-sm font-bold text-[#202124] dark:text-white">
+                Continuous Video Pipeline Queue ({jobs.length})
+              </h2>
             </div>
-            <span className="text-[11px] text-[#64748B] font-mono">12-State Machine Execution</span>
+            <span className="text-[11px] text-[#737373] dark:text-[#A3A3A3] font-mono">12-State Machine Execution</span>
           </div>
 
           <div className="space-y-3">
             {jobs.map((job) => (
               <div
                 key={job.id}
-                className="rounded-xl border border-[#1E2A4A] bg-[#030712] p-4 space-y-3 transition hover:border-[#2D4170]"
+                className="rounded-2xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-[#FAF9F6] dark:bg-[#151515] p-4 space-y-3 transition hover:border-[#FFD43B]"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
                       {job.platform === 'instagram_reels' ? (
-                        <Instagram className="h-3.5 w-3.5 text-pink-400" />
+                        <Instagram className="h-3.5 w-3.5 text-[#FF6B5E]" />
                       ) : (
-                        <Youtube className="h-3.5 w-3.5 text-red-400" />
+                        <Youtube className="h-3.5 w-3.5 text-[#FF4D4F]" />
                       )}
-                      <span className="text-xs font-bold text-white">{job.topic}</span>
+                      <span className="text-xs font-bold text-[#202124] dark:text-white">{job.topic}</span>
                     </div>
-                    <p className="text-[11px] text-[#64748B]">
+                    <p className="text-[11px] text-[#737373] dark:text-[#A3A3A3]">
                       Rule: {job.ruleName} • Scheduled: {new Date(job.scheduledFor).toLocaleTimeString()}
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
                         job.status === 'published'
-                          ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                          ? 'bg-[#16865D]/15 text-[#16865D] border border-[#16865D]/30'
                           : job.status === 'halted'
-                          ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
-                          : 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/30'
+                          ? 'bg-[#FF4D4F]/15 text-[#FF4D4F] border border-[#FF4D4F]/30'
+                          : 'bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] border border-[#FFD43B]/40'
                       }`}
                     >
                       {job.status}
@@ -209,7 +217,7 @@ export function RiiqxAutopilotCenter() {
                       <button
                         onClick={() => handleAdvanceJob(job.id)}
                         disabled={isProcessing}
-                        className="rounded-lg border border-[#1E2A4A] bg-[#0B132B] px-2.5 py-1 text-[11px] font-semibold text-cyan-400 hover:text-white transition"
+                        className="rounded-xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] px-3 py-1 text-[11px] font-semibold text-[#202124] dark:text-white hover:border-[#FFD43B] transition"
                       >
                         Advance State &rarr;
                       </button>
@@ -219,20 +227,20 @@ export function RiiqxAutopilotCenter() {
 
                 {/* Progress Bar */}
                 <div className="space-y-1">
-                  <div className="flex justify-between text-[10px] text-[#64748B] font-mono">
+                  <div className="flex justify-between text-[10px] text-[#737373] dark:text-[#A3A3A3] font-mono">
                     <span>Progress</span>
                     <span>{job.progressPercent}%</span>
                   </div>
-                  <div className="h-1.5 w-full rounded-full bg-[#1E2A4A] overflow-hidden">
+                  <div className="h-1.5 w-full rounded-full bg-[#EAE7E1] dark:bg-[#2E2E2E] overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
+                      className="h-full bg-gradient-to-r from-[#FFD43B] to-[#FF6B5E] transition-all duration-300"
                       style={{ width: `${job.progressPercent}%` }}
                     />
                   </div>
                 </div>
 
                 {/* Log Snippet */}
-                <div className="rounded-lg bg-[#070D1F] p-2 text-[10px] font-mono text-[#94A3B8] space-y-0.5 border border-[#1E2A4A]/50">
+                <div className="rounded-xl bg-white dark:bg-[#202020] p-2.5 text-[10px] font-mono text-[#737373] dark:text-[#A3A3A3] space-y-0.5 border border-[#EAE7E1] dark:border-[#2E2E2E]">
                   {job.logs.slice(-2).map((log, i) => (
                     <div key={i} className="truncate">
                       &gt; {log}
@@ -245,32 +253,34 @@ export function RiiqxAutopilotCenter() {
         </div>
 
         {/* Active Rules Grid */}
-        <div className="rounded-2xl border border-[#1E2A4A] bg-[#070D1F] p-5 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#1E2A4A] pb-3">
+        <div className="rounded-3xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] p-6 space-y-4 shadow-2xs">
+          <div className="flex items-center justify-between border-b border-[#EAE7E1] dark:border-[#2E2E2E] pb-3.5">
             <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-cyan-400" />
-              <h2 className="text-sm font-bold text-white">Active Autopilot Rules ({rules.length})</h2>
+              <Calendar className="h-4 w-4 text-[#FFD43B]" />
+              <h2 className="text-sm font-bold text-[#202124] dark:text-white">
+                Active Autopilot Rules ({rules.length})
+              </h2>
             </div>
-            <span className="text-[11px] text-[#64748B]">Bounded Autonomy Envelopes</span>
+            <span className="text-[11px] text-[#737373] dark:text-[#A3A3A3]">Bounded Autonomy Envelopes</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {rules.map((rule) => (
               <div
                 key={rule.id}
-                className="rounded-xl border border-[#1E2A4A] bg-[#030712] p-4 space-y-3"
+                className="rounded-2xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-[#FAF9F6] dark:bg-[#151515] p-4 space-y-3"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white">{rule.name}</span>
-                  <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-[9px] font-bold text-emerald-400">
+                  <span className="text-xs font-bold text-[#202124] dark:text-white">{rule.name}</span>
+                  <span className="rounded-full bg-[#16865D]/15 text-[#16865D] border border-[#16865D]/30 px-2.5 py-0.5 text-[9px] font-bold">
                     ACTIVE
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-[11px] text-[#94A3B8]">
-                  <div>Niche: <span className="text-white">{rule.niche}</span></div>
-                  <div>Frequency: <span className="text-white">{rule.frequencyPerWeek}x / week</span></div>
-                  <div>Max Daily: <span className="text-white">{rule.maxDailyPosts} post</span></div>
-                  <div>Hours: <span className="text-white">{rule.allowedPublishHours.join(', ')}:00 IST</span></div>
+                <div className="grid grid-cols-2 gap-2 text-[11px] text-[#737373] dark:text-[#A3A3A3]">
+                  <div>Niche: <span className="font-semibold text-[#202124] dark:text-white">{rule.niche}</span></div>
+                  <div>Frequency: <span className="font-semibold text-[#202124] dark:text-white">{rule.frequencyPerWeek}x / week</span></div>
+                  <div>Max Daily: <span className="font-semibold text-[#202124] dark:text-white">{rule.maxDailyPosts} post</span></div>
+                  <div>Hours: <span className="font-semibold text-[#202124] dark:text-white">{rule.allowedPublishHours.join(', ')}:00 IST</span></div>
                 </div>
               </div>
             ))}

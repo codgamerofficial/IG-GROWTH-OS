@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -56,6 +56,201 @@ export type Database = {
           created_at?: string
           id?: string
           role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      connected_accounts: {
+        Row: {
+          account_handle: string | null
+          account_name: string
+          avatar_url: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          last_verified_at: string | null
+          platform_account_id: string
+          platform_metadata: Json | null
+          provider: string
+          scopes: string[] | null
+          status: string
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_handle?: string | null
+          account_name: string
+          avatar_url?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_verified_at?: string | null
+          platform_account_id: string
+          platform_metadata?: Json | null
+          provider: string
+          scopes?: string[] | null
+          status?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_handle?: string | null
+          account_name?: string
+          avatar_url?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_verified_at?: string | null
+          platform_account_id?: string
+          platform_metadata?: Json | null
+          provider?: string
+          scopes?: string[] | null
+          status?: string
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      oauth_credentials: {
+        Row: {
+          auth_tag: string
+          connected_account_id: string
+          created_at: string
+          encrypted_access_token: string
+          encrypted_refresh_token: string | null
+          encryption_version: string
+          expires_at: string | null
+          id: string
+          iv: string
+          token_type: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auth_tag: string
+          connected_account_id: string
+          created_at?: string
+          encrypted_access_token: string
+          encrypted_refresh_token?: string | null
+          encryption_version?: string
+          expires_at?: string | null
+          id?: string
+          iv: string
+          token_type?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auth_tag?: string
+          connected_account_id?: string
+          created_at?: string
+          encrypted_access_token?: string
+          encrypted_refresh_token?: string | null
+          encryption_version?: string
+          expires_at?: string | null
+          id?: string
+          iv?: string
+          token_type?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_publishing_jobs: {
+        Row: {
+          connected_account_id: string
+          created_at: string
+          error_details: Json | null
+          id: string
+          idempotency_key: string | null
+          media_description: string | null
+          media_title: string
+          media_type: string
+          media_url: string
+          platform_permalink: string | null
+          platform_post_id: string | null
+          provider: string
+          published_at: string | null
+          scheduled_at: string | null
+          status: string
+          thumbnail_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          connected_account_id: string
+          created_at?: string
+          error_details?: Json | null
+          id?: string
+          idempotency_key?: string | null
+          media_description?: string | null
+          media_title: string
+          media_type: string
+          media_url: string
+          platform_permalink?: string | null
+          platform_post_id?: string | null
+          provider: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          connected_account_id?: string
+          created_at?: string
+          error_details?: Json | null
+          id?: string
+          idempotency_key?: string | null
+          media_description?: string | null
+          media_title?: string
+          media_type?: string
+          media_url?: string
+          platform_permalink?: string | null
+          platform_post_id?: string | null
+          provider?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          status?: string
+          thumbnail_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      social_audit_logs: {
+        Row: {
+          connected_account_id: string | null
+          created_at: string
+          details: Json | null
+          event_type: string
+          id: string
+          provider: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          connected_account_id?: string | null
+          created_at?: string
+          details?: Json | null
+          event_type: string
+          id?: string
+          provider: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          connected_account_id?: string | null
+          created_at?: string
+          details?: Json | null
+          event_type?: string
+          id?: string
+          provider?: string
+          status?: string
           user_id?: string
         }
         Relationships: []
@@ -1852,6 +2047,7 @@ export type Database = {
           id: string
           interests: string[] | null
           preferred_language: string | null
+          role: string | null
           transport_preference: string | null
           updated_at: string
           walking_tolerance: string | null
@@ -1863,6 +2059,7 @@ export type Database = {
           id: string
           interests?: string[] | null
           preferred_language?: string | null
+          role?: string | null
           transport_preference?: string | null
           updated_at?: string
           walking_tolerance?: string | null
@@ -1874,6 +2071,7 @@ export type Database = {
           id?: string
           interests?: string[] | null
           preferred_language?: string | null
+          role?: string | null
           transport_preference?: string | null
           updated_at?: string
           walking_tolerance?: string | null

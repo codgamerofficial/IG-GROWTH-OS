@@ -67,33 +67,14 @@ export async function executeLiveResearch(query: string): Promise<SearchQueryRes
       };
     }
   } catch {
-    // Graceful fallback to verified public documentation citations
+    // Search failed or unavailable
   }
 
-  // Deterministic verifiable fallback
-  const fallbackCitations: RiiqxSearchCitation[] = [
-    {
-      id: 'cit_1',
-      title: 'Amazon Bedrock Runtime Architecture & Pricing',
-      url: 'https://docs.aws.amazon.com/bedrock/latest/userguide/what-is-bedrock.html',
-      snippet: 'Amazon Bedrock offers high-throughput serverless API access to Anthropic Claude 3.5 and 3.7 Sonnet inference profiles.',
-      domain: 'docs.aws.amazon.com',
-      confidenceScore: 0.98,
-    },
-    {
-      id: 'cit_2',
-      title: 'Meta Instagram Graph API v20.0 — Reels Publishing Guide',
-      url: 'https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/reference/ig-user/media',
-      snippet: 'Creating an Instagram container requires video_url and media_type=REELS, polling status until FINISHED before final publication.',
-      domain: 'developers.facebook.com',
-      confidenceScore: 0.95,
-    },
-  ];
-
+  // Never fabricate or attach fake default citations
   return {
     query: sanitizedQuery,
-    citations: fallbackCitations,
-    formattedContext: formatCitationsToContext(fallbackCitations),
+    citations: [],
+    formattedContext: '',
     executedAt: new Date().toISOString(),
   };
 }

@@ -2,10 +2,10 @@
 
 // =============================================================================
 // RIIQX 2.0 — Modern Creator OS Top Header
-// Global Search (⌘K) • Notifications • Theme Toggle • Profile Avatar
+// Global Search (⌘K / Ctrl+K) • AI Assistant Toggle • Theme Toggle • Profile Avatar
 // =============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRiiqx } from '@/context/RiiqxContext';
 import { RiiqxEmblem } from './RiiqxEmblem';
 import {
@@ -13,10 +13,13 @@ import {
   Bell,
   Sun,
   Moon,
-  ChevronDown,
-  Menu,
-  Sparkles,
+  Bot,
   Command,
+  Menu,
+  X,
+  Sparkles,
+  LogOut,
+  User,
 } from 'lucide-react';
 
 export function RiiqxHeader() {
@@ -26,10 +29,28 @@ export function RiiqxHeader() {
     theme,
     toggleTheme,
     executeGlobalTask,
+    isAiDrawerOpen,
+    toggleAiDrawer,
+    user,
+    signOut,
   } = useRiiqx();
 
   const [searchVal, setSearchVal] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  // Keyboard shortcut Ctrl+K / Cmd+K focus
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const input = document.getElementById('riiqx-global-search');
+        input?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,148 +60,163 @@ export function RiiqxHeader() {
   };
 
   return (
-    <header className="relative z-30 flex h-14 md:h-16 w-full items-center justify-between border-b border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 md:px-6 transition-colors">
+    <header className="relative z-30 flex h-14 w-full shrink-0 items-center justify-between border-b border-[#EAE7E1] dark:border-[#2E2E2E] bg-white/80 dark:bg-[#151515]/80 backdrop-blur-md px-4 md:px-6 transition-colors">
       {/* Left: Mobile Menu Trigger & Logo */}
       <div className="flex items-center gap-3">
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          className="lg:hidden p-2 rounded-xl text-[#737373] hover:bg-[#FAF9F6] dark:hover:bg-[#202020] transition-colors"
         >
-          <Menu className="w-5 h-5" />
+          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
 
         <div
           className="flex lg:hidden items-center gap-2 cursor-pointer"
           onClick={() => setActiveTab('home')}
         >
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-violet-600 to-pink-500 flex items-center justify-center text-white shadow-xs">
-            <RiiqxEmblem size={16} />
-          </div>
-          <span className="font-extrabold text-base tracking-tight text-slate-900 dark:text-white">
+          <RiiqxEmblem size={26} glow={false} />
+          <span className="font-black text-lg tracking-tight text-[#202124] dark:text-white font-heading">
             RIIQX
           </span>
         </div>
       </div>
 
-      {/* Center: Global Search Bar (Matching Image 1) */}
+      {/* Center: Global Search Bar */}
       <form onSubmit={handleSearchSubmit} className="hidden sm:flex items-center flex-1 max-w-md mx-6">
         <div className="relative w-full">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#737373] absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
+            id="riiqx-global-search"
             type="text"
             value={searchVal}
             onChange={(e) => setSearchVal(e.target.value)}
-            placeholder="Search tools, files, projects..."
-            className="w-full pl-9 pr-12 py-1.5 md:py-2 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/90 dark:border-slate-700 text-xs md:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-violet-400 transition-all"
+            placeholder="Search tasks, videos, scripts... [Ctrl + K]"
+            className="w-full pl-9 pr-14 py-2 rounded-2xl bg-[#FAF9F6] dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] text-xs text-[#202124] dark:text-white placeholder-[#737373] focus:outline-none focus:border-[#FFD43B] transition-all"
           />
-          <div className="absolute right-3 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-slate-200/60 dark:bg-slate-700 text-[10px] font-bold text-slate-500 dark:text-slate-400">
-            <Command className="w-3 h-3" />
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-[#EAE7E1] dark:bg-[#2E2E2E] text-[10px] font-bold text-[#737373] dark:text-[#A3A3A3]">
+            <Command className="w-2.5 h-2.5" />
             <span>K</span>
           </div>
         </div>
       </form>
 
-      {/* Right Controls: Theme Toggle, Notifications, Profile Avatar */}
+      {/* Right Controls: AI Assistant Toggle, Theme, Notifications, Profile Avatar */}
       <div className="flex items-center gap-2 md:gap-3">
+        {/* Floating AI Assistant Toggle Button */}
+        <button
+          onClick={toggleAiDrawer}
+          title={isAiDrawerOpen ? 'Close Floating Companion' : 'Open Floating Companion'}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-semibold transition-all ${
+            isAiDrawerOpen
+              ? 'bg-[#FFD43B] text-[#202124] font-bold shadow-xs border border-[#FFD43B]'
+              : 'bg-[#FAF9F6] dark:bg-[#202020] text-[#737373] dark:text-[#A3A3A3] hover:text-[#202124] dark:hover:text-white border border-[#EAE7E1] dark:border-[#2E2E2E]'
+          }`}
+        >
+          <Bot className={`w-4 h-4 ${isAiDrawerOpen ? 'text-[#202124]' : 'text-[#FFD43B]'}`} />
+          <span className="hidden md:inline">Companion</span>
+        </button>
+
         {/* Theme Toggle */}
         <button
           onClick={toggleTheme}
-          title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-          className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title={theme === 'dark' ? 'Switch to Warm Light Mode' : 'Switch to Dark Mode'}
+          className="p-2 rounded-xl text-[#737373] hover:text-[#202124] dark:hover:text-white hover:bg-[#FAF9F6] dark:hover:bg-[#202020] transition-colors"
         >
-          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
+          {theme === 'dark' ? <Sun className="w-4 h-4 text-[#FFD43B]" /> : <Moon className="w-4 h-4 text-slate-700" />}
         </button>
 
-        {/* Notifications Bell with unread dot */}
-        <div className="relative">
-          <button
-            title="Notifications"
-            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          >
-            <Bell className="w-4 h-4" />
-          </button>
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-pink-500 ring-2 ring-white dark:ring-slate-900" />
-        </div>
-
-        {/* Profile Avatar Badge (Matching Image 1) */}
-        <div
-          onClick={() => setActiveTab('settings')}
-          className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800/80 cursor-pointer transition-colors"
+        {/* Notifications Bell */}
+        <button
+          title="Notifications"
+          className="p-2 rounded-xl text-[#737373] hover:text-[#202124] dark:hover:text-white hover:bg-[#FAF9F6] dark:hover:bg-[#202020] transition-colors relative"
         >
-          <img
-            src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80"
-            alt="User Avatar"
-            className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover ring-2 ring-violet-500/20"
-          />
-          <div className="hidden md:flex flex-col text-left">
-            <span className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
-              RIIQX Pro
-            </span>
-            <span className="text-[10px] text-slate-400 leading-tight">Pro Plan</span>
-          </div>
-          <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden md:block ml-0.5" />
+          <Bell className="w-4 h-4" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#FF4D4F]" />
+        </button>
+
+        {/* User Profile Avatar & Dropdown */}
+        <div className="relative pl-2 border-l border-[#EAE7E1] dark:border-[#2E2E2E]">
+          <button
+            onClick={() => setUserMenuOpen(!userMenuOpen)}
+            className="flex items-center gap-2 cursor-pointer focus:outline-hidden"
+          >
+            <div className="relative w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FFD43B] to-[#FF6B5E] flex items-center justify-center text-[#202124] font-black text-xs shadow-xs">
+              <span>{user.name ? user.name.slice(0, 1).toUpperCase() : 'U'}</span>
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#16865D] border-2 border-white dark:border-[#151515]" />
+            </div>
+          </button>
+
+          {userMenuOpen && (
+            <div
+              className="absolute right-0 top-11 w-56 p-2 rounded-2xl bg-white dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] shadow-xl z-50 animate-in fade-in zoom-in-95 duration-100"
+              onMouseLeave={() => setUserMenuOpen(false)}
+            >
+              <div className="p-2 border-b border-[#EAE7E1] dark:border-[#2E2E2E] mb-1">
+                <p className="text-xs font-bold text-[#202124] dark:text-white truncate">
+                  {user.name}
+                </p>
+                <p className="text-[10px] text-[#737373] dark:text-[#A3A3A3] truncate">
+                  {user.email}
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setActiveTab('settings');
+                  setUserMenuOpen(false);
+                }}
+                className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#202124] dark:text-white hover:bg-[#FAF9F6] dark:hover:bg-[#151515] flex items-center gap-2 cursor-pointer"
+              >
+                <User className="w-3.5 h-3.5 text-[#737373]" />
+                <span>Account &amp; Settings</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setUserMenuOpen(false);
+                  signOut();
+                }}
+                className="w-full text-left px-2.5 py-1.5 rounded-xl text-xs font-semibold text-[#FF4D4F] hover:bg-[#FF4D4F]/10 flex items-center gap-2 cursor-pointer mt-1"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Mobile Navigation Drawer Modal */}
+      {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex">
-          <div className="w-72 bg-white dark:bg-slate-900 h-full p-4 flex flex-col justify-between shadow-2xl">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-violet-600 to-pink-500 flex items-center justify-center text-white">
-                    <RiiqxEmblem size={16} />
-                  </div>
-                  <span className="font-extrabold text-base text-slate-900 dark:text-white">RIIQX</span>
-                </div>
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="p-1 rounded-lg text-slate-400 hover:text-slate-600"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <nav className="space-y-1">
-                {[
-                  { tab: 'home' as const, label: 'Home' },
-                  { tab: 'chat' as const, label: 'AI Agent Chat' },
-                  { tab: 'creator' as const, label: 'Creator Studio' },
-                  { tab: 'editor' as const, label: 'AI Video Editor' },
-                  { tab: 'autopilot' as const, label: 'Autopilot Center' },
-                  { tab: 'tasks' as const, label: 'Task Planner' },
-                  { tab: 'research' as const, label: 'Deep Research' },
-                  { tab: 'code' as const, label: 'Code Studio' },
-                  { tab: 'integrations' as const, label: 'Integrations' },
-                  { tab: 'analytics' as const, label: 'Analytics' },
-                  { tab: 'files' as const, label: 'Library' },
-                  { tab: 'settings' as const, label: 'Settings' },
-                ].map((item) => (
-                  <button
-                    key={item.tab}
-                    onClick={() => {
-                      setActiveTab(item.tab);
-                      setMobileMenuOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
-                      activeTab === item.tab
-                        ? 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400'
-                        : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </nav>
-            </div>
-
-            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 text-xs">
-              <p className="font-bold text-slate-800 dark:text-slate-200">RIIQX 2.0</p>
-              <p className="text-[10px] text-slate-400">One Goal. An AI That Gets It Done.</p>
-            </div>
-          </div>
-          <div className="flex-1" onClick={() => setMobileMenuOpen(false)} />
+        <div className="lg:hidden fixed inset-x-0 top-14 bg-white/95 dark:bg-[#151515]/95 backdrop-blur-xl border-b border-[#EAE7E1] dark:border-[#2E2E2E] p-4 shadow-xl z-50 space-y-1">
+          {[
+            { tab: 'home', label: 'Dashboard' },
+            { tab: 'chat', label: 'AI Agent Chat' },
+            { tab: 'creator', label: 'Creator Studio' },
+            { tab: 'autopilot', label: 'Autopilot Center' },
+            { tab: 'tasks', label: 'Task Planner' },
+            { tab: 'research', label: 'Deep Research' },
+            { tab: 'code', label: 'Code Studio' },
+            { tab: 'integrations', label: 'Integrations' },
+            { tab: 'analytics', label: 'Analytics & Growth' },
+            { tab: 'files', label: 'Library' },
+            { tab: 'settings', label: 'Settings' },
+          ].map((item) => (
+            <button
+              key={item.tab}
+              onClick={() => {
+                setActiveTab(item.tab as any);
+                setMobileMenuOpen(false);
+              }}
+              className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-semibold ${
+                activeTab === item.tab
+                  ? 'bg-[#FFD43B] text-[#202124] font-bold shadow-xs'
+                  : 'text-[#737373] dark:text-[#A3A3A3] hover:bg-[#FAF9F6] dark:hover:bg-[#202020]'
+              }`}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
       )}
     </header>

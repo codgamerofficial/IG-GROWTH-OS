@@ -4,9 +4,15 @@ interface RiiqxEmblemProps {
   className?: string;
   size?: number;
   glow?: boolean;
+  variant?: 'gradient' | 'white' | 'dark';
 }
 
-export function RiiqxEmblem({ className = '', size = 32, glow = true }: RiiqxEmblemProps) {
+export function RiiqxEmblem({
+  className = '',
+  size = 32,
+  glow = false,
+  variant = 'gradient',
+}: RiiqxEmblemProps) {
   return (
     <div
       className={`relative inline-flex items-center justify-center shrink-0 ${className}`}
@@ -14,50 +20,53 @@ export function RiiqxEmblem({ className = '', size = 32, glow = true }: RiiqxEmb
     >
       {glow && (
         <div
-          className="absolute -inset-1 rounded-xl bg-gradient-to-r from-cyan-500/30 via-blue-500/20 to-violet-600/30 blur-sm opacity-70 animate-pulse pointer-events-none"
-          style={{ filter: 'blur(6px)' }}
+          className="absolute -inset-1 rounded-2xl bg-gradient-to-tr from-[#FFD43B] to-[#FF6B5E] blur-md opacity-50 pointer-events-none"
         />
       )}
       <svg
-        viewBox="0 0 48 48"
+        viewBox="0 0 100 100"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="relative z-10 w-full h-full drop-shadow-md"
+        className="relative z-10 w-full h-full drop-shadow-xs"
       >
         <defs>
-          <linearGradient id="riiqxGrad1" x1="4" y1="4" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#06B6D4" />
-            <stop offset="0.5" stopColor="#3B82F6" />
-            <stop offset="1" stopColor="#8B5CF6" />
+          <linearGradient id="riiqxYellowCoralGrad" x1="10" y1="10" x2="90" y2="90" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#FFD43B" />
+            <stop offset="1" stopColor="#FF6B5E" />
           </linearGradient>
-          <linearGradient id="riiqxGrad2" x1="44" y1="4" x2="4" y2="44" gradientUnits="userSpaceOnUse">
-            <stop stopColor="#22D3EE" />
-            <stop offset="1" stopColor="#A855F7" />
+          <linearGradient id="riiqxStemGrad" x1="20" y1="20" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+            <stop stopColor="#FFFFFF" />
+            <stop offset="1" stopColor="#FFF8E7" />
           </linearGradient>
         </defs>
 
-        {/* Outer Angular Shield / Aperture */}
-        <path
-          d="M24 4L42 14V34L24 44L6 34V14L24 4Z"
-          stroke="url(#riiqxGrad1)"
-          strokeWidth="2.5"
-          strokeLinejoin="round"
-          className="opacity-90"
+        {/* Squircle Background for App Icon style */}
+        {variant === 'gradient' && (
+          <rect width="100" height="100" rx="26" fill="url(#riiqxYellowCoralGrad)" />
+        )}
+
+        {/* Geometric 'R' Monogram - High-contrast crisp geometry */}
+        {/* 1. Left Vertical Stem */}
+        <rect
+          x="24"
+          y="22"
+          width="13"
+          height="56"
+          rx="6.5"
+          fill={variant === 'gradient' ? '#202124' : 'currentColor'}
         />
 
-        {/* Dynamic Chevron Matrix (RIIQX Focus Core) */}
+        {/* 2. Upper Dynamic Loop */}
         <path
-          d="M17 18L24 13L31 18V30L24 35L17 30V18Z"
-          fill="url(#riiqxGrad2)"
-          fillOpacity="0.2"
-          stroke="url(#riiqxGrad2)"
-          strokeWidth="2"
-          strokeLinejoin="round"
+          d="M32 22H52C63.0457 22 72 30.9543 72 42C72 53.0457 63.0457 62 52 62H32V49H51C54.866 49 58 45.866 58 42C58 38.134 54.866 35 51 35H32V22Z"
+          fill={variant === 'gradient' ? '#202124' : 'currentColor'}
         />
 
-        {/* Precision Target Node (One Goal. Gets It Done.) */}
-        <circle cx="24" cy="24" r="3.5" fill="#22D3EE" />
-        <circle cx="24" cy="24" r="6" stroke="#06B6D4" strokeWidth="1" strokeDasharray="2 2" className="animate-spin-slow" />
+        {/* 3. Forward-Slanted Dynamic Leg */}
+        <path
+          d="M48 54L68 76C70 78 74 78 75.5 75.5C77 73 76.5 69.5 73.5 66.5L56 49H45L48 54Z"
+          fill={variant === 'gradient' ? '#202124' : 'currentColor'}
+        />
       </svg>
     </div>
   );

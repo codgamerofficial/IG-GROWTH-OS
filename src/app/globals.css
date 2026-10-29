@@ -4,46 +4,47 @@
 @import 'leaflet/dist/leaflet.css';
 
 :root {
-  --background: #F8FAFC;
-  --background-secondary: #F1F5F9;
+  --background: #FAF9F6;
+  --background-secondary: #F3F1EC;
   --surface: #FFFFFF;
   --surface-elevated: #FFFFFF;
   --surface-glass: rgba(255, 255, 255, 0.85);
-  --border: #E2E8F0;
-  --border-subtle: #F1F5F9;
-  --border-accent: #DDD6FE;
-  --foreground: #0F172A;
-  --foreground-secondary: #334155;
-  --muted: #64748B;
+  --border: #EAE7E1;
+  --border-subtle: #F3F1EC;
+  --border-accent: #FFD43B;
+  --foreground: #202124;
+  --foreground-secondary: #737373;
+  --muted: #9E9E9E;
 
-  /* RIIQX 2.0 Master Palette (Modern Creator First) */
-  --riiqx-canvas: #F8FAFC;
-  --riiqx-surface: #FFFFFF;
-  --riiqx-card: #FFFFFF;
-  --riiqx-border: #E2E8F0;
-  --riiqx-charcoal: #0F172A;
-  --riiqx-violet: #7C3AED;
-  --riiqx-pink: #EC4899;
-  --riiqx-emerald: #10B981;
+  /* RIIQX iOS Master Tokens: Trending Yellow + Red/Coral */
+  --riiqx-yellow: #FFD43B;
+  --riiqx-yellow-secondary: #FFC928;
+  --riiqx-red: #FF4D4F;
+  --riiqx-coral: #FF6B5E;
+  --riiqx-success: #16865D;
+  --riiqx-warning: #D97706;
+  --riiqx-error: #D92D36;
 
   /* Gradients */
-  --riiqx-gradient-primary: linear-gradient(135deg, #7C3AED 0%, #9333EA 50%, #EC4899 100%);
-  --riiqx-gradient-subtle: linear-gradient(135deg, rgba(124, 58, 237, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%);
-  --riiqx-gradient-glow: linear-gradient(135deg, rgba(124, 58, 237, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%);
+  --riiqx-gradient-primary: linear-gradient(135deg, #FFD43B 0%, #FF6B5E 100%);
+  --riiqx-gradient-yellow: linear-gradient(135deg, #FFD43B 0%, #FFC928 100%);
+  --riiqx-gradient-red: linear-gradient(135deg, #FF6B5E 0%, #FF4D4F 100%);
+  --riiqx-gradient-subtle: linear-gradient(135deg, rgba(255, 212, 59, 0.12) 0%, rgba(255, 107, 94, 0.12) 100%);
+  --riiqx-gradient-glow: linear-gradient(135deg, rgba(255, 212, 59, 0.25) 0%, rgba(255, 107, 94, 0.25) 100%);
 }
 
 .dark {
-  --background: #0B0F19;
-  --background-secondary: #111827;
-  --surface: #1E293B;
-  --surface-elevated: #334155;
-  --surface-glass: rgba(17, 24, 39, 0.85);
-  --border: #334155;
-  --border-subtle: #1E293B;
-  --border-accent: #6D28D9;
-  --foreground: #F8FAFC;
-  --foreground-secondary: #94A3B8;
-  --muted: #64748B;
+  --background: #151515;
+  --background-secondary: #0D0D0D;
+  --surface: #202020;
+  --surface-elevated: #282828;
+  --surface-glass: rgba(32, 32, 32, 0.85);
+  --border: #2E2E2E;
+  --border-subtle: #222222;
+  --border-accent: #FFD43B;
+  --foreground: #F7F7F7;
+  --foreground-secondary: #A3A3A3;
+  --muted: #737373;
 }
 
 body {
@@ -103,23 +104,23 @@ body {
   box-shadow: 0 0 25px -4px rgba(139, 92, 246, 0.35);
 }
 
-/* Custom Scrollbars */
+/* Custom Scrollbars — Transparent Track & Subtle Thumb (No Black Strip) */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #030712;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(6, 182, 212, 0.25);
+  background: rgba(120, 120, 120, 0.2);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(6, 182, 212, 0.55);
+  background: rgba(120, 120, 120, 0.4);
 }
 
 /* =============================================================================
@@ -133,11 +134,35 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-html, body {
+/* Browser Autofill Ergonomics & Theme Alignment */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 40px #FAF9F6 inset !important;
+  -webkit-text-fill-color: #202124 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover, 
+.dark input:-webkit-autofill:focus, 
+.dark input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 40px #151515 inset !important;
+  -webkit-text-fill-color: #F7F7F7 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+html {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
+  height: 100%;
+  overflow: hidden;
   -webkit-overflow-scrolling: touch;
 }
 

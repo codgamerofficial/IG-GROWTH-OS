@@ -4,21 +4,9 @@
 // =============================================================================
 
 import crypto from 'crypto';
-
-export interface NuvexaUser {
-  id: string;
-  email: string;
-  name: string;
-  role: 'admin' | 'user' | 'guest';
-  createdAt: string;
-  preferences: {
-    theme: 'dark';
-    defaultModel: string;
-    enableWebSearch: boolean;
-    streamSpeed: 'fast' | 'normal' | 'precise';
-    autoSaveChats: boolean;
-  };
-}
+import { NuvexaUser, DEFAULT_DEV_USER } from './user';
+export type { NuvexaUser } from './user';
+export { getDefaultUser } from './user';
 
 export interface AuthSession {
   token: string;
@@ -31,24 +19,9 @@ export interface AuthSession {
 const SESSIONS = new Map<string, AuthSession>();
 const USERS = new Map<string, { user: NuvexaUser; salt: string; hash: string }>();
 
-// Seed default local developer profile
+// Seed default local developer profile with precomputed static PBKDF2 hash (client-safe)
 const DEFAULT_SALT = 'nuvexa_local_salt_secure_2026';
-const DEFAULT_HASH = crypto.pbkdf2Sync('nuvexa2026', DEFAULT_SALT, 10000, 32, 'sha256').toString('hex');
-
-const DEFAULT_DEV_USER: NuvexaUser = {
-  id: 'usr_local_dev_01',
-  email: 'developer@nuvexa.local',
-  name: 'Local Developer',
-  role: 'admin',
-  createdAt: new Date().toISOString(),
-  preferences: {
-    theme: 'dark',
-    defaultModel: 'llama-3.2-3b',
-    enableWebSearch: true,
-    streamSpeed: 'fast',
-    autoSaveChats: true,
-  },
-};
+const DEFAULT_HASH = '292893e9c9535f2de83cb9e45d745a2878c8f533fed9ec74189e0c0d23ca4f13';
 
 USERS.set(DEFAULT_DEV_USER.email, {
   user: DEFAULT_DEV_USER,
@@ -69,8 +42,12 @@ export function hashPassword(password: string): { salt: string; hash: string } {
  * Verify a plain text password against salt and hash
  */
 export function verifyPassword(password: string, salt: string, expectedHash: string): boolean {
-  const hash = crypto.pbkdf2Sync(password, salt, 10000, 32, 'sha256').toString('hex');
-  return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(expectedHash, 'hex'));
+  try {
+    const hash = crypto.pbkdf2Sync(password, salt, 10000, 32, 'sha256').toString('hex');
+    return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(expectedHash, 'hex'));
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -80,7 +57,6 @@ export function authenticateUser(email: string, password?: string): AuthSession 
   let record = USERS.get(email.toLowerCase());
 
   if (!record) {
-    // If not found, provision a self-contained local user
     const { salt, hash } = hashPassword(password || 'guest');
     const newUser: NuvexaUser = {
       id: `usr_${crypto.randomUUID().slice(0, 12)}`,
@@ -132,11 +108,4 @@ export function validateSession(token: string): NuvexaUser | null {
  */
 export function invalidateSession(token: string): boolean {
   return SESSIONS.delete(token);
-}
-
-/**
- * Get the current active local/guest user
- */
-export function getDefaultUser(): NuvexaUser {
-  return DEFAULT_DEV_USER;
 }

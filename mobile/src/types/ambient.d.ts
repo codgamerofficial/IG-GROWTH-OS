@@ -23,6 +23,11 @@ declare module 'react-native' {
   export const SafeAreaView: React.FC<any>;
   export const KeyboardAvoidingView: React.FC<any>;
   export const RefreshControl: React.FC<any>;
+  export const Modal: React.FC<any>;
+  export const Dimensions: {
+    get: (dim: 'window' | 'screen') => { width: number; height: number; scale: number; fontScale: number };
+  };
+  export const Animated: any;
 
   export const StyleSheet: {
     create: <T extends Record<string, any>>(styles: T) => T;

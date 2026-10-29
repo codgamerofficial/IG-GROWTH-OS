@@ -135,11 +135,11 @@ export function RiiqxVideoEditor() {
           <div>
             <h1 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span>AI Video Editor</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 dark:bg-violet-950/40 font-semibold">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] border border-[#FFD43B]/30 font-bold">
                 9:16 Reel
               </span>
             </h1>
-            <p className="text-[11px] text-slate-400">Edit with AI. Simple. Powerful. Professional.</p>
+            <p className="text-[11px] text-slate-400">Edit with AI. Multi-track timeline &amp; kinetic subtitles.</p>
           </div>
         </div>
 
@@ -154,7 +154,7 @@ export function RiiqxVideoEditor() {
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-white bg-gradient-to-r from-violet-600 to-pink-500 hover:from-violet-700 hover:to-pink-600 shadow-sm transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold text-[#202124] bg-[#FFD43B] hover:bg-[#FFC928] shadow-xs transition-all disabled:opacity-50"
           >
             <Download className="w-3.5 h-3.5" />
             <span>{isExporting ? `Exporting ${exportProgress}%` : '+ Export'}</span>
@@ -183,7 +183,7 @@ export function RiiqxVideoEditor() {
                 onClick={() => setActiveTool(tool.id)}
                 className={`flex flex-col items-center gap-1 p-2 rounded-2xl w-12 transition-colors ${
                   isActive
-                    ? 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 font-bold'
+                    ? 'bg-[#FFD43B] text-[#202124] font-bold shadow-xs'
                     : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/60'
                 }`}
               >

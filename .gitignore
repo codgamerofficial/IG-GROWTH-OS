@@ -20,6 +20,8 @@ mobile/node_modules/
 .DS_Store
 *.pem
 scratch/
+.temp/
+*.log
 
 # debug
 npm-debug.log*

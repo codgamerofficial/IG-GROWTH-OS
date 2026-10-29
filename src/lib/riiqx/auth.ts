@@ -1,23 +1,14 @@
 // =============================================================================
-// RIIQX — Non-Firebase Cryptographic Authentication & Session Vault
+// RIIQX — Server-Side Cryptographic Authentication & Session Vault
 // PBKDF2 HMAC SHA-256 • 16-Byte Cryptographic Salt • Constant-Time Comparison
 // =============================================================================
 
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
-export interface RiiqxUser {
-  id: string;
-  email: string;
-  name: string;
-  role: 'creator' | 'developer' | 'admin';
-  createdAt: string;
-  preferences: {
-    theme: 'dark' | 'midnight';
-    defaultLanguage: 'en' | 'bn' | 'hi';
-    autoSave: boolean;
-    streamResponses: boolean;
-  };
-}
+export type { RiiqxUser } from './user';
+export { getDefaultUser } from './user';
 
 export interface StoredCredentials {
   userId: string;
@@ -25,11 +16,38 @@ export interface StoredCredentials {
   saltHex: string;
   hashHex: string;
   iterations: number;
+  createdAt: string;
 }
 
 const DEFAULT_ITERATIONS = 10000;
 const KEY_LENGTH = 32;
 const DIGEST = 'sha256';
+
+const CREDENTIALS_STORE_PATH = path.resolve(process.cwd(), '.temp/local_credentials_store.json');
+
+function ensureTempDir() {
+  const dir = path.dirname(CREDENTIALS_STORE_PATH);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
+function readStoredCredentials(): StoredCredentials[] {
+  ensureTempDir();
+  if (!fs.existsSync(CREDENTIALS_STORE_PATH)) {
+    return [];
+  }
+  try {
+    return JSON.parse(fs.readFileSync(CREDENTIALS_STORE_PATH, 'utf8'));
+  } catch {
+    return [];
+  }
+}
+
+function writeStoredCredentials(creds: StoredCredentials[]) {
+  ensureTempDir();
+  fs.writeFileSync(CREDENTIALS_STORE_PATH, JSON.stringify(creds, null, 2), 'utf8');
+}
 
 export function hashPassword(password: string): { saltHex: string; hashHex: string } {
   const salt = crypto.randomBytes(16);
@@ -59,6 +77,42 @@ export function verifyPassword(
   } catch {
     return false;
   }
+}
+
+export function saveLocalCredentials(email: string, password: string, userId?: string): StoredCredentials {
+  const creds = readStoredCredentials();
+  const normalizedEmail = email.toLowerCase().trim();
+  const existingIndex = creds.findIndex((c) => c.email === normalizedEmail);
+
+  const { saltHex, hashHex } = hashPassword(password);
+  const record: StoredCredentials = {
+    userId: userId || `usr_${crypto.randomBytes(8).toString('hex')}`,
+    email: normalizedEmail,
+    saltHex,
+    hashHex,
+    iterations: DEFAULT_ITERATIONS,
+    createdAt: new Date().toISOString(),
+  };
+
+  if (existingIndex >= 0) {
+    creds[existingIndex] = record;
+  } else {
+    creds.push(record);
+  }
+
+  writeStoredCredentials(creds);
+  return record;
+}
+
+export function verifyLocalCredentials(email: string, password: string): StoredCredentials | null {
+  const creds = readStoredCredentials();
+  const normalizedEmail = email.toLowerCase().trim();
+  const record = creds.find((c) => c.email === normalizedEmail);
+
+  if (!record) return null;
+
+  const valid = verifyPassword(password, record.saltHex, record.hashHex, record.iterations);
+  return valid ? record : null;
 }
 
 export function createSessionToken(userId: string): string {
@@ -99,20 +153,4 @@ export function verifySessionToken(token: string): { valid: boolean; userId?: st
   } catch {
     return { valid: false };
   }
-}
-
-export function getDefaultUser(): RiiqxUser {
-  return {
-    id: 'usr_riiqx_primary',
-    email: 'creator@riiqx.ai',
-    name: 'RIIQX Creator',
-    role: 'creator',
-    createdAt: new Date().toISOString(),
-    preferences: {
-      theme: 'dark',
-      defaultLanguage: 'en',
-      autoSave: true,
-      streamResponses: true,
-    },
-  };
 }

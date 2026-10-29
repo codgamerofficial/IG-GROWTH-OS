@@ -7,6 +7,7 @@ export type ModelProviderType =
   | 'bedrock'
   | 'groq'
   | 'openrouter'
+  | 'cohere'
   | 'openai'
   | 'agentrouter'
   | 'openai-compatible'
@@ -24,6 +25,7 @@ export interface RiiqxModel {
   license: string;
   isOnline: boolean;
   isOpenWeight: boolean;
+  isFreeTier?: boolean;
   strengths: string[];
 }
 
@@ -38,23 +40,24 @@ export interface ProviderHealth {
 }
 
 export const RIIQX_MODELS: RiiqxModel[] = [
-  // 1. Primary Verified Online Cloud Model: OpenRouter Llama 3.3 70B Instruct
+  // 1. Ultra-Fast Verified Free Model: Groq Qwen 3.8 27B
   {
-    id: 'openrouter-llama-70b',
-    name: 'Llama 3.3 70B Instruct (OpenRouter)',
-    tag: 'Verified Online Cloud Model',
-    provider: 'openrouter',
-    modelString: 'meta-llama/llama-3.3-70b-instruct',
-    description: 'High-precision reasoning, multi-turn dialogue, and fast code generation via OpenRouter multi-cloud gateway.',
-    contextWindow: 131072,
-    recommendedFor: 'general',
-    license: 'Llama 3.3 Community',
+    id: 'groq-qwen-27b',
+    name: 'Qwen 3.8 27B (Groq LPU Free Tier)',
+    tag: 'Ultra-Fast 150ms Free Model',
+    provider: 'groq',
+    modelString: 'qwen/qwen3.8-27b',
+    description: 'Sub-200ms ultra-fast inference via Groq Cloud custom LPUs with zero latency overhead. 100% Free Tier.',
+    contextWindow: 32768,
+    recommendedFor: 'fast',
+    license: 'Qwen Community / Free LPU',
     isOnline: true,
     isOpenWeight: true,
-    strengths: ['Multi-datacenter redundancy', 'Fast streaming', 'Broad benchmark leadership', 'Live verified'],
+    isFreeTier: true,
+    strengths: ['150ms sub-second latency', 'High throughput', 'Zero cost free tier', 'Live verified'],
   },
 
-  // 2. High-Speed Verified Fallback: Groq Cloud LPU
+  // 2. High-Speed Verified Fallback: Groq Cloud GPT-OSS 120B
   {
     id: 'groq-gpt-120b',
     name: 'GPT-OSS 120B (Groq Cloud LPU)',
@@ -67,10 +70,95 @@ export const RIIQX_MODELS: RiiqxModel[] = [
     license: 'Open-Weight / Groq Managed',
     isOnline: true,
     isOpenWeight: true,
+    isFreeTier: true,
     strengths: ['Sub-second latency (250+ tokens/sec)', 'Deep reasoning', 'Broad world knowledge', 'Live verified'],
   },
 
-  // 3. Enterprise AWS Bedrock (Claude Sonnet 4 / 3.7)
+  // 3. Primary Verified Online Cloud Model: OpenRouter Llama 3.3 70B Instruct
+  {
+    id: 'openrouter-llama-70b',
+    name: 'Llama 3.3 70B Instruct (OpenRouter)',
+    tag: 'Verified Online Cloud Model',
+    provider: 'openrouter',
+    modelString: 'meta-llama/llama-3.3-70b-instruct',
+    description: 'High-precision reasoning, multi-turn dialogue, and fast code generation via OpenRouter multi-cloud gateway.',
+    contextWindow: 131072,
+    recommendedFor: 'general',
+    license: 'Llama 3.3 Community',
+    isOnline: true,
+    isOpenWeight: true,
+    isFreeTier: false,
+    strengths: ['Multi-datacenter redundancy', 'Fast streaming', 'Broad benchmark leadership', 'Live verified'],
+  },
+
+  // 4. Verified Online DeepSeek V3 (OpenRouter)
+  {
+    id: 'openrouter-deepseek',
+    name: 'DeepSeek Chat V3 (OpenRouter)',
+    tag: 'Verified Online DeepSeek',
+    provider: 'openrouter',
+    modelString: 'deepseek/deepseek-chat',
+    description: 'Real DeepSeek-V3 671B MoE architecture with ultra-fast streaming and superior coding and reasoning performance.',
+    contextWindow: 64000,
+    recommendedFor: 'coding',
+    license: 'DeepSeek Open Weight',
+    isOnline: true,
+    isOpenWeight: true,
+    isFreeTier: false,
+    strengths: ['State-of-the-art coding', 'Deep reasoning', 'Low latency', 'Live verified online'],
+  },
+
+  // 5. Verified Online Free Model: Gemma 4 31B IT (OpenRouter)
+  {
+    id: 'openrouter-gemma-free',
+    name: 'Gemma 4 31B IT (OpenRouter Free)',
+    tag: '100% Free OpenRouter Tier',
+    provider: 'openrouter',
+    modelString: 'google/gemma-4-31b-it:free',
+    description: 'Google Gemma 4 instruction-tuned model served with zero token charges via OpenRouter free tier.',
+    contextWindow: 32768,
+    recommendedFor: 'general',
+    license: 'Gemma Terms of Use',
+    isOnline: true,
+    isOpenWeight: true,
+    isFreeTier: true,
+    strengths: ['100% Free tier (Cost $0.00)', 'Clean instruction following', 'General conversation', 'Live verified'],
+  },
+
+  // 6. Verified Online Free Model: Cohere Command R+ (Cohere Free Developer Tier)
+  {
+    id: 'cohere-command-r-plus',
+    name: 'Command R+ 08-2024 (Cohere Cloud)',
+    tag: '128K Context Research Model',
+    provider: 'cohere',
+    modelString: 'command-r-plus-08-2024',
+    description: 'Enterprise reasoning model with 128k context window, native citation grounding, and deep synthesis via Cohere Free Dev Tier.',
+    contextWindow: 128000,
+    recommendedFor: 'reasoning',
+    license: 'Cohere Developer Tier',
+    isOnline: true,
+    isOpenWeight: false,
+    isFreeTier: true,
+    strengths: ['128K context window', 'Native citations', 'Deep research', 'Free developer tier'],
+  },
+
+  // 4. Verified Online DeepSeek R1 Reasoning (OpenRouter)
+  {
+    id: 'openrouter-deepseek-r1',
+    name: 'DeepSeek R1 Reasoning (OpenRouter)',
+    tag: 'Advanced Reasoning Engine',
+    provider: 'openrouter',
+    modelString: 'deepseek/deepseek-r1',
+    description: 'DeepSeek R1 reinforcement-learning reasoning model with transparent chain-of-thought analysis.',
+    contextWindow: 64000,
+    recommendedFor: 'reasoning',
+    license: 'MIT / Open Weight',
+    isOnline: true,
+    isOpenWeight: true,
+    strengths: ['Complex problem solving', 'Chain-of-thought', 'Algorithmic logic', 'Live verified online'],
+  },
+
+  // 5. Enterprise AWS Bedrock (Claude Sonnet 4 / 3.7)
   {
     id: 'bedrock-claude-sonnet',
     name: 'Claude Sonnet 4 / 3.7 (AWS Bedrock)',
@@ -86,7 +174,7 @@ export const RIIQX_MODELS: RiiqxModel[] = [
     strengths: ['Deep contextual synthesis', 'Multi-step logic', 'Direct AWS cloud inference', 'Real enterprise grounding'],
   },
 
-  // 4. OpenAI Direct / GPT-4o Mini
+  // 6. OpenAI Direct / GPT-4o Mini
   {
     id: 'openai-gpt-4o-mini',
     name: 'GPT-4o Mini (OpenAI Cloud)',
@@ -102,20 +190,20 @@ export const RIIQX_MODELS: RiiqxModel[] = [
     strengths: ['Multimodal support', 'Fast response times', 'Reliable instruction following'],
   },
 
-  // 5. Secondary Online Aggregator: DeepSeek v4 Flash / Agent Router
+  // 7. Secondary Online Aggregator: DeepSeek v4 Flash / Agent Router
   {
     id: 'agentrouter-deepseek',
     name: 'DeepSeek v4 Flash (Agent Router)',
     tag: 'Ultra-Fast Gateway',
     provider: 'agentrouter',
-    modelString: process.env.AGENT_ROUTER_MODEL || 'deepseek-v4-flash',
-    description: 'High-throughput reasoning and code synthesis dispatched via server-side OpenAI-compatible gateway.',
+    modelString: process.env.AGENT_ROUTER_MODEL || 'deepseek/deepseek-chat',
+    description: 'High-throughput reasoning dispatched via Agent Router gateway with automatic verified DeepSeek fallback.',
     contextWindow: 64000,
     recommendedFor: 'fast',
     license: 'DeepSeek Commercial / Gateway',
     isOnline: true,
     isOpenWeight: true,
-    strengths: ['High throughput', 'Code generation', 'Low cost'],
+    strengths: ['High throughput', 'Code generation', 'Auto-failover to verified DeepSeek'],
   },
 
   // 6. Custom Self-Hosted / Cluster Endpoint (OpenAI Compatible)

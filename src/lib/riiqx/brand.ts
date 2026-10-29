@@ -61,38 +61,46 @@ export const riiqxBrand: RiiqxBrandConfig = {
   },
   theme: {
     light: {
-      canvas: '#F8FAFC',
-      canvasSubtle: '#F1F5F9',
-      surface: '#FFFFFF',
+      canvas: '#FAF9F6', // Warm Background
+      canvasSubtle: '#F3F1EC',
+      surface: '#FFFFFF', // White Surface
       card: '#FFFFFF',
-      cardHover: '#F8FAFC',
-      border: '#E2E8F0',
-      borderSubtle: '#F1F5F9',
-      borderHighlight: '#DDD6FE',
-      textPrimary: '#0F172A',
-      textSecondary: '#475569',
-      textMuted: '#94A3B8',
+      cardHover: '#FAFAF8',
+      border: '#EAE7E1', // Border
+      borderSubtle: '#F3F1EC',
+      borderHighlight: '#FFD43B', // Primary Yellow
+      textPrimary: '#202124', // Primary Text
+      textSecondary: '#737373', // Secondary Text
+      textMuted: '#9E9E9E',
     },
     dark: {
-      canvas: '#0B0F19',
-      canvasSubtle: '#111827',
-      surface: '#111827',
-      card: '#1E293B',
-      cardHover: '#334155',
-      border: '#334155',
-      borderSubtle: '#1E293B',
-      borderHighlight: '#4C1D95',
-      textPrimary: '#F8FAFC',
-      textSecondary: '#94A3B8',
-      textMuted: '#64748B',
+      canvas: '#151515', // Dark Background
+      canvasSubtle: '#0D0D0D',
+      surface: '#202020', // Dark Surface
+      card: '#202020',
+      cardHover: '#282828',
+      border: '#2E2E2E', // Dark Border
+      borderSubtle: '#222222',
+      borderHighlight: '#FFD43B', // Primary Yellow
+      textPrimary: '#F7F7F7', // Dark Text
+      textSecondary: '#A3A3A3', // Dark Secondary Text
+      textMuted: '#737373',
     },
     accents: {
-      violet: '#7C3AED',
-      pink: '#EC4899',
-      emerald: '#10B981',
-      sky: '#0EA5E9',
-      amber: '#F59E0B',
-      gradient: 'linear-gradient(135deg, #7C3AED 0%, #EC4899 100%)',
+      primary: '#FFD43B', // Primary Yellow
+      secondary: '#FFC928', // Secondary Yellow
+      red: '#FF4D4F', // Primary Red
+      coral: '#FF6B5E', // Coral Accent
+      accent: '#FF6B5E', // Coral Accent
+      success: '#16865D', // Success
+      warning: '#D97706', // Warning
+      error: '#D92D36', // Error
+      amber: '#D97706',
+      rose: '#FF4D4F',
+      yellow: '#FFD43B',
+      gradient: 'linear-gradient(135deg, #FFD43B 0%, #FF6B5E 100%)',
+      gradientYellow: 'linear-gradient(135deg, #FFD43B 0%, #FFC928 100%)',
+      gradientRed: 'linear-gradient(135deg, #FF6B5E 0%, #FF4D4F 100%)',
     },
   },
 

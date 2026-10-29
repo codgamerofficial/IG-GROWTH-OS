@@ -1,37 +1,41 @@
 // =============================================================================
-// RIIQX Mobile 2.0 — Primary 5-Tab Navigator
-// Home • AI Chat • Create (+) • Studio • Apps
-// Matching Reference Image 2 Screen 2 & Screen 13
+// RIIQX Mobile — Primary 5-Tab Navigator
+// Home • Portfolio • Explore • AI Analyst • Profile
+// Modern Editorial Fintech Layout • Subtle Accents • Dynamic Dark/Light Theme
 // =============================================================================
 
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '../../src/theme/colors';
+import { useRiiqx } from '../../src/context/RiiqxContext';
+import { lightColors, darkColors } from '../../src/theme/colors';
 
 export default function TabLayout() {
+  const { isDarkMode } = useRiiqx();
+  const theme = isDarkMode ? darkColors : lightColors;
+
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.cardBorder,
+          backgroundColor: theme.surface,
+          borderTopColor: theme.cardBorder,
           height: 64,
           paddingBottom: 8,
           paddingTop: 8,
           borderTopWidth: 1,
         },
-        tabBarActiveTintColor: colors.violet,
-        tabBarInactiveTintColor: colors.textMuted,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.textMuted,
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '700',
         },
       }}
     >
-      {/* Tab 1: Home */}
+      {/* Tab 1: Home (Wealth Dashboard) */}
       <Tabs.Screen
         name="index"
         options={{
@@ -46,14 +50,14 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Tab 2: AI Chat */}
+      {/* Tab 2: Portfolio & Ledger */}
       <Tabs.Screen
-        name="chat"
+        name="portfolio"
         options={{
-          title: 'Chat',
+          title: 'Portfolio',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
-              name={focused ? 'chatbubbles' : 'chatbubbles-outline'}
+              name={focused ? 'pie-chart' : 'pie-chart-outline'}
               size={size - 2}
               color={color}
             />
@@ -61,29 +65,14 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Tab 3: Create (Prominent Elevated Central Action Button) */}
+      {/* Tab 3: Explore & Screener */}
       <Tabs.Screen
-        name="creator"
+        name="explore"
         options={{
-          title: '',
-          tabBarIcon: () => (
-            <View style={styles.createButtonContainer}>
-              <View style={styles.createButton}>
-                <Ionicons name="add" size={26} color="#FFFFFF" />
-              </View>
-            </View>
-          ),
-        }}
-      />
-
-      {/* Tab 4: Studio */}
-      <Tabs.Screen
-        name="studio"
-        options={{
-          title: 'Studio',
+          title: 'Explore',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
-              name={focused ? 'film' : 'film-outline'}
+              name={focused ? 'compass' : 'compass-outline'}
               size={size - 2}
               color={color}
             />
@@ -91,14 +80,14 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Tab 5: Apps / Tools */}
+      {/* Tab 4: AI Analyst */}
       <Tabs.Screen
-        name="apps"
+        name="analyst"
         options={{
-          title: 'Apps',
+          title: 'AI Analyst',
           tabBarIcon: ({ color, size, focused }) => (
             <Ionicons
-              name={focused ? 'grid' : 'grid-outline'}
+              name={focused ? 'sparkles' : 'sparkles-outline'}
               size={size - 2}
               color={color}
             />
@@ -106,46 +95,29 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Hidden Auxiliary Screens in Tab Router */}
+      {/* Tab 5: Profile & Legal */}
       <Tabs.Screen
-        name="autopilot"
+        name="profile"
         options={{
-          href: null,
+          title: 'Profile',
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={focused ? 'person' : 'person-outline'}
+              size={size - 2}
+              color={color}
+            />
+          ),
         }}
       />
-      <Tabs.Screen
-        name="tasks"
-        options={{
-          href: null,
-        }}
-      />
-      <Tabs.Screen
-        name="settings"
-        options={{
-          href: null,
-        }}
-      />
+
+      {/* Hidden legacy tab entries */}
+      <Tabs.Screen name="apps" options={{ href: null }} />
+      <Tabs.Screen name="autopilot" options={{ href: null }} />
+      <Tabs.Screen name="chat" options={{ href: null }} />
+      <Tabs.Screen name="creator" options={{ href: null }} />
+      <Tabs.Screen name="settings" options={{ href: null }} />
+      <Tabs.Screen name="studio" options={{ href: null }} />
+      <Tabs.Screen name="tasks" options={{ href: null }} />
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  createButtonContainer: {
-    top: -12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  createButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#7C3AED',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#7C3AED',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-});

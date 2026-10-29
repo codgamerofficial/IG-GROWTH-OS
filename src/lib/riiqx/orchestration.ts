@@ -4,32 +4,67 @@
 // =============================================================================
 
 import { RIIQX_MODELS, RiiqxModel, ProviderHealth } from './models';
-import { bedrockConnection } from '@/lib/ai/bedrock-connection';
+import { bedrockConnection } from '../ai/bedrock-connection';
 import { ConverseCommand } from '@aws-sdk/client-bedrock-runtime';
+import { recordInferenceUsage } from './usage-monitor';
 
-const OLLAMA_DEFAULT_BASE = process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
-const OPENAI_COMPATIBLE_BASE =
-  process.env.AGENT_ROUTER_BASE_URL || process.env.OPENAI_COMPATIBLE_BASE_URL || '';
-const OPENAI_COMPATIBLE_KEY =
-  process.env.AGENT_ROUTER_API_KEY ||
-  process.env.AGENTROUTER_API_KEY ||
-  process.env.agenrouter_api_key ||
-  process.env.OPENAI_API_KEY ||
-  '';
+export function getOllamaBase(): string {
+  return (process.env.OLLAMA_BASE_URL || 'http://localhost:11434').trim();
+}
 
-const GROQ_BASE = process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1';
-const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
+export function getAgentRouterBase(): string {
+  return (
+    process.env.AGENT_ROUTER_BASE_URL ||
+    process.env.OPENAI_COMPATIBLE_BASE_URL ||
+    'https://agentrouter.org/v1'
+  ).trim();
+}
 
-const OPENROUTER_BASE = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
-const OPENROUTER_API_KEY =
-  process.env.OPENROUTER_API_KEY ||
-  process.env['sk-or-v1-openrouter_api_key'] ||
-  '';
+export function getAgentRouterKey(): string {
+  return (
+    process.env.AGENT_ROUTER_API_KEY ||
+    process.env.AGENTROUTER_API_KEY ||
+    process.env.agenrouter_api_key ||
+    process.env.OPENAI_API_KEY ||
+    ''
+  ).trim();
+}
 
-const OPENAI_DIRECT_BASE = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
-const OPENAI_DIRECT_KEY = process.env.OPENAI_API_KEY || '';
-const NVIDIA_NIM_KEY = process.env.NVIDIA_NIM_API_KEY || process.env.Nvdia_nim_api_key || '';
-const COHERE_KEY = process.env.COHERE_API_KEY || process.env.cohera_api_key || '';
+export function getGroqBase(): string {
+  return (process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1').trim();
+}
+
+export function getGroqKey(): string {
+  return (process.env.GROQ_API_KEY || process.env.groq_api_key || '').trim();
+}
+
+export function getOpenRouterBase(): string {
+  return (process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1').trim();
+}
+
+export function getOpenRouterKey(): string {
+  return (
+    process.env.OPENROUTER_API_KEY ||
+    process.env['sk-or-v1-openrouter_api_key'] ||
+    ''
+  ).trim();
+}
+
+export function getOpenAiDirectBase(): string {
+  return (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').trim();
+}
+
+export function getOpenAiDirectKey(): string {
+  return (process.env.OPENAI_API_KEY || '').trim();
+}
+
+export function getNvidiaNimKey(): string {
+  return (process.env.NVIDIA_NIM_API_KEY || process.env.Nvdia_nim_api_key || '').trim();
+}
+
+export function getCohereKey(): string {
+  return (process.env.COHERE_API_KEY || process.env.cohera_api_key || '').trim();
+}
 
 /**
  * Check real-time health of online and fallback model providers
@@ -38,6 +73,7 @@ export async function checkProviderHealth(): Promise<{
   bedrock: ProviderHealth;
   groq: ProviderHealth;
   openrouter: ProviderHealth;
+  cohere: ProviderHealth;
   openai: ProviderHealth;
   agentrouter: ProviderHealth;
   ollama: ProviderHealth;
@@ -79,26 +115,30 @@ export async function checkProviderHealth(): Promise<{
   }
 
   // 2. Probe Groq Cloud
+  const groqKey = getGroqKey();
+  const groqBase = getGroqBase();
   const groqHealth: ProviderHealth = {
     provider: 'groq',
-    status: GROQ_API_KEY ? 'checking' : 'unconfigured',
-    endpoint: GROQ_BASE,
-    availableModels: ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'],
+    status: groqKey ? 'checking' : 'unconfigured',
+    endpoint: groqBase,
+    availableModels: [process.env.GROQ_MODEL || 'openai/gpt-oss-120b', 'qwen/qwen3.8-27b'],
     checkedAt: new Date().toISOString(),
   };
 
-  if (GROQ_API_KEY) {
+  if (groqKey) {
     try {
+      const startProbe = Date.now();
       const ctrl = new AbortController();
       const tm = setTimeout(() => ctrl.abort(), 2000);
-      const res = await fetch(`${GROQ_BASE}/models`, {
+      const res = await fetch(`${groqBase}/models`, {
         signal: ctrl.signal,
-        headers: { Authorization: `Bearer ${GROQ_API_KEY}` },
+        headers: { Authorization: `Bearer ${groqKey}` },
         cache: 'no-store',
       });
       clearTimeout(tm);
       if (res.ok) {
         groqHealth.status = 'online';
+        groqHealth.latencyMs = Date.now() - startProbe;
       } else {
         groqHealth.status = 'offline';
         groqHealth.errorMessage = `HTTP ${res.status}`;
@@ -110,26 +150,34 @@ export async function checkProviderHealth(): Promise<{
   }
 
   // 3. Probe OpenRouter
+  const openrouterKey = getOpenRouterKey();
+  const openrouterBase = getOpenRouterBase();
   const openrouterHealth: ProviderHealth = {
     provider: 'openrouter',
-    status: OPENROUTER_API_KEY ? 'checking' : 'unconfigured',
-    endpoint: OPENROUTER_BASE,
-    availableModels: ['meta-llama/llama-3.3-70b-instruct'],
+    status: openrouterKey ? 'checking' : 'unconfigured',
+    endpoint: openrouterBase,
+    availableModels: [
+      'meta-llama/llama-3.3-70b-instruct',
+      'deepseek/deepseek-chat',
+      'deepseek/deepseek-r1',
+    ],
     checkedAt: new Date().toISOString(),
   };
 
-  if (OPENROUTER_API_KEY) {
+  if (openrouterKey) {
     try {
+      const startProbe = Date.now();
       const ctrl = new AbortController();
       const tm = setTimeout(() => ctrl.abort(), 2000);
-      const res = await fetch(`${OPENROUTER_BASE}/models`, {
+      const res = await fetch(`${openrouterBase}/models`, {
         signal: ctrl.signal,
-        headers: { Authorization: `Bearer ${OPENROUTER_API_KEY}` },
+        headers: { Authorization: `Bearer ${openrouterKey}` },
         cache: 'no-store',
       });
       clearTimeout(tm);
       if (res.ok) {
         openrouterHealth.status = 'online';
+        openrouterHealth.latencyMs = Date.now() - startProbe;
       } else {
         openrouterHealth.status = 'offline';
         openrouterHealth.errorMessage = `HTTP ${res.status}`;
@@ -140,27 +188,65 @@ export async function checkProviderHealth(): Promise<{
     }
   }
 
-  // 4. Probe OpenAI Direct
+  // 4. Probe Cohere Intelligence Cloud
+  const cohereKey = getCohereKey();
+  const cohereHealth: ProviderHealth = {
+    provider: 'cohere',
+    status: cohereKey ? 'checking' : 'unconfigured',
+    endpoint: 'https://api.cohere.com/v2',
+    availableModels: ['command-r-plus-08-2024', 'command-r-08-2024'],
+    checkedAt: new Date().toISOString(),
+  };
+
+  if (cohereKey) {
+    try {
+      const startProbe = Date.now();
+      const ctrl = new AbortController();
+      const tm = setTimeout(() => ctrl.abort(), 2000);
+      const res = await fetch('https://api.cohere.com/v1/models', {
+        signal: ctrl.signal,
+        headers: { Authorization: `Bearer ${cohereKey}` },
+        cache: 'no-store',
+      });
+      clearTimeout(tm);
+      if (res.ok) {
+        cohereHealth.status = 'online';
+        cohereHealth.latencyMs = Date.now() - startProbe;
+      } else {
+        cohereHealth.status = 'offline';
+        cohereHealth.errorMessage = `HTTP ${res.status}`;
+      }
+    } catch {
+      cohereHealth.status = 'offline';
+      cohereHealth.errorMessage = 'Connection timeout';
+    }
+  }
+
+  // 5. Probe OpenAI Direct
+  const openaiDirectKey = getOpenAiDirectKey();
+  const openaiDirectBase = getOpenAiDirectBase();
   const openaiHealth: ProviderHealth = {
     provider: 'openai',
-    status: OPENAI_DIRECT_KEY && !OPENAI_DIRECT_KEY.startsWith('sk-kg8v') ? 'checking' : 'unconfigured',
-    endpoint: OPENAI_DIRECT_BASE,
+    status: openaiDirectKey && !openaiDirectKey.startsWith('sk-kg8v') ? 'checking' : 'unconfigured',
+    endpoint: openaiDirectBase,
     availableModels: ['gpt-4o-mini', 'gpt-4o'],
     checkedAt: new Date().toISOString(),
   };
 
-  if (OPENAI_DIRECT_KEY && !OPENAI_DIRECT_KEY.startsWith('sk-kg8v')) {
+  if (openaiDirectKey && !openaiDirectKey.startsWith('sk-kg8v')) {
     try {
+      const startProbe = Date.now();
       const ctrl = new AbortController();
       const tm = setTimeout(() => ctrl.abort(), 2000);
-      const res = await fetch(`${OPENAI_DIRECT_BASE}/models`, {
+      const res = await fetch(`${openaiDirectBase}/models`, {
         signal: ctrl.signal,
-        headers: { Authorization: `Bearer ${OPENAI_DIRECT_KEY}` },
+        headers: { Authorization: `Bearer ${openaiDirectKey}` },
         cache: 'no-store',
       });
       clearTimeout(tm);
       if (res.ok) {
         openaiHealth.status = 'online';
+        openaiHealth.latencyMs = Date.now() - startProbe;
       } else {
         openaiHealth.status = 'offline';
         openaiHealth.errorMessage = `HTTP ${res.status}`;
@@ -171,22 +257,24 @@ export async function checkProviderHealth(): Promise<{
     }
   }
 
-  // 5. Probe Agent Router / OpenAI-Compatible Gateway
+  // 6. Probe Agent Router / OpenAI-Compatible Gateway
+  const agentRouterBase = getAgentRouterBase();
+  const agentRouterKey = getAgentRouterKey();
   const agentRouterHealth: ProviderHealth = {
     provider: 'agentrouter',
-    status: OPENAI_COMPATIBLE_BASE ? 'checking' : 'unconfigured',
-    endpoint: OPENAI_COMPATIBLE_BASE || 'Not configured',
+    status: agentRouterBase ? 'checking' : 'unconfigured',
+    endpoint: agentRouterBase || 'Not configured',
     availableModels: [],
     checkedAt: new Date().toISOString(),
   };
 
-  if (OPENAI_COMPATIBLE_BASE) {
+  if (agentRouterBase) {
     try {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 2000);
-      const res = await fetch(`${OPENAI_COMPATIBLE_BASE}/models`, {
+      const res = await fetch(`${agentRouterBase}/models`, {
         signal: controller.signal,
-        headers: OPENAI_COMPATIBLE_KEY ? { Authorization: `Bearer ${OPENAI_COMPATIBLE_KEY}` } : {},
+        headers: agentRouterKey ? { Authorization: `Bearer ${agentRouterKey}` } : {},
         cache: 'no-store',
       });
       clearTimeout(timeout);
@@ -207,11 +295,12 @@ export async function checkProviderHealth(): Promise<{
     }
   }
 
-  // 6. Probe Local Ollama (Optional Fallback)
+  // 7. Probe Local Ollama (Optional Fallback)
+  const ollamaBase = getOllamaBase();
   const ollamaHealth: ProviderHealth = {
     provider: 'ollama',
     status: 'checking',
-    endpoint: OLLAMA_DEFAULT_BASE,
+    endpoint: ollamaBase,
     availableModels: [],
     checkedAt: new Date().toISOString(),
   };
@@ -219,7 +308,7 @@ export async function checkProviderHealth(): Promise<{
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 1500);
-    const res = await fetch(`${OLLAMA_DEFAULT_BASE}/api/tags`, {
+    const res = await fetch(`${ollamaBase}/api/tags`, {
       signal: controller.signal,
       cache: 'no-store',
     });
@@ -241,6 +330,7 @@ export async function checkProviderHealth(): Promise<{
     bedrock: bedrockHealth,
     groq: groqHealth,
     openrouter: openrouterHealth,
+    cohere: cohereHealth,
     openai: openaiHealth,
     agentrouter: agentRouterHealth,
     ollama: ollamaHealth,
@@ -328,66 +418,157 @@ export async function streamChatCompletion({
 
   // --- 2. Groq Cloud (LPU Ultra-Fast Online Inference) ---
   if (model.provider === 'groq') {
-    if (!GROQ_API_KEY) {
+    const groqKey = getGroqKey();
+    const groqBase = getGroqBase();
+    if (!groqKey) {
+      // Auto-failover if OpenRouter is active
+      const orKey = getOpenRouterKey();
+      if (orKey) {
+        onChunk('*Groq Cloud key not detected; dynamically routed to active OpenRouter gateway...*\n\n');
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getOpenRouterBase(),
+          apiKey: orKey,
+          modelString: 'meta-llama/llama-3.3-70b-instruct',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'OpenRouter (Auto-Route)',
+        });
+      }
       const notice = `> ⚠️ **Groq Cloud Not Configured**\n> Please add \`GROQ_API_KEY=gsk_...\` in your \`.env.local\` to activate ultra-fast LPU inference (free at https://console.groq.com/keys).`;
       onChunk(notice);
       return { fullText: notice, tokensEstimated: 25 };
     }
-    return executeOpenAiCompatibleChat({
-      baseUrl: GROQ_BASE,
-      apiKey: GROQ_API_KEY,
-      modelString: model.modelString || 'llama-3.3-70b-versatile',
-      messages,
-      signal,
-      onChunk,
-      providerName: 'Groq Cloud',
-    });
+
+    try {
+      return await executeOpenAiCompatibleChat({
+        baseUrl: groqBase,
+        apiKey: groqKey,
+        modelString: model.modelString || process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+        messages,
+        signal,
+        onChunk,
+        providerName: 'Groq Cloud',
+      });
+    } catch (groqErr: any) {
+      const orKey = getOpenRouterKey();
+      if (orKey) {
+        onChunk(`\n\n*Groq Cloud encountered an issue (${groqErr.message || 'error'}); auto-failover to verified OpenRouter...*\n\n`);
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getOpenRouterBase(),
+          apiKey: orKey,
+          modelString: 'meta-llama/llama-3.3-70b-instruct',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'OpenRouter (Fallback)',
+        });
+      }
+      throw groqErr;
+    }
   }
 
   // --- 3. OpenRouter Cloud Aggregator (Primary Online) ---
   if (model.provider === 'openrouter') {
-    if (!OPENROUTER_API_KEY) {
-      const notice = `> ⚠️ **OpenRouter Not Configured**\n> Please add \`OPENROUTER_API_KEY=sk-or-...\` in your \`.env.local\` to activate multi-cloud routing (available at https://openrouter.ai/keys).`;
+    const openrouterKey = getOpenRouterKey();
+    const openrouterBase = getOpenRouterBase();
+    const groqKey = getGroqKey();
+
+    if (!openrouterKey) {
+      // If OpenRouter is not configured but Groq is, smoothly route to Groq LPU without blocking the user
+      if (groqKey) {
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getGroqBase(),
+          apiKey: groqKey,
+          modelString: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'Groq Cloud LPU (Auto-Route)',
+        });
+      }
+      const cohereKey = getCohereKey();
+      if (cohereKey) {
+        return await executeCohereChat({
+          apiKey: cohereKey,
+          modelString: 'command-r-plus-08-2024',
+          messages,
+          signal,
+          onChunk,
+        });
+      }
+
+      const notice = `> ⚠️ **Provider Configuration Notice**\n> OpenRouter is not configured and no fallback online provider was detected. Please configure \`GROQ_API_KEY\` (free at https://console.groq.com) or \`OPENROUTER_API_KEY\` in your \`.env.local\`.`;
       onChunk(notice);
       return { fullText: notice, tokensEstimated: 25 };
     }
-    const result = await executeOpenAiCompatibleChat({
-      baseUrl: OPENROUTER_BASE,
-      apiKey: OPENROUTER_API_KEY,
-      modelString: model.modelString || 'meta-llama/llama-3.3-70b-instruct',
-      messages,
-      signal,
-      onChunk,
-      providerName: 'OpenRouter',
-    });
 
-    if (result.fullText.startsWith('> ⚠️') && GROQ_API_KEY) {
-      // Graceful fallback to verified Groq LPU
-      onChunk('\n\n*Auto-failover to verified secondary provider: Groq Cloud LPU...*\n\n');
-      return await executeOpenAiCompatibleChat({
-        baseUrl: GROQ_BASE,
-        apiKey: GROQ_API_KEY,
-        modelString: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+    try {
+      const result = await executeOpenAiCompatibleChat({
+        baseUrl: openrouterBase,
+        apiKey: openrouterKey,
+        modelString: model.modelString || 'meta-llama/llama-3.3-70b-instruct',
         messages,
         signal,
         onChunk,
-        providerName: 'Groq Cloud (Fallback)',
+        providerName: 'OpenRouter',
       });
-    }
 
-    return result;
+      if (result.fullText.startsWith('> ⚠️') && groqKey) {
+        // Graceful fallback to verified Groq LPU
+        onChunk('\n\n*Auto-failover to verified secondary provider: Groq Cloud LPU...*\n\n');
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getGroqBase(),
+          apiKey: groqKey,
+          modelString: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'Groq Cloud (Fallback)',
+        });
+      }
+
+      return result;
+    } catch (openRouterErr: any) {
+      if (groqKey) {
+        onChunk(`\n\n*OpenRouter connection error (${openRouterErr.message || 'error'}); auto-failover to verified Groq Cloud LPU...*\n\n`);
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getGroqBase(),
+          apiKey: groqKey,
+          modelString: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'Groq Cloud (Fallback)',
+        });
+      }
+      throw openRouterErr;
+    }
   }
 
   // --- 4. OpenAI Direct ---
   if (model.provider === 'openai') {
-    if (!OPENAI_DIRECT_KEY || OPENAI_DIRECT_KEY.startsWith('sk-kg8v')) {
+    const openaiKey = getOpenAiDirectKey();
+    if (!openaiKey || openaiKey.startsWith('sk-kg8v')) {
+      const groqKey = getGroqKey();
+      if (groqKey) {
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getGroqBase(),
+          apiKey: groqKey,
+          modelString: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'Groq Cloud (Auto-Route)',
+        });
+      }
       const notice = `> ⚠️ **OpenAI Direct Key Not Configured**\n> Please add a valid \`OPENAI_API_KEY=sk-proj-...\` in your \`.env.local\` to use direct OpenAI models.`;
       onChunk(notice);
       return { fullText: notice, tokensEstimated: 25 };
     }
     return executeOpenAiCompatibleChat({
-      baseUrl: OPENAI_DIRECT_BASE,
-      apiKey: OPENAI_DIRECT_KEY,
+      baseUrl: getOpenAiDirectBase(),
+      apiKey: openaiKey,
       modelString: model.modelString || 'gpt-4o-mini',
       messages,
       signal,
@@ -396,29 +577,93 @@ export async function streamChatCompletion({
     });
   }
 
-  // --- 5. OpenAI-Compatible / Agent Router (Cloud Secondary) ---
+  // --- 5. OpenAI-Compatible / Agent Router (Cloud Secondary with DeepSeek Auto-Failover) ---
   if (model.provider === 'agentrouter' || model.provider === 'openai-compatible') {
-    const baseUrl = OPENAI_COMPATIBLE_BASE || 'https://agentrouter.org/v1';
-    return executeOpenAiCompatibleChat({
+    const baseUrl = getAgentRouterBase();
+    const apiKey = getAgentRouterKey();
+    const result = await executeOpenAiCompatibleChat({
       baseUrl,
-      apiKey: OPENAI_COMPATIBLE_KEY,
-      modelString: model.modelString || 'deepseek-v4-flash',
+      apiKey,
+      modelString: model.modelString || 'deepseek/deepseek-chat',
       messages,
       signal,
       onChunk,
       providerName: 'Agent Router',
     });
+
+    const openrouterKey = getOpenRouterKey();
+    const groqKey = getGroqKey();
+    if (result.fullText.startsWith('> ⚠️')) {
+      if (openrouterKey) {
+        onChunk('\n\n*Auto-failover to verified DeepSeek V3 via OpenRouter gateway...*\n\n');
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getOpenRouterBase(),
+          apiKey: openrouterKey,
+          modelString: 'deepseek/deepseek-chat',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'OpenRouter (DeepSeek Verified)',
+        });
+      } else if (groqKey) {
+        onChunk('\n\n*Auto-failover to verified Groq Cloud LPU...*\n\n');
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getGroqBase(),
+          apiKey: groqKey,
+          modelString: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'Groq Cloud LPU',
+        });
+      }
+    }
+
+    return result;
   }
 
-  // --- 3. Local Ollama (Optional Fallback) ---
+  // --- 6. Cohere Intelligence Cloud (Free Developer Tier) ---
+  if (model.provider === 'cohere') {
+    const cohereKey = getCohereKey();
+    if (!cohereKey) {
+      const groqKey = getGroqKey();
+      if (groqKey) {
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getGroqBase(),
+          apiKey: groqKey,
+          modelString: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'Groq Cloud (Auto-Route)',
+        });
+      }
+      const notice = `> ⚠️ **Cohere Not Configured**\n> Please add \`COHERE_API_KEY=...\` in your \`.env.local\` to activate Cohere models (free developer tier at https://dashboard.cohere.com/api-keys).`;
+      onChunk(notice);
+      return { fullText: notice, tokensEstimated: 25 };
+    }
+    return executeCohereChat({
+      apiKey: cohereKey,
+      modelString: model.modelString || 'command-r-plus-08-2024',
+      messages,
+      signal,
+      onChunk,
+    });
+  }
+
+  // --- 7. Local Ollama (Optional Fallback) ---
   if (model.provider === 'ollama') {
     try {
-      const response = await fetch(`${OLLAMA_DEFAULT_BASE}/api/chat`, {
+      const sanitized = messages
+        .filter((m) => m.content && m.content.trim().length > 0)
+        .map((m) => ({ role: m.role, content: m.content.trim() }));
+
+      const response = await fetch(`${getOllamaBase()}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: model.modelString,
-          messages: messages.map((m) => ({ role: m.role, content: m.content })),
+          messages: sanitized,
           stream: true,
         }),
         signal,
@@ -463,7 +708,7 @@ export async function streamChatCompletion({
       };
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : 'Connection error';
-      const offlineFallback = `> ℹ️ **Local Model Offline Notice**\n> Model \`${model.name}\` could not be contacted at \`${OLLAMA_DEFAULT_BASE}\` (${errorMsg}).\n> *RIIQX is online-first and does not require local servers. Select Claude Sonnet (AWS Bedrock) above to continue online.*`;
+      const offlineFallback = `> ℹ️ **Local Model Offline Notice**\n> Model \`${model.name}\` could not be contacted at \`${getOllamaBase()}\` (${errorMsg}).\n> *RIIQX is online-first and does not require local servers. Select an online provider above to continue.*`;
       onChunk(offlineFallback);
       return { fullText: offlineFallback, tokensEstimated: 40 };
     }
@@ -475,7 +720,7 @@ export async function streamChatCompletion({
 }
 
 /**
- * Universal OpenAI-compatible chat executor (Groq, OpenRouter, OpenAI, Custom)
+ * Universal OpenAI-compatible chat executor with true SSE streaming
  */
 async function executeOpenAiCompatibleChat({
   baseUrl,
@@ -494,7 +739,20 @@ async function executeOpenAiCompatibleChat({
   onChunk: (chunk: string) => void;
   providerName: string;
 }): Promise<{ fullText: string; tokensEstimated: number }> {
+  const startTime = Date.now();
   try {
+    // Sanitize messages: eliminate empty content items to satisfy provider validations
+    const sanitizedMessages = messages
+      .filter((m) => m.content && typeof m.content === 'string' && m.content.trim().length > 0)
+      .map((m) => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: m.content.trim(),
+      }));
+
+    if (sanitizedMessages.length === 0) {
+      sanitizedMessages.push({ role: 'user', content: 'Hello' });
+    }
+
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
@@ -505,27 +763,234 @@ async function executeOpenAiCompatibleChat({
       },
       body: JSON.stringify({
         model: modelString,
-        messages: messages.map((m) => ({ role: m.role, content: m.content })),
-        stream: false,
+        messages: sanitizedMessages,
+        stream: true,
       }),
       signal,
     });
 
     if (!response.ok) {
       const errJson = await response.json().catch(() => ({}));
-      throw new Error(errJson.error?.message || `Gateway returned HTTP ${response.status}`);
+      const errMsg =
+        errJson.error?.message ||
+        errJson.message ||
+        `Gateway returned HTTP ${response.status} (${response.statusText})`;
+      throw new Error(errMsg);
     }
 
-    const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || '';
-    onChunk(reply);
+    if (!response.body) {
+      throw new Error('Provider returned empty response stream');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data:')) continue;
+        const dataStr = trimmed.slice(5).trim();
+        if (dataStr === '[DONE]') break;
+
+        try {
+          const parsed = JSON.parse(dataStr);
+          const chunkText = parsed.choices?.[0]?.delta?.content || '';
+          if (chunkText) {
+            fullText += chunkText;
+            onChunk(chunkText);
+          }
+        } catch {
+          // Fragmented chunk line
+        }
+      }
+    }
+
+    // Flush remaining buffer if present
+    if (buffer.trim().startsWith('data:')) {
+      const dataStr = buffer.trim().slice(5).trim();
+      if (dataStr && dataStr !== '[DONE]') {
+        try {
+          const parsed = JSON.parse(dataStr);
+          const chunkText = parsed.choices?.[0]?.delta?.content || '';
+          if (chunkText) {
+            fullText += chunkText;
+            onChunk(chunkText);
+          }
+        } catch {}
+      }
+    }
+
+    if (!fullText.trim()) {
+      fullText = 'Execution finished.';
+      onChunk(fullText);
+    }
+
+    const tokensEstimated = Math.ceil(fullText.length / 4);
+
+    recordInferenceUsage({
+      provider: providerName.toLowerCase().includes('groq')
+        ? 'groq'
+        : providerName.toLowerCase().includes('openrouter')
+        ? 'openrouter'
+        : 'openai',
+      model: modelString,
+      success: true,
+      latencyMs: Date.now() - startTime,
+      outputTokens: tokensEstimated,
+    });
+
     return {
-      fullText: reply,
-      tokensEstimated: Math.ceil(reply.length / 4),
+      fullText,
+      tokensEstimated,
     };
   } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw err;
+    }
     const errorMsg = err instanceof Error ? err.message : 'Gateway connection error';
+
+    recordInferenceUsage({
+      provider: providerName.toLowerCase().includes('groq')
+        ? 'groq'
+        : providerName.toLowerCase().includes('openrouter')
+        ? 'openrouter'
+        : 'openai',
+      model: modelString,
+      success: false,
+      latencyMs: Date.now() - startTime,
+      errorMessage: errorMsg,
+    });
+
     const notice = `> ⚠️ **${providerName} Gateway Notice**\n> Endpoint: \`${baseUrl}\`\n> Model: \`${modelString}\`\n> Details: ${errorMsg}`;
+    return { fullText: notice, tokensEstimated: 30 };
+  }
+}
+
+/**
+ * Cohere V2 Chat completion with streaming
+ */
+async function executeCohereChat({
+  apiKey,
+  modelString,
+  messages,
+  signal,
+  onChunk,
+}: {
+  apiKey: string;
+  modelString: string;
+  messages: { role: string; content: string }[];
+  signal?: AbortSignal;
+  onChunk: (chunk: string) => void;
+}): Promise<{ fullText: string; tokensEstimated: number }> {
+  const startTime = Date.now();
+  try {
+    const sanitizedMessages = messages
+      .filter((m) => m.content && typeof m.content === 'string' && m.content.trim().length > 0)
+      .map((m) => ({
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: m.content.trim(),
+      }));
+
+    if (sanitizedMessages.length === 0) {
+      sanitizedMessages.push({ role: 'user', content: 'Hello' });
+    }
+
+    const response = await fetch('https://api.cohere.com/v2/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: modelString,
+        messages: sanitizedMessages,
+        stream: true,
+      }),
+      signal,
+    });
+
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => ({}));
+      const errMsg = errJson.message || `Cohere API returned HTTP ${response.status}`;
+      throw new Error(errMsg);
+    }
+
+    if (!response.body) {
+      throw new Error('Cohere returned empty response stream');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data:')) continue;
+        const dataStr = trimmed.slice(5).trim();
+        if (dataStr === '[DONE]') break;
+
+        try {
+          const parsed = JSON.parse(dataStr);
+          if (parsed.type === 'content-delta') {
+            const chunk = parsed.delta?.message?.content?.text || '';
+            if (chunk) {
+              fullText += chunk;
+              onChunk(chunk);
+            }
+          }
+        } catch {}
+      }
+    }
+
+    if (!fullText.trim()) {
+      fullText = 'Execution complete.';
+      onChunk(fullText);
+    }
+
+    const tokensEstimated = Math.ceil(fullText.length / 4);
+
+    recordInferenceUsage({
+      provider: 'cohere',
+      model: modelString,
+      success: true,
+      latencyMs: Date.now() - startTime,
+      outputTokens: tokensEstimated,
+    });
+
+    return { fullText, tokensEstimated };
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw err;
+    }
+    const errorMsg = err instanceof Error ? err.message : 'Cohere connection error';
+
+    recordInferenceUsage({
+      provider: 'cohere',
+      model: modelString,
+      success: false,
+      latencyMs: Date.now() - startTime,
+      errorMessage: errorMsg,
+    });
+
+    const notice = `> ⚠️ **Cohere Cloud Notice**\n> Model: \`${modelString}\`\n> Details: ${errorMsg}`;
     onChunk(notice);
     return { fullText: notice, tokensEstimated: 30 };
   }

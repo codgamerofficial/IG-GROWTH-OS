@@ -2,10 +2,10 @@
 
 // =============================================================================
 // RIIQX 2.0 — Tool-Using AI Agent Chat Workspace
-// Step-by-Step Tool Execution Checklist • Media Cards • Emergency Stop
+// Streaming Responses • Zero Stuck Cards • Responsive Adaptive Layout
 // =============================================================================
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useRiiqx } from '@/context/RiiqxContext';
 import {
   Send,
@@ -26,19 +26,391 @@ import {
   ChevronDown,
   Wand2,
   Video,
+  Plus,
+  Trash2,
+  RotateCcw,
+  AlertTriangle,
+  Code as CodeIcon,
+  X,
 } from 'lucide-react';
 import { parseUploadedTextFile } from '@/lib/riiqx/documents';
+
+/**
+ * Safe mathematical formula and symbol formatter
+ * Converts LaTeX expressions into clean, legible mathematical typography
+ * Handles Bengali Unicode numerals and text without escaping or corruption
+ */
+function formatMathText(latex: string): string {
+  if (!latex) return '';
+  let out = latex.trim();
+  // Strip delimiters
+  out = out.replace(/^(\$\$|\$|\\\[|\\\(|\\\)|\\])/, '').replace(/(\$\$|\$|\\\[|\\\(|\\\)|\\])$/, '').trim();
+  
+  // Fractions: \frac{a}{b} -> (a / b)
+  out = out.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1 / $2)');
+  out = out.replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1 / $2)');
+  
+  // Roots
+  out = out.replace(/\\sqrt\[(.*?)\]\{(.*?)\}/g, '$1√($2)');
+  out = out.replace(/\\sqrt\{(.*?)\}/g, '√($1)');
+  
+  // Common math symbols
+  out = out.replace(/\\times/g, '×');
+  out = out.replace(/\\cdot/g, '·');
+  out = out.replace(/\\div/g, '÷');
+  out = out.replace(/\\pm/g, '±');
+  out = out.replace(/\\mp/g, '∓');
+  out = out.replace(/\\approx/g, '≈');
+  out = out.replace(/\\neq/g, '≠');
+  out = out.replace(/\\leq?/g, '≤');
+  out = out.replace(/\\geq?/g, '≥');
+  out = out.replace(/\\infty/g, '∞');
+  out = out.replace(/\\in\b/g, '∈');
+  out = out.replace(/\\to|\\rightarrow/g, '→');
+  out = out.replace(/\\leftarrow/g, '←');
+  
+  // Greek & calculus
+  out = out.replace(/\\int/g, '∫');
+  out = out.replace(/\\sum/g, '∑');
+  out = out.replace(/\\prod/g, '∏');
+  out = out.replace(/\\partial/g, '∂');
+  out = out.replace(/\\alpha/g, 'α');
+  out = out.replace(/\\beta/g, 'β');
+  out = out.replace(/\\gamma/g, 'γ');
+  out = out.replace(/\\delta/g, 'δ');
+  out = out.replace(/\\Delta/g, 'Δ');
+  out = out.replace(/\\theta/g, 'θ');
+  out = out.replace(/\\lambda/g, 'λ');
+  out = out.replace(/\\mu/g, 'μ');
+  out = out.replace(/\\pi/g, 'π');
+  out = out.replace(/\\sigma/g, 'σ');
+  out = out.replace(/\\omega/g, 'ω');
+  
+  // Superscripts & Subscripts
+  out = out.replace(/\^2\b/g, '²');
+  out = out.replace(/\^3\b/g, '³');
+  out = out.replace(/\^\{2\}/g, '²');
+  out = out.replace(/\^\{3\}/g, '³');
+  out = out.replace(/\^\{([0-9a-zA-Z+-]+)\}/g, '^($1)');
+  out = out.replace(/_\{([0-9a-zA-Z+-]+)\}/g, '_($1)');
+  
+  // Brackets & text wrappers
+  out = out.replace(/\\left\(/g, '(').replace(/\\right\)/g, ')');
+  out = out.replace(/\\left\[/g, '[').replace(/\\right\]/g, ']');
+  out = out.replace(/\\text\{([^{}]+)\}/g, '$1');
+  out = out.replace(/\\mathrm\{([^{}]+)\}/g, '$1');
+  out = out.replace(/\\mathbf\{([^{}]+)\}/g, '$1');
+  
+  // Clean remaining stray backslashes
+  out = out.replace(/\\([a-zA-Z]+)/g, '$1');
+  out = out.replace(/\\/g, '');
+  
+  return out;
+}
+
+/**
+ * Formats inline text styling: **bold**, `inline-code`, *italic*, and residual LaTeX
+ */
+function renderFormattedText(text: string): React.ReactNode {
+  if (!text) return null;
+
+  // Clean any remaining un-delimited LaTeX fractions
+  const cleanText = text
+    .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '($1 / $2)')
+    .replace(/\\frac\s*(\d+)\s*(\d+)/g, '($1 / $2)')
+    .replace(/\\sqrt\{([^{}]+)\}/g, '√($1)')
+    .replace(/\\times/g, '×')
+    .replace(/\\cdot/g, '·')
+    .replace(/\\approx/g, '≈')
+    .replace(/\\neq/g, '≠')
+    .replace(/\\leq?/g, '≤')
+    .replace(/\\geq?/g, '≥')
+    .replace(/\^2\b/g, '²')
+    .replace(/\^3\b/g, '³');
+
+  // Tokenize by **bold**, `code`, and *italic*
+  const tokens = cleanText.split(/(\*\*[^*]+\*\*|`[^`]+`|\*[^*]+\*)/g);
+  return tokens.map((token, i) => {
+    if (token.startsWith('**') && token.endsWith('**') && token.length > 4) {
+      return (
+        <strong key={i} className="font-bold text-[#202124] dark:text-white">
+          {token.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (token.startsWith('`') && token.endsWith('`') && token.length > 2) {
+      return (
+        <code
+          key={i}
+          className="px-1.5 py-0.5 mx-0.5 rounded bg-[#FAF9F6] dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] font-mono text-[11px] text-[#202124] dark:text-[#FFD43B]"
+        >
+          {token.slice(1, -1)}
+        </code>
+      );
+    }
+    if (token.startsWith('*') && token.endsWith('*') && token.length > 2) {
+      return (
+        <em key={i} className="italic text-[#737373] dark:text-[#A3A3A3]">
+          {token.slice(1, -1)}
+        </em>
+      );
+    }
+    return token;
+  });
+}
+
+/**
+ * Renders an inline text line with support for $...$ inline math, bare LaTeX formulas (\frac, \sqrt), **bold**, and Bengali unicode
+ */
+function renderInlineContent(line: string): React.ReactNode {
+  if (!line) return '';
+  
+  // Normalize bare LaTeX patterns outside of $ delimiters: \frac{a}{b} -> $ \frac{a}{b} $
+  const normalized = line
+    .replace(/(?<!\$)\\frac\{([^{}]+)\}\{([^{}]+)\}(?!\$)/g, '$$$$ \\frac{$1}{$2} $$$$')
+    .replace(/(?<!\$)\\sqrt\{([^{}]+)\}(?!\$)/g, '$$$$ \\sqrt{$1} $$$$');
+
+  const parts: React.ReactNode[] = [];
+  const mathRegex = /\$([^$]+)\$/g;
+  let lastIdx = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = mathRegex.exec(normalized)) !== null) {
+    if (match.index > lastIdx) {
+      parts.push(renderFormattedText(normalized.slice(lastIdx, match.index)));
+    }
+    const rawFormula = match[1];
+    const formatted = formatMathText(rawFormula);
+    parts.push(
+      <span
+        key={`math-${match.index}`}
+        className="inline-block px-2 py-0.5 mx-1 rounded-md bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] font-mono text-xs font-semibold border border-[#FFD43B]/40 align-middle"
+      >
+        {formatted}
+      </span>
+    );
+    lastIdx = match.index + match[0].length;
+  }
+
+  if (lastIdx < normalized.length) {
+    parts.push(renderFormattedText(normalized.slice(lastIdx)));
+  }
+
+  return parts.length > 0 ? parts : renderFormattedText(line);
+}
+
+/**
+ * Lightweight safe markdown & mathematical notation formatter
+ */
+function MarkdownRenderer({ content, onRetry }: { content: string; onRetry?: () => void }) {
+  const [copiedCodeIdx, setCopiedCodeIdx] = useState<number | null>(null);
+
+  const handleCopyCode = (code: string, idx: number) => {
+    navigator.clipboard.writeText(code);
+    setCopiedCodeIdx(idx);
+    setTimeout(() => setCopiedCodeIdx(null), 2000);
+  };
+
+  // Parse code blocks & block math ($$...$$ or \[...\])
+  const parts = useMemo(() => {
+    const segments: Array<{ type: 'text' | 'code' | 'math'; text: string; lang?: string }> = [];
+    const blockRegex = /(?:```([a-zA-Z0-9_-]*)\n([\s\S]*?)```)|(?:\$\$([\s\S]*?)\$\$)|(?:\\\[([\s\S]*?)\\\])/g;
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    while ((match = blockRegex.exec(content)) !== null) {
+      if (match.index > lastIndex) {
+        segments.push({ type: 'text', text: content.slice(lastIndex, match.index) });
+      }
+
+      if (match[1] !== undefined || match[2] !== undefined) {
+        // Code block
+        segments.push({
+          type: 'code',
+          lang: match[1] || 'plaintext',
+          text: (match[2] || '').trimEnd(),
+        });
+      } else if (match[3] !== undefined || match[4] !== undefined) {
+        // Block Math
+        segments.push({
+          type: 'math',
+          text: (match[3] || match[4] || '').trim(),
+        });
+      }
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < content.length) {
+      segments.push({ type: 'text', text: content.slice(lastIndex) });
+    }
+
+    return segments;
+  }, [content]);
+
+  // Check if content is an error / notice callout
+  const isErrorNotice = content.includes('⚠️') || content.includes('Gateway Notice') || content.includes('Service Error');
+
+  if (isErrorNotice) {
+    return (
+      <div className="rounded-2xl border border-amber-200 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/30 p-4 space-y-3">
+        <div className="flex items-start gap-2.5 text-amber-900 dark:text-amber-200 font-semibold text-xs sm:text-sm">
+          <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div className="flex-1 whitespace-pre-wrap leading-relaxed">
+            {content.replace(/^>\s*/gm, '')}
+          </div>
+        </div>
+        {onRetry && (
+          <div className="pt-2 flex items-center gap-2 border-t border-amber-200/60 dark:border-amber-900/40">
+            <button
+              onClick={onRetry}
+              className="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Retry Request</span>
+            </button>
+            <span className="text-[11px] text-amber-700/80 dark:text-amber-400">
+              Or switch models in the selector above
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3 text-xs sm:text-sm leading-relaxed text-[#171A22] dark:text-[#FFFFFF]">
+      {parts.map((part, idx) => {
+        if (part.type === 'code') {
+          return (
+            <div
+              key={idx}
+              className="my-3 rounded-2xl overflow-hidden border border-[#2A3347] bg-[#141821] text-slate-100 font-mono text-xs shadow-md"
+            >
+              <div className="flex items-center justify-between px-3.5 py-1.5 bg-[#1C2230] border-b border-[#2A3347] text-[11px] text-[#777D88]">
+                <span className="font-semibold uppercase tracking-wider">{part.lang}</span>
+                <button
+                  onClick={() => handleCopyCode(part.text, idx)}
+                  className="flex items-center gap-1 hover:text-white transition"
+                >
+                  {copiedCodeIdx === idx ? (
+                    <Check className="w-3 h-3 text-[#16865D]" />
+                  ) : (
+                    <Copy className="w-3 h-3" />
+                  )}
+                  <span>{copiedCodeIdx === idx ? 'Copied' : 'Copy'}</span>
+                </button>
+              </div>
+              <pre className="p-3.5 overflow-x-auto text-[11.5px] leading-relaxed">
+                <code>{part.text}</code>
+              </pre>
+            </div>
+          );
+        }
+
+        if (part.type === 'math') {
+          const formattedFormula = formatMathText(part.text);
+          return (
+            <div
+              key={idx}
+              className="my-3 p-3.5 rounded-2xl bg-[#FAF9F6] dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] text-center font-mono text-xs sm:text-sm text-[#202124] dark:text-[#FFD43B] shadow-2xs overflow-x-auto"
+            >
+              <span className="font-semibold tracking-wide">{formattedFormula}</span>
+            </div>
+          );
+        }
+
+        // Render plain/markdown text
+        const lines = part.text.split('\n');
+        return (
+          <div key={idx} className="space-y-1.5">
+            {lines.map((line, lineIdx) => {
+              const trimmed = line.trim();
+              if (!trimmed) {
+                return <div key={lineIdx} className="h-2" />;
+              }
+
+              // Heading 1-3
+              if (trimmed.startsWith('### ')) {
+                return (
+                  <h4 key={lineIdx} className="text-sm font-bold text-[#202124] dark:text-white pt-1">
+                    {renderInlineContent(trimmed.slice(4))}
+                  </h4>
+                );
+              }
+              if (trimmed.startsWith('## ')) {
+                return (
+                  <h3 key={lineIdx} className="text-base font-extrabold text-[#202124] dark:text-white pt-2">
+                    {renderInlineContent(trimmed.slice(3))}
+                  </h3>
+                );
+              }
+              if (trimmed.startsWith('# ')) {
+                return (
+                  <h2 key={lineIdx} className="text-lg font-extrabold text-[#202124] dark:text-white pt-2">
+                    {renderInlineContent(trimmed.slice(2))}
+                  </h2>
+                );
+              }
+
+              // Blockquote >
+              if (trimmed.startsWith('> ')) {
+                return (
+                  <blockquote key={lineIdx} className="border-l-2 border-[#FFD43B] pl-3 py-1 my-1 italic text-[#202124]/90 dark:text-white/90 bg-[#FFD43B]/5 rounded-r-lg">
+                    {renderInlineContent(trimmed.slice(2))}
+                  </blockquote>
+                );
+              }
+
+              // Numbered lists e.g. 1. , 2. 
+              const numberedMatch = trimmed.match(/^(\d+)\.\s+(.*)/);
+              if (numberedMatch) {
+                return (
+                  <div key={lineIdx} className="flex items-start gap-2 pl-2">
+                    <span className="font-bold text-[#FFD43B] shrink-0 text-xs mt-0.5">{numberedMatch[1]}.</span>
+                    <span className="flex-1">{renderInlineContent(numberedMatch[2])}</span>
+                  </div>
+                );
+              }
+
+              // Bullet points
+              if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('• ')) {
+                const bulletContent = trimmed.startsWith('• ') ? trimmed.slice(2) : trimmed.slice(2);
+                return (
+                  <div key={lineIdx} className="flex items-start gap-2 pl-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#FFD43B] mt-1.5 shrink-0" />
+                    <span className="flex-1">{renderInlineContent(bulletContent)}</span>
+                  </div>
+                );
+              }
+
+              return (
+                <p key={lineIdx} className="whitespace-pre-wrap break-words">
+                  {renderInlineContent(line)}
+                </p>
+              );
+            })}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 export function RiiqxChatView() {
   const {
     activeConversation,
     sendMessage,
+    retryLastMessage,
+    clearCurrentConversation,
+    createNewConversation,
     isGenerating,
     cancelGeneration,
     enableWebSearch,
     setEnableWebSearch,
     attachedDocuments,
     addAttachedDocument,
+    removeAttachedDocument,
     selectedModel,
     setSelectedModel,
     models,
@@ -50,8 +422,27 @@ export function RiiqxChatView() {
   const [inputContent, setInputContent] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isUserNearBottomRef = useRef(true);
+
+  // Track user scroll position in conversation container
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    // Consider user at bottom if within 140px of bottom
+    isUserNearBottomRef.current = scrollHeight - scrollTop - clientHeight <= 140;
+  };
+
+  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    if (!scrollContainerRef.current) return;
+    scrollContainerRef.current.scrollTo({
+      top: scrollContainerRef.current.scrollHeight,
+      behavior,
+    });
+  };
 
   // If globalPrompt was passed from Home Dashboard, trigger it immediately
   useEffect(() => {
@@ -61,16 +452,48 @@ export function RiiqxChatView() {
     }
   }, [globalPrompt, sendMessage, setGlobalPrompt]);
 
+  // Smart auto-scroll: Only auto-scrolls to bottom if user is near bottom, or when user sends a message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [activeConversation?.messages]);
+    if (!activeConversation?.messages?.length) return;
+    const lastMsg = activeConversation.messages[activeConversation.messages.length - 1];
+    
+    // Always scroll on user message submission
+    if (lastMsg.role === 'user') {
+      isUserNearBottomRef.current = true;
+      scrollToBottom('smooth');
+      return;
+    }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    // During streaming or new assistant reply, only auto-scroll if user is following at bottom
+    if (isUserNearBottomRef.current) {
+      scrollToBottom(isGenerating ? 'auto' : 'smooth');
+    }
+  }, [activeConversation?.messages, isGenerating]);
+
+  // Auto-adjust textarea height
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 120)}px`;
+    }
+  }, [inputContent]);
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!inputContent.trim() || isGenerating) return;
     const msg = inputContent;
     setInputContent('');
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+    }
     await sendMessage(msg);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
   };
 
   const handleCopy = (id: string, text: string) => {
@@ -98,269 +521,213 @@ export function RiiqxChatView() {
   const messages = activeConversation?.messages || [];
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-hidden bg-[#F8FAFC] dark:bg-[#0B0F19] text-slate-900 dark:text-white">
+    <div className="flex h-full flex-1 flex-col min-h-0 overflow-hidden bg-[#FAF9F6] dark:bg-[#151515] text-[#202124] dark:text-[#F7F7F7]">
       {/* Top Header / Model Switcher Bar */}
-      <div className="h-12 border-b border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 md:px-8 flex items-center justify-between shrink-0">
-        <div className="relative">
+      <div className="h-14 border-b border-[#EAE7E1] dark:border-[#2E2E2E] bg-white/80 dark:bg-[#151515]/80 backdrop-blur-md px-4 md:px-8 flex items-center justify-between shrink-0 z-20">
+        <div className="relative flex items-center gap-2">
+          {/* Model Selector Dropdown */}
           <button
             onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-            className="flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 hover:border-violet-300 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FAF9F6] dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] text-xs font-bold text-[#202124] dark:text-white hover:border-[#FFD43B] transition-colors shadow-2xs"
           >
-            <span className="w-2 h-2 rounded-full bg-violet-600 animate-pulse" />
-            <span>{selectedModel.name}</span>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            <span className="w-2 h-2 rounded-full bg-[#16865D] animate-pulse" />
+            <span className="truncate max-w-[180px] sm:max-w-[280px]">{selectedModel.name}</span>
+            <ChevronDown className="w-3.5 h-3.5 text-[#737373] shrink-0" />
           </button>
 
           {isModelMenuOpen && (
-            <div className="absolute left-0 mt-2 w-72 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2 shadow-xl z-50 animate-fadeIn">
-              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
-                Choose Online AI Model
+            <div className="absolute left-0 top-full mt-2 w-[calc(100vw-2rem)] max-w-xs sm:w-80 rounded-2xl bg-white dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] p-2 shadow-2xl z-50 animate-fadeIn">
+              <div className="text-[10px] font-bold text-[#737373] uppercase tracking-wider px-2 py-1 flex items-center justify-between">
+                <span>Select Online AI Model</span>
+                <span className="text-[#16865D] font-semibold">Online Live</span>
               </div>
-              {models.map((m) => (
-                <button
-                  key={m.id}
-                  onClick={() => {
-                    setSelectedModel(m);
-                    setIsModelMenuOpen(false);
-                  }}
-                  className={`w-full text-left p-2 rounded-xl text-xs flex items-center justify-between transition-colors ${
-                    selectedModel.id === m.id
-                      ? 'bg-violet-50 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400 font-bold'
-                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <div className="flex flex-col">
-                    <span>{m.name}</span>
-                    <span className="text-[10px] text-slate-400 font-normal">{m.provider.toUpperCase()}</span>
-                  </div>
-                  {selectedModel.id === m.id && <Check className="w-4 h-4 text-violet-600" />}
-                </button>
-              ))}
+              <div className="max-h-72 overflow-y-auto space-y-1">
+                {models.map((m) => {
+                  const isSelected = selectedModel.id === m.id;
+                  return (
+                    <button
+                      key={m.id}
+                      onClick={() => {
+                        setSelectedModel(m);
+                        setIsModelMenuOpen(false);
+                      }}
+                      className={`w-full text-left p-2.5 rounded-xl text-xs flex items-center justify-between transition-colors ${
+                        isSelected
+                          ? 'bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] font-bold border border-[#FFD43B]/40'
+                          : 'text-[#202124] dark:text-slate-300 hover:bg-[#FAF9F6] dark:hover:bg-[#282828]'
+                      }`}
+                    >
+                      <div className="flex flex-col pr-2">
+                        <span className="font-semibold">{m.name}</span>
+                        <span className="text-[10px] text-[#737373] font-normal line-clamp-1">
+                          {m.tag || m.provider.toUpperCase()}
+                        </span>
+                      </div>
+                      {isSelected && <Check className="w-4 h-4 text-[#202124] dark:text-[#FFD43B] shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Emergency Stop / Status */}
+        {/* Action Controls: New Chat, Clear, Stop */}
         <div className="flex items-center gap-2">
-          {isGenerating && (
+          {isGenerating ? (
             <button
               onClick={cancelGeneration}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 dark:bg-red-950/40 dark:border-red-900/50 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white bg-[#FF4D4F] hover:bg-red-600 transition-colors shadow-2xs"
             >
               <Square className="w-3 h-3 fill-current" />
-              <span>Emergency STOP</span>
+              <span>Stop Generating</span>
             </button>
+          ) : (
+            <>
+              {messages.length > 0 && (
+                <button
+                  onClick={clearCurrentConversation}
+                  title="Clear conversation"
+                  className="p-1.5 rounded-xl text-[#737373] hover:text-[#202124] dark:hover:text-white hover:bg-[#FAF9F6] dark:hover:bg-[#202020] transition"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
+              <button
+                onClick={() => createNewConversation()}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold text-[#202124] dark:text-white bg-[#FAF9F6] dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] hover:border-[#FFD43B] transition"
+              >
+                <Plus className="w-3.5 h-3.5 text-[#FFD43B]" />
+                <span className="hidden sm:inline">New Chat</span>
+              </button>
+            </>
           )}
         </div>
       </div>
 
-      {/* Scrollable Message Stream */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8 lg:px-20 space-y-6">
+      {/* Scrollable Message Stream — Tightened Mobile Spacing */}
+      <div
+        ref={scrollContainerRef}
+        onScroll={handleScroll}
+        className="flex-1 min-h-0 overflow-y-auto px-3 py-3 sm:px-6 md:px-8 lg:px-16 space-y-3 sm:space-y-4 overflow-x-hidden"
+      >
         {messages.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto py-12">
-            <div className="w-14 h-14 rounded-3xl bg-gradient-to-tr from-violet-600 to-pink-500 flex items-center justify-center text-white mb-4 shadow-sm">
+          <div className="h-full min-h-[360px] flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12">
+            <div className="w-14 h-14 rounded-3xl bg-gradient-to-tr from-[#FFD43B] to-[#FF6B5E] flex items-center justify-center text-[#202124] mb-4 shadow-sm font-black">
               <Bot className="w-7 h-7" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-              RIIQX Agentic Assistant
+            <h2 className="text-xl font-bold text-[#202124] dark:text-white">
+              RIIQX Agentic Workspace
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-              Give a goal or task. I will analyze requirements, select tools, synthesize storyboards, plan social posts, and produce real exportable results.
+            <p className="text-xs text-[#737373] dark:text-[#A3A3A3] mt-1 leading-relaxed max-w-sm">
+              State your goal or task. The AI agent routes tasks across providers, synthesizes scripts and storyboards, and integrates directly with Creator Studio.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full mt-6 text-left">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full mt-6 text-left">
               {[
-                'Create a trending reel from my travel photos',
-                'Research viral hooks for tech shorts in India',
-                'Inspect repository code and propose improvements',
+                'Create a trending reel script from my ideas',
+                'Research viral hooks for YouTube Shorts in tech',
+                'Inspect project configuration and dependencies',
                 'Plan a 7-day social media calendar with captions',
               ].map((prompt, i) => (
                 <button
                   key={i}
                   onClick={() => sendMessage(prompt)}
-                  className="p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 text-xs font-medium text-slate-700 dark:text-slate-300 hover:border-violet-300 dark:hover:border-violet-700 hover:shadow-2xs transition-all text-left"
+                  className="p-3.5 rounded-2xl bg-white dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] text-xs font-medium text-[#202124] dark:text-[#F7F7F7] hover:border-[#FFD43B] hover:shadow-2xs transition-all text-left group"
                 >
-                  &ldquo;{prompt}&rdquo;
+                  <span className="group-hover:text-[#FF6B5E] transition-colors">&ldquo;{prompt}&rdquo;</span>
                 </button>
               ))}
             </div>
           </div>
         ) : (
-          messages.map((m) => {
+          messages.map((m, idx) => {
             const isUser = m.role === 'user';
-            const isReelTask =
-              !isUser &&
-              (m.content.toLowerCase().includes('reel') ||
-                m.content.toLowerCase().includes('photos') ||
-                m.content.toLowerCase().includes('storyboard'));
+            const isLatest = idx === messages.length - 1;
+            const isStreamingThis = !isUser && isLatest && isGenerating;
+            const isEmptyContent = !m.content || m.content.trim().length === 0;
 
             return (
               <div
-                key={m.id}
-                className={`flex w-full gap-3 sm:gap-4 ${
+                key={m.id || idx}
+                className={`flex w-full gap-2.5 sm:gap-4 ${
                   isUser ? 'justify-end' : 'justify-start'
                 }`}
               >
                 {!isUser && (
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-violet-600 to-pink-500 text-white shadow-2xs mt-1">
-                    <Bot className="h-4 w-4" />
+                  <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-tr from-[#FFD43B] to-[#FF6B5E] text-[#202124] shadow-2xs mt-0.5 font-bold">
+                    <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </div>
                 )}
 
                 <div
-                  className={`relative max-w-2xl sm:max-w-3xl rounded-3xl p-4 sm:p-5 text-xs sm:text-sm leading-relaxed ${
+                  className={`relative transition-all break-words overflow-hidden ${
                     isUser
-                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-sm rounded-tr-none'
-                      : 'border border-slate-200/90 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-2xs rounded-tl-none'
+                      ? 'max-w-[85%] sm:max-w-xl rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed bg-[#202124] text-white dark:bg-white dark:text-[#202124] shadow-sm rounded-tr-none font-medium'
+                      : 'w-full max-w-[calc(100%-2.5rem)] sm:max-w-2xl lg:max-w-3xl rounded-2xl sm:rounded-3xl p-3 sm:p-4.5 text-xs sm:text-sm leading-relaxed border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] text-[#202124] dark:text-[#F7F7F7] shadow-2xs rounded-tl-none'
                   }`}
                 >
                   {/* Assistant Model Tag & Copy Button */}
                   {!isUser && (
-                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2 mb-3 text-[11px] text-slate-400">
-                      <span className="font-bold text-violet-600 dark:text-violet-400">
-                        {m.modelUsed || selectedModel.name}
-                      </span>
-                      <button
-                        onClick={() => handleCopy(m.id, m.content)}
-                        className="flex items-center gap-1 hover:text-slate-900 dark:hover:text-white transition"
-                      >
-                        {copiedId === m.id ? (
-                          <Check className="h-3 w-3 text-emerald-500" />
-                        ) : (
-                          <Copy className="h-3 w-3" />
-                        )}
-                        <span>{copiedId === m.id ? 'Copied' : 'Copy'}</span>
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Tool Execution Step-by-Step Checklist (Matching Image 2 Screen 3) */}
-                  {!isUser && isReelTask && (
-                    <div className="mb-4 p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 space-y-2">
-                      <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Tool Execution Loop
-                      </p>
-
-                      {/* Detected photos strip */}
-                      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                        {[
-                          'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=200&auto=format&fit=crop&q=60',
-                          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=60',
-                          'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=200&auto=format&fit=crop&q=60',
-                        ].map((img, idx) => (
-                          <div key={idx} className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-slate-200">
-                            <img src={img} alt="Thumb" className="w-full h-full object-cover" />
-                            <div className="absolute top-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 flex items-center justify-center text-white">
-                              <Check className="w-2.5 h-2.5" />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Checklist items */}
-                      <div className="space-y-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 pt-1">
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                          <span>Detected 12 travel photos</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                          <span>Generating cinematic storyline</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                          <span>Creating kinetic captions & hooks</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                          <span>Preparing 9:16 video project...</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Message Body */}
-                  <div className="prose dark:prose-invert max-w-none text-xs sm:text-sm whitespace-pre-wrap leading-relaxed">
-                    {m.content}
-                  </div>
-
-                  {/* Reel Ready Output Card (Matching Image 2 Screen 3) */}
-                  {!isUser && isReelTask && (
-                    <div className="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-                          <Sparkles className="w-3.5 h-3.5 text-violet-600" />
-                          <span>Your Reel is Ready!</span>
-                        </span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40">
-                          30 FPS MP4
+                    <div className="flex items-center justify-between border-b border-[#EAE7E1] dark:border-[#2E2E2E] pb-2 mb-2.5 text-[11px] text-[#737373]">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#FFD43B] shrink-0" />
+                        <span className="font-semibold text-[#202124] dark:text-slate-200 truncate">
+                          {m.modelUsed || selectedModel.name}
                         </span>
                       </div>
-
-                      {/* Video Preview Card */}
-                      <div
-                        onClick={() => setActiveTab('editor')}
-                        className="relative aspect-video rounded-xl overflow-hidden cursor-pointer group border border-slate-200"
-                      >
-                        <img
-                          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80"
-                          alt="Reel Preview"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                        />
-                        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                          <div className="w-10 h-10 rounded-full bg-white/90 text-slate-900 flex items-center justify-center shadow-lg">
-                            <Play className="w-5 h-5 ml-0.5" />
-                          </div>
-                        </div>
-                        <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-black/70 text-[10px] font-mono text-white">
-                          00:28
-                        </div>
-                      </div>
-
-                      {/* Suggested Caption */}
-                      <div className="text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-100 dark:border-slate-800">
-                        <p className="font-semibold text-slate-900 dark:text-white mb-1">Suggested Caption:</p>
-                        <p className="italic">&ldquo;Lost in beautiful places 🌄 #travel #explore #adventure #india #mountains #wanderlust&rdquo;</p>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex items-center gap-2 pt-1">
+                      {!isEmptyContent && (
                         <button
-                          onClick={() => setActiveTab('editor')}
-                          className="flex-1 py-2 rounded-xl text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
+                          onClick={() => handleCopy(m.id, m.content)}
+                          className="flex items-center gap-1 text-[#737373] hover:text-[#202124] dark:hover:text-white transition shrink-0 ml-2"
                         >
-                          <Wand2 className="w-3.5 h-3.5" />
-                          <span>Edit in Studio</span>
+                          {copiedId === m.id ? (
+                            <Check className="h-3 w-3 text-[#16865D]" />
+                          ) : (
+                            <Copy className="h-3 w-3" />
+                          )}
+                          <span>{copiedId === m.id ? 'Copied' : 'Copy'}</span>
                         </button>
-                        <button
-                          onClick={() => setActiveTab('editor')}
-                          className="flex-1 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-colors flex items-center justify-center gap-1.5"
-                        >
-                          <Video className="w-3.5 h-3.5 text-pink-500" />
-                          <span>Export Video</span>
-                        </button>
-                      </div>
+                      )}
                     </div>
                   )}
 
-                  {/* Research Citations (if present) */}
+                  {/* Message Body or Thinking Indicator */}
+                  {isEmptyContent && isStreamingThis ? (
+                    <div className="flex items-center gap-2.5 py-1 text-[#737373]">
+                      <div className="flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-[#FFD43B] animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-[#FFC928] animate-pulse [animation-delay:200ms]" />
+                        <span className="w-2 h-2 rounded-full bg-[#FF6B5E] animate-pulse [animation-delay:400ms]" />
+                      </div>
+                      <span className="text-xs font-medium">Formulating response...</span>
+                    </div>
+                  ) : (
+                    <MarkdownRenderer
+                      content={m.content}
+                      onRetry={!isUser ? retryLastMessage : undefined}
+                    />
+                  )}
+
+                  {/* Research Citations — Shown only when authentic sources exist */}
                   {m.citations && m.citations.length > 0 && (
-                    <div className="mt-4 border-t border-slate-100 dark:border-slate-800 pt-3">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
-                        Verified Sources & Citations
+                    <div className="mt-3 border-t border-[#EAE7E1] dark:border-[#2E2E2E] pt-2.5">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-[#737373] mb-1.5 flex items-center gap-1">
+                        <Globe className="w-3 h-3 text-[#FFD43B]" />
+                        <span>Verified Sources ({m.citations.length})</span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {m.citations.map((c, idx) => (
+                      <div className="flex flex-wrap gap-1.5">
+                        {m.citations.map((c, cIdx) => (
                           <a
-                            key={c.id}
+                            key={c.id || cIdx}
                             href={c.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-2.5 py-1 text-[11px] text-slate-600 dark:text-slate-300 hover:border-violet-300 hover:text-violet-600 transition"
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-[#EAE7E1] dark:border-[#2E2E2E] bg-[#FAF9F6] dark:bg-[#151515] px-2 py-1 text-[11px] text-[#202124] dark:text-slate-300 hover:border-[#FFD43B] hover:text-[#FF6B5E] transition max-w-full"
                           >
-                            <ExternalLink className="h-3 w-3" />
-                            <span className="truncate max-w-[160px]">
-                              [{idx + 1}] {c.title}
+                            <ExternalLink className="h-3 w-3 shrink-0 text-[#737373]" />
+                            <span className="truncate max-w-[140px] sm:max-w-[220px]">
+                              [{cIdx + 1}] {c.title}
                             </span>
                           </a>
                         ))}
@@ -375,25 +742,32 @@ export function RiiqxChatView() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Persistent Composer (Matching Image 2 Screen 3 Bottom Composer) */}
-      <div className="border-t border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 md:p-4 shrink-0">
-        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-2">
+      {/* Persistent Bottom Composer with Mobile Safe-Area */}
+      <div className="border-t border-[#EAE7E1] dark:border-[#2E2E2E] bg-white/95 dark:bg-[#151515]/95 backdrop-blur-md px-3 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:px-6 md:py-3.5 shrink-0 z-20 shadow-sm">
+        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-1.5 w-full">
           {/* Document Attachment Badges */}
           {attachedDocuments.length > 0 && (
-            <div className="flex flex-wrap gap-2 pb-1">
+            <div className="flex flex-wrap gap-1.5 pb-1">
               {attachedDocuments.map((doc) => (
                 <div
                   key={doc.id}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 text-violet-700 dark:bg-violet-950/40 dark:text-violet-300 text-xs font-semibold"
+                  className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] border border-[#FFD43B]/30 text-xs font-semibold"
                 >
                   <Paperclip className="w-3 h-3" />
-                  <span className="truncate max-w-[180px]">{doc.name}</span>
+                  <span className="truncate max-w-[140px] sm:max-w-[180px]">{doc.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeAttachedDocument(doc.id)}
+                    className="hover:text-red-500 transition ml-1"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 </div>
               ))}
             </div>
           )}
 
-          <div className="relative flex items-center bg-slate-50 dark:bg-slate-800 rounded-3xl border border-slate-200/90 dark:border-slate-700 p-2 focus-within:border-violet-400 focus-within:ring-2 focus-within:ring-violet-100 transition-all shadow-2xs">
+          <div className="relative flex items-end bg-[#FAF9F6] dark:bg-[#202020] rounded-2xl sm:rounded-3xl border border-[#EAE7E1] dark:border-[#2E2E2E] p-1.5 sm:p-2 focus-within:border-[#FFD43B] focus-within:ring-2 focus-within:ring-[#FFD43B]/20 transition-all shadow-2xs">
             {/* Hidden file input */}
             <input
               type="file"
@@ -402,42 +776,56 @@ export function RiiqxChatView() {
               className="hidden"
             />
 
-            <input
-              type="text"
+            <textarea
+              ref={textareaRef}
+              rows={1}
               value={inputContent}
               onChange={(e) => setInputContent(e.target.value)}
-              placeholder="Ask RIIQX anything or give a task..."
-              className="w-full bg-transparent px-3 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+              onKeyDown={handleKeyDown}
+              placeholder="Ask RIIQX anything... (Enter to send, Shift+Enter for newline)"
+              className="w-full bg-transparent px-2.5 py-1.5 text-xs sm:text-sm text-[#202124] dark:text-white placeholder-[#737373] focus:outline-none resize-none max-h-32 min-h-[36px]"
             />
 
-            <div className="flex items-center gap-1 shrink-0">
+            <div className="flex items-center gap-1 shrink-0 pb-0.5">
               <button
                 type="button"
                 onClick={() => setEnableWebSearch(!enableWebSearch)}
                 title={enableWebSearch ? 'Web Search Active' : 'Toggle Web Search'}
-                className={`p-2 rounded-full transition-colors ${
+                className={`p-1.5 sm:p-2 rounded-full transition-colors ${
                   enableWebSearch
-                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/40'
-                    : 'text-slate-400 hover:text-slate-600'
+                    ? 'bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B]'
+                    : 'text-[#737373] hover:text-[#202124] dark:hover:text-white'
                 }`}
               >
-                <Globe className="w-4 h-4" />
+                <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 title="Attach files"
-                className="p-2 text-slate-400 hover:text-slate-600 rounded-full transition-colors"
+                className="p-1.5 sm:p-2 text-[#737373] hover:text-[#202124] dark:hover:text-white rounded-full transition-colors"
               >
-                <Paperclip className="w-4 h-4" />
+                <Paperclip className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
-              <button
-                type="submit"
-                disabled={!inputContent.trim() || isGenerating}
-                className="w-9 h-9 rounded-full bg-slate-900 hover:bg-violet-600 text-white flex items-center justify-center transition-colors disabled:opacity-40 shadow-xs"
-              >
-                <Send className="w-4 h-4" />
-              </button>
+
+              {isGenerating ? (
+                <button
+                  type="button"
+                  onClick={cancelGeneration}
+                  title="Stop generating"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#FF4D4F] hover:bg-red-600 text-white flex items-center justify-center transition-colors shadow-xs"
+                >
+                  <Square className="w-3 h-3 fill-current" />
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={!inputContent.trim() || isGenerating}
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] font-bold flex items-center justify-center transition-colors disabled:opacity-40 shadow-xs"
+                >
+                  <Send className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                </button>
+              )}
             </div>
           </div>
         </form>
