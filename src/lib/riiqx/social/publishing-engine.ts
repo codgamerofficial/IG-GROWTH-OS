@@ -4,8 +4,7 @@
 // Idempotency Protection • Auto Token Refresh • Post Scheduling & State Tracking
 // =============================================================================
 
-import fs from 'fs';
-import path from 'path';
+import { getSafeTempFilePath, safeReadJson, safeWriteJson } from '@/lib/riiqx/temp-storage';
 import {
   getAccountWithCredentials,
   updateAccountStatus,
@@ -72,31 +71,18 @@ export interface ScheduledPostRecord {
 const processedIdempotencyKeys = new Map<string, PublishResult>();
 
 // Local fallback store for scheduled posts when Supabase is offline
-const SCHEDULED_STORE_PATH = path.join(process.cwd(), '.temp', 'scheduled_posts_store.json');
+const SCHEDULED_STORE_PATH = getSafeTempFilePath('scheduled_posts_store.json');
+let inMemoryScheduledStore: ScheduledPostRecord[] = [];
 
 function readScheduledStore(): ScheduledPostRecord[] {
-  try {
-    if (!fs.existsSync(SCHEDULED_STORE_PATH)) {
-      const dir = path.dirname(SCHEDULED_STORE_PATH);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(SCHEDULED_STORE_PATH, JSON.stringify([], null, 2), 'utf8');
-      return [];
-    }
-    const raw = fs.readFileSync(SCHEDULED_STORE_PATH, 'utf8');
-    return JSON.parse(raw) as ScheduledPostRecord[];
-  } catch {
-    return [];
-  }
+  const disk = safeReadJson<ScheduledPostRecord[]>(SCHEDULED_STORE_PATH, []);
+  if (disk.length > 0) return disk;
+  return inMemoryScheduledStore;
 }
 
 function writeScheduledStore(posts: ScheduledPostRecord[]): void {
-  try {
-    const dir = path.dirname(SCHEDULED_STORE_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(SCHEDULED_STORE_PATH, JSON.stringify(posts, null, 2), 'utf8');
-  } catch (err) {
-    console.error('Failed to write scheduled posts store:', err);
-  }
+  inMemoryScheduledStore = posts;
+  safeWriteJson(SCHEDULED_STORE_PATH, posts);
 }
 
 /**

@@ -1,7 +1,7 @@
+@import 'leaflet/dist/leaflet.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import 'leaflet/dist/leaflet.css';
 
 :root {
   --background: #FAF9F6;
@@ -79,8 +79,8 @@ body {
 /* Glassmorphism card surfaces */
 .nuvexa-panel {
   background: rgba(11, 19, 43, 0.78);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--border);
 }
 
@@ -163,7 +163,6 @@ body {
   max-width: 100%;
   height: 100%;
   overflow: hidden;
-  -webkit-overflow-scrolling: touch;
 }
 
 /* Android Safe Area Padding Helpers */
@@ -185,6 +184,10 @@ body {
 }
 .no-scrollbar {
   -ms-overflow-style: none;
-  scrollbar-width: none;
+}
+@supports (scrollbar-width: none) {
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
 }
 

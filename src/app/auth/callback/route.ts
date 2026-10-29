@@ -81,12 +81,16 @@ export async function GET(request: Request) {
       const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
 
       if (!exchangeError && data?.user) {
-        // Ensure user profile is registered in public.profiles
-        await ensureUserProfile({
-          id: data.user.id,
-          email: data.user.email,
-          user_metadata: data.user.user_metadata,
-        });
+        // Ensure user profile is registered in public.profiles (guarded against runtime storage glitches)
+        try {
+          await ensureUserProfile({
+            id: data.user.id,
+            email: data.user.email,
+            user_metadata: data.user.user_metadata,
+          });
+        } catch (profileErr) {
+          console.warn('[OAuth Callback] User profile sync warning (proceeding with session):', profileErr);
+        }
 
         // Set dual-mode resilient local session token with path='/'
         const token = createSessionToken(data.user.id);

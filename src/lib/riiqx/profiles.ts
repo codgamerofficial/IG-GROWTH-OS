@@ -3,9 +3,8 @@
 // Interacts with public.profiles in Supabase with Local Encrypted Persistence Fallback
 // =============================================================================
 
-import fs from 'fs';
-import path from 'path';
 import { getServiceSupabase } from '@/lib/supabase/server';
+import { getSafeTempFilePath, safeReadJson, safeWriteJson } from './temp-storage';
 
 export interface RiiqxProfile {
   id: string;
@@ -18,30 +17,17 @@ export interface RiiqxProfile {
   updatedAt: string;
 }
 
-const LOCAL_STORE_PATH = path.resolve(process.cwd(), '.temp/user_profiles_store.json');
-
-function ensureTempDir() {
-  const dir = path.dirname(LOCAL_STORE_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
+const LOCAL_STORE_PATH = getSafeTempFilePath('user_profiles_store.json');
+const inMemoryProfiles: Record<string, RiiqxProfile> = {};
 
 function readLocalProfiles(): Record<string, RiiqxProfile> {
-  ensureTempDir();
-  if (!fs.existsSync(LOCAL_STORE_PATH)) {
-    return {};
-  }
-  try {
-    return JSON.parse(fs.readFileSync(LOCAL_STORE_PATH, 'utf8'));
-  } catch {
-    return {};
-  }
+  const disk = safeReadJson<Record<string, RiiqxProfile>>(LOCAL_STORE_PATH, {});
+  return { ...inMemoryProfiles, ...disk };
 }
 
 function writeLocalProfiles(data: Record<string, RiiqxProfile>) {
-  ensureTempDir();
-  fs.writeFileSync(LOCAL_STORE_PATH, JSON.stringify(data, null, 2), 'utf8');
+  Object.assign(inMemoryProfiles, data);
+  safeWriteJson(LOCAL_STORE_PATH, data);
 }
 
 /**

@@ -4,10 +4,9 @@
 // Tokens are strictly AES-256-GCM encrypted before storage
 // =============================================================================
 
-import fs from 'fs';
-import path from 'path';
 import { getServiceSupabase } from '@/lib/supabase/server';
 import { encryptToken, decryptToken, maskToken } from '@/lib/riiqx/security/token-vault';
+import { getSafeTempFilePath, safeReadJson, safeWriteJson } from '@/lib/riiqx/temp-storage';
 
 export type SocialProvider =
   | 'youtube'
@@ -68,7 +67,7 @@ export interface SaveAccountParams {
 }
 
 // Local filesystem fallback store
-const LOCAL_STORE_PATH = path.join(process.cwd(), '.temp', 'social_accounts_store.json');
+const LOCAL_STORE_PATH = getSafeTempFilePath('social_accounts_store.json');
 
 interface LocalStoreData {
   accounts: ConnectedAccountRecord[];
@@ -76,30 +75,19 @@ interface LocalStoreData {
   auditLogs: Array<Record<string, unknown>>;
 }
 
+let inMemoryStore: LocalStoreData = { accounts: [], credentials: [], auditLogs: [] };
+
 function readLocalStore(): LocalStoreData {
-  try {
-    if (!fs.existsSync(LOCAL_STORE_PATH)) {
-      const dir = path.dirname(LOCAL_STORE_PATH);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      const initial: LocalStoreData = { accounts: [], credentials: [], auditLogs: [] };
-      fs.writeFileSync(LOCAL_STORE_PATH, JSON.stringify(initial, null, 2), 'utf8');
-      return initial;
-    }
-    const raw = fs.readFileSync(LOCAL_STORE_PATH, 'utf8');
-    return JSON.parse(raw) as LocalStoreData;
-  } catch {
-    return { accounts: [], credentials: [], auditLogs: [] };
+  const disk = safeReadJson<LocalStoreData>(LOCAL_STORE_PATH, { accounts: [], credentials: [], auditLogs: [] });
+  if (disk.accounts && disk.accounts.length > 0) {
+    return disk;
   }
+  return inMemoryStore;
 }
 
 function writeLocalStore(data: LocalStoreData): void {
-  try {
-    const dir = path.dirname(LOCAL_STORE_PATH);
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(LOCAL_STORE_PATH, JSON.stringify(data, null, 2), 'utf8');
-  } catch (err) {
-    console.error('Failed to write local social account store:', err);
-  }
+  inMemoryStore = data;
+  safeWriteJson(LOCAL_STORE_PATH, data);
 }
 
 /**

@@ -4,8 +4,7 @@
 // =============================================================================
 
 import crypto from 'crypto';
-import fs from 'fs';
-import path from 'path';
+import { getSafeTempFilePath, safeReadJson, safeWriteJson } from './temp-storage';
 
 export type { RiiqxUser } from './user';
 export { getDefaultUser } from './user';
@@ -23,30 +22,17 @@ const DEFAULT_ITERATIONS = 10000;
 const KEY_LENGTH = 32;
 const DIGEST = 'sha256';
 
-const CREDENTIALS_STORE_PATH = path.resolve(process.cwd(), '.temp/local_credentials_store.json');
-
-function ensureTempDir() {
-  const dir = path.dirname(CREDENTIALS_STORE_PATH);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-}
+const CREDENTIALS_STORE_PATH = getSafeTempFilePath('local_credentials_store.json');
+let inMemoryCredentials: StoredCredentials[] = [];
 
 function readStoredCredentials(): StoredCredentials[] {
-  ensureTempDir();
-  if (!fs.existsSync(CREDENTIALS_STORE_PATH)) {
-    return [];
-  }
-  try {
-    return JSON.parse(fs.readFileSync(CREDENTIALS_STORE_PATH, 'utf8'));
-  } catch {
-    return [];
-  }
+  const disk = safeReadJson<StoredCredentials[]>(CREDENTIALS_STORE_PATH, []);
+  return disk.length > 0 ? disk : inMemoryCredentials;
 }
 
 function writeStoredCredentials(creds: StoredCredentials[]) {
-  ensureTempDir();
-  fs.writeFileSync(CREDENTIALS_STORE_PATH, JSON.stringify(creds, null, 2), 'utf8');
+  inMemoryCredentials = creds;
+  safeWriteJson(CREDENTIALS_STORE_PATH, creds);
 }
 
 export function hashPassword(password: string): { saltHex: string; hashHex: string } {
