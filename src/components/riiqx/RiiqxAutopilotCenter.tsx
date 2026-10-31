@@ -71,10 +71,10 @@ export function RiiqxAutopilotCenter() {
   };
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-y-auto bg-[#FAF9F6] dark:bg-[#151515] p-4 sm:p-6 lg:p-8 transition-colors">
+    <div className="flex h-full flex-1 flex-col overflow-y-auto bg-[#FAF9F6] dark:bg-[#0C0C0E] p-4 sm:p-6 lg:p-8 transition-colors">
       <div className="mx-auto w-full max-w-6xl space-y-6">
         {/* Header & Global Circuit Breaker */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#EAE7E1] dark:border-[#2E2E2E] pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-[#EAE7E1] dark:border-white/[0.08] pb-5">
           <div>
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] flex items-center justify-center">

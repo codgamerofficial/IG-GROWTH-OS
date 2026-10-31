@@ -1,24 +1,26 @@
 'use client';
 
 // =============================================================================
-// RIIQX Creator Studio — Script Studio
-// 3-Act Script Architecture • Scene-by-Scene Editor • Spoken Pace Calculator
-// Multilingual (EN / BN / HI) • Viral Hook Selector • Storyboard Generation
+// RIIQX Creator Studio 2.0 — AI Script Studio & Hook Engine
+// 3-Act Retention Architecture • Viral Hook Candidates • Spoken Teleprompter Mode
+// Pacing Analyzer (WPM/WPS) • Multilingual • Storyboard & Scene Synchronization
 // =============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   CreatorProject,
   ScriptData,
   ScriptScene,
   ViralHook,
   CreatorStudioTab,
+  ContentTone,
 } from '@/lib/riiqx/creator-types';
 import { generateScript, createDefaultProject } from '@/lib/riiqx/creator-engine';
 import {
   FileText,
   Sparkles,
   Play,
+  Pause,
   RotateCcw,
   Check,
   AlertTriangle,
@@ -30,6 +32,10 @@ import {
   Camera,
   Film,
   Zap,
+  Maximize2,
+  Minimize2,
+  Sliders,
+  Languages,
 } from 'lucide-react';
 
 interface ScriptStudioTabProps {
@@ -50,13 +56,30 @@ export function ScriptStudioTab({
 
   const [selectedHookIdx, setSelectedHookIdx] = useState(script?.selectedHookIndex || 0);
   const [isRegenerating, setIsRegenerating] = useState(false);
+  const [selectedTone, setSelectedTone] = useState<ContentTone>(project?.brief.tone || 'energetic');
+
+  // Teleprompter Mode State
+  const [teleprompterOpen, setTeleprompterOpen] = useState(false);
+  const [teleprompterPlaying, setTeleprompterPlaying] = useState(false);
+  const [teleprompterScroll, setTeleprompterScroll] = useState(0);
+
+  // Teleprompter Auto-Scroll Effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (teleprompterPlaying) {
+      interval = setInterval(() => {
+        setTeleprompterScroll((prev) => prev + 1.5);
+      }, 50);
+    }
+    return () => clearInterval(interval);
+  }, [teleprompterPlaying]);
 
   if (!project) {
     return (
-      <div className="flex h-96 flex-col items-center justify-center p-8 text-center text-slate-400">
-        <FileText className="h-10 w-10 text-slate-600 mb-3" />
+      <div className="flex h-96 flex-col items-center justify-center p-8 text-center text-[#737373]">
+        <FileText className="h-10 w-10 text-[#3E3E3E] mb-3" />
         <h3 className="text-base font-bold text-white">No Project Selected</h3>
-        <p className="text-xs text-slate-500 mt-1">Select or create a project from Overview to begin scripting.</p>
+        <p className="text-xs text-[#737373] mt-1">Select or create a project from Overview to begin scripting.</p>
       </div>
     );
   }
@@ -102,7 +125,6 @@ export function ScriptStudioTab({
       ...script,
       selectedHookIndex: idx,
     };
-    // Also update Scene 1 narration with the selected hook
     if (updatedScript.scenes.length > 0 && updatedScript.hooks[idx]) {
       updatedScript.scenes[0] = {
         ...updatedScript.scenes[0],
@@ -121,7 +143,10 @@ export function ScriptStudioTab({
   const handleRegenerate = () => {
     setIsRegenerating(true);
     setTimeout(() => {
-      const fresh = generateScript(project.brief);
+      const fresh = generateScript({
+        ...project.brief,
+        tone: selectedTone,
+      });
       setScript(fresh);
       onUpdateProject({
         ...project,
@@ -143,36 +168,54 @@ export function ScriptStudioTab({
   };
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header & Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E2A4A] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2E2E2E] pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-violet-400" />
-            <h1 className="text-xl font-bold tracking-tight text-white">Script Studio</h1>
-            <span className="rounded-full bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 text-[10px] font-bold text-violet-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFD43B] text-[#151515] font-black">
+              <FileText className="h-4 w-4" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+              AI Script &amp; Hook Studio
+            </h1>
+            <span className="rounded-full bg-[#FFD43B]/10 border border-[#FFD43B]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#FFD43B]">
               {script.totalDurationSeconds}s Short • {script.language.toUpperCase()}
             </span>
           </div>
-          <p className="mt-1 text-xs text-slate-400">
-            {project.name} • Optimized for YouTube Shorts & Instagram Reels retention algorithms
+          <p className="mt-1 text-xs text-[#A3A3A3]">
+            {project.name} • 3-act retention structure optimized for YouTube Shorts and Instagram Reels algorithms.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Teleprompter Button */}
+          <button
+            onClick={() => {
+              setTeleprompterOpen(true);
+              setTeleprompterScroll(0);
+              setTeleprompterPlaying(false);
+            }}
+            className="flex items-center gap-1.5 rounded-xl border border-[#2E2E2E] bg-[#1A1A1A] hover:bg-[#252525] px-3.5 py-2 text-xs font-bold text-white transition-colors"
+          >
+            <Maximize2 className="h-3.5 w-3.5 text-[#FFD43B]" />
+            <span>Teleprompter</span>
+          </button>
+
           <button
             onClick={handleRegenerate}
             disabled={isRegenerating}
-            className="flex items-center gap-1.5 rounded-xl border border-[#1E2A4A] bg-[#0B132B] px-3.5 py-1.5 text-xs font-semibold text-slate-300 hover:text-white transition-colors"
+            className="flex items-center gap-1.5 rounded-xl border border-[#2E2E2E] bg-[#1A1A1A] px-3.5 py-2 text-xs font-semibold text-[#A3A3A3] hover:text-white transition-colors"
           >
             <RotateCcw className={`h-3.5 w-3.5 ${isRegenerating ? 'animate-spin' : ''}`} />
-            <span>Regenerate Script</span>
+            <span>Regenerate</span>
           </button>
+
           <button
             onClick={handleProceedToStoryboard}
-            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 px-4 py-1.5 text-xs font-bold text-white shadow-sm transition-all active:scale-95"
+            className="flex items-center gap-1.5 rounded-xl bg-[#FFD43B] hover:bg-[#FFC928] px-4 py-2 text-xs font-black text-[#151515] shadow-sm transition-all active:scale-95"
           >
-            <span>Generate Storyboard</span>
+            <span>Proceed to Storyboard</span>
             <ArrowRight className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -180,29 +223,29 @@ export function ScriptStudioTab({
 
       {/* Pacing & Duration Telemetry */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="rounded-xl border border-[#1E2A4A] bg-[#070D1F] p-3.5">
-          <div className="text-[11px] font-bold uppercase text-slate-400">Target Duration</div>
-          <div className="mt-1 text-lg font-black text-white">{script.totalDurationSeconds}s</div>
-          <div className="text-[10px] text-slate-500">Short-form limit: 60s</div>
+        <div className="rounded-2xl border border-[#2E2E2E] bg-[#1A1A1A] p-4">
+          <div className="text-[11px] font-bold uppercase text-[#737373]">Target Duration</div>
+          <div className="mt-1 text-xl font-black text-white">{script.totalDurationSeconds}s</div>
+          <div className="text-[10px] text-[#737373]">Short-form limit: 60s</div>
         </div>
 
-        <div className="rounded-xl border border-[#1E2A4A] bg-[#070D1F] p-3.5">
-          <div className="text-[11px] font-bold uppercase text-slate-400">Spoken Words</div>
-          <div className="mt-1 text-lg font-black text-white">{script.totalWordCount} words</div>
-          <div className="text-[10px] text-slate-500">Total dialogue volume</div>
+        <div className="rounded-2xl border border-[#2E2E2E] bg-[#1A1A1A] p-4">
+          <div className="text-[11px] font-bold uppercase text-[#737373]">Spoken Words</div>
+          <div className="mt-1 text-xl font-black text-white">{script.totalWordCount} words</div>
+          <div className="text-[10px] text-[#737373]">Total dialogue volume</div>
         </div>
 
-        <div className="rounded-xl border border-[#1E2A4A] bg-[#070D1F] p-3.5">
-          <div className="text-[11px] font-bold uppercase text-slate-400">Pacing Speed</div>
+        <div className="rounded-2xl border border-[#2E2E2E] bg-[#1A1A1A] p-4">
+          <div className="text-[11px] font-bold uppercase text-[#737373]">Pacing Speed</div>
           <div className="mt-1 flex items-baseline gap-1.5">
-            <span className="text-lg font-black text-white">{script.wordsPerSecond}</span>
-            <span className="text-[11px] text-slate-400">words/sec</span>
+            <span className="text-xl font-black text-white">{script.wordsPerSecond}</span>
+            <span className="text-[11px] text-[#A3A3A3]">words/sec</span>
           </div>
           <div className="text-[10px] text-emerald-400">Ideal range: 2.2 - 2.8</div>
         </div>
 
-        <div className="rounded-xl border border-[#1E2A4A] bg-[#070D1F] p-3.5">
-          <div className="text-[11px] font-bold uppercase text-slate-400">Pacing Status</div>
+        <div className="rounded-2xl border border-[#2E2E2E] bg-[#1A1A1A] p-4">
+          <div className="text-[11px] font-bold uppercase text-[#737373]">Pacing Health</div>
           <div className="mt-1 text-xs font-bold">
             {script.pacingWarning ? (
               <span className="text-amber-400 flex items-center gap-1">
@@ -216,20 +259,20 @@ export function ScriptStudioTab({
               </span>
             )}
           </div>
-          <div className="text-[10px] text-slate-400 truncate">
+          <div className="text-[10px] text-[#737373] truncate">
             {script.pacingWarning || 'Ready for high-retention narration'}
           </div>
         </div>
       </div>
 
       {/* Hook Selector Module */}
-      <div className="rounded-2xl border border-[#1E2A4A] bg-[#070D1F] p-5 space-y-3">
+      <div className="rounded-2xl border border-[#2E2E2E] bg-[#1A1A1A] p-5 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Flame className="h-4 w-4 text-amber-400" />
+            <Flame className="h-4 w-4 text-[#FFD43B]" />
             <h2 className="text-sm font-bold text-white">Viral Hook Candidates (First 1-3 Seconds)</h2>
           </div>
-          <span className="text-[11px] text-slate-400">Select preferred opening pattern interrupt</span>
+          <span className="text-[11px] text-[#737373]">Select opening pattern interrupt</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -241,12 +284,12 @@ export function ScriptStudioTab({
                 onClick={() => handleHookSelect(idx)}
                 className={`rounded-xl border p-3.5 cursor-pointer transition-all ${
                   isSelected
-                    ? 'border-violet-500 bg-violet-950/30 shadow-md ring-1 ring-violet-500'
-                    : 'border-[#1E2A4A] bg-[#0B132B]/60 hover:border-slate-600'
+                    ? 'border-[#FFD43B] bg-[#FFD43B]/10 shadow-xs ring-1 ring-[#FFD43B]'
+                    : 'border-[#2E2E2E] bg-[#202020] hover:border-[#3E3E3E]'
                 }`}
               >
                 <div className="flex items-center justify-between text-[11px] mb-2">
-                  <span className="font-bold text-violet-400 uppercase tracking-wider">
+                  <span className="font-bold text-[#FFD43B] uppercase tracking-wider">
                     {hook.type.replace('_', ' ')}
                   </span>
                   <span className="font-extrabold text-emerald-400">
@@ -254,7 +297,7 @@ export function ScriptStudioTab({
                   </span>
                 </div>
                 <p className="text-xs font-bold text-white leading-snug">&ldquo;{hook.hookText}&rdquo;</p>
-                <p className="mt-2 text-[10px] text-slate-400 italic">Visual: {hook.visualCue}</p>
+                <p className="mt-2 text-[10px] text-[#737373] italic">Visual: {hook.visualCue}</p>
               </div>
             );
           })}
@@ -262,40 +305,40 @@ export function ScriptStudioTab({
       </div>
 
       {/* Scene-by-Scene Script Breakdown */}
-      <div className="rounded-2xl border border-[#1E2A4A] bg-[#070D1F] p-5 space-y-4">
+      <div className="rounded-2xl border border-[#2E2E2E] bg-[#1A1A1A] p-5 space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-white flex items-center gap-2">
-              <Film className="h-4 w-4 text-violet-400" />
-              Scene-by-Scene Script & Directing Notes
+              <Film className="h-4 w-4 text-[#FFD43B]" />
+              Scene-by-Scene Script &amp; Directing Notes
             </h2>
-            <p className="text-xs text-slate-400">Click narration or on-screen text to edit before generating storyboard</p>
+            <p className="text-xs text-[#737373]">Click narration or on-screen text to edit before generating storyboard</p>
           </div>
-          <span className="text-xs text-slate-400 font-bold">{script.scenes.length} Scenes</span>
+          <span className="text-xs text-[#A3A3A3] font-bold">{script.scenes.length} Scenes</span>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {script.scenes.map((scene, idx) => (
             <div
               key={scene.sceneNumber}
-              className="rounded-xl border border-[#1E2A4A] bg-[#0B132B]/80 p-4 space-y-3"
+              className="rounded-xl border border-[#2E2E2E] bg-[#202020] p-4 space-y-3"
             >
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#1E2A4A]/60 pb-2">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#2E2E2E] pb-2">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-violet-600 text-[10px] font-black text-white">
+                  <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#FFD43B] text-[10px] font-black text-[#151515]">
                     {scene.sceneNumber}
                   </span>
                   <span className="text-xs font-bold text-white">{scene.title}</span>
                 </div>
-                <div className="flex items-center gap-3 text-[11px] text-slate-400">
+                <div className="flex items-center gap-3 text-[11px] text-[#737373]">
                   <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3 text-slate-500" />
+                    <Clock className="h-3 w-3" />
                     {scene.durationSeconds}s
                   </span>
                   <span>•</span>
                   <span>{scene.wordCount} words</span>
                   <span>•</span>
-                  <span className="flex items-center gap-1 text-violet-300">
+                  <span className="flex items-center gap-1 text-[#FFD43B]">
                     <Camera className="h-3 w-3" />
                     {scene.cameraMotion.replace(/_/g, ' ')}
                   </span>
@@ -304,51 +347,97 @@ export function ScriptStudioTab({
 
               {/* Editable Narration */}
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#737373] block mb-1">
                   Spoken Narration (Voiceover Script)
                 </label>
                 <textarea
                   rows={2}
                   value={scene.narration}
                   onChange={(e) => handleSceneChange(idx, 'narration', e.target.value)}
-                  className="w-full rounded-lg bg-[#070D1F] border border-[#1E2A4A] p-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 resize-none font-sans"
+                  className="w-full rounded-lg bg-[#151515] border border-[#2E2E2E] p-2.5 text-xs text-white placeholder-[#737373] focus:outline-none focus:border-[#FFD43B] resize-none font-sans"
                 />
               </div>
 
               {/* Editable On-Screen Kinetic Text */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#737373] block mb-1">
                     On-Screen Kinetic Text Overlay
                   </label>
                   <input
                     type="text"
                     value={scene.onScreenText}
                     onChange={(e) => handleSceneChange(idx, 'onScreenText', e.target.value)}
-                    className="w-full rounded-lg bg-[#070D1F] border border-[#1E2A4A] px-2.5 py-1.5 text-xs font-bold text-yellow-300 focus:outline-none focus:border-violet-500"
+                    className="w-full rounded-lg bg-[#151515] border border-[#2E2E2E] px-2.5 py-1.5 text-xs font-bold text-[#FFD43B] focus:outline-none focus:border-[#FFD43B]"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
+                  <label className="text-[10px] font-bold uppercase tracking-wider text-[#737373] block mb-1">
                     B-Roll / Visual Direction
                   </label>
                   <input
                     type="text"
                     value={scene.bRollSuggestion}
                     onChange={(e) => handleSceneChange(idx, 'bRollSuggestion', e.target.value)}
-                    className="w-full rounded-lg bg-[#070D1F] border border-[#1E2A4A] px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-violet-500"
+                    className="w-full rounded-lg bg-[#151515] border border-[#2E2E2E] px-2.5 py-1.5 text-xs text-[#A3A3A3] focus:outline-none focus:border-[#FFD43B]"
                   />
                 </div>
               </div>
 
-              <div className="text-[10px] text-slate-500 italic flex items-center gap-1">
-                <Volume2 className="h-3 w-3 text-slate-500" />
+              <div className="text-[10px] text-[#737373] italic flex items-center gap-1">
+                <Volume2 className="h-3 w-3" />
                 <span>Audio Note: {scene.soundNote}</span>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Fullscreen Teleprompter Modal */}
+      {teleprompterOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col bg-black/95 backdrop-blur-xl p-6 sm:p-12 text-white">
+          <div className="flex items-center justify-between border-b border-[#2E2E2E] pb-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold uppercase text-[#FFD43B]">RIIQX Studio Teleprompter</span>
+              <span className="text-xs text-[#737373]">({script.totalWordCount} words • ~{script.totalDurationSeconds}s)</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setTeleprompterPlaying(!teleprompterPlaying)}
+                className="flex items-center gap-1.5 rounded-xl bg-[#FFD43B] text-[#151515] px-4 py-2 text-xs font-black shadow-md"
+              >
+                {teleprompterPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                <span>{teleprompterPlaying ? 'Pause' : 'Start Auto-Scroll'}</span>
+              </button>
+              <button
+                onClick={() => {
+                  setTeleprompterOpen(false);
+                  setTeleprompterPlaying(false);
+                }}
+                className="p-2 rounded-xl border border-[#2E2E2E] text-[#A3A3A3] hover:text-white"
+              >
+                <Minimize2 className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-hidden relative flex flex-col items-center justify-center text-center p-8">
+            <div
+              className="max-w-3xl space-y-8 transition-transform duration-75 text-2xl sm:text-4xl font-bold leading-relaxed text-slate-100"
+              style={{ transform: `translateY(-${teleprompterScroll}px)` }}
+            >
+              {script.scenes.map((sc, i) => (
+                <div key={i} className="py-4">
+                  <div className="text-xs uppercase font-bold text-[#FFD43B] mb-2 tracking-widest">
+                    Scene {sc.sceneNumber}: {sc.title}
+                  </div>
+                  <div>{sc.narration}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

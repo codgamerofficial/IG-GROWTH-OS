@@ -68,6 +68,7 @@ export type ProjectLifecycleStatus =
 
 export type CreatorStudioTab =
   | 'overview'
+  | 'ai_creation'
   | 'ideas'
   | 'planner'
   | 'script'
@@ -80,7 +81,77 @@ export type CreatorStudioTab =
   | 'published'
   | 'analytics'
   | 'templates'
-  | 'brand_kit';
+  | 'brand_kit'
+  | 'autopilot';
+
+// -----------------------------------------------------------------------------
+// AI Generation & Provider Router Models
+// -----------------------------------------------------------------------------
+export type AIGenerationType =
+  | 'text_to_video'
+  | 'image_to_video'
+  | 'text_to_image'
+  | 'ai_avatar'
+  | 'talking_photo'
+  | 'voiceover'
+  | 'scene_generation'
+  | 'repurpose';
+
+export type AIProviderId =
+  | 'bedrock'
+  | 'groq'
+  | 'openrouter'
+  | 'luma'
+  | 'runway'
+  | 'seedance';
+
+export interface AIProviderModel {
+  id: string;
+  name: string;
+  provider: AIProviderId;
+  capabilities: AIGenerationType[];
+  costPerSecond?: number;
+  costPerImage?: number;
+  costPer1kTokens?: number;
+  status: 'active' | 'byok_required' | 'preview';
+  speedMs: number;
+}
+
+export interface AIGenerationJob {
+  id: string;
+  type: AIGenerationType;
+  prompt: string;
+  provider: AIProviderId;
+  model: string;
+  aspectRatio: AspectRatio | '4:5';
+  durationSeconds?: number;
+  stylePreset?: string;
+  status: 'idle' | 'queued' | 'generating' | 'completed' | 'failed';
+  progress: number;
+  resultUrl?: string;
+  thumbnailUrl?: string;
+  estimatedCost: number;
+  actualCost?: number;
+  createdAt: string;
+}
+
+export interface VideoRepurposeJob {
+  id: string;
+  sourceVideoName: string;
+  sourceUrl: string;
+  targetFormats: Array<'shorts' | 'reels' | 'facebook_clip'>;
+  detectedClips: Array<{
+    id: string;
+    title: string;
+    hook: string;
+    startTime: number;
+    endTime: number;
+    duration: number;
+    viralityScore: number;
+    caption: string;
+  }>;
+  status: 'analyzing' | 'ready' | 'processing' | 'completed';
+}
 
 // -----------------------------------------------------------------------------
 // Media & Asset Models

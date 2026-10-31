@@ -1,6 +1,6 @@
 // =============================================================================
 // RIIQX Mobile — Settings & Cloud Governance Screen
-// AWS Bedrock Runtime • Meta Instagram v20.0 • Non-Firebase Cryptographic Privacy
+// AWS Bedrock Runtime • Meta Instagram v26.0 • Non-Firebase Cryptographic Privacy
 // =============================================================================
 
 import React, { useState } from 'react';
@@ -130,7 +130,7 @@ export default function SettingsScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <Ionicons name="share-social-outline" size={16} color={colors.pink} />
                 <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>
-                  Meta Instagram Graph API v20.0
+                  Meta Instagram Graph API v26.0
                 </Text>
               </View>
               <View

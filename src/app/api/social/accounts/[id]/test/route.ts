@@ -3,6 +3,7 @@ import {
   getAccountWithCredentials,
   updateAccountStatus,
 } from '@/lib/riiqx/social/account-repository';
+import { resolveAuthUserId } from '@/lib/riiqx/session-helper';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +13,8 @@ export async function POST(
 ) {
   const accountId = params.id;
   const url = new URL(req.url);
-  const userId = url.searchParams.get('userId') || 'usr_riiqx_primary';
+  const resolvedAuthId = await resolveAuthUserId(req);
+  const userId = resolvedAuthId || url.searchParams.get('userId') || 'usr_riiqx_primary';
 
   const authBundle = await getAccountWithCredentials(accountId, userId);
   if (!authBundle) {
@@ -69,13 +71,16 @@ export async function POST(
 
     if (account.provider === 'instagram') {
       const res = await fetch(
-        `https://graph.facebook.com/v20.0/${account.platform_account_id}?fields=id,name,username,followers_count,media_count&access_token=${accessToken}`
+        `https://graph.facebook.com/v26.0/${account.platform_account_id}?fields=id,name,username,followers_count,media_count&access_token=${accessToken}`
       );
       const latencyMs = Date.now() - startTime;
       const data = await res.json();
 
       if (!res.ok || data.error) {
-        const errorMsg = data.error?.message || 'Meta token invalid or permissions expired.';
+        const rawError = data.error?.message || 'Meta token invalid or permissions expired.';
+        const errorMsg = rawError.includes('Application has been deleted')
+          ? 'Token was issued by a deleted Meta App. Please reconnect via OAuth.'
+          : rawError;
         await updateAccountStatus(accountId, userId, 'expired', errorMsg);
         return NextResponse.json({
           success: false,
@@ -103,7 +108,7 @@ export async function POST(
 
     if (account.provider === 'facebook') {
       const res = await fetch(
-        `https://graph.facebook.com/v20.0/${account.platform_account_id}?fields=id,name,fan_count&access_token=${accessToken}`
+        `https://graph.facebook.com/v26.0/${account.platform_account_id}?fields=id,name,fan_count&access_token=${accessToken}`
       );
       const latencyMs = Date.now() - startTime;
       const data = await res.json();

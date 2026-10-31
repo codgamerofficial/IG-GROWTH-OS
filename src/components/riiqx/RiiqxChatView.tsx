@@ -34,6 +34,7 @@ import {
   X,
 } from 'lucide-react';
 import { parseUploadedTextFile } from '@/lib/riiqx/documents';
+import { AIThinkingOrb } from '@/components/riiqx/ai/AIThinkingOrb';
 
 /**
  * Safe mathematical formula and symbol formatter
@@ -422,11 +423,62 @@ export function RiiqxChatView() {
   const [inputContent, setInputContent] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isModelMenuOpen, setIsModelMenuOpen] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const recognitionRef = useRef<any>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isUserNearBottomRef = useRef(true);
+
+  const toggleVoiceRecording = () => {
+    if (typeof window === 'undefined') return;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Speech recognition is not supported in this browser. Please use a Chromium or WebKit browser.');
+      return;
+    }
+
+    if (isRecording) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsRecording(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsRecording(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((result: any) => result[0].transcript)
+          .join('');
+        setInputContent(transcript);
+      };
+
+      recognition.onerror = () => {
+        setIsRecording(false);
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch {
+      setIsRecording(false);
+    }
+  };
 
   // Track user scroll position in conversation container
   const handleScroll = () => {
@@ -528,9 +580,9 @@ export function RiiqxChatView() {
           {/* Model Selector Dropdown */}
           <button
             onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FAF9F6] dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] text-xs font-bold text-[#202124] dark:text-white hover:border-[#FFD43B] transition-colors shadow-2xs"
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FAF9F6] dark:bg-[#1C1C20] border border-[#EAE7E1] dark:border-white/[0.08] text-xs font-bold text-[#202124] dark:text-white hover:border-[#FFD43B] transition-colors shadow-2xs"
           >
-            <span className="w-2 h-2 rounded-full bg-[#16865D] animate-pulse" />
+            <AIThinkingOrb state={isGenerating ? 'generating' : 'idle'} size={18} />
             <span className="truncate max-w-[180px] sm:max-w-[280px]">{selectedModel.name}</span>
             <ChevronDown className="w-3.5 h-3.5 text-[#737373] shrink-0" />
           </button>
@@ -613,8 +665,8 @@ export function RiiqxChatView() {
       >
         {messages.length === 0 ? (
           <div className="h-full min-h-[360px] flex flex-col items-center justify-center text-center max-w-lg mx-auto py-12">
-            <div className="w-14 h-14 rounded-3xl bg-gradient-to-tr from-[#FFD43B] to-[#FF6B5E] flex items-center justify-center text-[#202124] mb-4 shadow-sm font-black">
-              <Bot className="w-7 h-7" />
+            <div className="mb-4">
+              <AIThinkingOrb state="idle" size="lg" showLabel={false} />
             </div>
             <h2 className="text-xl font-bold text-[#202124] dark:text-white">
               RIIQX Agentic Workspace
@@ -655,16 +707,16 @@ export function RiiqxChatView() {
                 }`}
               >
                 {!isUser && (
-                  <div className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-gradient-to-tr from-[#FFD43B] to-[#FF6B5E] text-[#202124] shadow-2xs mt-0.5 font-bold">
-                    <Bot className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <div className="shrink-0 mt-0.5">
+                    <AIThinkingOrb state={isStreamingThis ? 'generating' : 'completed'} size={28} />
                   </div>
                 )}
 
                 <div
                   className={`relative transition-all break-words overflow-hidden ${
                     isUser
-                      ? 'max-w-[85%] sm:max-w-xl rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed bg-[#202124] text-white dark:bg-white dark:text-[#202124] shadow-sm rounded-tr-none font-medium'
-                      : 'w-full max-w-[calc(100%-2.5rem)] sm:max-w-2xl lg:max-w-3xl rounded-2xl sm:rounded-3xl p-3 sm:p-4.5 text-xs sm:text-sm leading-relaxed border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] text-[#202124] dark:text-[#F7F7F7] shadow-2xs rounded-tl-none'
+                      ? 'max-w-[85%] sm:max-w-xl rounded-2xl sm:rounded-3xl p-3 sm:p-4 text-xs sm:text-sm leading-relaxed bg-[#202124] text-white dark:bg-[#1E1E22] dark:text-[#F4F4F6] border border-black/10 dark:border-[#FFD43B]/25 dark:shadow-[0_0_20px_-4px_rgba(255,212,59,0.12)] shadow-sm rounded-tr-none font-medium'
+                      : 'w-full max-w-[calc(100%-2.5rem)] sm:max-w-2xl lg:max-w-3xl rounded-2xl sm:rounded-3xl p-3 sm:p-4.5 text-xs sm:text-sm leading-relaxed border border-[#EAE7E1] dark:border-white/[0.08] bg-white/90 dark:bg-[#151518]/90 backdrop-blur-md text-[#202124] dark:text-[#F7F7F7] shadow-2xs rounded-tl-none'
                   }`}
                 >
                   {/* Assistant Model Tag & Copy Button */}
@@ -806,6 +858,24 @@ export function RiiqxChatView() {
                 className="p-1.5 sm:p-2 text-[#737373] hover:text-[#202124] dark:hover:text-white rounded-full transition-colors"
               >
                 <Paperclip className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={toggleVoiceRecording}
+                title={isRecording ? 'Listening... Click to stop' : 'Voice Input (Speech-to-text)'}
+                className={`relative p-1.5 sm:p-2 rounded-full transition-colors ${
+                  isRecording
+                    ? 'bg-[#FF4D4F] text-white shadow-[0_0_15px_-2px_rgba(255,77,79,0.5)] animate-pulse'
+                    : 'text-[#737373] hover:text-[#202124] dark:hover:text-white'
+                }`}
+              >
+                <Mic className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                {isRecording && (
+                  <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF4D4F] opacity-75" />
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF4D4F]" />
+                  </span>
+                )}
               </button>
 
               {isGenerating ? (

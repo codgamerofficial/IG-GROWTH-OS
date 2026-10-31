@@ -5,8 +5,9 @@
 // "Hi! How can I help you today?" • Prompt Chips • Tool Synthesis • Direct Actions
 // =============================================================================
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useRiiqx } from '@/context/RiiqxContext';
+import { AIThinkingOrb } from '@/components/riiqx/ai/AIThinkingOrb';
 import {
   Sparkles,
   Send,
@@ -69,7 +70,7 @@ export function RiiqxAssistantDrawer() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const messages = activeConversation?.messages || [];
+  const messages = useMemo(() => activeConversation?.messages || [], [activeConversation?.messages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -93,20 +94,18 @@ export function RiiqxAssistantDrawer() {
   if (!isAiDrawerOpen || activeTab === 'chat') return null;
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 w-[calc(100vw-2.5rem)] sm:w-96 h-[580px] max-h-[84vh] flex flex-col rounded-[26px] border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white/95 dark:bg-[#202020]/95 backdrop-blur-2xl shadow-2xl transition-all duration-200 animate-in fade-in slide-in-from-bottom-4 overflow-hidden">
+    <div className="fixed bottom-5 right-5 z-40 w-[calc(100vw-2.5rem)] sm:w-96 h-[580px] max-h-[84vh] flex flex-col rounded-[26px] border border-[#EAE7E1] dark:border-white/[0.12] bg-white/95 dark:bg-[#121215]/95 backdrop-blur-2xl shadow-2xl transition-all duration-200 animate-in fade-in slide-in-from-bottom-4 overflow-hidden">
       {/* Floating Header */}
-      <div className="h-14 border-b border-[#EAE7E1] dark:border-[#2E2E2E] px-4 flex items-center justify-between shrink-0 bg-white/80 dark:bg-[#202020]/80 backdrop-blur-md">
+      <div className="h-14 border-b border-[#EAE7E1] dark:border-white/[0.08] px-4 flex items-center justify-between shrink-0 bg-white/80 dark:bg-[#141418]/80 backdrop-blur-md">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#FFD43B] to-[#FF6B5E] flex items-center justify-center text-[#202124] text-xs font-bold shadow-xs">
-            <Bot className="w-4 h-4" />
-          </div>
+          <AIThinkingOrb state={isGenerating ? 'generating' : 'idle'} size={24} />
           <div className="flex flex-col">
-            <span className="text-xs font-bold text-[#202124] dark:text-[#F7F7F7] leading-tight">
+            <span className="text-xs font-bold text-[#202124] dark:text-[#F4F4F6] leading-tight">
               RIIQX Assistant
             </span>
             <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#16865D]" />
-              <span className="text-[10px] text-[#737373] dark:text-[#A3A3A3]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
+              <span className="text-[10px] text-[#737373] dark:text-[#A1A1AA]">
                 Floating Companion • Active
               </span>
             </div>
@@ -186,8 +185,8 @@ export function RiiqxAssistantDrawer() {
                 <div
                   className={`rounded-2xl p-3 max-w-[90%] leading-relaxed text-xs break-words ${
                     isUser
-                      ? 'bg-[#202124] text-white dark:bg-[#FFFFFF] dark:text-[#202124] rounded-tr-none font-medium'
-                      : 'bg-[#FAF9F6] dark:bg-[#151515] text-[#202124] dark:text-[#F7F7F7] border border-[#EAE7E1] dark:border-[#2E2E2E] rounded-tl-none'
+                      ? 'bg-[#202124] text-white dark:bg-[#1E1E22] dark:text-[#F4F4F6] border border-black/10 dark:border-[#FFD43B]/25 rounded-tr-none font-medium'
+                      : 'bg-[#FAF9F6] dark:bg-[#18181C] text-[#202124] dark:text-[#F4F4F6] border border-[#EAE7E1] dark:border-white/[0.08] rounded-tl-none'
                   }`}
                 >
                   {isUser ? (
@@ -196,7 +195,7 @@ export function RiiqxAssistantDrawer() {
                     <div className="space-y-1">{renderDrawerText(m.content)}</div>
                   )}
                 </div>
-                <span className="text-[9px] text-[#737373] dark:text-[#A3A3A3] mt-1 px-1">
+                <span className="text-[9px] text-[#737373] dark:text-[#A1A1AA] mt-1 px-1">
                   {isUser ? 'You' : m.modelUsed || selectedModel.name}
                 </span>
               </div>
@@ -207,7 +206,7 @@ export function RiiqxAssistantDrawer() {
       </div>
 
       {/* Bottom Composer */}
-      <div className="p-3 border-t border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] shrink-0">
+      <div className="p-3 border-t border-[#EAE7E1] dark:border-white/[0.08] bg-white dark:bg-[#141418] shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();

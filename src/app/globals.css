@@ -16,11 +16,18 @@
   --foreground-secondary: #737373;
   --muted: #9E9E9E;
 
-  /* RIIQX iOS Master Tokens: Trending Yellow + Red/Coral */
+  /* RIIQX Liquid Intelligence Tokens */
+  --riiqx-bg: #FAF9F6;
+  --riiqx-bg-subtle: #F3F1EC;
+  --riiqx-surface: #FFFFFF;
+  --riiqx-surface-elevated: #FFFFFF;
+  --riiqx-glass: rgba(255, 255, 255, 0.85);
+  --riiqx-glass-border: rgba(0, 0, 0, 0.08);
+  --riiqx-glass-highlight: rgba(255, 255, 255, 0.6);
   --riiqx-yellow: #FFD43B;
   --riiqx-yellow-secondary: #FFC928;
-  --riiqx-red: #FF4D4F;
   --riiqx-coral: #FF6B5E;
+  --riiqx-red: #FF4D4F;
   --riiqx-success: #16865D;
   --riiqx-warning: #D97706;
   --riiqx-error: #D92D36;
@@ -28,23 +35,39 @@
   /* Gradients */
   --riiqx-gradient-primary: linear-gradient(135deg, #FFD43B 0%, #FF6B5E 100%);
   --riiqx-gradient-yellow: linear-gradient(135deg, #FFD43B 0%, #FFC928 100%);
-  --riiqx-gradient-red: linear-gradient(135deg, #FF6B5E 0%, #FF4D4F 100%);
+  --riiqx-gradient-amber: linear-gradient(135deg, #FFD43B 0%, #F59E0B 100%);
   --riiqx-gradient-subtle: linear-gradient(135deg, rgba(255, 212, 59, 0.12) 0%, rgba(255, 107, 94, 0.12) 100%);
   --riiqx-gradient-glow: linear-gradient(135deg, rgba(255, 212, 59, 0.25) 0%, rgba(255, 107, 94, 0.25) 100%);
 }
 
 .dark {
-  --background: #151515;
-  --background-secondary: #0D0D0D;
-  --surface: #202020;
-  --surface-elevated: #282828;
-  --surface-glass: rgba(32, 32, 32, 0.85);
-  --border: #2E2E2E;
-  --border-subtle: #222222;
+  --background: #0C0C0E;
+  --background-secondary: #121214;
+  --surface: #18181B;
+  --surface-elevated: #202024;
+  --surface-glass: rgba(24, 24, 27, 0.75);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.04);
   --border-accent: #FFD43B;
-  --foreground: #F7F7F7;
-  --foreground-secondary: #A3A3A3;
-  --muted: #737373;
+  --foreground: #F4F4F6;
+  --foreground-secondary: #A1A1AA;
+  --muted: #71717A;
+
+  /* RIIQX Liquid Intelligence Dark Tokens */
+  --riiqx-bg: #0C0C0E;
+  --riiqx-bg-subtle: #121214;
+  --riiqx-surface: #18181B;
+  --riiqx-surface-elevated: #202024;
+  --riiqx-glass: rgba(24, 24, 27, 0.75);
+  --riiqx-glass-border: rgba(255, 255, 255, 0.08);
+  --riiqx-glass-highlight: rgba(255, 255, 255, 0.04);
+  --riiqx-yellow: #FFD43B;
+  --riiqx-yellow-secondary: #FFC928;
+  --riiqx-coral: #FF6B5E;
+  --riiqx-red: #FF4D4F;
+  --riiqx-success: #10B981;
+  --riiqx-warning: #F59E0B;
+  --riiqx-error: #EF4444;
 }
 
 body {
@@ -53,7 +76,7 @@ body {
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
 }
 
-/* RIIQX Gradient Text Utility */
+/* RIIQX Brand Text Utilities */
 .riiqx-gradient-text {
   background: var(--riiqx-gradient-primary);
   -webkit-background-clip: text;
@@ -61,50 +84,36 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
-/* NUVEXA Typography & Gradients */
-.nuvexa-gradient-text {
-  background: var(--nuvexa-gradient-primary);
+.riiqx-gradient-yellow-text {
+  background: var(--riiqx-gradient-yellow);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.nuvexa-gradient-magenta-text {
-  background: var(--nuvexa-gradient-magenta);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Glassmorphism card surfaces */
-.nuvexa-panel {
-  background: rgba(11, 19, 43, 0.78);
+/* Liquid Glass Surfaces */
+.glass-surface {
+  background: var(--surface-glass);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   border: 1px solid var(--border);
 }
 
-.nuvexa-card {
+.glass-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: 0 16px 40px -12px rgba(3, 7, 18, 0.7);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
 }
 
-.nuvexa-card-glow {
-  background: linear-gradient(180deg, rgba(13, 23, 52, 0.9) 0%, rgba(11, 19, 43, 0.95) 100%);
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.15);
+.glass-glow-yellow {
+  box-shadow: 0 0 24px -4px rgba(255, 212, 59, 0.22);
 }
 
-.nuvexa-glow-cyan {
-  box-shadow: 0 0 25px -4px rgba(6, 182, 212, 0.35);
+.glass-glow-coral {
+  box-shadow: 0 0 24px -4px rgba(255, 107, 94, 0.22);
 }
 
-.nuvexa-glow-violet {
-  box-shadow: 0 0 25px -4px rgba(139, 92, 246, 0.35);
-}
-
-/* Custom Scrollbars — Transparent Track & Subtle Thumb (No Black Strip) */
+/* Custom Scrollbars — Minimalist Obsidian */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -115,17 +124,15 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(120, 120, 120, 0.2);
+  background: rgba(140, 140, 145, 0.2);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(120, 120, 120, 0.4);
+  background: rgba(140, 140, 145, 0.4);
 }
 
-/* =============================================================================
-   Android Mobile WebApp Ergonomics & Safe Area Support
-   ============================================================================= */
+/* Mobile & Touch Ergonomics */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -134,7 +141,7 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Browser Autofill Ergonomics & Theme Alignment */
+/* Autofill Alignment */
 input:-webkit-autofill,
 input:-webkit-autofill:hover, 
 input:-webkit-autofill:focus, 
@@ -148,8 +155,8 @@ input:-webkit-autofill:active {
 .dark input:-webkit-autofill:hover, 
 .dark input:-webkit-autofill:focus, 
 .dark input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 40px #151515 inset !important;
-  -webkit-text-fill-color: #F7F7F7 !important;
+  -webkit-box-shadow: 0 0 0 40px #121214 inset !important;
+  -webkit-text-fill-color: #F4F4F6 !important;
   transition: background-color 5000s ease-in-out 0s;
 }
 
@@ -165,7 +172,7 @@ body {
   overflow: hidden;
 }
 
-/* Android Safe Area Padding Helpers */
+/* Mobile Safe Areas */
 .safe-top {
   padding-top: env(safe-area-inset-top, 0px);
 }
@@ -178,7 +185,7 @@ body {
   padding-bottom: max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem));
 }
 
-/* Mobile Horizontal Scrollers */
+/* No Scrollbar Utility */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -190,4 +197,3 @@ body {
     scrollbar-width: none;
   }
 }
-

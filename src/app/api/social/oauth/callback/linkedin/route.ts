@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exchangeLinkedInCode } from '@/lib/riiqx/social/oauth-engine';
 import { saveConnectedAccount } from '@/lib/riiqx/social/account-repository';
+import { resolveAuthUserId } from '@/lib/riiqx/session-helper';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,9 +13,13 @@ export async function GET(req: NextRequest) {
   const errorDescription = url.searchParams.get('error_description');
 
   const cookieState = req.cookies.get('riiqx_oauth_state')?.value;
-  const userId = req.cookies.get('riiqx_oauth_user')?.value || 'usr_riiqx_primary';
+  const resolvedAuthId = await resolveAuthUserId(req);
+  const cookieUserId = req.cookies.get('riiqx_oauth_user')?.value;
+  const userId = resolvedAuthId || cookieUserId || 'usr_riiqx_primary';
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || req.nextUrl.host;
+  const proto = req.headers.get('x-forwarded-proto') || (host && host.includes('localhost') ? 'http' : 'https');
+  const appUrl = `${proto}://${host}`;
 
   if (error) {
     const errorMsg = errorDescription || error;

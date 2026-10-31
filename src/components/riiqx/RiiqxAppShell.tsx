@@ -29,7 +29,7 @@ export function RiiqxAppShell({ children }: RiiqxAppShellProps) {
 
   if (isAuthRoute || isStandalonePublic) {
     return (
-      <main className="h-full w-full overflow-y-auto min-h-0 min-w-0 bg-[#FAF9F6] dark:bg-[#151515] text-[#202124] dark:text-[#F7F7F7]">
+      <main className="h-full w-full overflow-y-auto min-h-0 min-w-0 bg-[#FAF9F6] dark:bg-[#0C0C0E] text-[#202124] dark:text-[#F4F4F6]">
         {children}
       </main>
     );
@@ -37,7 +37,7 @@ export function RiiqxAppShell({ children }: RiiqxAppShellProps) {
 
   // Full Authenticated Workspace Dashboard Shell
   return (
-    <div className="flex h-full w-full max-w-full flex-col overflow-hidden min-h-0 bg-[#FAF9F6] dark:bg-[#151515]">
+    <div className="flex h-full w-full max-w-full flex-col overflow-hidden min-h-0 bg-[#FAF9F6] dark:bg-[#0C0C0E]">
       <RiiqxHeader />
       <div className="relative flex flex-1 overflow-hidden min-h-0 min-w-0">
         <RiiqxSidebar />

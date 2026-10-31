@@ -6,6 +6,7 @@
 // =============================================================================
 
 import React, { useState, useMemo } from 'react';
+import Image from 'next/image';
 import {
   CreatorProject,
   CreatorStudioTab,
@@ -124,10 +125,12 @@ export function TemplatesTab({
             className="group relative cursor-pointer rounded-2xl overflow-hidden border border-[#E5E4DE] dark:border-[#2A3347] bg-white dark:bg-[#1C2230] hover:border-[#6750D8] dark:hover:border-[#6750D8] hover:shadow-lg transition-all flex flex-col aspect-[3/4]"
           >
             {/* Background Cover Image */}
-            <img
+            <Image
               src={tmpl.coverUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80'}
               alt={tmpl.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              fill
+              unoptimized
+              className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
 
             {/* Top Right Crown / Curated Star Badge */}

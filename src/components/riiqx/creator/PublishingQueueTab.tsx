@@ -2,7 +2,7 @@
 
 // =============================================================================
 // RIIQX Creator Studio — Publishing Queue & Automation
-// Genuine OAuth 2.0 Accounts • Meta Graph API v20.0 & YouTube Shorts Adapters
+// Genuine OAuth 2.0 Accounts • Meta Graph API v26.0 & YouTube Shorts Adapters
 // Idempotency Protection • Real-Time Container Polling • Truthful Status
 // =============================================================================
 
@@ -219,7 +219,7 @@ export function PublishingQueueTab({
             </span>
           </div>
           <p className="mt-1 text-xs text-[#737373] dark:text-[#A3A3A3]">
-            Real-time publishing queue for Meta Instagram Graph API v20.0 and Google YouTube Data API v3.
+            Real-time publishing queue for Meta Instagram Graph API v26.0 and Google YouTube Data API v3.
           </p>
         </div>
 

@@ -3,6 +3,7 @@ import {
   getConnectedAccounts,
   deleteConnectedAccount,
   saveConnectedAccount,
+  updateAccountStatus,
   ConnectedAccountRecord,
 } from '@/lib/riiqx/social/account-repository';
 import { getInstagramAccountStatus } from '@/lib/riiqx/social/instagram';
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
   try {
     let accounts = await getConnectedAccounts(userId);
 
-    // Auto-detect direct environment variables if already set in .env.local
+    // Auto-detect direct environment variables only if validly configured in .env.local
     const igToken = process.env.INSTAGRAM_ACCESS_TOKEN;
     const igAccountId =
       process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.INSTAGRAM_ACCOUNT_ID;
@@ -24,9 +25,9 @@ export async function GET(req: NextRequest) {
     const hasIgInDb = accounts.some((a) => a.provider === 'instagram');
 
     if (!hasIgInDb && igToken && igAccountId) {
-      // Probe Meta Graph API
+      // Probe Meta Graph API - only auto-register if valid
       const status = await getInstagramAccountStatus();
-      if (status.isConfigured) {
+      if (status.isConfigured && status.isValid) {
         const directAccount = await saveConnectedAccount({
           userId,
           provider: 'instagram',
@@ -35,6 +36,7 @@ export async function GET(req: NextRequest) {
           accountHandle: status.username ? `@${status.username}` : undefined,
           scopes: ['instagram_basic', 'instagram_content_publish'],
           accessToken: igToken,
+          status: 'connected',
           platformMetadata: {
             source: 'env_direct_credentials',
             followersCount: status.followersCount,
@@ -42,6 +44,24 @@ export async function GET(req: NextRequest) {
           },
         });
         accounts = [directAccount, ...accounts];
+      }
+    } else if (hasIgInDb) {
+      // Keep existing direct env credential accounts synced with actual token validity
+      for (const acc of accounts) {
+        if (
+          acc.provider === 'instagram' &&
+          acc.platform_metadata?.source === 'env_direct_credentials'
+        ) {
+          const status = await getInstagramAccountStatus();
+          if (!status.isValid) {
+            const clearMessage = status.errorMessage?.includes('Application has been deleted')
+              ? 'Legacy environment token (INSTAGRAM_ACCESS_TOKEN) was issued by a deleted Meta App. Connect via OAuth above.'
+              : status.errorMessage;
+            await updateAccountStatus(acc.id, userId, 'expired', clearMessage);
+            acc.status = 'expired';
+            acc.error_message = clearMessage;
+          }
+        }
       }
     }
 

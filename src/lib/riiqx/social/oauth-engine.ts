@@ -1,6 +1,6 @@
 // =============================================================================
 // RIIQX — Master Social OAuth 2.0 Engine
-// Google / YouTube Data API v3 • Meta Graph API v20.0 (Instagram & Facebook)
+// Google / YouTube Data API v3 • Meta Graph API v26.0 (Instagram & Facebook)
 // Cryptographic State • PKCE Code Verifier • Server-Side Token Exchange
 // =============================================================================
 
@@ -40,26 +40,72 @@ export interface DiscoveredMetaAccount {
   };
 }
 
-function getAppBaseUrl(): string {
-  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+export const TRUSTED_OAUTH_ORIGINS = [
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+  'https://riiqx.vercel.app',
+];
+
+export function getTrustedAppOrigin(rawHost?: string | null, rawProto?: string | null): string {
+  if (rawHost) {
+    const isLocal = rawHost.includes('localhost') || rawHost.includes('127.0.0.1');
+    const proto = rawProto || (isLocal ? 'http' : 'https');
+    const candidate = `${proto}://${rawHost}`.toLowerCase().replace(/\/+$/, '');
+    const matched = TRUSTED_OAUTH_ORIGINS.find((t) => t.toLowerCase() === candidate);
+    if (matched) {
+      return matched;
+    }
+  }
+
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    const candidate = process.env.NEXT_PUBLIC_APP_URL.replace(/\/+$/, '');
+    if (TRUSTED_OAUTH_ORIGINS.includes(candidate)) {
+      return candidate;
+    }
+  }
+
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
+    return 'https://riiqx.vercel.app';
+  }
+
+  return 'http://localhost:3001';
+}
+
+export function getAppBaseUrl(reqOrigin?: string): string {
+  if (reqOrigin) {
+    try {
+      const parsed = new URL(reqOrigin);
+      return getTrustedAppOrigin(parsed.host, parsed.protocol.replace(':', ''));
+    } catch {
+      // Fall through
+    }
+  }
+  return getTrustedAppOrigin();
 }
 
 /**
  * YouTube OAuth 2.0 Configuration
  */
-export function getYouTubeOAuthConfig(): OAuthConfig {
+export function getYouTubeOAuthConfig(baseOrigin?: string): OAuthConfig {
   const clientId =
-    process.env.GOOGLE_CLIENT_ID ||
     process.env.YOUTUBE_CLIENT_ID ||
+    process.env.GOOGLE_CLIENT_ID ||
     '';
   const clientSecret =
-    process.env.GOOGLE_CLIENT_SECRET ||
     process.env.YOUTUBE_CLIENT_SECRET ||
+    process.env.GOOGLE_CLIENT_SECRET ||
     '';
-  const redirectUri =
-    process.env.GOOGLE_REDIRECT_URI ||
-    process.env.YOUTUBE_REDIRECT_URI ||
-    `${getAppBaseUrl()}/api/social/oauth/callback/youtube`;
+
+  let redirectUri = '';
+  if (baseOrigin) {
+    redirectUri = `${getAppBaseUrl(baseOrigin)}/api/social/oauth/callback/youtube`;
+  } else if (process.env.YOUTUBE_REDIRECT_URI) {
+    redirectUri = process.env.YOUTUBE_REDIRECT_URI;
+  } else if (process.env.GOOGLE_REDIRECT_URI) {
+    redirectUri = process.env.GOOGLE_REDIRECT_URI;
+  } else {
+    redirectUri = `${getAppBaseUrl()}/api/social/oauth/callback/youtube`;
+  }
 
   return {
     clientId,
@@ -76,12 +122,27 @@ export function getYouTubeOAuthConfig(): OAuthConfig {
 /**
  * Meta (Instagram & Facebook) OAuth Configuration
  */
-export function getMetaOAuthConfig(): OAuthConfig {
+export function getMetaOAuthConfig(baseOrigin?: string): OAuthConfig {
   const clientId = process.env.META_APP_ID || '';
   const clientSecret = process.env.META_APP_SECRET || '';
-  const redirectUri =
-    process.env.META_REDIRECT_URI ||
-    `${getAppBaseUrl()}/api/social/oauth/callback/meta`;
+
+  let redirectUri: string;
+  if (baseOrigin) {
+    redirectUri = `${getAppBaseUrl(baseOrigin)}/api/social/oauth/callback/meta`;
+  } else if (process.env.META_REDIRECT_URI) {
+    try {
+      const parsed = new URL(process.env.META_REDIRECT_URI);
+      if (TRUSTED_OAUTH_ORIGINS.includes(parsed.origin) && parsed.pathname === '/api/social/oauth/callback/meta') {
+        redirectUri = process.env.META_REDIRECT_URI;
+      } else {
+        redirectUri = `${getAppBaseUrl()}/api/social/oauth/callback/meta`;
+      }
+    } catch {
+      redirectUri = `${getAppBaseUrl()}/api/social/oauth/callback/meta`;
+    }
+  } else {
+    redirectUri = `${getAppBaseUrl()}/api/social/oauth/callback/meta`;
+  }
 
   return {
     clientId,
@@ -100,13 +161,15 @@ export function getMetaOAuthConfig(): OAuthConfig {
 /**
  * X / Twitter OAuth 2.0 Configuration (with PKCE)
  */
-export function getXOAuthConfig(): OAuthConfig {
+export function getXOAuthConfig(baseOrigin?: string): OAuthConfig {
   const clientId = process.env.TWITTER_CLIENT_ID || process.env.X_CLIENT_ID || '';
   const clientSecret = process.env.TWITTER_CLIENT_SECRET || process.env.X_CLIENT_SECRET || '';
   const redirectUri =
-    process.env.TWITTER_REDIRECT_URI ||
-    process.env.X_REDIRECT_URI ||
-    `${getAppBaseUrl()}/api/social/oauth/callback/twitter`;
+    baseOrigin
+      ? `${getAppBaseUrl(baseOrigin)}/api/social/oauth/callback/twitter`
+      : process.env.TWITTER_REDIRECT_URI ||
+        process.env.X_REDIRECT_URI ||
+        `${getAppBaseUrl()}/api/social/oauth/callback/twitter`;
 
   return {
     clientId,
@@ -119,12 +182,13 @@ export function getXOAuthConfig(): OAuthConfig {
 /**
  * LinkedIn OAuth 2.0 Configuration
  */
-export function getLinkedInOAuthConfig(): OAuthConfig {
+export function getLinkedInOAuthConfig(baseOrigin?: string): OAuthConfig {
   const clientId = process.env.LINKEDIN_CLIENT_ID || '';
   const clientSecret = process.env.LINKEDIN_CLIENT_SECRET || '';
   const redirectUri =
-    process.env.LINKEDIN_REDIRECT_URI ||
-    `${getAppBaseUrl()}/api/social/oauth/callback/linkedin`;
+    baseOrigin
+      ? `${getAppBaseUrl(baseOrigin)}/api/social/oauth/callback/linkedin`
+      : process.env.LINKEDIN_REDIRECT_URI || `${getAppBaseUrl()}/api/social/oauth/callback/linkedin`;
 
   return {
     clientId,
@@ -158,15 +222,16 @@ export function generateOAuthState(provider: string, userId: string): OAuthState
 /**
  * Creates the official Google / YouTube authorization redirect URL
  */
-export function createYouTubeAuthUrl(state: string, codeChallenge: string): string {
+export function createYouTubeAuthUrl(state: string, codeChallenge: string, customRedirectUri?: string): string {
   const config = getYouTubeOAuthConfig();
+  const redirectUri = customRedirectUri || config.redirectUri;
   if (!config.clientId) {
-    throw new Error('Google OAuth credentials not configured. Configure GOOGLE_CLIENT_ID in .env.local');
+    throw new Error('Google OAuth credentials not configured. Configure GOOGLE_CLIENT_ID or YOUTUBE_CLIENT_ID in .env.local');
   }
 
   const params = new URLSearchParams({
     client_id: config.clientId,
-    redirect_uri: config.redirectUri,
+    redirect_uri: redirectUri,
     response_type: 'code',
     scope: config.scopes.join(' '),
     access_type: 'offline', // Mandatory to receive refresh_token
@@ -183,28 +248,41 @@ export function createYouTubeAuthUrl(state: string, codeChallenge: string): stri
 /**
  * Creates the official Meta (Instagram & Facebook) authorization redirect URL
  */
-export function createMetaAuthUrl(state: string): string {
+export function createMetaAuthUrl(state: string, customRedirectUri?: string): string {
   const config = getMetaOAuthConfig();
+  let redirectUri = config.redirectUri;
+  if (customRedirectUri) {
+    try {
+      const parsed = new URL(customRedirectUri);
+      if (TRUSTED_OAUTH_ORIGINS.includes(parsed.origin) && parsed.pathname === '/api/social/oauth/callback/meta') {
+        redirectUri = customRedirectUri;
+      }
+    } catch {
+      // Keep default redirectUri
+    }
+  }
+
   if (!config.clientId) {
     throw new Error('Meta App credentials not configured. Configure META_APP_ID in .env.local');
   }
 
   const params = new URLSearchParams({
     client_id: config.clientId,
-    redirect_uri: config.redirectUri,
+    redirect_uri: redirectUri,
     state,
     scope: config.scopes.join(','),
     response_type: 'code',
   });
 
-  return `https://www.facebook.com/v20.0/dialog/oauth?${params.toString()}`;
+  return `https://www.facebook.com/v26.0/dialog/oauth?${params.toString()}`;
 }
 
 /**
  * Creates the official X / Twitter authorization redirect URL (OAuth 2.0 PKCE)
  */
-export function createXAuthUrl(state: string, codeChallenge: string): string {
+export function createXAuthUrl(state: string, codeChallenge: string, customRedirectUri?: string): string {
   const config = getXOAuthConfig();
+  const redirectUri = customRedirectUri || config.redirectUri;
   if (!config.clientId) {
     throw new Error('Twitter / X OAuth credentials not configured. Configure TWITTER_CLIENT_ID in .env.local');
   }
@@ -212,7 +290,7 @@ export function createXAuthUrl(state: string, codeChallenge: string): string {
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: config.clientId,
-    redirect_uri: config.redirectUri,
+    redirect_uri: redirectUri,
     scope: config.scopes.join(' '),
     state,
     code_challenge: codeChallenge,
@@ -225,8 +303,9 @@ export function createXAuthUrl(state: string, codeChallenge: string): string {
 /**
  * Creates the official LinkedIn authorization redirect URL (OAuth 2.0)
  */
-export function createLinkedInAuthUrl(state: string): string {
+export function createLinkedInAuthUrl(state: string, customRedirectUri?: string): string {
   const config = getLinkedInOAuthConfig();
+  const redirectUri = customRedirectUri || config.redirectUri;
   if (!config.clientId) {
     throw new Error('LinkedIn OAuth credentials not configured. Configure LINKEDIN_CLIENT_ID in .env.local');
   }
@@ -234,7 +313,7 @@ export function createLinkedInAuthUrl(state: string): string {
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: config.clientId,
-    redirect_uri: config.redirectUri,
+    redirect_uri: redirectUri,
     scope: config.scopes.join(' '),
     state,
   });
@@ -245,7 +324,11 @@ export function createLinkedInAuthUrl(state: string): string {
 /**
  * Exchanges Google authorization code for tokens and discovers YouTube channel
  */
-export async function exchangeYouTubeCode(code: string, codeVerifier: string): Promise<{
+export async function exchangeYouTubeCode(
+  code: string,
+  codeVerifier: string,
+  customRedirectUri?: string
+): Promise<{
   accessToken: string;
   refreshToken?: string;
   expiresIn: number;
@@ -254,6 +337,7 @@ export async function exchangeYouTubeCode(code: string, codeVerifier: string): P
   channel: DiscoveredChannel;
 }> {
   const config = getYouTubeOAuthConfig();
+  const redirectUri = customRedirectUri || config.redirectUri;
 
   const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
@@ -262,7 +346,7 @@ export async function exchangeYouTubeCode(code: string, codeVerifier: string): P
       code,
       client_id: config.clientId,
       client_secret: config.clientSecret,
-      redirect_uri: config.redirectUri,
+      redirect_uri: redirectUri,
       grant_type: 'authorization_code',
       code_verifier: codeVerifier,
     }),
@@ -312,7 +396,10 @@ export async function exchangeYouTubeCode(code: string, codeVerifier: string): P
 /**
  * Exchanges Meta authorization code, upgrades to 60-day token, and discovers Instagram Business accounts
  */
-export async function exchangeMetaCode(code: string): Promise<{
+export async function exchangeMetaCode(
+  code: string,
+  customRedirectUri?: string
+): Promise<{
   userAccessToken: string;
   longLivedToken: string;
   expiresIn: number;
@@ -320,11 +407,23 @@ export async function exchangeMetaCode(code: string): Promise<{
 }> {
   const config = getMetaOAuthConfig();
 
+  let redirectUri = config.redirectUri;
+  if (customRedirectUri) {
+    try {
+      const parsed = new URL(customRedirectUri);
+      if (TRUSTED_OAUTH_ORIGINS.includes(parsed.origin) && parsed.pathname === '/api/social/oauth/callback/meta') {
+        redirectUri = customRedirectUri;
+      }
+    } catch {
+      // Keep default redirectUri
+    }
+  }
+
   // 1. Exchange code for short-lived access token
-  const tokenUrl = new URL('https://graph.facebook.com/v20.0/oauth/access_token');
+  const tokenUrl = new URL('https://graph.facebook.com/v26.0/oauth/access_token');
   tokenUrl.searchParams.set('client_id', config.clientId);
   tokenUrl.searchParams.set('client_secret', config.clientSecret);
-  tokenUrl.searchParams.set('redirect_uri', config.redirectUri);
+  tokenUrl.searchParams.set('redirect_uri', redirectUri);
   tokenUrl.searchParams.set('code', code);
 
   const tokenRes = await fetch(tokenUrl.toString());
@@ -337,7 +436,7 @@ export async function exchangeMetaCode(code: string): Promise<{
   const shortLivedToken = tokenData.access_token;
 
   // 2. Exchange short-lived token for 60-day long-lived token
-  const longTokenUrl = new URL('https://graph.facebook.com/v20.0/oauth/access_token');
+  const longTokenUrl = new URL('https://graph.facebook.com/v26.0/oauth/access_token');
   longTokenUrl.searchParams.set('grant_type', 'fb_exchange_token');
   longTokenUrl.searchParams.set('client_id', config.clientId);
   longTokenUrl.searchParams.set('client_secret', config.clientSecret);
@@ -350,10 +449,10 @@ export async function exchangeMetaCode(code: string): Promise<{
   const expiresIn = longTokenData.expires_in || 5184000; // default ~60 days
 
   // 3. Query Facebook Pages & linked Instagram Professional Accounts
-  const pagesUrl = new URL('https://graph.facebook.com/v20.0/me/accounts');
+  const pagesUrl = new URL('https://graph.facebook.com/v26.0/me/accounts');
   pagesUrl.searchParams.set(
     'fields',
-    'id,name,access_token,instagram_business_account{id,username,name,profile_picture_url}'
+    'id,name,access_token,instagram_business_account{id,username,name,profile_picture_url},connected_instagram_account{id,username,name,profile_picture_url}'
   );
   pagesUrl.searchParams.set('access_token', longLivedToken);
 
@@ -364,22 +463,71 @@ export async function exchangeMetaCode(code: string): Promise<{
     throw new Error(pagesData.error?.message || 'Failed to fetch Facebook Pages and Instagram accounts.');
   }
 
-  const accounts: DiscoveredMetaAccount[] = (pagesData.data as Array<Record<string, unknown>>).map((p) => {
-    const ig = p.instagram_business_account as Record<string, string> | undefined;
-    return {
+  const rawPages = pagesData.data as Array<Record<string, unknown>>;
+  const accounts: DiscoveredMetaAccount[] = [];
+
+  for (const p of rawPages) {
+    let igRaw = (p.instagram_business_account || p.connected_instagram_account) as Record<string, string> | undefined;
+    const pageAccessToken = String(p.access_token || longLivedToken);
+
+    // If Instagram account wasn't exposed on /me/accounts via user token, probe page directly using Page Access Token
+    if (!igRaw && p.id && pageAccessToken) {
+      try {
+        const pageProbeUrl = new URL(`https://graph.facebook.com/v26.0/${p.id}`);
+        pageProbeUrl.searchParams.set(
+          'fields',
+          'instagram_business_account{id,username,name,profile_picture_url},connected_instagram_account{id,username,name,profile_picture_url}'
+        );
+        pageProbeUrl.searchParams.set('access_token', pageAccessToken);
+        const probeRes = await fetch(pageProbeUrl.toString());
+        if (probeRes.ok) {
+          const probeData = await probeRes.json();
+          igRaw = (probeData.instagram_business_account || probeData.connected_instagram_account) as Record<string, string> | undefined;
+        }
+      } catch {
+        // Non-blocking fallback
+      }
+    }
+
+    accounts.push({
       pageId: String(p.id),
       pageName: String(p.name),
-      pageAccessToken: String(p.access_token || longLivedToken),
-      instagramAccount: ig
+      pageAccessToken,
+      instagramAccount: igRaw
         ? {
-            id: String(ig.id),
-            username: String(ig.username),
-            name: ig.name ? String(ig.name) : undefined,
-            profilePictureUrl: ig.profile_picture_url ? String(ig.profile_picture_url) : undefined,
+            id: String(igRaw.id),
+            username: String(igRaw.username),
+            name: igRaw.name ? String(igRaw.name) : undefined,
+            profilePictureUrl: igRaw.profile_picture_url ? String(igRaw.profile_picture_url) : undefined,
           }
         : undefined,
-    };
-  });
+    });
+  }
+
+  // Fallback: Check if user has direct instagram_accounts attached to user profile
+  const hasLinkedIg = accounts.some((a) => Boolean(a.instagramAccount));
+  if (!hasLinkedIg && accounts.length > 0) {
+    try {
+      const userIgUrl = new URL('https://graph.facebook.com/v26.0/me');
+      userIgUrl.searchParams.set('fields', 'id,name,instagram_accounts{id,username,name,profile_picture_url}');
+      userIgUrl.searchParams.set('access_token', longLivedToken);
+      const userIgRes = await fetch(userIgUrl.toString());
+      if (userIgRes.ok) {
+        const userIgData = await userIgRes.json();
+        const firstDirectIg = userIgData.instagram_accounts?.data?.[0];
+        if (firstDirectIg && accounts[0]) {
+          accounts[0].instagramAccount = {
+            id: String(firstDirectIg.id),
+            username: String(firstDirectIg.username),
+            name: firstDirectIg.name ? String(firstDirectIg.name) : undefined,
+            profilePictureUrl: firstDirectIg.profile_picture_url ? String(firstDirectIg.profile_picture_url) : undefined,
+          };
+        }
+      }
+    } catch {
+      // Non-blocking fallback
+    }
+  }
 
   return {
     userAccessToken: shortLivedToken,

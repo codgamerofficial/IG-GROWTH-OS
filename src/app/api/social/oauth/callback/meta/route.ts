@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exchangeMetaCode } from '@/lib/riiqx/social/oauth-engine';
+import { exchangeMetaCode, getTrustedAppOrigin } from '@/lib/riiqx/social/oauth-engine';
 import { saveConnectedAccount } from '@/lib/riiqx/social/account-repository';
+import { resolveAuthUserId } from '@/lib/riiqx/session-helper';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,9 +13,15 @@ export async function GET(req: NextRequest) {
   const errorDescription = url.searchParams.get('error_description');
 
   const cookieState = req.cookies.get('riiqx_oauth_state')?.value;
-  const userId = req.cookies.get('riiqx_oauth_user')?.value || 'usr_riiqx_primary';
+  const cookieRedirectUri = req.cookies.get('riiqx_oauth_redirect_uri')?.value;
+  const resolvedAuthId = await resolveAuthUserId(req);
+  const cookieUserId = req.cookies.get('riiqx_oauth_user')?.value;
+  const userId = resolvedAuthId || cookieUserId || 'usr_riiqx_primary';
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || req.nextUrl.host;
+  const proto = req.headers.get('x-forwarded-proto') || (host && host.includes('localhost') ? 'http' : 'https');
+  const appUrl = getTrustedAppOrigin(host, proto);
+  const redirectUri = cookieRedirectUri || `${appUrl}/api/social/oauth/callback/meta`;
 
   if (error) {
     const errorMsg = errorDescription || error;
@@ -36,10 +43,12 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const { longLivedToken, expiresIn, accounts } = await exchangeMetaCode(code);
+    const { longLivedToken, expiresIn, accounts } = await exchangeMetaCode(code, redirectUri);
     const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
 
-    let connectedCount = 0;
+    let facebookPagesCount = 0;
+    let instagramAccountsCount = 0;
+    let primaryInstagramUsername = '';
 
     for (const page of accounts) {
       // 1. Connect Facebook Page
@@ -55,7 +64,7 @@ export async function GET(req: NextRequest) {
         tokenType: 'Bearer',
         platformMetadata: { pageId: page.pageId, pageName: page.pageName },
       });
-      connectedCount++;
+      facebookPagesCount++;
 
       // 2. Connect linked Instagram Professional / Creator account if present
       if (page.instagramAccount) {
@@ -76,21 +85,44 @@ export async function GET(req: NextRequest) {
             linkedPageId: page.pageId,
           },
         });
-        connectedCount++;
+        instagramAccountsCount++;
+        if (!primaryInstagramUsername) {
+          primaryInstagramUsername = page.instagramAccount.username;
+        }
       }
     }
 
     const dest = new URL(appUrl);
     dest.searchParams.set('tab', 'integrations');
-    dest.searchParams.set('connection_status', 'success');
-    dest.searchParams.set('provider', 'meta');
-    dest.searchParams.set('connected_count', String(connectedCount));
+
+    if (instagramAccountsCount > 0) {
+      dest.searchParams.set('connection_status', 'success');
+      dest.searchParams.set('provider', 'instagram');
+      dest.searchParams.set('account_name', `@${primaryInstagramUsername}`);
+      dest.searchParams.set('connected_count', String(instagramAccountsCount + facebookPagesCount));
+    } else if (facebookPagesCount > 0) {
+      dest.searchParams.set('connection_status', 'warning');
+      dest.searchParams.set('provider', 'facebook');
+      dest.searchParams.set('pages_connected', String(facebookPagesCount));
+      dest.searchParams.set(
+        'message',
+        `Authorized ${facebookPagesCount} Facebook Page(s), but no linked Instagram Professional account was found. To publish to Instagram, link your Instagram Creator or Business account to your Facebook Page in Instagram Settings.`
+      );
+    } else {
+      dest.searchParams.set('connection_status', 'error');
+      dest.searchParams.set('provider', 'meta');
+      dest.searchParams.set(
+        'message',
+        'Meta authorization completed, but no Facebook Pages or Instagram accounts were returned. Ensure your Facebook account administers at least one Page.'
+      );
+    }
 
     const response = NextResponse.redirect(dest.toString());
 
     // Clean up temporary OAuth cookies
     response.cookies.delete('riiqx_oauth_state');
     response.cookies.delete('riiqx_oauth_verifier');
+    response.cookies.delete('riiqx_oauth_redirect_uri');
     response.cookies.delete('riiqx_oauth_provider');
     response.cookies.delete('riiqx_oauth_user');
 

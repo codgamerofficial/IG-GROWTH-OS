@@ -6,6 +6,7 @@
 // =============================================================================
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { useRiiqx } from '@/context/RiiqxContext';
 import {
   Settings,
@@ -42,6 +43,7 @@ import {
 } from 'lucide-react';
 import { RiiqxLegalModal, LegalDocType } from './RiiqxLegalModal';
 import { RiiqxOnboardingModal } from './RiiqxOnboardingModal';
+import { RiiqxAIControlCenter } from './RiiqxAIControlCenter';
 
 type SettingsSection =
   | 'account'
@@ -187,7 +189,7 @@ export function RiiqxSettingsView() {
   ];
 
   return (
-    <div className="flex h-full flex-1 flex-col min-h-0 overflow-y-auto bg-[#FAF9F6] dark:bg-[#151515] p-4 sm:p-8 text-[#202124] dark:text-[#F7F7F7] transition-colors">
+    <div className="flex h-full flex-1 flex-col min-h-0 overflow-y-auto bg-[#FAF9F6] dark:bg-[#0C0C0E] p-4 sm:p-8 text-[#202124] dark:text-[#F4F4F6] transition-colors">
       <div className="mx-auto w-full max-w-5xl space-y-6 pb-16">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#EAE7E1] dark:border-[#2E2E2E] gap-3">
@@ -441,103 +443,8 @@ export function RiiqxSettingsView() {
               </div>
             )}
 
-            {/* 3. AI Providers Section */}
-            {activeSection === 'providers' && (
-              <div className="rounded-3xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] p-6 shadow-2xs space-y-4">
-                <div className="flex items-center justify-between border-b border-[#EAE7E1] dark:border-[#2E2E2E] pb-3">
-                  <div>
-                    <h2 className="text-sm font-bold text-[#202124] dark:text-white">Connected AI Runtimes</h2>
-                    <p className="text-xs text-[#737373] dark:text-[#A3A3A3] mt-0.5">
-                      Live status of enterprise and free developer tier LLM endpoints.
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleRefresh}
-                    disabled={isRefreshing}
-                    className="flex items-center gap-1.5 rounded-xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-[#FAF9F6] dark:bg-[#151515] px-3 py-1.5 text-xs font-bold text-[#202124] dark:text-white hover:border-[#FFD43B] transition"
-                  >
-                    <RefreshCw className={`h-3 w-3 ${isRefreshing ? 'animate-spin text-[#FFD43B]' : ''}`} />
-                    <span>Probe Status</span>
-                  </button>
-                </div>
-
-                <div className="space-y-3">
-                  {/* AWS Bedrock */}
-                  <div className="rounded-2xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-[#FAF9F6] dark:bg-[#151515] p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Cpu className="h-4 w-4 text-[#FFD43B]" />
-                        <span className="text-xs font-bold text-[#202124] dark:text-white">
-                          AWS Bedrock Runtime (Selected Region: ap-southeast-2)
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#16865D]/10 text-[#16865D] border border-[#16865D]/20">
-                        {isBedrockOnline ? 'CONNECTED & AUTHORIZED' : 'ONLINE GATEWAY'}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] font-mono text-[#737373]">
-                      <div>Model: <span className="text-[#202124] dark:text-white font-semibold">Claude Sonnet 3.7 / 3.5</span></div>
-                      <div>Region: <span className="text-[#202124] dark:text-white font-semibold">ap-southeast-2</span></div>
-                      <div>Status: <span className="text-[#16865D] font-semibold">Active &amp; Guarded</span></div>
-                    </div>
-                  </div>
-
-                  {/* Groq LPU */}
-                  <div className="rounded-2xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-[#FAF9F6] dark:bg-[#151515] p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Server className="h-4 w-4 text-[#FF6B5E]" />
-                        <span className="text-xs font-bold text-[#202124] dark:text-white">
-                          Groq LPU Cloud (Free Tier)
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#16865D]/10 text-[#16865D] border border-[#16865D]/20">
-                        ACTIVE • ~460ms
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-[#737373]">
-                      Ultra-fast reasoning model: <code>qwen/qwen3.8-27b</code> with zero inference cost.
-                    </p>
-                  </div>
-
-                  {/* OpenRouter */}
-                  <div className="rounded-2xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-[#FAF9F6] dark:bg-[#151515] p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Cloud className="h-4 w-4 text-[#D97706]" />
-                        <span className="text-xs font-bold text-[#202124] dark:text-white">
-                          OpenRouter Gateway (Llama 3.3 70B &amp; Gemma 4 Free)
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#16865D]/10 text-[#16865D] border border-[#16865D]/20">
-                        ONLINE LIVE
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-[#737373]">
-                      Multi-model provider routing with automatic failover and token conservation.
-                    </p>
-                  </div>
-
-                  {/* Cohere */}
-                  <div className="rounded-2xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-[#FAF9F6] dark:bg-[#151515] p-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-[#FF4D4F]" />
-                        <span className="text-xs font-bold text-[#202124] dark:text-white">
-                          Cohere Enterprise (Command R+ Free Dev Tier)
-                        </span>
-                      </div>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#16865D]/10 text-[#16865D] border border-[#16865D]/20">
-                        ONLINE LIVE
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-[#737373]">
-                      128,000 token context window tailored for comprehensive scriptwriting and deep research.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+            {/* 3. AI Providers Section — Master AI Control Center */}
+            {activeSection === 'providers' && <RiiqxAIControlCenter />}
 
             {/* 4. Connected Accounts Section */}
             {activeSection === 'connections' && (
@@ -583,10 +490,13 @@ export function RiiqxSettingsView() {
                       >
                         <div className="flex items-center gap-3">
                           {acc.avatarUrl ? (
-                            <img
+                            <Image
                               src={acc.avatarUrl}
                               alt={acc.accountName}
-                              className="w-10 h-10 rounded-full border border-[#EAE7E1] object-cover"
+                              width={40}
+                              height={40}
+                              unoptimized
+                              className="w-10 h-10 rounded-full border border-[#EAE7E1] dark:border-white/[0.08] object-cover"
                             />
                           ) : (
                             <div className="w-10 h-10 rounded-2xl bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] flex items-center justify-center font-bold text-xs uppercase">

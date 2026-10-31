@@ -48,7 +48,7 @@ export default function TasksScreen() {
     {
       id: 'step_3',
       order: 3,
-      description: 'Validate Meta Instagram Graph API v20.0 publishing token for ID: 596660929655724',
+      description: 'Validate Meta Instagram Graph API v26.0 publishing token for ID: 596660929655724',
       tool: 'instagram_auth_probe',
       status: 'completed',
       requiresPermission: true,

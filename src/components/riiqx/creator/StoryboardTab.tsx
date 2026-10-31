@@ -1,8 +1,9 @@
 'use client';
 
 // =============================================================================
-// RIIQX Creator Studio — Storyboard & Pre-Production Studio
-// 9:16 Vertical Storyboard Cards • Safe Margins Overlay • Asset Assignment
+// RIIQX Creator Studio 2.0 — Storyboard & Pre-Production Studio
+// 9:16 Vertical Storyboard Cards • Safe Margins Overlay • Scene Director
+// Instant "Send to AI Creation Lab" & "Open in Video Editor" Routing
 // =============================================================================
 
 import React, { useState } from 'react';
@@ -28,6 +29,7 @@ import {
   MoveUp,
   MoveDown,
   Volume2,
+  Wand2,
 } from 'lucide-react';
 
 interface StoryboardTabProps {
@@ -50,10 +52,10 @@ export function StoryboardTab({
 
   if (!project) {
     return (
-      <div className="flex h-96 flex-col items-center justify-center p-8 text-center text-slate-400">
-        <Layers className="h-10 w-10 text-slate-600 mb-3" />
+      <div className="flex h-96 flex-col items-center justify-center p-8 text-center text-[#737373]">
+        <Layers className="h-10 w-10 text-[#3E3E3E] mb-3" />
         <h3 className="text-base font-bold text-white">No Project Selected</h3>
-        <p className="text-xs text-slate-500 mt-1">Select or create a project from Overview to view storyboard.</p>
+        <p className="text-xs text-[#737373] mt-1">Select or create a project from Overview to view storyboard.</p>
       </div>
     );
   }
@@ -80,27 +82,51 @@ export function StoryboardTab({
     onTabChange('editor');
   };
 
+  const handleSendToAILab = (scene: VideoScene) => {
+    onUpdateProject({
+      ...project,
+      brief: {
+        ...project.brief,
+        topic: scene.visualPrompt || scene.onScreenText,
+      },
+      storyboard,
+      updatedAt: new Date().toISOString(),
+    });
+    onTabChange('ai_creation');
+  };
+
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E2A4A] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2E2E2E] pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <Layers className="h-5 w-5 text-violet-400" />
-            <h1 className="text-xl font-bold tracking-tight text-white">Visual Storyboard</h1>
-            <span className="rounded-full bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 text-[10px] font-bold text-violet-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFD43B] text-[#151515] font-black">
+              <Layers className="h-4 w-4" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+              Visual Storyboard &amp; Scene Director
+            </h1>
+            <span className="rounded-full bg-[#FFD43B]/10 border border-[#FFD43B]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#FFD43B]">
               9:16 Vertical Geometry
             </span>
           </div>
-          <p className="mt-1 text-xs text-slate-400">
-            Pre-visualize scene timing, on-screen kinetic graphics, and camera motions with safe-margin validation.
+          <p className="mt-1 text-xs text-[#A3A3A3]">
+            {project.name} • Pre-visualize scene timing, on-screen kinetic graphics, and camera motions with safe-margin validation.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <button
+            onClick={() => onTabChange('ai_creation')}
+            className="flex items-center gap-1.5 rounded-xl border border-[#2E2E2E] bg-[#1A1A1A] hover:bg-[#252525] px-3.5 py-2 text-xs font-bold text-white transition-colors"
+          >
+            <Wand2 className="h-3.5 w-3.5 text-[#FFD43B]" />
+            <span>Generate in AI Lab</span>
+          </button>
+          <button
             onClick={handleProceedToEditor}
-            className="flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 px-4 py-1.5 text-xs font-bold text-white shadow-sm transition-all active:scale-95"
+            className="flex items-center gap-1.5 rounded-xl bg-[#FFD43B] hover:bg-[#FFC928] px-4 py-2 text-xs font-black text-[#151515] shadow-sm transition-all active:scale-95"
           >
             <span>Open in Video Editor</span>
             <ArrowRight className="h-3.5 w-3.5" />
@@ -109,11 +135,11 @@ export function StoryboardTab({
       </div>
 
       {/* Safe Margins Notice */}
-      <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-3.5 flex items-start gap-3">
-        <CheckCircle2 className="h-4 w-4 text-blue-400 shrink-0 mt-0.5" />
-        <div className="text-xs text-slate-300">
+      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 flex items-start gap-3">
+        <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+        <div className="text-xs text-[#A3A3A3]">
           <span className="font-bold text-white">Algorithm Safe Margins Active: </span>
-          Top 180px and Bottom 240px are reserved for Shorts & Reels profile headers, audio tags, and comment buttons.
+          Top 180px and Bottom 240px are reserved for YouTube Shorts &amp; Instagram Reels profile headers, sound tags, and interactive action buttons.
           All on-screen typography is constrained to the verified center safe-zone.
         </div>
       </div>
@@ -128,65 +154,77 @@ export function StoryboardTab({
               onClick={() => setActiveSceneIdx(idx)}
               className={`flex flex-col rounded-2xl border transition-all cursor-pointer overflow-hidden ${
                 isSelected
-                  ? 'border-violet-500 ring-2 ring-violet-500/40 shadow-xl bg-[#0B132B]'
-                  : 'border-[#1E2A4A] bg-[#070D1F] hover:border-slate-500'
+                  ? 'border-[#FFD43B] ring-2 ring-[#FFD43B]/30 shadow-xl bg-[#1A1A1A]'
+                  : 'border-[#2E2E2E] bg-[#1A1A1A] hover:border-[#3E3E3E]'
               }`}
             >
               {/* 9:16 Mock Preview Screen */}
               <div
                 className="relative aspect-[9/16] w-full flex flex-col justify-between p-3 overflow-hidden text-center"
-                style={{ background: scene.gradient || '#030712' }}
+                style={{ background: scene.gradient || '#151515' }}
               >
                 {/* Top Safe Guide */}
-                <div className="text-[9px] uppercase font-bold text-slate-400/80 bg-black/40 rounded px-1.5 py-0.5 self-center">
+                <div className="text-[9px] uppercase font-bold text-[#A3A3A3] bg-black/50 backdrop-blur-xs rounded px-1.5 py-0.5 self-center border border-white/5">
                   Top Header Safe Zone
                 </div>
 
                 {/* Center Content / Graphic */}
                 <div className="space-y-2 px-1">
-                  <div className="rounded-lg bg-black/70 backdrop-blur-xs p-2 border border-white/10 shadow-lg">
-                    <span className="text-[11px] font-black text-yellow-300 leading-tight block">
+                  <div className="rounded-xl bg-black/70 backdrop-blur-md p-2.5 border border-white/10 shadow-lg">
+                    <span className="text-xs font-black text-[#FFD43B] leading-tight block">
                       {scene.onScreenText}
                     </span>
                   </div>
-                  <div className="text-[9px] text-cyan-300 bg-cyan-950/60 rounded px-1.5 py-0.5 inline-block font-mono">
+                  <div className="text-[9px] text-[#A3A3A3] bg-[#151515]/80 rounded px-1.5 py-0.5 inline-block font-mono border border-[#2E2E2E]">
                     {scene.cameraMotion || 'Slow Zoom In'}
                   </div>
                 </div>
 
                 {/* Bottom Safe Guide */}
-                <div className="text-[9px] uppercase font-bold text-slate-400/80 bg-black/40 rounded px-1.5 py-0.5 self-center">
+                <div className="text-[9px] uppercase font-bold text-[#A3A3A3] bg-black/50 backdrop-blur-xs rounded px-1.5 py-0.5 self-center border border-white/5">
                   Bottom UI Safe Zone
                 </div>
               </div>
 
               {/* Scene Metadata Footer */}
-              <div className="p-3 space-y-2 border-t border-[#1E2A4A] bg-[#070D1F]">
+              <div className="p-3.5 space-y-2.5 border-t border-[#2E2E2E] bg-[#202020]">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-white">Scene {scene.sceneNumber}</span>
-                  <span className="text-[10px] text-violet-400 font-bold">{scene.durationSeconds}s</span>
+                  <span className="text-[10px] text-[#FFD43B] font-bold">{scene.durationSeconds}s</span>
                 </div>
 
-                <p className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed">
+                <p className="text-[11px] text-[#A3A3A3] line-clamp-2 leading-relaxed">
                   {scene.narrationScript}
                 </p>
 
                 {/* Transition Selector */}
                 <div className="pt-1 flex items-center justify-between">
-                  <span className="text-[10px] text-slate-500 uppercase font-semibold">Transition:</span>
+                  <span className="text-[10px] text-[#737373] uppercase font-bold">Transition:</span>
                   <select
                     value={scene.transition}
                     onChange={(e) =>
                       handleTransitionChange(idx, e.target.value as VideoScene['transition'])
                     }
-                    className="text-[10px] font-bold rounded bg-[#0B132B] border border-[#1E2A4A] text-slate-200 px-1.5 py-0.5 focus:outline-none focus:border-violet-500"
+                    className="text-[10px] font-bold rounded-lg bg-[#151515] border border-[#2E2E2E] text-white px-2 py-1 focus:outline-none focus:border-[#FFD43B]"
                   >
-                    <option value="cut">Cut</option>
-                    <option value="fade">Fade</option>
-                    <option value="zoom">Zoom</option>
-                    <option value="slide">Slide</option>
+                    <option value="cut">Hard Cut</option>
+                    <option value="fade">Smooth Fade</option>
+                    <option value="zoom">Zoom Blur</option>
+                    <option value="slide">Slide Transition</option>
                   </select>
                 </div>
+
+                {/* Direct Action: Send Scene to AI Lab */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSendToAILab(scene);
+                  }}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-[#2E2E2E] bg-[#151515] hover:border-[#FFD43B]/40 py-1.5 text-[10px] font-semibold text-[#A3A3A3] hover:text-white transition-colors"
+                >
+                  <Sparkles className="h-3 w-3 text-[#FFD43B]" />
+                  <span>Synthesize Clip in AI Lab</span>
+                </button>
               </div>
             </div>
           );

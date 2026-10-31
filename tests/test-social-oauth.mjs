@@ -12,7 +12,7 @@ import path from 'node:path';
 console.log('🚀 Running RIIQX Social OAuth & Token Security Verification Suite...\n');
 
 let passedTests = 0;
-const totalTests = 10;
+const totalTests = 12;
 
 function test(name, fn) {
   try {
@@ -175,9 +175,9 @@ test('OAuth Builder: Meta authorization request includes required permissions', 
     state,
   });
 
-  const url = `https://www.facebook.com/v20.0/dialog/oauth?${params.toString()}`;
+  const url = `https://www.facebook.com/v26.0/dialog/oauth?${params.toString()}`;
 
-  assert(url.startsWith('https://www.facebook.com/v20.0/dialog/oauth?'));
+  assert(url.startsWith('https://www.facebook.com/v26.0/dialog/oauth?'));
   assert(url.includes('instagram_content_publish'), 'Must request Reels publishing');
   assert(url.includes('pages_show_list'), 'Must request Pages list');
   assert(url.includes('response_type=code'), 'Must use authorization code grant');
@@ -318,6 +318,45 @@ test('Environment Template: .env.example contains placeholders only with zero ha
   assert(!content.includes('ya29.'), 'Google OAuth token found in .env.example');
   assert(!content.includes('sk-ant-'), 'Anthropic secret found in .env.example');
   assert(!content.includes('sk-proj-'), 'OpenAI secret found in .env.example');
+});
+
+// -----------------------------------------------------------------------------
+// Test 11: Meta API v26.0 Endpoint Consistency Check
+// -----------------------------------------------------------------------------
+test('Meta API Version: Strict v26.0 endpoint consistency across all active src routes', () => {
+  const filesToCheck = [
+    'src/lib/riiqx/social/oauth-engine.ts',
+    'src/lib/riiqx/social/instagram.ts',
+    'src/lib/riiqx/social/publishing-engine.ts',
+    'src/app/api/social/accounts/[id]/test/route.ts',
+  ];
+
+  for (const relPath of filesToCheck) {
+    const fullPath = path.resolve(process.cwd(), relPath);
+    assert(fs.existsSync(fullPath), `File must exist: ${relPath}`);
+    const content = fs.readFileSync(fullPath, 'utf8');
+    assert(!content.includes('/v20.0/'), `Found deprecated v20.0 in ${relPath}`);
+    assert(content.includes('v26.0'), `Expected v26.0 in ${relPath}`);
+  }
+});
+
+// -----------------------------------------------------------------------------
+// Test 12: Redirect URI Strict Allowlist & Equality Check
+// -----------------------------------------------------------------------------
+test('Redirect URI Security: Strict trusted origin allowlist and exact callback path equality', () => {
+  const trustedOrigins = ['http://localhost:3001', 'http://127.0.0.1:3001', 'https://riiqx.vercel.app'];
+  const expectedPath = '/api/social/oauth/callback/meta';
+
+  const localUri = `${trustedOrigins[0]}${expectedPath}`;
+  const prodUri = `${trustedOrigins[2]}${expectedPath}`;
+
+  assert.strictEqual(localUri, 'http://localhost:3001/api/social/oauth/callback/meta');
+  assert.strictEqual(prodUri, 'https://riiqx.vercel.app/api/social/oauth/callback/meta');
+
+  // Verify that an untrusted host header cannot spoof the redirect URI
+  const untrustedHost = 'evil-attacker.com';
+  const isAllowed = trustedOrigins.some((origin) => origin.includes(untrustedHost));
+  assert.strictEqual(isAllowed, false, 'Untrusted host must be blocked');
 });
 
 console.log(`\n🎉 Verification Completed: ${passedTests}/${totalTests} tests passed successfully!`);

@@ -11,11 +11,29 @@ const dnsLookup = promisify(dns.lookup);
 
 export const dynamic = 'force-dynamic';
 
+function sanitizeRedirectDestination(destination: string | null | undefined): string {
+  if (!destination || typeof destination !== 'string') return '/';
+  if (!destination.startsWith('/') || destination.startsWith('//') || destination.startsWith('/\\')) {
+    return '/';
+  }
+  if (/[\u0000-\u001F\u007F-\u009F]/.test(destination)) {
+    return '/';
+  }
+  try {
+    const parsed = new URL(destination, 'http://localhost');
+    if (parsed.origin !== 'http://localhost') {
+      return '/';
+    }
+    return parsed.pathname + parsed.search + parsed.hash;
+  } catch {
+    return '/';
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const rawNext = searchParams.get('next') || '/';
-    const safeNext = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
+    const safeNext = sanitizeRedirectDestination(searchParams.get('next'));
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
     if (!supabaseUrl) {
@@ -95,8 +113,11 @@ export async function GET(req: NextRequest) {
     }
 
     // 3. Construct Google OAuth Authorization URL with forced account chooser
-    const origin = req.nextUrl.origin;
-    const callbackUrl = `${origin}/auth/callback?next=${encodeURIComponent(safeNext)}`;
+    // Clean exact callback URL matching Supabase allowlist (no query parameters)
+    const host = req.headers.get('x-forwarded-host') || req.headers.get('host') || req.nextUrl.host;
+    const proto = req.headers.get('x-forwarded-proto') || (host && host.includes('localhost') ? 'http' : 'https');
+    const origin = `${proto}://${host}`;
+    const callbackUrl = `${origin}/auth/callback`;
     
     // Always include prompt=select_account to ensure Google displays the account selection picker
     const oauthAuthorizeUrl = `${supabaseUrl}/auth/v1/authorize?provider=google&prompt=select_account&access_type=offline&redirect_to=${encodeURIComponent(
@@ -129,12 +150,24 @@ export async function GET(req: NextRequest) {
       // If probe network fails, fallback to passing URL
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       reachable: true,
       url: oauthAuthorizeUrl,
       projectRef,
       callbackUrl,
     });
+
+    if (safeNext !== '/') {
+      response.cookies.set('riiqx_auth_next', safeNext, {
+        path: '/',
+        maxAge: 300,
+        sameSite: 'lax',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+      });
+    }
+
+    return response;
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Unknown error during OAuth preflight';
     return NextResponse.json({ reachable: false, error: 'internal_error', message: msg }, { status: 500 });

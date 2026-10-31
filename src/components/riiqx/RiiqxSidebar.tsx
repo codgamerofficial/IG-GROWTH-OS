@@ -42,7 +42,7 @@ export function RiiqxSidebar() {
   ];
 
   return (
-    <aside className="hidden lg:flex h-full w-64 shrink-0 flex-col justify-between border-r border-[#EAE7E1] dark:border-[#2E2E2E] bg-white/85 dark:bg-[#151515]/85 backdrop-blur-xl p-3.5 select-none transition-colors min-h-0 overflow-hidden">
+    <aside className="hidden lg:flex h-full w-64 shrink-0 flex-col justify-between border-r border-[#EAE7E1] dark:border-white/[0.08] bg-white/80 dark:bg-[#0C0C0E]/90 backdrop-blur-2xl p-3.5 select-none transition-colors min-h-0 overflow-hidden">
       <div className="flex flex-col flex-1 min-h-0 space-y-3">
         {/* Brand Logo Header */}
         <div
@@ -90,12 +90,12 @@ export function RiiqxSidebar() {
       {/* Bottom User Card */}
       <div
         onClick={() => setActiveTab('settings')}
-        className="shrink-0 mt-2 rounded-2xl bg-[#FAF9F6] dark:bg-[#202020] p-3 border border-[#EAE7E1] dark:border-[#2E2E2E] hover:border-[#FFD43B] transition-all cursor-pointer group shadow-2xs"
+        className="shrink-0 mt-2 rounded-2xl bg-[#FAF9F6] dark:bg-[#18181C] p-3 border border-[#EAE7E1] dark:border-white/[0.08] hover:border-[#FFD43B] transition-all cursor-pointer group shadow-2xs"
       >
         <div className="flex items-center gap-2.5">
           <div className="relative w-8 h-8 rounded-xl bg-gradient-to-tr from-[#FFD43B] to-[#FF6B5E] flex items-center justify-center text-[#202124] font-black text-xs shrink-0 shadow-xs">
             <span>R</span>
-            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#16865D] border-2 border-white dark:border-[#202020]" />
+            <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[#10B981] border-2 border-white dark:border-[#18181C]" />
           </div>
           <div className="flex flex-col flex-1 min-w-0">
             <div className="flex items-center justify-between">

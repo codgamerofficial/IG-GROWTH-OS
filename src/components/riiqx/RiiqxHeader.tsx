@@ -60,7 +60,7 @@ export function RiiqxHeader() {
   };
 
   return (
-    <header className="relative z-30 flex h-14 w-full shrink-0 items-center justify-between border-b border-[#EAE7E1] dark:border-[#2E2E2E] bg-white/80 dark:bg-[#151515]/80 backdrop-blur-md px-4 md:px-6 transition-colors">
+    <header className="relative z-30 flex h-14 w-full shrink-0 items-center justify-between border-b border-[#EAE7E1] dark:border-white/[0.08] bg-white/80 dark:bg-[#0C0C0E]/90 backdrop-blur-xl px-4 md:px-6 transition-colors">
       {/* Left: Mobile Menu Trigger & Logo */}
       <div className="flex items-center gap-3">
         <button
@@ -91,9 +91,9 @@ export function RiiqxHeader() {
             value={searchVal}
             onChange={(e) => setSearchVal(e.target.value)}
             placeholder="Search tasks, videos, scripts... [Ctrl + K]"
-            className="w-full pl-9 pr-14 py-2 rounded-2xl bg-[#FAF9F6] dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] text-xs text-[#202124] dark:text-white placeholder-[#737373] focus:outline-none focus:border-[#FFD43B] transition-all"
+            className="w-full pl-9 pr-14 py-2 rounded-2xl bg-[#FAF9F6] dark:bg-[#18181C] border border-[#EAE7E1] dark:border-white/[0.08] text-xs text-[#202124] dark:text-white placeholder-[#737373] focus:outline-none focus:border-[#FFD43B] transition-all"
           />
-          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-[#EAE7E1] dark:bg-[#2E2E2E] text-[10px] font-bold text-[#737373] dark:text-[#A3A3A3]">
+          <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-[#EAE7E1] dark:bg-white/[0.08] text-[10px] font-bold text-[#737373] dark:text-[#A1A1AA]">
             <Command className="w-2.5 h-2.5" />
             <span>K</span>
           </div>
@@ -109,7 +109,7 @@ export function RiiqxHeader() {
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-semibold transition-all ${
             isAiDrawerOpen
               ? 'bg-[#FFD43B] text-[#202124] font-bold shadow-xs border border-[#FFD43B]'
-              : 'bg-[#FAF9F6] dark:bg-[#202020] text-[#737373] dark:text-[#A3A3A3] hover:text-[#202124] dark:hover:text-white border border-[#EAE7E1] dark:border-[#2E2E2E]'
+              : 'bg-[#FAF9F6] dark:bg-[#18181C] text-[#737373] dark:text-[#A1A1AA] hover:text-[#202124] dark:hover:text-white border border-[#EAE7E1] dark:border-white/[0.08]'
           }`}
         >
           <Bot className={`w-4 h-4 ${isAiDrawerOpen ? 'text-[#202124]' : 'text-[#FFD43B]'}`} />

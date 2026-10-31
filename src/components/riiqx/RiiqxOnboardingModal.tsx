@@ -6,6 +6,7 @@
 // =============================================================================
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import {
   RiiqxEmblem,
 } from './RiiqxEmblem';
@@ -91,10 +92,12 @@ export function RiiqxOnboardingModal({
       renderVisual: () => (
         <div className="py-4 flex flex-col items-center">
           <div className="w-56 aspect-video rounded-2xl bg-slate-900 border border-[#E5E4DE] dark:border-[#2A3347] overflow-hidden relative shadow-md">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&auto=format&fit=crop&q=80"
               alt="Editor preview"
-              className="w-full h-full object-cover"
+              fill
+              unoptimized
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
               <span className="text-[10px] font-bold text-white px-2 py-0.5 rounded-full bg-[#6750D8]">

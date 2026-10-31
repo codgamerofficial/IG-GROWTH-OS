@@ -31,6 +31,7 @@ import {
   ChevronDown,
   FolderKanban,
   Check,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface CreatorStudioNavProps {
@@ -59,14 +60,16 @@ export function CreatorStudioNav({
     badge?: string;
   }> = [
     { id: 'overview', label: 'Overview', icon: LayoutGrid },
-    { id: 'ideas', label: 'Ideas & Trends', icon: TrendingUp },
-    { id: 'planner', label: 'Planner', icon: CalendarDays },
+    { id: 'ai_creation', label: 'AI Creation Lab', icon: Sparkles, badge: 'AI 2.0' },
+    { id: 'editor', label: 'Video Editor', icon: Video },
     { id: 'script', label: 'Script Studio', icon: FileText },
     { id: 'storyboard', label: 'Storyboard', icon: Layers },
-    { id: 'editor', label: 'Video Editor', icon: Video },
+    { id: 'ideas', label: 'Ideas & Trends', icon: TrendingUp },
+    { id: 'planner', label: 'Planner', icon: CalendarDays },
     { id: 'assets', label: 'AI Assets', icon: FolderOpen },
     { id: 'metadata', label: 'Captions & Review', icon: CheckCircle2 },
     { id: 'queue', label: 'Publish Queue', icon: Clock },
+    { id: 'autopilot', label: 'Autopilot & Safety', icon: ShieldCheck, badge: 'Copilot' },
     { id: 'calendar', label: 'Calendar', icon: Calendar },
     { id: 'published', label: 'Published', icon: CheckCheck },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -81,7 +84,7 @@ export function CreatorStudioNav({
       case 'scheduled':
         return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
       case 'ready_to_publish':
-        return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+        return 'bg-[#FF6B5E]/10 text-[#FF6B5E] border-[#FF6B5E]/20';
       case 'editing':
       case 'producing':
         return 'bg-amber-500/10 text-amber-400 border-amber-500/20';

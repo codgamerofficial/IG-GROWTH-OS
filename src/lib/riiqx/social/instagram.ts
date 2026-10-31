@@ -1,5 +1,5 @@
 // =============================================================================
-// RIIQX — Meta Instagram Graph API v20.0 Adapter
+// RIIQX — Meta Instagram Graph API v26.0 Adapter
 // Reel Media Container Creation • Processing Polling • Live Publishing
 // =============================================================================
 
@@ -28,7 +28,7 @@ export interface InstagramAccountStatus {
   errorMessage?: string;
 }
 
-const META_GRAPH_VERSION = 'v20.0';
+const META_GRAPH_VERSION = 'v26.0';
 const IG_ACCESS_TOKEN = process.env.INSTAGRAM_ACCESS_TOKEN || '';
 const IG_ACCOUNT_ID =
   process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.INSTAGRAM_ACCOUNT_ID || '';

@@ -110,7 +110,7 @@ const RiiqxContext = createContext<RiiqxContextType | undefined>(undefined);
 
 export function RiiqxProvider({ children }: { children: ReactNode }) {
   const [activeTab, setActiveTab] = useState<RiiqxViewTab>('home');
-  const [theme, setThemeState] = useState<'light' | 'dark'>('light');
+  const [theme, setThemeState] = useState<'light' | 'dark'>('dark');
   const [globalPrompt, setGlobalPrompt] = useState<string>('');
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState<boolean>(false);
 
@@ -142,8 +142,12 @@ export function RiiqxProvider({ children }: { children: ReactNode }) {
         const saved = localStorage.getItem('riiqx_theme') as 'light' | 'dark' | null;
         if (saved === 'dark' || saved === 'light') {
           setTheme(saved);
+        } else {
+          setTheme('dark');
         }
-      } catch {}
+      } catch {
+        setTheme('dark');
+      }
     }
   }, [setTheme]);
 
@@ -344,7 +348,7 @@ export function RiiqxProvider({ children }: { children: ReactNode }) {
     }
 
     refreshHealth();
-  }, [refreshHealth, selectedModel.name]);
+  }, [refreshHealth, refreshSession, selectedModel.name]);
 
   const createNewConversation = useCallback(
     (projectId?: string): RiiqxConversation => {

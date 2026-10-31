@@ -948,7 +948,7 @@ export function generatePrePublishChecklist(project: CreatorProject): PrePublish
       label: 'Connected Social Channel Status',
       category: 'account',
       status: 'pass',
-      detail: 'Meta Graph API v20.0 and YouTube Data API v3 adapters connected and ready for container dispatch.',
+      detail: 'Meta Graph API v26.0 and YouTube Data API v3 adapters connected and ready for container dispatch.',
     },
     {
       id: 'chk_compliance',

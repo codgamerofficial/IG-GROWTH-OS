@@ -74,7 +74,109 @@ export const RIIQX_MODELS: RiiqxModel[] = [
     strengths: ['Sub-second latency (250+ tokens/sec)', 'Deep reasoning', 'Broad world knowledge', 'Live verified'],
   },
 
-  // 3. Primary Verified Online Cloud Model: OpenRouter Llama 3.3 70B Instruct
+  // 3. NVIDIA Nemotron 3.5 Lightning (Verified Active Free Tier — 1M Context Window)
+  {
+    id: 'nvidia-nemotron-35-lightning',
+    name: 'NVIDIA Nemotron 3.5 Lightning (Free Tier)',
+    tag: '1M Context Reasoning Engine',
+    provider: 'openrouter',
+    modelString: 'nvidia/nemotron-3.5-lightning:free',
+    description: 'NVIDIA 1,000,000 token context window reasoning engine with deep chain-of-thought analysis.',
+    contextWindow: 1000000,
+    recommendedFor: 'reasoning',
+    license: 'NVIDIA Open Model License / Free Tier',
+    isOnline: true,
+    isOpenWeight: true,
+    isFreeTier: true,
+    strengths: ['1M Context Window', 'Deep reasoning & planning', 'Zero API cost', 'Empirically verified'],
+  },
+
+  // 4. NVIDIA Nemotron 3 Ultra 550B (Verified Active Free Tier)
+  {
+    id: 'nvidia-nemotron-ultra-550b',
+    name: 'NVIDIA Nemotron 3 Ultra 550B (Free Tier)',
+    tag: '550B Flagship Reasoning',
+    provider: 'openrouter',
+    modelString: 'nvidia/nemotron-3-ultra-550b-a55b:free',
+    description: 'Massive 550B parameter flagship reasoning model with 1M context window served 100% free.',
+    contextWindow: 1000000,
+    recommendedFor: 'reasoning',
+    license: 'NVIDIA Open Model License / Free Tier',
+    isOnline: true,
+    isOpenWeight: true,
+    isFreeTier: true,
+    strengths: ['550B parameter scale', 'Deep strategic reasoning', '1M context', 'Empirically verified'],
+  },
+
+  // 5. Cohere North Mini Code (Verified Active Free Tier — 256K Context)
+  {
+    id: 'cohere-north-mini-code',
+    name: 'Cohere North Mini Code (Free Tier)',
+    tag: '256K Coding Specialist',
+    provider: 'openrouter',
+    modelString: 'cohere/north-mini-code:free',
+    description: 'Specialized 256k context model for code synthesis, debugging, TypeScript AST analysis, and refactoring.',
+    contextWindow: 256000,
+    recommendedFor: 'coding',
+    license: 'Cohere Open Weights / Free Tier',
+    isOnline: true,
+    isOpenWeight: true,
+    isFreeTier: true,
+    strengths: ['256K Context window', 'Type-safe generation', 'AST debugging', 'Empirically verified'],
+  },
+
+  // 6. Poolside Laguna XS 2.1 (Verified Active Free Tier — 748ms Latency)
+  {
+    id: 'poolside-laguna-xs',
+    name: 'Laguna XS 2.1 (Free Tier)',
+    tag: '748ms Ultra-Fast Free Model',
+    provider: 'openrouter',
+    modelString: 'poolside/laguna-xs-2.1:free',
+    description: 'Sub-second 748ms conversational model with 262k context for rapid interactive streaming.',
+    contextWindow: 262144,
+    recommendedFor: 'fast',
+    license: 'Poolside Open Weights / Free Tier',
+    isOnline: true,
+    isOpenWeight: true,
+    isFreeTier: true,
+    strengths: ['748ms measured latency', '262K context window', 'Zero token charges', 'Empirically verified'],
+  },
+
+  // 7. Verified Online Free Model: Cohere Command R 08-2024
+  {
+    id: 'cohere-command-r',
+    name: 'Command R 08-2024 (Cohere Cloud)',
+    tag: '128K Context Research Model',
+    provider: 'cohere',
+    modelString: 'command-r-08-2024',
+    description: 'Enterprise reasoning model with 128k context window, native citation grounding, and deep synthesis via Cohere Free Dev Tier.',
+    contextWindow: 128000,
+    recommendedFor: 'reasoning',
+    license: 'Cohere Developer Tier',
+    isOnline: true,
+    isOpenWeight: false,
+    isFreeTier: true,
+    strengths: ['128K context window', 'Native citations', 'Deep research', '967ms measured latency'],
+  },
+
+  // 8. Cohere Aya Expanse 32B (Bengali & Multilingual Specialist)
+  {
+    id: 'cohere-aya-32b',
+    name: 'Aya Expanse 32B (Cohere Multilingual)',
+    tag: 'Bengali & Indic Specialist',
+    provider: 'cohere',
+    modelString: 'c4ai-aya-expanse-32b',
+    description: 'State-of-the-art multilingual model natively optimized for Bengali and South Asian linguistic nuances.',
+    contextWindow: 128000,
+    recommendedFor: 'general',
+    license: 'Cohere Developer Tier / Open Weight',
+    isOnline: true,
+    isOpenWeight: true,
+    isFreeTier: true,
+    strengths: ['Bengali & Indic fluency', 'Cultural nuance preservation', '128K context', 'Free developer tier'],
+  },
+
+  // 9. Primary Verified Online Cloud Model: OpenRouter Llama 3.3 70B Instruct
   {
     id: 'openrouter-llama-70b',
     name: 'Llama 3.3 70B Instruct (OpenRouter)',
@@ -89,57 +191,6 @@ export const RIIQX_MODELS: RiiqxModel[] = [
     isOpenWeight: true,
     isFreeTier: false,
     strengths: ['Multi-datacenter redundancy', 'Fast streaming', 'Broad benchmark leadership', 'Live verified'],
-  },
-
-  // 4. Verified Online DeepSeek V3 (OpenRouter)
-  {
-    id: 'openrouter-deepseek',
-    name: 'DeepSeek Chat V3 (OpenRouter)',
-    tag: 'Verified Online DeepSeek',
-    provider: 'openrouter',
-    modelString: 'deepseek/deepseek-chat',
-    description: 'Real DeepSeek-V3 671B MoE architecture with ultra-fast streaming and superior coding and reasoning performance.',
-    contextWindow: 64000,
-    recommendedFor: 'coding',
-    license: 'DeepSeek Open Weight',
-    isOnline: true,
-    isOpenWeight: true,
-    isFreeTier: false,
-    strengths: ['State-of-the-art coding', 'Deep reasoning', 'Low latency', 'Live verified online'],
-  },
-
-  // 5. Verified Online Free Model: Gemma 4 31B IT (OpenRouter)
-  {
-    id: 'openrouter-gemma-free',
-    name: 'Gemma 4 31B IT (OpenRouter Free)',
-    tag: '100% Free OpenRouter Tier',
-    provider: 'openrouter',
-    modelString: 'google/gemma-4-31b-it:free',
-    description: 'Google Gemma 4 instruction-tuned model served with zero token charges via OpenRouter free tier.',
-    contextWindow: 32768,
-    recommendedFor: 'general',
-    license: 'Gemma Terms of Use',
-    isOnline: true,
-    isOpenWeight: true,
-    isFreeTier: true,
-    strengths: ['100% Free tier (Cost $0.00)', 'Clean instruction following', 'General conversation', 'Live verified'],
-  },
-
-  // 6. Verified Online Free Model: Cohere Command R+ (Cohere Free Developer Tier)
-  {
-    id: 'cohere-command-r-plus',
-    name: 'Command R+ 08-2024 (Cohere Cloud)',
-    tag: '128K Context Research Model',
-    provider: 'cohere',
-    modelString: 'command-r-plus-08-2024',
-    description: 'Enterprise reasoning model with 128k context window, native citation grounding, and deep synthesis via Cohere Free Dev Tier.',
-    contextWindow: 128000,
-    recommendedFor: 'reasoning',
-    license: 'Cohere Developer Tier',
-    isOnline: true,
-    isOpenWeight: false,
-    isFreeTier: true,
-    strengths: ['128K context window', 'Native citations', 'Deep research', 'Free developer tier'],
   },
 
   // 4. Verified Online DeepSeek R1 Reasoning (OpenRouter)

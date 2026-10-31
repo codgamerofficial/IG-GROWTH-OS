@@ -42,7 +42,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={`dark ${inter.variable}`}>
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -61,7 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           }}
         />
       </head>
-      <body className="h-[100dvh] min-h-[100dvh] bg-[#FAF9F6] text-[#202124] dark:bg-[#151515] dark:text-[#F7F7F7] antialiased selection:bg-[#FFD43B]/40 selection:text-[#202124] flex flex-col font-sans w-full max-w-full overflow-hidden">
+      <body className="h-[100dvh] min-h-[100dvh] bg-[#FAF9F6] text-[#202124] dark:bg-[#0C0C0E] dark:text-[#F4F4F6] antialiased selection:bg-[#FFD43B]/40 selection:text-[#202124] flex flex-col font-sans w-full max-w-full overflow-hidden">
         <RiiqxProvider>
           <RiiqxAppShell>{children}</RiiqxAppShell>
           <RiiqxPermissionModal />

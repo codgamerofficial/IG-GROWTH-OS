@@ -12,6 +12,25 @@ import type { Database } from '@/lib/types/database.types';
 
 export const dynamic = 'force-dynamic';
 
+function sanitizeRedirectDestination(destination: string | null | undefined): string {
+  if (!destination || typeof destination !== 'string') return '/';
+  if (!destination.startsWith('/') || destination.startsWith('//') || destination.startsWith('/\\')) {
+    return '/';
+  }
+  if (/[\u0000-\u001F\u007F-\u009F]/.test(destination)) {
+    return '/';
+  }
+  try {
+    const parsed = new URL(destination, 'http://localhost');
+    if (parsed.origin !== 'http://localhost') {
+      return '/';
+    }
+    return parsed.pathname + parsed.search + parsed.hash;
+  } catch {
+    return '/';
+  }
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
@@ -19,18 +38,21 @@ export async function GET(request: Request) {
   const errorDescription = searchParams.get('error_description');
   const errorCode = searchParams.get('error_code');
 
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
+  const proto = request.headers.get('x-forwarded-proto') || (host && host.includes('localhost') ? 'http' : 'https');
+  const effectiveOrigin = host ? `${proto}://${host}` : origin;
+
   // Read destination: check cookie first (cleanest, avoids allowlist query param issues), then searchParams fallback
   const cookieStore = cookies();
   const cookieNext = cookieStore.get('riiqx_auth_next')?.value;
   const paramNext = searchParams.get('next');
-  const rawNext = cookieNext || paramNext || '/';
-  const safeNext = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/';
+  const safeNext = sanitizeRedirectDestination(cookieNext || paramNext);
 
   console.info('[OAuth Callback Diagnostic]', {
     hasCode: Boolean(code),
     hasError: Boolean(error),
     safeNext,
-    origin,
+    origin: effectiveOrigin,
   });
 
   // Handle provider cancellations or errors
@@ -38,18 +60,12 @@ export async function GET(request: Request) {
     const errorMsg = errorDescription || error;
     console.warn('[OAuth Callback] Provider returned error:', { error, errorDescription, errorCode });
     return NextResponse.redirect(
-      `${origin}/auth/login?error=${encodeURIComponent(errorMsg)}&error_code=${encodeURIComponent(errorCode || error)}`
+      `${effectiveOrigin}/auth/login?error=${encodeURIComponent(errorMsg)}&error_code=${encodeURIComponent(errorCode || error)}`
     );
   }
 
   if (code) {
-    const forwardedHost = request.headers.get('x-forwarded-host');
-    const isLocalEnv = process.env.NODE_ENV === 'development';
-    const targetUrl = isLocalEnv
-      ? `${origin}${safeNext}`
-      : forwardedHost
-      ? `https://${forwardedHost}${safeNext}`
-      : `${origin}${safeNext}`;
+    const targetUrl = `${effectiveOrigin}${safeNext}`;
 
     // 1. Create the redirect response object FIRST so Supabase sets auth cookies directly on it
     const response = NextResponse.redirect(targetUrl);
@@ -113,7 +129,7 @@ export async function GET(request: Request) {
           message: exchangeError.message,
         });
         return NextResponse.redirect(
-          `${origin}/auth/login?error=${encodeURIComponent(exchangeError.message)}&error_code=${encodeURIComponent(
+          `${effectiveOrigin}/auth/login?error=${encodeURIComponent(exchangeError.message)}&error_code=${encodeURIComponent(
             exchangeError.name || 'exchange_failed'
           )}`
         );
@@ -122,7 +138,7 @@ export async function GET(request: Request) {
       const msg = err instanceof Error ? err.message : 'Authentication exchange error';
       console.error('[OAuth Callback] Unexpected error during exchange:', err);
       return NextResponse.redirect(
-        `${origin}/auth/login?error=${encodeURIComponent(msg)}&error_code=unexpected_exchange_error`
+        `${effectiveOrigin}/auth/login?error=${encodeURIComponent(msg)}&error_code=unexpected_exchange_error`
       );
     }
   }
@@ -130,7 +146,7 @@ export async function GET(request: Request) {
   // Redirect to login if code was missing from the callback URL
   console.warn('[OAuth Callback] No code parameter received in query. Full URL:', request.url);
   return NextResponse.redirect(
-    `${origin}/auth/login?error=${encodeURIComponent(
+    `${effectiveOrigin}/auth/login?error=${encodeURIComponent(
       'No authorization code was returned by the identity provider. Please sign in again.'
     )}&error_code=missing_code`
   );

@@ -473,7 +473,7 @@ async function executeInstagramPublish(
   const igAccountId = account.platform_account_id;
 
   // 1. Initialize Reels Container
-  const containerUrl = `https://graph.facebook.com/v20.0/${igAccountId}/media`;
+  const containerUrl = `https://graph.facebook.com/v26.0/${igAccountId}/media`;
   const containerParams = new URLSearchParams({
     media_type: 'REELS',
     video_url: params.mediaUrl,
@@ -499,7 +499,7 @@ async function executeInstagramPublish(
   while (!isReady && attempts < 10) {
     await new Promise((r) => setTimeout(r, 3000));
     const statusRes = await fetch(
-      `https://graph.facebook.com/v20.0/${containerId}?fields=status_code&access_token=${accessToken}`
+      `https://graph.facebook.com/v26.0/${containerId}?fields=status_code&access_token=${accessToken}`
     );
     const statusData = await statusRes.json();
 
@@ -523,7 +523,7 @@ async function executeInstagramPublish(
   }
 
   // 3. Publish Container
-  const publishUrl = `https://graph.facebook.com/v20.0/${igAccountId}/media_publish`;
+  const publishUrl = `https://graph.facebook.com/v26.0/${igAccountId}/media_publish`;
   const publishRes = await fetch(publishUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -559,7 +559,7 @@ async function executeFacebookPublish(
 ): Promise<PublishResult> {
   const pageId = account.platform_account_id;
 
-  const url = `https://graph.facebook.com/v20.0/${pageId}/videos`;
+  const url = `https://graph.facebook.com/v26.0/${pageId}/videos`;
   const postParams = new URLSearchParams({
     file_url: params.mediaUrl,
     title: params.title,

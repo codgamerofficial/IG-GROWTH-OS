@@ -81,9 +81,9 @@ test('OAuth Engine: Meta authorization request includes Instagram Reels permissi
     response_type: 'code',
   });
 
-  const url = `https://www.facebook.com/v20.0/dialog/oauth?${params.toString()}`;
+  const url = `https://www.facebook.com/v26.0/dialog/oauth?${params.toString()}`;
 
-  assert(url.startsWith('https://www.facebook.com/v20.0/dialog/oauth'));
+  assert(url.startsWith('https://www.facebook.com/v26.0/dialog/oauth'));
   assert(url.includes('instagram_content_publish'), 'Must request Instagram Reels publishing');
   assert(url.includes('pages_manage_posts'), 'Must request Page management');
 });

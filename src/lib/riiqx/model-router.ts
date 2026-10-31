@@ -154,15 +154,15 @@ export class ModelRouter {
       case 'fast':
         if (hasGroq) {
           primaryId = 'groq-qwen-27b';
-          fallbackId = hasOpenRouter ? 'openrouter-llama-70b' : 'groq-gpt-120b';
-          reason = 'Ultra-low latency inference via Groq Cloud LPU (150ms, Free Tier)';
+          fallbackId = hasOpenRouter ? 'poolside-laguna-xs' : 'groq-gpt-120b';
+          reason = 'Ultra-low latency inference via Groq Cloud LPU (214ms, Free Tier)';
         } else if (hasOpenRouter) {
-          primaryId = 'openrouter-llama-70b';
-          fallbackId = hasCohere ? 'cohere-command-r-plus' : 'openrouter-deepseek';
-          reason = 'Fast multi-cloud routing via OpenRouter';
+          primaryId = 'poolside-laguna-xs';
+          fallbackId = 'openrouter-llama-70b';
+          reason = 'Ultra-fast 748ms inference via Poolside Laguna XS (Free Tier)';
         } else {
           primaryId = 'groq-qwen-27b';
-          fallbackId = 'openrouter-llama-70b';
+          fallbackId = 'groq-gpt-120b';
           reason = 'Fast LPU conversational routing';
         }
         break;
@@ -170,29 +170,29 @@ export class ModelRouter {
       case 'scriptwriting':
       case 'ideation':
         if (hasOpenRouter) {
-          primaryId = 'openrouter-deepseek';
-          fallbackId = hasGroq ? 'groq-gpt-120b' : 'openrouter-llama-70b';
-          reason = 'DeepSeek V3 671B MoE optimized for creative storytelling and viral scripting';
+          primaryId = 'nvidia-nemotron-35-lightning';
+          fallbackId = hasGroq ? 'groq-gpt-120b' : 'cohere-command-r';
+          reason = 'NVIDIA Nemotron 3.5 1M context engine for creative storytelling (Free Tier)';
         } else if (hasGroq) {
           primaryId = 'groq-gpt-120b';
           fallbackId = 'groq-qwen-27b';
           reason = 'Groq Cloud GPT-OSS 120B optimized for creative scripting (Free Tier)';
         } else if (hasCohere) {
-          primaryId = 'cohere-command-r-plus';
+          primaryId = 'cohere-command-r';
           fallbackId = 'groq-qwen-27b';
-          reason = 'Cohere Command R+ for creative generation';
+          reason = 'Cohere Command R for creative generation (Free Dev Tier)';
         }
         break;
 
       case 'research':
         if (hasCohere) {
-          primaryId = 'cohere-command-r-plus';
-          fallbackId = hasOpenRouter ? 'openrouter-llama-70b' : 'groq-gpt-120b';
-          reason = 'Cohere Command R+ with 128K context window for deep source synthesis (Free Dev Tier)';
+          primaryId = 'cohere-command-r';
+          fallbackId = hasOpenRouter ? 'nvidia-nemotron-35-lightning' : 'groq-gpt-120b';
+          reason = 'Cohere Command R with 128K context window for grounded synthesis (Free Dev Tier)';
         } else if (hasOpenRouter) {
-          primaryId = 'openrouter-llama-70b';
-          fallbackId = hasGroq ? 'groq-gpt-120b' : 'openrouter-deepseek';
-          reason = 'Llama 3.3 70B via OpenRouter for comprehensive research';
+          primaryId = 'nvidia-nemotron-35-lightning';
+          fallbackId = hasGroq ? 'groq-gpt-120b' : 'groq-qwen-27b';
+          reason = 'NVIDIA Nemotron 1M context window for massive document research (Free Tier)';
         } else {
           primaryId = 'groq-gpt-120b';
           fallbackId = 'groq-qwen-27b';
@@ -202,9 +202,9 @@ export class ModelRouter {
 
       case 'coding':
         if (hasOpenRouter) {
-          primaryId = 'openrouter-deepseek';
-          fallbackId = hasGroq ? 'groq-gpt-120b' : 'openrouter-gemma-free';
-          reason = 'DeepSeek V3 top benchmark coding model';
+          primaryId = 'cohere-north-mini-code';
+          fallbackId = hasGroq ? 'groq-gpt-120b' : 'groq-qwen-27b';
+          reason = 'Cohere North Mini Code 256K context coding specialist (Free Tier)';
         } else if (hasGroq) {
           primaryId = 'groq-gpt-120b';
           fallbackId = 'groq-qwen-27b';
@@ -214,13 +214,13 @@ export class ModelRouter {
 
       case 'reasoning':
         if (hasOpenRouter) {
-          primaryId = 'openrouter-deepseek-r1';
-          fallbackId = hasCohere ? 'cohere-command-r-plus' : 'groq-gpt-120b';
-          reason = 'DeepSeek R1 Chain-of-Thought reasoning engine';
+          primaryId = 'nvidia-nemotron-35-lightning';
+          fallbackId = hasCohere ? 'cohere-command-r' : 'groq-gpt-120b';
+          reason = 'NVIDIA Nemotron 3.5 1M reasoning engine with deep chain-of-thought (Free Tier)';
         } else if (hasCohere) {
-          primaryId = 'cohere-command-r-plus';
+          primaryId = 'cohere-command-r';
           fallbackId = hasGroq ? 'groq-gpt-120b' : 'groq-qwen-27b';
-          reason = 'Cohere Command R+ enterprise reasoning';
+          reason = 'Cohere Command R enterprise reasoning';
         } else {
           primaryId = 'groq-gpt-120b';
           fallbackId = 'groq-qwen-27b';

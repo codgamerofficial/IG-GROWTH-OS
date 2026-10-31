@@ -1,7 +1,7 @@
 'use client';
 
 // =============================================================================
-// RIIQX Creator Studio — Published Content Archive
+// RIIQX Creator Studio 2.0 — Published Content Archive
 // Verified Live Posts • Direct Permalinks • Engagement Highlights
 // =============================================================================
 
@@ -35,7 +35,6 @@ export function PublishedContentTab({
   onSelectProject,
   onTabChange,
 }: PublishedContentTabProps) {
-  // Sample published items (published projects or rich defaults)
   const publishedItems = [
     {
       id: 'pub_1',
@@ -79,19 +78,23 @@ export function PublishedContentTab({
   ];
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
+    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E2A4A] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2E2E2E] pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <CheckCheck className="h-5 w-5 text-emerald-400" />
-            <h1 className="text-xl font-bold tracking-tight text-white">Live Published Content</h1>
-            <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFD43B] text-[#151515] font-black">
+              <CheckCheck className="h-4 w-4" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+              Live Published Content Archive
+            </h1>
+            <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400">
               {publishedItems.length} Confirmed Live
             </span>
           </div>
-          <p className="mt-1 text-xs text-slate-400">
-            Archived history of verified YouTube Shorts and Instagram Reels published with RIIQX.
+          <p className="mt-1 text-xs text-[#A3A3A3]">
+            Archived history of verified YouTube Shorts and Instagram Reels published with RIIQX Creator Studio.
           </p>
         </div>
       </div>
@@ -101,70 +104,85 @@ export function PublishedContentTab({
         {publishedItems.map((item) => (
           <div
             key={item.id}
-            className="rounded-2xl border border-[#1E2A4A] bg-[#070D1F] p-5 hover:border-violet-500/50 transition-all shadow-sm"
+            className="rounded-2xl border border-[#2E2E2E] bg-[#1A1A1A] p-5 space-y-4 hover:border-[#FFD43B]/40 transition-all"
           >
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2E2E2E] pb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-[#202020]">
                   {item.platform === 'youtube_shorts' ? (
-                    <div className="p-1.5 rounded-lg bg-red-500/10 text-red-400">
-                      <Youtube className="h-4 w-4" />
-                    </div>
+                    <Youtube className="h-5 w-5 text-red-500" />
                   ) : (
-                    <div className="p-1.5 rounded-lg bg-pink-500/10 text-pink-400">
-                      <Instagram className="h-4 w-4" />
-                    </div>
+                    <Instagram className="h-5 w-5 text-pink-500" />
                   )}
-                  <h3 className="text-sm font-bold text-white">{item.title}</h3>
                 </div>
-
-                <div className="flex items-center gap-3 text-xs text-slate-400">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3 text-slate-500" />
-                    {new Date(item.publishedAt).toLocaleDateString()}
-                  </span>
-                  <span>•</span>
-                  <span className="font-mono text-slate-500">ID: {item.platformId}</span>
+                <div>
+                  <h3 className="text-sm font-bold text-white">{item.title}</h3>
+                  <div className="flex items-center gap-3 text-[11px] text-[#737373] mt-0.5">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Published {new Date(item.publishedAt).toLocaleDateString()}
+                    </span>
+                    <span>•</span>
+                    <span className="capitalize">{item.platform.replace('_', ' ')}</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Engagement Stats Strip */}
-              <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-300">
-                <span className="flex items-center gap-1.5">
-                  <Eye className="h-3.5 w-3.5 text-blue-400" />
-                  <strong className="text-white">{item.views.toLocaleString()}</strong> views
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Heart className="h-3.5 w-3.5 text-red-400" />
-                  <strong className="text-white">{item.likes.toLocaleString()}</strong> likes
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Bookmark className="h-3.5 w-3.5 text-yellow-400" />
-                  <strong className="text-white">{item.saves.toLocaleString()}</strong> saves
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <Share2 className="h-3.5 w-3.5 text-emerald-400" />
-                  <strong className="text-white">{item.shares.toLocaleString()}</strong> shares
-                </span>
+              <div className="flex items-center gap-2 self-end sm:self-center">
+                <button
+                  onClick={() => onTabChange('analytics')}
+                  className="flex items-center gap-1.5 rounded-xl border border-[#2E2E2E] bg-[#202020] hover:bg-[#282828] text-white px-3 py-1.5 text-xs font-bold transition-colors"
+                >
+                  <BarChart3 className="h-3.5 w-3.5 text-[#FFD43B]" />
+                  <span>Deep Analytics</span>
+                </button>
+                <a
+                  href={item.permalink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-xl border border-[#2E2E2E] bg-[#202020] text-[#A3A3A3] hover:text-[#FFD43B] transition-colors"
+                  title="Open live post"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </a>
+              </div>
+            </div>
 
-                <div className="flex items-center gap-2 pl-2">
-                  <a
-                    href={item.permalink}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-1.5 rounded-lg border border-[#1E2A4A] bg-[#0B132B] text-slate-300 hover:text-white transition-colors"
-                    title="View live post"
-                  >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                  <button
-                    onClick={() => onTabChange('analytics')}
-                    className="flex items-center gap-1 rounded-xl bg-violet-600/20 hover:bg-violet-600/30 text-violet-300 border border-violet-500/30 px-3 py-1.5 text-xs font-bold transition-colors"
-                  >
-                    <BarChart3 className="h-3.5 w-3.5" />
-                    <span>Analytics</span>
-                  </button>
+            {/* Engagement Metrics Matrix */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div className="rounded-xl border border-[#2E2E2E] bg-[#202020] p-3 text-center">
+                <div className="text-[10px] uppercase font-bold text-[#737373] flex items-center justify-center gap-1">
+                  <Eye className="h-3 w-3 text-blue-400" /> Views
                 </div>
+                <div className="mt-1 text-base font-black text-white">{item.views.toLocaleString()}</div>
+              </div>
+
+              <div className="rounded-xl border border-[#2E2E2E] bg-[#202020] p-3 text-center">
+                <div className="text-[10px] uppercase font-bold text-[#737373] flex items-center justify-center gap-1">
+                  <Heart className="h-3 w-3 text-red-400" /> Likes
+                </div>
+                <div className="mt-1 text-base font-black text-white">{item.likes.toLocaleString()}</div>
+              </div>
+
+              <div className="rounded-xl border border-[#2E2E2E] bg-[#202020] p-3 text-center">
+                <div className="text-[10px] uppercase font-bold text-[#737373] flex items-center justify-center gap-1">
+                  <MessageSquare className="h-3 w-3 text-emerald-400" /> Comments
+                </div>
+                <div className="mt-1 text-base font-black text-white">{item.comments.toLocaleString()}</div>
+              </div>
+
+              <div className="rounded-xl border border-[#2E2E2E] bg-[#202020] p-3 text-center">
+                <div className="text-[10px] uppercase font-bold text-[#737373] flex items-center justify-center gap-1">
+                  <Bookmark className="h-3 w-3 text-[#FFD43B]" /> Saves
+                </div>
+                <div className="mt-1 text-base font-black text-white">{item.saves.toLocaleString()}</div>
+              </div>
+
+              <div className="rounded-xl border border-[#2E2E2E] bg-[#202020] p-3 text-center col-span-2 sm:col-span-1">
+                <div className="text-[10px] uppercase font-bold text-[#737373] flex items-center justify-center gap-1">
+                  <Share2 className="h-3 w-3 text-pink-400" /> Shares
+                </div>
+                <div className="mt-1 text-base font-black text-white">{item.shares.toLocaleString()}</div>
               </div>
             </div>
           </div>

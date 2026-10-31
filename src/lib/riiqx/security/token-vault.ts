@@ -38,7 +38,7 @@ function getEncryptionKey(): Buffer {
     process.env.AWS_SECRET_ACCESS_KEY ||
     'riiqx_local_development_secure_fallback_key_2026';
 
-  return crypto.pbkdf2Sync(fallbackSecret, PBKDF2_SALT, PBKDF2_ITERATIONS, 32, 'sha256');
+  return crypto.pbkdf2Sync(fallbackSecret.trim(), PBKDF2_SALT, PBKDF2_ITERATIONS, 32, 'sha256');
 }
 
 export interface EncryptedPayload {

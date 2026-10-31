@@ -391,6 +391,7 @@ export function SocialPassportCardGenerator({
           <div className="relative w-full max-w-xs aspect-[9/16] rounded-2xl overflow-hidden border-2 border-amber-500/40 shadow-2xl bg-black">
             <canvas ref={canvasRef} className="hidden" />
             {dataUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
               <img
                 src={dataUrl}
                 alt="PujaHop Passport Social Card"

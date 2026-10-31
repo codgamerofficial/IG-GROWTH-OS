@@ -3,10 +3,11 @@
 // =============================================================================
 // RIIQX 2.0 — Tools & Plugins Marketplace
 // Real Social OAuth 2.0 Handshake • Live Server Probe • AES-256 Token Vault
-// YouTube Data API v3 • Meta Graph API v20.0 • Verified Connection Gates
+// YouTube Data API v3 • Meta Graph API v26.0 • Verified Connection Gates
 // =============================================================================
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useRiiqx } from '@/context/RiiqxContext';
 import {
   Search,
@@ -66,7 +67,7 @@ export function RiiqxIntegrationsView() {
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
   const [testingAccountId, setTestingAccountId] = useState<string | null>(null);
   const [testResult, setTestResult] = useState<{ id: string; success: boolean; latencyMs?: number; message?: string } | null>(null);
-  const [noticeMessage, setNoticeMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [noticeMessage, setNoticeMessage] = useState<{ type: 'success' | 'warning' | 'error'; text: string } | null>(null);
 
   // Check URL searchParams on mount for callback notifications
   useEffect(() => {
@@ -84,11 +85,21 @@ export function RiiqxIntegrationsView() {
             accountName ? ` (${accountName})` : ''
           }! Tokens securely encrypted with AES-256-GCM.`,
         });
+        fetchAccounts();
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } else if (status === 'warning') {
+        setNoticeMessage({
+          type: 'warning',
+          text: msg || 'Connected Facebook Page(s), but no linked Instagram Professional account was found.',
+        });
+        fetchAccounts();
+        window.history.replaceState({}, document.title, window.location.pathname);
       } else if (status === 'error') {
         setNoticeMessage({
           type: 'error',
           text: msg || `Failed to complete ${provider || ''} authorization.`,
         });
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
     }
   }, []);
@@ -137,6 +148,7 @@ export function RiiqxIntegrationsView() {
           success: false,
           message: data.error || 'Connection probe failed.',
         });
+        await fetchAccounts();
       }
     } catch (err: unknown) {
       setTestResult({
@@ -178,7 +190,7 @@ export function RiiqxIntegrationsView() {
     {
       id: 'instagram',
       name: 'Instagram',
-      desc: 'Meta Graph API v20.0: Professional Reels publishing, container polling & insights',
+      desc: 'Meta Graph API v26.0: Professional Reels publishing, container polling & insights',
       category: 'Social',
       icon: Instagram,
       color: 'bg-[#FF6B5E]/15 text-[#FF6B5E]',
@@ -278,22 +290,26 @@ export function RiiqxIntegrationsView() {
   });
 
   return (
-    <div className="flex h-full flex-1 flex-col overflow-y-auto bg-[#FAF9F6] dark:bg-[#151515] p-4 sm:p-6 lg:p-8 space-y-6 transition-colors">
+    <div className="flex h-full flex-1 flex-col overflow-y-auto bg-[#FAF9F6] dark:bg-[#0C0C0E] p-4 sm:p-6 lg:p-8 space-y-6 transition-colors">
       <div className="mx-auto w-full max-w-6xl space-y-6">
         {/* Notice Banner */}
         {noticeMessage && (
           <div
-            className={`p-4 rounded-2xl border text-xs sm:text-sm font-semibold flex items-center justify-between ${
+            className={`p-4 rounded-2xl border text-xs sm:text-sm font-semibold flex items-center justify-between animate-in fade-in duration-300 ${
               noticeMessage.type === 'success'
                 ? 'bg-[#16865D]/10 border-[#16865D]/30 text-[#16865D]'
+                : noticeMessage.type === 'warning'
+                ? 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
                 : 'bg-[#FF4D4F]/10 border-[#FF4D4F]/30 text-[#FF4D4F]'
             }`}
           >
             <div className="flex items-center gap-2.5">
               {noticeMessage.type === 'success' ? (
-                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-[#16865D]" />
+              ) : noticeMessage.type === 'warning' ? (
+                <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
               ) : (
-                <AlertTriangle className="w-4 h-4 shrink-0" />
+                <AlertTriangle className="w-4 h-4 shrink-0 text-[#FF4D4F]" />
               )}
               <span>{noticeMessage.text}</span>
             </div>
@@ -361,7 +377,10 @@ export function RiiqxIntegrationsView() {
               ? connectedAccounts.find((a) => a.provider === plugin.providerKey)
               : null;
 
-            const isConnected = plugin.providerKey ? Boolean(matchedAccount) : plugin.staticConnected;
+            const isConnected = plugin.providerKey
+              ? Boolean(matchedAccount && matchedAccount.status === 'connected')
+              : plugin.staticConnected;
+            const hasAuthIssue = Boolean(matchedAccount && matchedAccount.status !== 'connected');
             const isTesting = Boolean(matchedAccount && testingAccountId === matchedAccount.id);
             const currentTestResult = matchedAccount && testResult?.id === matchedAccount.id ? testResult : null;
 
@@ -389,7 +408,7 @@ export function RiiqxIntegrationsView() {
                         className="flex items-center gap-1 text-[11px] font-bold px-3.5 py-1 rounded-full bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] transition-colors shadow-xs"
                       >
                         <Plus className="w-3 h-3" />
-                        <span>Connect</span>
+                        <span>{hasAuthIssue ? 'Reconnect' : 'Connect'}</span>
                       </button>
                     ) : (
                       <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-[#737373]">
@@ -402,9 +421,12 @@ export function RiiqxIntegrationsView() {
                     <h3 className="text-sm font-bold text-[#202124] dark:text-white flex items-center justify-between">
                       <span>{plugin.name}</span>
                       {matchedAccount?.avatarUrl && (
-                        <img
+                        <Image
                           src={matchedAccount.avatarUrl}
                           alt={matchedAccount.accountName}
+                          width={20}
+                          height={20}
+                          unoptimized
                           className="w-5 h-5 rounded-full border border-[#EAE7E1] object-cover"
                         />
                       )}
@@ -424,6 +446,14 @@ export function RiiqxIntegrationsView() {
                         <p className="text-[10px] text-[#737373] font-mono">
                           ID: {matchedAccount.platformAccountId}
                         </p>
+                        {matchedAccount.status !== 'connected' && (
+                          <div className="mt-1.5 p-2 rounded-xl text-[10px] font-medium bg-[#FF4D4F]/10 text-[#FF4D4F] border border-[#FF4D4F]/30 flex items-center gap-1.5">
+                            <Activity className="w-3 h-3 shrink-0" />
+                            <span>
+                              {matchedAccount.errorMessage || 'Authorization expired. Please click Reconnect.'}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
 

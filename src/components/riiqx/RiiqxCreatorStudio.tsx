@@ -25,6 +25,8 @@ import { useRiiqx } from '@/context/RiiqxContext';
 // 14 Modular Sub-Workspaces
 import { CreatorStudioNav } from './creator/CreatorStudioNav';
 import { CreatorOverviewTab } from './creator/CreatorOverviewTab';
+import { AICreationLabTab } from './creator/AICreationLabTab';
+import { AutopilotStudioTab } from './creator/AutopilotStudioTab';
 import { IdeasTrendsTab } from './creator/IdeasTrendsTab';
 import { ContentPlannerTab } from './creator/ContentPlannerTab';
 import { ScriptStudioTab } from './creator/ScriptStudioTab';
@@ -139,7 +141,7 @@ export function RiiqxCreatorStudio() {
   }, []);
 
   return (
-    <div className="flex h-full w-full flex-col min-h-0 overflow-y-auto bg-[#030712] text-slate-100 select-none">
+    <div className="flex h-full w-full flex-col min-h-0 overflow-y-auto bg-[#0C0C0E] text-[#F4F4F6] select-none">
       {/* Unified 14-Stage Workflow Navigation */}
       <CreatorStudioNav
         activeTab={activeSubTab}
@@ -160,6 +162,22 @@ export function RiiqxCreatorStudio() {
             onTabChange={setActiveSubTab}
             onNewProject={handleNewProject}
             onDeleteProject={handleDeleteProject}
+          />
+        )}
+
+        {activeSubTab === 'ai_creation' && (
+          <AICreationLabTab
+            project={activeProject}
+            onUpdateProject={handleUpdateProject}
+            onTabChange={setActiveSubTab}
+          />
+        )}
+
+        {activeSubTab === 'autopilot' && (
+          <AutopilotStudioTab
+            project={activeProject}
+            projects={projects}
+            onTabChange={setActiveSubTab}
           />
         )}
 
@@ -204,6 +222,7 @@ export function RiiqxCreatorStudio() {
           <AIAssetsTab
             project={activeProject}
             onUpdateProject={handleUpdateProject}
+            onTabChange={setActiveSubTab}
           />
         )}
 

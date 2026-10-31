@@ -213,17 +213,17 @@ test('Social Autopilot: 12-State Content Pipeline & Global Emergency STOP', () =
 });
 
 // -----------------------------------------------------------------------------
-// Test 8: Meta Instagram Graph API v20.0 & YouTube Shorts Adapters
+// Test 8: Meta Instagram Graph API v26.0 & YouTube Shorts Adapters
 // -----------------------------------------------------------------------------
-test('Social Adapters: Meta Graph API v20.0 ID 596660929655724 & Shorts Payload', () => {
+test('Social Adapters: Meta Graph API v26.0 ID 596660929655724 & Shorts Payload', () => {
   const igConfig = {
     businessAccountId: '596660929655724',
-    apiVersion: 'v20.0',
+    apiVersion: 'v26.0',
     mediaType: 'REELS',
   };
 
   assert.strictEqual(igConfig.businessAccountId, '596660929655724');
-  assert.strictEqual(igConfig.apiVersion, 'v20.0');
+  assert.strictEqual(igConfig.apiVersion, 'v26.0');
   assert.strictEqual(igConfig.mediaType, 'REELS');
 
   const ytPayload = {
