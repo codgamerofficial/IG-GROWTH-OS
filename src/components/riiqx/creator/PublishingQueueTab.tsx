@@ -20,6 +20,7 @@ import {
   AlertCircle,
   Youtube,
   Instagram,
+  Facebook,
   Sparkles,
   ExternalLink,
   ShieldCheck,
@@ -93,6 +94,29 @@ export function PublishingQueueTab({
   const [dispatchLogs, setDispatchLogs] = useState<string[]>([]);
   const [publishError, setPublishError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (project?.publishingJob) {
+      setJob(project.publishingJob);
+      if (project.publishingJob.status === 'failed' && project.publishingJob.errorMessage) {
+        setPublishError(project.publishingJob.errorMessage);
+      } else if (project.publishingJob.status === 'published') {
+        setPublishError(null);
+      }
+    } else if (project) {
+      setJob({
+        id: `job_${Date.now()}`,
+        projectId: project.id,
+        platform: 'both',
+        connectedAccount: selectedAccountId || '@unconnected',
+        scheduledTime: new Date(Date.now() + 3600000 * 2).toISOString(),
+        status: 'scheduled',
+        retryCount: 0,
+        idempotencyKey: `idemp_${project.id}`,
+      });
+      setPublishError(null);
+    }
+  }, [project?.id, project?.publishingJob, selectedAccountId]);
+
   if (!project) {
     return (
       <div className="flex h-96 flex-col items-center justify-center p-8 text-center text-[#737373] dark:text-[#A3A3A3]">
@@ -105,9 +129,19 @@ export function PublishingQueueTab({
 
   const selectedAccount = connectedAccounts.find((a) => a.id === selectedAccountId);
 
+  // High-reliability video URL resolution:
+  // Prefer real rendered video path on server (/uploads/rendered/*.mp4),
+  // fallback to guaranteed physical sample video on disk (/uploads/sample_vertical.mp4)
+  const resolvedMediaUrl =
+    project.renderedVideoBlobUrl &&
+    !project.renderedVideoBlobUrl.startsWith('blob:') &&
+    !project.renderedVideoBlobUrl.includes('riiqx.ai/sample_9x16.mp4')
+      ? project.renderedVideoBlobUrl
+      : '/uploads/sample_vertical.mp4';
+
   const handleLivePublish = async () => {
     if (!selectedAccount) {
-      alert('Please connect a YouTube or Instagram account before publishing.');
+      alert('Please connect a YouTube, Facebook, or Instagram account before publishing.');
       return;
     }
 
@@ -115,12 +149,13 @@ export function PublishingQueueTab({
     setPublishError(null);
     setDispatchLogs(['Initiating automated container dispatch with idempotency verification...']);
 
-    setJob((prev) => ({ ...prev, status: 'uploading' }));
+    setJob((prev) => ({ ...prev, status: 'uploading', errorMessage: undefined }));
     await new Promise((r) => setTimeout(r, 400));
 
     setDispatchLogs((prev) => [
       ...prev,
       `Target: ${selectedAccount.provider.toUpperCase()} (${selectedAccount.accountName})...`,
+      `Resolved media source: ${resolvedMediaUrl}`,
     ]);
 
     try {
@@ -133,7 +168,7 @@ export function PublishingQueueTab({
           platform: selectedAccount.provider,
           title: project.name,
           caption: project.storyboard?.caption || `${project.name} #Shorts #Reels`,
-          mediaUrl: project.renderedVideoBlobUrl || 'https://riiqx.ai/sample_9x16.mp4',
+          mediaUrl: resolvedMediaUrl,
           idempotencyKey: `idemp_${project.id}_${Date.now()}`,
         }),
       });
@@ -158,6 +193,7 @@ export function PublishingQueueTab({
         };
 
         setJob(updatedJob);
+        setPublishError(null);
         onUpdateProject({
           ...project,
           status: 'published',
@@ -212,6 +248,8 @@ export function PublishingQueueTab({
                   ? 'bg-[#16865D]/10 text-[#16865D] border-[#16865D]/30'
                   : job.status === 'uploading'
                   ? 'bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] border-[#FFD43B]/40'
+                  : job.status === 'failed'
+                  ? 'bg-[#FF4D4F]/10 text-[#FF4D4F] border-[#FF4D4F]/30'
                   : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
               }`}
             >
@@ -238,8 +276,18 @@ export function PublishingQueueTab({
               disabled={isDispatching || connectedAccounts.length === 0}
               className="flex items-center gap-1.5 rounded-2xl bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] px-4 py-2 text-xs font-bold transition shadow-xs active:scale-95 disabled:opacity-60"
             >
-              <Send className="h-3.5 w-3.5" />
-              <span>{isDispatching ? 'Publishing Live...' : 'Publish Live Now'}</span>
+              {job.status === 'failed' ? (
+                <RotateCcw className="h-3.5 w-3.5" />
+              ) : (
+                <Send className="h-3.5 w-3.5" />
+              )}
+              <span>
+                {isDispatching
+                  ? 'Publishing Live...'
+                  : job.status === 'failed'
+                  ? 'Retry Live Publish'
+                  : 'Publish Live Now'}
+              </span>
             </button>
           )}
         </div>
@@ -302,11 +350,15 @@ export function PublishingQueueTab({
                     className={`w-9 h-9 rounded-xl flex items-center justify-center ${
                       acc.provider === 'youtube'
                         ? 'bg-[#FF4D4F]/15 text-[#FF4D4F]'
+                        : acc.provider === 'facebook'
+                        ? 'bg-[#1877F2]/15 text-[#1877F2]'
                         : 'bg-[#FF6B5E]/15 text-[#FF6B5E]'
                     }`}
                   >
                     {acc.provider === 'youtube' ? (
                       <Youtube className="w-4 h-4" />
+                    ) : acc.provider === 'facebook' ? (
+                      <Facebook className="w-4 h-4" />
                     ) : (
                       <Instagram className="w-4 h-4" />
                     )}
@@ -388,12 +440,32 @@ export function PublishingQueueTab({
 
         {/* Failure Banner if error */}
         {publishError && (
-          <div className="rounded-2xl border border-[#FF4D4F]/30 bg-[#FF4D4F]/10 p-4 flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-[#FF4D4F] shrink-0 mt-0.5" />
-            <div>
-              <h4 className="text-xs font-bold text-[#FF4D4F]">Publication Halted by Safety Gate</h4>
-              <p className="text-[11px] text-[#FF4D4F] mt-0.5 leading-relaxed">{publishError}</p>
+          <div className="rounded-2xl border border-[#FF4D4F]/30 bg-[#FF4D4F]/10 p-4 flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-[#FF4D4F] shrink-0 mt-0.5" />
+              <div>
+                <h4 className="text-xs font-bold text-[#FF4D4F]">Publication Halted by Safety Gate</h4>
+                <p className="text-[11px] text-[#FF4D4F] mt-0.5 leading-relaxed">{publishError}</p>
+              </div>
             </div>
+            <button
+              onClick={() => {
+                setPublishError(null);
+                setJob((prev) => ({ ...prev, status: 'scheduled', errorMessage: undefined }));
+                onUpdateProject({
+                  ...project,
+                  status: 'ready_to_publish',
+                  publishingJob: {
+                    ...job,
+                    status: 'scheduled',
+                    errorMessage: undefined,
+                  },
+                });
+              }}
+              className="px-3 py-1.5 rounded-xl border border-[#FF4D4F]/40 text-[#FF4D4F] hover:bg-[#FF4D4F]/20 text-xs font-bold transition shrink-0"
+            >
+              Reset Safety Gate
+            </button>
           </div>
         )}
 

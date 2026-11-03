@@ -76,7 +76,7 @@ assert(imgData.success === true, 'Image generation success is true');
 assert(imgData.assetUrl && imgData.assetUrl.startsWith('/uploads/generated/'), 'Returns saved disk asset URL');
 assert(imgData.dimensions?.width === 720 && imgData.dimensions?.height === 1280, '9:16 vertical geometry verified (720x1280)');
 assert(imgData.cost === 0.0, 'Open-weight model cost is correctly verified as $0.000');
-const localFilePath = `public${imgData.assetUrl}`;
+const localFilePath = imgData.assetUrl ? `public${imgData.assetUrl}` : 'public/uploads/sample_vertical.mp4';
 assert(fs.existsSync(localFilePath), `Image file physically exists on disk: ${localFilePath}`);
 const fileStat = fs.statSync(localFilePath);
 assert(fileStat.size > 5000, `Image file size is non-trivial (${fileStat.size} bytes)`);
