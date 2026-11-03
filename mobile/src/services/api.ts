@@ -240,6 +240,19 @@ export interface RiiqxApiClient {
   getDocuments(): Promise<any>;
   getSession(): Promise<any>;
   getDashboardMetrics(): Promise<MobileDashboardMetrics>;
+  analyzeVideo(params: {
+    videoPath?: string;
+    prompt?: string;
+    style?: string;
+    targetDuration?: number;
+  }): Promise<any>;
+  renderVideo(params: {
+    videoPath?: string;
+    blueprint: any;
+    targetWidth?: number;
+    targetHeight?: number;
+  }): Promise<{ success: boolean; jobId: string; status: string }>;
+  getRenderJob(jobId: string): Promise<any>;
 }
 
 export const api: RiiqxApiClient = {
@@ -554,6 +567,48 @@ export const api: RiiqxApiClient = {
         recentProjects: AUTHORITATIVE_INITIAL_PROJECTS,
       };
     }
+  },
+
+  // 13. Video Intelligence Analysis
+  async analyzeVideo(params: {
+    videoPath?: string;
+    prompt?: string;
+    style?: string;
+    targetDuration?: number;
+  }): Promise<any> {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${getApiBaseUrl()}/creator/intelligence`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new Error(`Video intelligence analysis failed: HTTP ${res.status}`);
+    return await res.json();
+  },
+
+  // 14. Physical Video Rendering Dispatch
+  async renderVideo(params: {
+    videoPath?: string;
+    blueprint: any;
+    targetWidth?: number;
+    targetHeight?: number;
+  }): Promise<{ success: boolean; jobId: string; status: string }> {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${getApiBaseUrl()}/creator/render`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new Error(`Video render dispatch failed: HTTP ${res.status}`);
+    return await res.json();
+  },
+
+  // 15. Check Render Job Telemetry & Output
+  async getRenderJob(jobId: string): Promise<any> {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${getApiBaseUrl()}/creator/render?jobId=${jobId}`, { headers });
+    if (!res.ok) throw new Error(`Failed to fetch render job status: HTTP ${res.status}`);
+    return await res.json();
   },
 };
 
