@@ -21,25 +21,25 @@ import { colors } from '../../src/theme/colors';
 export default function MobileCreatorScreen() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'Create' | 'Templates' | 'Trending'>('Create');
-  const [selectedStyle, setSelectedStyle] = useState('Trending');
+  const [selectedStyle, setSelectedStyle] = useState('viral_social');
   const [aspectRatio, setAspectRatio] = useState<'9:16' | '1:1' | '16:9'>('9:16');
   const [selectedFilesCount, setSelectedFilesCount] = useState(3);
   const [isGenerating, setIsGenerating] = useState(false);
 
   const stylePresets = [
-    { id: 'Trending', label: 'Trending', sub: 'Viral Hooks', icon: 'flame', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80' },
-    { id: 'Cinematic', label: 'Cinematic', sub: 'Film Look', icon: 'film', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=200&auto=format&fit=crop&q=80' },
-    { id: 'Travel', label: 'Travel', sub: 'Vlogs', icon: 'airplane', img: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=80' },
-    { id: 'Product', label: 'Product', sub: 'Showcase', icon: 'cart', img: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200&auto=format&fit=crop&q=80' },
-    { id: 'Educational', label: 'Educational', sub: 'Explain', icon: 'bulb', img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&auto=format&fit=crop&q=80' },
-    { id: 'Storytelling', label: 'Storytelling', sub: 'Emotional', icon: 'heart', img: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=200&auto=format&fit=crop&q=80' },
+    { id: 'viral_social', label: 'Viral Social', sub: 'Kinetic Hooks', icon: 'flame', img: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200&auto=format&fit=crop&q=80' },
+    { id: 'cinematic_storytelling', label: 'Cinematic', sub: 'Film Look', icon: 'film', img: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=200&auto=format&fit=crop&q=80' },
+    { id: 'hypermotion', label: 'Hypermotion', sub: 'Speed Ramps', icon: 'flash', img: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=200&auto=format&fit=crop&q=80' },
+    { id: 'premium_commercial', label: 'Commercial', sub: 'Luxe Grade', icon: 'sparkles', img: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200&auto=format&fit=crop&q=80' },
+    { id: 'motion_graphics', label: 'Motion FX', sub: 'Kinetic UI', icon: 'color-wand', img: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=200&auto=format&fit=crop&q=80' },
+    { id: 'documentary', label: 'Documentary', sub: 'Fact Focus', icon: 'book', img: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=200&auto=format&fit=crop&q=80' },
   ];
 
   const handleCreateReel = async () => {
     setIsGenerating(true);
     try {
       await api.generateStoryboard({
-        topic: `${selectedStyle} Content Reel`,
+        topic: `${selectedStyle.replace('_', ' ').toUpperCase()} Content Reel`,
         niche: selectedStyle,
         platform: aspectRatio === '9:16' ? 'instagram_reels' : 'youtube_shorts',
         durationSeconds: 30,

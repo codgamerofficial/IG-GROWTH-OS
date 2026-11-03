@@ -4,7 +4,7 @@
 // PURE NATIVE REACT NATIVE COMPONENT • ZERO MOCK DATA
 // =============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { api } from '../../src/services/api';
 
 interface FileAsset {
   id: string;
@@ -37,6 +38,27 @@ export default function LibraryScreen() {
   const [filter, setFilter] = useState<'All' | 'Documents' | 'Images' | 'Videos'>('All');
   const [search, setSearch] = useState('');
   const [assets, setAssets] = useState<FileAsset[]>(DEFAULT_ASSETS);
+
+  useEffect(() => {
+    api.getCreatorProjects()
+      .then((data) => {
+        if (data && data.projects && data.projects.length > 0) {
+          const projectAssets: FileAsset[] = data.projects.map((p: any, idx: number) => ({
+            id: p.id || `proj_${idx}`,
+            name: `${p.name || p.brief?.topic || 'Reel'}.mp4`,
+            category: 'Videos' as const,
+            size: `${((p.durationSeconds || 30) * 0.45).toFixed(1)} MB`,
+            createdAt: p.status === 'published' ? 'Published' : p.status === 'ready_to_publish' ? 'Ready' : 'In Production',
+          }));
+          setAssets((prev) => {
+            const existingIds = new Set(prev.map((a) => a.id));
+            const newItems = projectAssets.filter((pa) => !existingIds.has(pa.id));
+            return [...newItems, ...prev];
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const filteredAssets = assets.filter((item) => {
     const matchesFilter = filter === 'All' || item.category === filter;
