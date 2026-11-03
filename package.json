@@ -14,6 +14,7 @@
     "test:riiqx": "node tests/test-riiqx.mjs",
     "test:finance": "node tests/test-riiqx-finance.mjs",
     "test:ai": "node tests/test-ai-infrastructure.mjs",
+    "test:creator": "node tests/test-creator-studio-production.mjs",
     "mobile:start": "cd mobile && npx expo start --offline",
     "mobile:android": "cd mobile && npx expo start --android",
     "mobile:ios": "cd mobile && npx expo start --ios",

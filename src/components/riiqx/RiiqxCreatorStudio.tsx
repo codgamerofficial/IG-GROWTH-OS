@@ -84,6 +84,32 @@ export function RiiqxCreatorStudio() {
     return projects[0] || null;
   });
 
+  // Initial load from Shared Server Endpoint (/api/riiqx/creator) with localStorage fallback
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchServerProjects() {
+      try {
+        const res = await fetch('/api/riiqx/creator');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.projects) && data.projects.length > 0) {
+            if (isMounted) {
+              setProjects(data.projects);
+              setActiveProject(data.projects[0] || null);
+              saveCreatorProjectsToStorage(data.projects);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to fetch server creator projects, using cached:', err);
+      }
+    }
+    fetchServerProjects();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // Sync projects with localStorage
   useEffect(() => {
     if (projects.length > 0) {
@@ -91,7 +117,7 @@ export function RiiqxCreatorStudio() {
     }
   }, [projects]);
 
-  // Update a single project
+  // Update a single project & persist to Server Endpoint
   const handleUpdateProject = useCallback((updated: CreatorProject) => {
     setProjects((prev) => {
       const idx = prev.findIndex((p) => p.id === updated.id);
@@ -103,9 +129,16 @@ export function RiiqxCreatorStudio() {
       return [updated, ...prev];
     });
     setActiveProject(updated);
+
+    // Durable Server Persistence
+    fetch('/api/riiqx/creator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save_project', project: updated }),
+    }).catch((err) => console.warn('Failed to persist project to server:', err));
   }, []);
 
-  // Delete project
+  // Delete project & remove from Server Endpoint
   const handleDeleteProject = useCallback((id: string) => {
     setProjects((prev) => {
       const next = prev.filter((p) => p.id !== id);
@@ -114,6 +147,13 @@ export function RiiqxCreatorStudio() {
       }
       return next;
     });
+
+    // Durable Server Delete
+    fetch('/api/riiqx/creator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete_project', id }),
+    }).catch((err) => console.warn('Failed to delete project on server:', err));
   }, [activeProject]);
 
   // New Project Wizard
@@ -131,6 +171,13 @@ export function RiiqxCreatorStudio() {
     setProjects((prev) => [newProj, ...prev]);
     setActiveProject(newProj);
     setActiveSubTab('script');
+
+    // Durable Server Persistence
+    fetch('/api/riiqx/creator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save_project', project: newProj }),
+    }).catch((err) => console.warn('Failed to persist new project to server:', err));
   }, []);
 
   // Convert Idea to Project
@@ -191,6 +238,7 @@ export function RiiqxCreatorStudio() {
             onSelectProject={setActiveProject}
             onTabChange={setActiveSubTab}
             onNewProject={handleNewProject}
+            onUpdateProject={handleUpdateProject}
           />
         )}
 

@@ -50,23 +50,58 @@ export function IdeasTrendsTab({ onConvertToProject }: IdeasTrendsTabProps) {
     'Travel & Lifestyle',
   ];
 
-  const handleNicheChange = (niche: string) => {
+  const handleNicheChange = async (niche: string) => {
     setSelectedNiche(niche);
     setIsSearching(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/riiqx/creator/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'research_trends',
+          niche,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.trends) && data.trends.length > 0) {
+        setTrends(data.trends);
+        return;
+      }
+      throw new Error(data.error || 'Failed to fetch AI trends');
+    } catch (err) {
+      console.warn('Real AI trend fetch failed, using fallback:', err);
       setTrends(generateTrendAssistIdeas(niche));
+    } finally {
       setIsSearching(false);
-    }, 300);
+    }
   };
 
-  const handleCustomGenerate = (e: React.FormEvent) => {
+  const handleCustomGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customTopic.trim()) return;
     setIsSearching(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/riiqx/creator/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'research_trends',
+          niche: selectedNiche,
+          customTopic: customTopic.trim(),
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.trends) && data.trends.length > 0) {
+        setTrends(data.trends);
+        return;
+      }
+      throw new Error(data.error || 'Failed to fetch AI trends');
+    } catch (err) {
+      console.warn('Real AI custom topic trend fetch failed, using fallback:', err);
       setTrends(generateTrendAssistIdeas(customTopic.trim()));
+    } finally {
       setIsSearching(false);
-    }, 400);
+    }
   };
 
   const handleCreateFromIdea = (trend: TrendSuggestion) => {

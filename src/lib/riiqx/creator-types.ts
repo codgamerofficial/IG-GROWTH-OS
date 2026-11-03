@@ -241,6 +241,7 @@ export interface VideoScene {
   transition: 'cut' | 'fade' | 'zoom' | 'slide';
   backgroundColor: string;
   gradient?: string;
+  thumbnailUrl?: string;
   assetId?: string;
   assetUrl?: string;
   assetType?: 'video' | 'image' | 'audio';

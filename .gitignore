@@ -22,6 +22,8 @@ mobile/node_modules/
 scratch/
 .temp/
 *.log
+public/uploads/generated/
+tests/*.jpg
 
 # debug
 npm-debug.log*

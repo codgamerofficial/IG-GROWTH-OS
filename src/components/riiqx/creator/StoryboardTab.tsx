@@ -50,6 +50,8 @@ export function StoryboardTab({
 
   const [activeSceneIdx, setActiveSceneIdx] = useState(0);
 
+  const [generatingSceneIdx, setGeneratingSceneIdx] = useState<number | null>(null);
+
   if (!project) {
     return (
       <div className="flex h-96 flex-col items-center justify-center p-8 text-center text-[#737373]">
@@ -59,6 +61,46 @@ export function StoryboardTab({
       </div>
     );
   }
+
+  const handleGenerateSceneImage = async (sceneIdx: number) => {
+    const scene = storyboard.scenes[sceneIdx];
+    if (!scene) return;
+
+    setGeneratingSceneIdx(sceneIdx);
+    try {
+      const prompt = scene.visualPrompt || `Cinematic shot: ${scene.narrationScript || scene.onScreenText}. Professional lighting, 8k detail.`;
+      const res = await fetch('/api/riiqx/creator/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'generate_image',
+          prompt,
+          aspectRatio: '9:16',
+          projectId: project.id,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.assetUrl) {
+        const updatedScenes = [...storyboard.scenes];
+        updatedScenes[sceneIdx] = {
+          ...updatedScenes[sceneIdx],
+          thumbnailUrl: data.assetUrl,
+        };
+        const updatedSb = { ...storyboard, scenes: updatedScenes };
+        setStoryboard(updatedSb);
+        onUpdateProject({
+          ...project,
+          storyboard: updatedSb,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+    } catch (err) {
+      console.warn('Failed to generate scene visual:', err);
+    } finally {
+      setGeneratingSceneIdx(null);
+    }
+  };
 
   const handleTransitionChange = (sceneIdx: number, tr: VideoScene['transition']) => {
     const updatedScenes = [...storyboard.scenes];
@@ -158,32 +200,52 @@ export function StoryboardTab({
                   : 'border-[#2E2E2E] bg-[#1A1A1A] hover:border-[#3E3E3E]'
               }`}
             >
-              {/* 9:16 Mock Preview Screen */}
+              {/* 9:16 Card Screen */}
               <div
-                className="relative aspect-[9/16] w-full flex flex-col justify-between p-3 overflow-hidden text-center"
+                className="relative aspect-[9/16] w-full flex flex-col justify-between p-3 overflow-hidden text-center bg-black"
                 style={{ background: scene.gradient || '#151515' }}
               >
+                {scene.thumbnailUrl && (
+                  <img
+                    src={scene.thumbnailUrl}
+                    alt={`Scene ${scene.sceneNumber} visual`}
+                    className="absolute inset-0 h-full w-full object-cover"
+                  />
+                )}
+
+                {/* Dark Vignette Overlay for Readability */}
+                {scene.thumbnailUrl && (
+                  <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+                )}
+
                 {/* Top Safe Guide */}
-                <div className="text-[9px] uppercase font-bold text-[#A3A3A3] bg-black/50 backdrop-blur-xs rounded px-1.5 py-0.5 self-center border border-white/5">
+                <div className="relative z-10 text-[9px] uppercase font-bold text-[#A3A3A3] bg-black/60 backdrop-blur-xs rounded px-1.5 py-0.5 self-center border border-white/5">
                   Top Header Safe Zone
                 </div>
 
                 {/* Center Content / Graphic */}
-                <div className="space-y-2 px-1">
-                  <div className="rounded-xl bg-black/70 backdrop-blur-md p-2.5 border border-white/10 shadow-lg">
+                <div className="relative z-10 space-y-2 px-1">
+                  <div className="rounded-xl bg-black/75 backdrop-blur-md p-2.5 border border-white/10 shadow-lg">
                     <span className="text-xs font-black text-[#FFD43B] leading-tight block">
                       {scene.onScreenText}
                     </span>
                   </div>
-                  <div className="text-[9px] text-[#A3A3A3] bg-[#151515]/80 rounded px-1.5 py-0.5 inline-block font-mono border border-[#2E2E2E]">
+                  <div className="text-[9px] text-[#A3A3A3] bg-[#151515]/90 rounded px-1.5 py-0.5 inline-block font-mono border border-[#2E2E2E]">
                     {scene.cameraMotion || 'Slow Zoom In'}
                   </div>
                 </div>
 
                 {/* Bottom Safe Guide */}
-                <div className="text-[9px] uppercase font-bold text-[#A3A3A3] bg-black/50 backdrop-blur-xs rounded px-1.5 py-0.5 self-center border border-white/5">
+                <div className="relative z-10 text-[9px] uppercase font-bold text-[#A3A3A3] bg-black/60 backdrop-blur-xs rounded px-1.5 py-0.5 self-center border border-white/5">
                   Bottom UI Safe Zone
                 </div>
+
+                {generatingSceneIdx === idx && (
+                  <div className="absolute inset-0 z-20 bg-black/80 flex flex-col items-center justify-center gap-2 p-3 text-white">
+                    <Sparkles className="h-5 w-5 text-[#FFD43B] animate-spin" />
+                    <span className="text-[10px] font-bold">Synthesizing Visual...</span>
+                  </div>
+                )}
               </div>
 
               {/* Scene Metadata Footer */}
@@ -214,17 +276,31 @@ export function StoryboardTab({
                   </select>
                 </div>
 
-                {/* Direct Action: Send Scene to AI Lab */}
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSendToAILab(scene);
-                  }}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-[#2E2E2E] bg-[#151515] hover:border-[#FFD43B]/40 py-1.5 text-[10px] font-semibold text-[#A3A3A3] hover:text-white transition-colors"
-                >
-                  <Sparkles className="h-3 w-3 text-[#FFD43B]" />
-                  <span>Synthesize Clip in AI Lab</span>
-                </button>
+                {/* Scene Action Buttons */}
+                <div className="space-y-1.5 pt-1">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleGenerateSceneImage(idx);
+                    }}
+                    disabled={generatingSceneIdx === idx}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-[#FFD43B]/30 bg-[#FFD43B]/10 hover:bg-[#FFD43B]/20 py-1.5 text-[10px] font-bold text-[#FFD43B] transition-colors"
+                  >
+                    <ImageIcon className="h-3 w-3" />
+                    <span>{scene.thumbnailUrl ? 'Regenerate Visual (FLUX)' : 'Generate Visual (FLUX)'}</span>
+                  </button>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSendToAILab(scene);
+                    }}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-[#2E2E2E] bg-[#151515] hover:border-[#FFD43B]/40 py-1.5 text-[10px] font-semibold text-[#A3A3A3] hover:text-white transition-colors"
+                  >
+                    <Sparkles className="h-3 w-3 text-[#FFD43B]" />
+                    <span>Synthesize Clip in AI Lab</span>
+                  </button>
+                </div>
               </div>
             </div>
           );

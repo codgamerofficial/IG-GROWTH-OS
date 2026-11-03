@@ -140,9 +140,35 @@ export function ScriptStudioTab({
     });
   };
 
-  const handleRegenerate = () => {
+  const handleRegenerate = async () => {
     setIsRegenerating(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/riiqx/creator/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'generate_script',
+          brief: {
+            ...project.brief,
+            tone: selectedTone,
+          },
+          projectId: project.id,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.script) {
+        setScript(data.script);
+        onUpdateProject({
+          ...project,
+          script: data.script,
+          updatedAt: new Date().toISOString(),
+        });
+        return;
+      }
+      throw new Error(data.error || 'Failed to generate script');
+    } catch (err) {
+      console.warn('Real AI script generation failed, falling back to local synthesis engine:', err);
       const fresh = generateScript({
         ...project.brief,
         tone: selectedTone,
@@ -153,8 +179,9 @@ export function ScriptStudioTab({
         script: fresh,
         updatedAt: new Date().toISOString(),
       });
+    } finally {
       setIsRegenerating(false);
-    }, 400);
+    }
   };
 
   const handleProceedToStoryboard = () => {

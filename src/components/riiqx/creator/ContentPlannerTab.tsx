@@ -29,6 +29,7 @@ interface ContentPlannerTabProps {
   onSelectProject: (proj: CreatorProject) => void;
   onTabChange: (tab: CreatorStudioTab) => void;
   onNewProject: () => void;
+  onUpdateProject?: (updated: CreatorProject) => void;
 }
 
 export function ContentPlannerTab({
@@ -36,6 +37,7 @@ export function ContentPlannerTab({
   onSelectProject,
   onTabChange,
   onNewProject,
+  onUpdateProject,
 }: ContentPlannerTabProps) {
   const columns: Array<{
     status: ProjectLifecycleStatus;
@@ -151,6 +153,32 @@ export function ContentPlannerTab({
                         <ArrowRight className="h-2.5 w-2.5" />
                       </span>
                     </div>
+
+                    {onUpdateProject && (
+                      <div className="pt-1 border-t border-[#2E2E2E]/60 flex items-center justify-between text-[9px]">
+                        <span className="text-[#737373]">Move Stage:</span>
+                        <select
+                          value={proj.status}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            onUpdateProject({
+                              ...proj,
+                              status: e.target.value as ProjectLifecycleStatus,
+                              updatedAt: new Date().toISOString(),
+                            });
+                          }}
+                          className="bg-[#151515] border border-[#2E2E2E] text-white rounded px-1.5 py-0.5 text-[9px] focus:outline-none focus:border-[#FFD43B]"
+                        >
+                          <option value="idea">Idea</option>
+                          <option value="scripting">Scripting</option>
+                          <option value="editing">Editing</option>
+                          <option value="ready_to_publish">Review</option>
+                          <option value="scheduled">Scheduled</option>
+                          <option value="published">Published</option>
+                        </select>
+                      </div>
+                    )}
                   </div>
                 ))}
 
