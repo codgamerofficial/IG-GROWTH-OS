@@ -39,3 +39,4 @@ if (env.OPENAI_API_KEY) {
     console.log('OpenAI error:', e.message);
   }
 }
+

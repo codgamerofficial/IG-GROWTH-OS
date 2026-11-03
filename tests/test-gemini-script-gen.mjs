@@ -121,3 +121,4 @@ if (res.ok) {
 } else {
   console.log('Gemini Error:', await res.text());
 }
+

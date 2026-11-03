@@ -77,3 +77,4 @@ if (env.GEMINI_API_KEY) {
     console.log('Gemini Error:', e.message);
   }
 }
+

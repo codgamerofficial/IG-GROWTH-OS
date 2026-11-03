@@ -23,7 +23,11 @@ scratch/
 .temp/
 *.log
 public/uploads/generated/
+public/uploads/videos/
+public/uploads/rendered/
+public/uploads/keyframes/
 tests/*.jpg
+tests/*.mp4
 
 # debug
 npm-debug.log*

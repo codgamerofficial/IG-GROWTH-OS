@@ -37,3 +37,4 @@ try {
 } catch (e) {
   console.log('Imagen-3 fetch error:', e.message);
 }
+

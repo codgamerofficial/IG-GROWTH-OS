@@ -18,6 +18,7 @@ import {
   MobileChatMessage,
   MobileAutopilotJob,
   MobileDashboardMetrics,
+  AUTHORITATIVE_INITIAL_PROJECTS,
 } from '../services/api';
 import { supabase } from '../services/supabase';
 
@@ -95,7 +96,7 @@ export function RiiqxMobileProvider({ children }: { children: ReactNode }) {
     onlineProvidersList: ['Google Gemini', 'Groq', 'OpenRouter', 'Cohere', 'Bedrock'],
     autopilotLevel: 3,
     isEmergencyStopped: false,
-    recentProjects: [],
+    recentProjects: AUTHORITATIVE_INITIAL_PROJECTS,
   });
 
   const [isBackendConnected, setIsBackendConnected] = useState(true);

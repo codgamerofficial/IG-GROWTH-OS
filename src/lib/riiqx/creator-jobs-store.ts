@@ -137,3 +137,71 @@ export function listGenerationJobs(projectId?: string): CreatorGenerationJob[] {
   }
   return jobs;
 }
+
+// Aliases for video render pipeline
+export function createJob(
+  type: string,
+  meta: {
+    inputVideoPath?: string;
+    blueprintTitle?: string;
+    style?: string;
+    targetDuration?: number;
+    userId?: string;
+    projectId?: string;
+  }
+) {
+  const genJob = createGenerationJob({
+    projectId: meta.projectId || 'proj_default',
+    userId: meta.userId,
+    type: 'text_to_video',
+    modelId: 'riiqx-video-engine',
+    prompt: meta.blueprintTitle || 'Video render',
+    aspectRatio: '9:16',
+    durationSeconds: meta.targetDuration || 30,
+    mediaType: 'video',
+    estimatedCost: 0,
+    costTier: 'free_tier',
+  });
+
+  return {
+    ...genJob,
+    id: genJob.jobId,
+  };
+}
+
+export function getJob(jobId: string) {
+  const job = getGenerationJob(jobId);
+  if (!job) return null;
+  return {
+    ...job,
+    id: job.jobId,
+    progress: job.progressPercent,
+    resultUrl: job.outputUrl,
+    error: job.errorMessage,
+    metadata: {
+      projectId: job.projectId,
+      mediaType: job.mediaType,
+    },
+  };
+}
+
+export function updateJobStatus(
+  jobId: string,
+  updates: {
+    status?: JobStatus | 'rendering';
+    progress?: number;
+    resultUrl?: string;
+    error?: string;
+    metadata?: any;
+  }
+) {
+  const mappedStatus = updates.status === 'rendering' ? 'processing' : updates.status;
+  return updateGenerationJob(jobId, {
+    ...(mappedStatus ? { status: mappedStatus as JobStatus } : {}),
+    ...(updates.progress !== undefined ? { progressPercent: updates.progress } : {}),
+    ...(updates.resultUrl ? { outputUrl: updates.resultUrl } : {}),
+    ...(updates.error ? { errorMessage: updates.error } : {}),
+  });
+}
+
+

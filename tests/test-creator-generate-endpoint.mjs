@@ -48,3 +48,4 @@ const videoRes = await fetch('http://localhost:3001/api/riiqx/creator/generate',
 console.log('Video Luma status (truthful quota exceeded):', videoRes.status);
 const videoData = await videoRes.json();
 console.log('Video error response:', videoData.error);
+

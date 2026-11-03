@@ -22,3 +22,4 @@ console.log(video.map(m => m.id));
 console.log('AIML Image models:');
 const images = all.filter(m => m.id.toLowerCase().includes('flux') || m.id.toLowerCase().includes('dall') || m.id.toLowerCase().includes('stable-diffusion') || m.id.toLowerCase().includes('imagen'));
 console.log(images.map(m => m.id).slice(0, 20));
+

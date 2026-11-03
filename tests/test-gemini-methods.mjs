@@ -16,3 +16,4 @@ console.log('Gemini Models and supportedGenerationMethods:');
 for (const m of (data.models || [])) {
   console.log(m.name, m.supportedGenerationMethods);
 }
+
