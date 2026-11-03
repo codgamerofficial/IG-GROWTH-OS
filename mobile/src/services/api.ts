@@ -59,7 +59,7 @@ export const AUTHORITATIVE_INITIAL_PROJECTS = [
     id: 'proj_002_growth_strategi',
     name: '50x growth strategi in stocks on end of 2026',
     niche: 'AI & AUTOMATION',
-    status: 'failed',
+    status: 'ready_to_publish',
     durationSeconds: 30,
     brief: {
       topic: '50x growth strategi in stocks on end of 2026',

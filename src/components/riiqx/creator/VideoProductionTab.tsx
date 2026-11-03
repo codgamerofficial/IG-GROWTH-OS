@@ -132,12 +132,26 @@ export function VideoProductionTab({
     return () => clearInterval(timer);
   }, [isPlaying, duration, speed]);
 
+  // Preload storyboard scene thumbnails into image cache
+  useEffect(() => {
+    project?.storyboard?.scenes?.forEach((scene) => {
+      if (scene.thumbnailUrl && !imageCacheRef.current.has(scene.thumbnailUrl)) {
+        const img = new Image();
+        img.src = scene.thumbnailUrl;
+        img.onload = () => {
+          imageCacheRef.current.set(scene.thumbnailUrl!, img);
+        };
+      }
+    });
+  }, [project?.storyboard?.scenes]);
+
   // Current active scene
+  const totalSceneCount = project?.storyboard?.scenes?.length || 5;
   const currentSceneIdx = Math.min(
-    Math.floor((currentTime / duration) * (project?.storyboard?.scenes.length || 5)),
-    (project?.storyboard?.scenes.length || 5) - 1
+    Math.floor((currentTime / duration) * totalSceneCount),
+    totalSceneCount - 1
   );
-  const currentScene = project?.storyboard?.scenes[currentSceneIdx];
+  const currentScene = project?.storyboard?.scenes?.[currentSceneIdx];
 
   // Draw current frame to canvas preview with real-time filters and kinetic subtitles
   const drawFrame = useCallback(
@@ -179,6 +193,45 @@ export function VideoProductionTab({
           hasDrawnMedia = true;
 
           // CapCut / Instagram Grade Color Filter Overlay
+          ctx.save();
+          if (activeFilter === 'teal_orange') {
+            ctx.fillStyle = 'rgba(4, 30, 40, 0.3)';
+          } else if (activeFilter === 'cyberpunk') {
+            ctx.fillStyle = 'rgba(30, 5, 40, 0.35)';
+          } else if (activeFilter === 'noir') {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+          } else if (activeFilter === 'vintage') {
+            ctx.fillStyle = 'rgba(36, 29, 23, 0.3)';
+          } else {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+          }
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.restore();
+        }
+      } else if (currentScene?.thumbnailUrl) {
+        const cachedImg = imageCacheRef.current.get(currentScene.thumbnailUrl);
+        if (cachedImg && cachedImg.complete && cachedImg.naturalWidth > 0) {
+          const imgW = cachedImg.naturalWidth;
+          const imgH = cachedImg.naturalHeight;
+          const targetRatio = canvas.width / canvas.height;
+          const currentRatio = imgW / imgH;
+
+          let sx = 0;
+          let sy = 0;
+          let sWidth = imgW;
+          let sHeight = imgH;
+
+          if (currentRatio > targetRatio) {
+            sWidth = imgH * targetRatio;
+            sx = (imgW - sWidth) / 2;
+          } else {
+            sHeight = imgW / targetRatio;
+            sy = (imgH - sHeight) / 2;
+          }
+
+          ctx.drawImage(cachedImg, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+          hasDrawnMedia = true;
+
           ctx.save();
           if (activeFilter === 'teal_orange') {
             ctx.fillStyle = 'rgba(4, 30, 40, 0.3)';
@@ -967,22 +1020,30 @@ export function VideoProductionTab({
             <div className="space-y-1">
               <div className="text-[10px] uppercase font-bold text-[#737373] flex items-center gap-1.5">
                 <Film className="h-3 w-3 text-[#FFD43B]" />
-                Track 1: 9:16 Video Clips &amp; Cuts
+                Track 1: 9:16 Video Clips &amp; Cuts ({totalSceneCount} Scenes)
               </div>
-              <div className="grid grid-cols-5 gap-1 h-10 rounded-lg bg-[#151515] p-1 border border-[#2E2E2E]">
-                {(project.storyboard?.scenes || [1, 2, 3, 4, 5]).map((sc, i) => (
-                  <div
-                    key={i}
-                    onClick={() => setCurrentTime(i * (duration / 5))}
-                    className={`rounded flex items-center justify-center text-[10px] font-bold truncate px-1 cursor-pointer transition-all ${
-                      currentSceneIdx === i
-                        ? 'bg-[#FFD43B] text-[#151515]'
-                        : 'bg-[#202020] text-[#A3A3A3] hover:bg-[#282828]'
-                    }`}
-                  >
-                    Scene {i + 1}
-                  </div>
-                ))}
+              <div
+                className="grid gap-1 h-10 rounded-lg bg-[#151515] p-1 border border-[#2E2E2E]"
+                style={{ gridTemplateColumns: `repeat(${totalSceneCount}, minmax(0, 1fr))` }}
+              >
+                {(project.storyboard?.scenes || [1, 2, 3, 4, 5]).map((sc, i) => {
+                  const sceneNum = typeof sc === 'object' ? sc.sceneNumber || i + 1 : i + 1;
+                  const sceneLabel = typeof sc === 'object' ? sc.onScreenText || `Scene ${sceneNum}` : `Scene ${sceneNum}`;
+                  return (
+                    <div
+                      key={i}
+                      onClick={() => setCurrentTime(i * (duration / totalSceneCount))}
+                      className={`rounded flex items-center justify-center text-[10px] font-bold truncate px-1 cursor-pointer transition-all ${
+                        currentSceneIdx === i
+                          ? 'bg-[#FFD43B] text-[#151515] shadow-xs'
+                          : 'bg-[#202020] text-[#A3A3A3] hover:bg-[#282828]'
+                      }`}
+                      title={sceneLabel}
+                    >
+                      {sceneLabel}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
