@@ -80,8 +80,9 @@ export function PublishedContentTab({
         <div className="space-y-4">
           {publishedProjects.map((p) => {
             const job = p.publishingJob;
-            const isYt = p.brief.platform === 'youtube_shorts' || job?.platform === 'youtube_shorts';
-            const isFb = (p.brief.platform as string) === 'facebook' || (job?.platform as string) === 'facebook';
+            const effectivePlatform = p.brief?.platform || job?.platform || 'both';
+            const isYt = effectivePlatform === 'youtube_shorts';
+            const isFb = (effectivePlatform as string) === 'facebook';
             const permalink =
               job?.permalink ||
               (job?.platformMediaId

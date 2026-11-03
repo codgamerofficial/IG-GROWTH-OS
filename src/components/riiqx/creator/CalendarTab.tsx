@@ -56,8 +56,9 @@ export function CalendarTab({
   );
 
   const upcomingPosts = scheduledProjects.map((p) => {
-    const isYt = p.brief.platform === 'youtube_shorts' || p.publishingJob?.platform === 'youtube_shorts';
-    const isFb = (p.brief.platform as string) === 'facebook';
+    const effectivePlatform = p.brief?.platform || p.publishingJob?.platform || 'both';
+    const isYt = effectivePlatform === 'youtube_shorts';
+    const isFb = (effectivePlatform as string) === 'facebook';
 
     const Icon = isYt ? Youtube : isFb ? Share2 : Instagram;
     const platformName = isYt ? 'YouTube Short' : isFb ? 'Facebook Reel' : 'Instagram Reel';
@@ -79,7 +80,7 @@ export function CalendarTab({
     return {
       id: p.id,
       project: p,
-      platform: p.brief.platform,
+      platform: effectivePlatform,
       platformName,
       title: p.name,
       scheduledTime: timeStr,

@@ -66,7 +66,7 @@ interface RiiqxMobileContextType {
 
 const RiiqxMobileContext = createContext<RiiqxMobileContextType | undefined>(undefined);
 
-export function RiiqxMobileProvider({ children }: { children: ReactNode }) {
+export function RiiqxMobileProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<MobileUser | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
@@ -280,8 +280,10 @@ export function RiiqxMobileProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const ProviderComponent = RiiqxMobileContext.Provider as any;
+
   return (
-    <RiiqxMobileContext.Provider
+    <ProviderComponent
       value={{
         user,
         isAuthenticated,
@@ -306,7 +308,7 @@ export function RiiqxMobileProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-    </RiiqxMobileContext.Provider>
+    </ProviderComponent>
   );
 }
 

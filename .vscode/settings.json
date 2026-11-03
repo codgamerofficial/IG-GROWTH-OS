@@ -20,6 +20,9 @@
       "fileMatch": ["package.json", "**/package.json"],
       "url": "https://json.schemastore.org/package.json"
     }
-  ]
+  ],
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.validate.enable": true
 }
 

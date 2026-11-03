@@ -87,7 +87,7 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
         ? 'audio'
         : 'image';
 
-      const url = URL.createObjectURL(file);
+      const url = typeof window !== 'undefined' && window.URL ? window.URL.createObjectURL(file) : '';
       newAssets.push({
         id: `user_asset_${Date.now()}_${index}`,
         name: file.name,
