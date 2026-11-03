@@ -460,3 +460,12 @@ export const api: RiiqxApiClient = {
     }
   },
 };
+
+export async function executeResearch(query: string): Promise<ResearchResult> {
+  return api.executeResearch(query);
+}
+
+export async function getCreatorProjects(): Promise<{ projects: any[]; total: number }> {
+  return api.getCreatorProjects();
+}
+

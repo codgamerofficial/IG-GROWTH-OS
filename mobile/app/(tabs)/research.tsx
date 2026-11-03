@@ -17,7 +17,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { api } from '../../src/services/api';
+import { api, executeResearch, ResearchResult } from '../../src/services/api';
 import { colors } from '../../src/theme/colors';
 
 const SUGGESTED_QUERIES = [
@@ -44,7 +44,7 @@ export default function DeepResearchScreen() {
     setLoading(true);
     setQuery(q);
     try {
-      const res = await api.executeResearch(q);
+      const res = await executeResearch(q);
       setResearchData(res);
     } catch {
       setResearchData({
