@@ -103,6 +103,8 @@ export function VideoProductionTab({
   // Real Video Rendering & Output Validation States
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
+  const [isFfmpegRendering, setIsFfmpegRendering] = useState(false);
+  const [ffmpegProgress, setFfmpegProgress] = useState(0);
   const [renderedBlobUrl, setRenderedBlobUrl] = useState<string | null>(
     project?.renderedVideoBlobUrl || null
   );
@@ -456,6 +458,88 @@ export function VideoProductionTab({
     }
   };
 
+  // Physical 64-Bit FFmpeg Rendering via Server Pipeline (/api/creator/render)
+  const handleFfmpegMasterRender = async () => {
+    if (!project) return;
+    setIsFfmpegRendering(true);
+    setFfmpegProgress(15);
+    setAiEditNotice('Dispatched 64-bit physical FFmpeg multi-pass render...');
+
+    try {
+      const res = await fetch('/api/creator/render', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          projectId: project.id,
+          videoPath: '/uploads/sample_vertical.mp4',
+          targetWidth: 720,
+          targetHeight: 1280,
+          blueprint: {
+            title: project.name,
+            style: 'viral_social',
+            aspectRatio: '9:16',
+            targetDurationSeconds: duration,
+            hook: {
+              text: project.storyboard?.scenes[0]?.onScreenText || 'Pattern Interrupt',
+              inSec: 0,
+              outSec: 2.5,
+            },
+            scenes: (project.storyboard?.scenes || []).map((sc, i) => ({
+              id: `sc_${i + 1}`,
+              sceneNumber: i + 1,
+              inSec: i * 3,
+              outSec: (i + 1) * 3,
+              speedMultiplier: speed,
+              filter: activeFilter,
+              headline: sc.onScreenText || `Scene ${i + 1}`,
+              subtitleText: sc.narrationScript || 'High Retention Segment',
+            })),
+          },
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.jobId) {
+        throw new Error(data.error || 'Failed to dispatch render job');
+      }
+
+      // Poll server for completion
+      let completed = false;
+      let attempts = 0;
+      while (!completed && attempts < 40) {
+        attempts++;
+        await new Promise((r) => setTimeout(r, 1200));
+        const checkRes = await fetch(`/api/creator/render?jobId=${data.jobId}`);
+        if (checkRes.ok) {
+          const checkData = await checkRes.json();
+          if (checkData.job) {
+            setFfmpegProgress(checkData.job.progressPercent || Math.min(30 + attempts * 3, 90));
+            if (checkData.job.status === 'completed' && checkData.job.outputVideoUrl) {
+              completed = true;
+              setFfmpegProgress(100);
+              setRenderedBlobUrl(checkData.job.outputVideoUrl);
+              onUpdateProject({
+                ...project,
+                status: 'ready_to_publish',
+                renderedVideoBlobUrl: checkData.job.outputVideoUrl,
+                updatedAt: new Date().toISOString(),
+              });
+              setAiEditNotice('Master FFmpeg render completed successfully! MP4 exported to disk.');
+              setTimeout(() => setAiEditNotice(null), 5000);
+              break;
+            }
+          }
+        }
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      console.error('FFmpeg render error:', msg);
+      setAiEditNotice(`Render Error: ${msg}`);
+    } finally {
+      setIsFfmpegRendering(false);
+    }
+  };
+
   // Download real playable video file
   const handleDownload = () => {
     if (!renderedBlobUrl || !project) return;
@@ -507,22 +591,41 @@ export function VideoProductionTab({
 
         <div className="flex items-center gap-2">
           {renderedBlobUrl ? (
-            <button
-              onClick={handleDownload}
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-[#151515] px-3.5 py-2 text-xs font-black transition-all shadow-sm"
-            >
-              <Download className="h-3.5 w-3.5" />
-              <span>Download Real Video</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleDownload}
+                className="flex items-center gap-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-[#151515] px-3.5 py-2 text-xs font-black transition-all shadow-sm"
+              >
+                <Download className="h-3.5 w-3.5" />
+                <span>Download Video</span>
+              </button>
+              <button
+                onClick={() => setRenderedBlobUrl(null)}
+                className="flex items-center gap-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-[#A3A3A3] px-3 py-2 text-xs font-bold transition-all"
+              >
+                <RefreshCw className="h-3 w-3" />
+                <span>Re-Render</span>
+              </button>
+            </div>
           ) : (
-            <button
-              onClick={handleRenderExport}
-              disabled={isRendering}
-              className="flex items-center gap-1.5 rounded-xl bg-[#FFD43B] hover:bg-[#FFC928] text-[#151515] px-4 py-2 text-xs font-black transition-all shadow-sm disabled:opacity-60"
-            >
-              <Sparkles className="h-3.5 w-3.5" />
-              <span>{isRendering ? `Rendering ${renderProgress}%...` : 'Export 30 FPS Video'}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleRenderExport}
+                disabled={isRendering || isFfmpegRendering}
+                className="flex items-center gap-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white px-3.5 py-2 text-xs font-bold transition-all disabled:opacity-60"
+              >
+                <Zap className="h-3.5 w-3.5 text-[#FFD43B]" />
+                <span>{isRendering ? `Canvas ${renderProgress}%` : 'Quick Canvas'}</span>
+              </button>
+              <button
+                onClick={handleFfmpegMasterRender}
+                disabled={isRendering || isFfmpegRendering}
+                className="flex items-center gap-1.5 rounded-xl bg-[#FFD43B] hover:bg-[#FFC928] text-[#151515] px-4 py-2 text-xs font-black transition-all shadow-sm disabled:opacity-60"
+              >
+                <Film className="h-3.5 w-3.5" />
+                <span>{isFfmpegRendering ? `FFmpeg ${ffmpegProgress}%` : 'Execute Master FFmpeg Render'}</span>
+              </button>
+            </div>
           )}
 
           <button

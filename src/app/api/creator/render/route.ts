@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import { VideoRenderPipeline } from '@/lib/video/video-render-pipeline';
 import { StructuredEditingBlueprint } from '@/lib/video/video-intelligence-engine';
 import { createJob, getJob, updateJobStatus } from '@/lib/riiqx/creator-jobs-store';
+import { getCreatorProject, saveCreatorProject } from '@/lib/riiqx/creator-store';
 import { VideoRenderEngine } from '@/lib/creator/render-engine';
 import { resolveAuthUserId } from '@/lib/riiqx/session-helper';
 
@@ -140,6 +141,17 @@ export async function POST(req: NextRequest) {
           progressPercent: 100,
           outputBlobUrl: res.videoUrl,
         });
+
+        // Update target Creator Project in creator-store if project ID provided
+        const targetProjectId = body.projectId || body.request?.projectId;
+        if (targetProjectId) {
+          const proj = getCreatorProject(targetProjectId);
+          if (proj) {
+            proj.status = 'ready_to_publish';
+            proj.renderedVideoBlobUrl = res.videoUrl;
+            saveCreatorProject(proj);
+          }
+        }
       })
       .catch((err) => {
         VideoRenderEngine.updateJob(legacyJob.jobId, {
