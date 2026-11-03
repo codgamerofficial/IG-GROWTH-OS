@@ -1,116 +1,124 @@
 'use client';
 
 // =============================================================================
-// RIIQX Creator Studio — Publishing & Calendar (Section 9 of Blueprint)
-// Month/Week/Day Grid • Upcoming Posts Queue (YouTube, IG, FB, WhatsApp)
+// RIIQX Creator Studio — Multi-Platform Publishing Calendar
+// Real Project Pipeline • Cross-Platform Scheduling (Shorts, Reels, FB)
+// Truthful Data • Obsidian Dark Theme with #FFD43B Accent
 // =============================================================================
 
 import React, { useState } from 'react';
-import {
-  CreatorProject,
-  CreatorStudioTab,
-} from '@/lib/riiqx/creator-types';
+import { CreatorProject, CreatorStudioTab } from '@/lib/riiqx/creator-types';
 import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Clock,
+  Plus,
   Youtube,
   Instagram,
-  Plus,
-  ArrowRight,
-  Sparkles,
-  MessageCircle,
   Share2,
+  Clock,
+  ArrowRight,
+  Layers,
 } from 'lucide-react';
 
 interface CalendarTabProps {
   projects: CreatorProject[];
-  onSelectProject: (proj: CreatorProject) => void;
+  onSelectProject: (p: CreatorProject) => void;
   onTabChange: (tab: CreatorStudioTab) => void;
   onNewProject: () => void;
 }
 
 export function CalendarTab({
-  projects,
+  projects = [],
   onSelectProject,
   onTabChange,
   onNewProject,
 }: CalendarTabProps) {
-  const [currentMonth, setCurrentMonth] = useState('October 2026');
   const [viewMode, setViewMode] = useState<'month' | 'week' | 'day'>('month');
 
+  const today = new Date();
+  const currentMonth = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const calendarDays = Array.from({ length: 31 }, (_, i) => i + 1);
 
-  // Exact Upcoming Posts list from Section 9 of Blueprint
-  const upcomingPosts = [
-    {
-      id: 'post_yt_1',
-      platform: 'youtube',
-      platformName: 'YouTube Short',
-      title: 'Travel Vlog',
-      scheduledTime: 'Oct 27, 2026 • 10:00 AM',
-      icon: Youtube,
-      iconColor: 'text-red-600',
-      iconBg: 'bg-red-500/10 border-red-500/20',
-    },
-    {
-      id: 'post_ig_1',
-      platform: 'instagram',
-      platformName: 'Instagram Reel',
-      title: 'Finance Tips',
-      scheduledTime: 'Oct 28, 2026 • 6:00 PM',
-      icon: Instagram,
-      iconColor: 'text-pink-600 dark:text-pink-400',
-      iconBg: 'bg-pink-500/10 border-pink-500/20',
-    },
-    {
-      id: 'post_fb_1',
-      platform: 'facebook',
-      platformName: 'Facebook Reel',
-      title: 'Motivation',
-      scheduledTime: 'Oct 29, 2026 • 12:00 PM',
-      icon: Share2,
-      iconColor: 'text-blue-600 dark:text-blue-400',
-      iconBg: 'bg-blue-500/10 border-blue-500/20',
-    },
-    {
-      id: 'post_wa_1',
-      platform: 'whatsapp',
-      platformName: 'WhatsApp Broadcast',
-      title: 'New Video Alert',
-      scheduledTime: 'Oct 30, 2026 • 8:00 AM',
-      icon: MessageCircle,
-      iconColor: 'text-[#16865D]',
-      iconBg: 'bg-[#16865D]/10 border-[#16865D]/20',
-    },
-  ];
+  // Total days in current month
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const calendarDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+  // Derive genuine scheduled or ready projects
+  const scheduledProjects = projects.filter(
+    (p) =>
+      p.status === 'scheduled' ||
+      p.publishingJob?.status === 'scheduled' ||
+      p.status === 'ready_to_publish' ||
+      p.status === 'published'
+  );
+
+  const upcomingPosts = scheduledProjects.map((p) => {
+    const isYt = p.brief.platform === 'youtube_shorts' || p.publishingJob?.platform === 'youtube_shorts';
+    const isFb = (p.brief.platform as string) === 'facebook';
+
+    const Icon = isYt ? Youtube : isFb ? Share2 : Instagram;
+    const platformName = isYt ? 'YouTube Short' : isFb ? 'Facebook Reel' : 'Instagram Reel';
+    const iconColor = isYt ? 'text-red-500' : isFb ? 'text-blue-500' : 'text-pink-500';
+    const iconBg = isYt
+      ? 'bg-red-500/10 border-red-500/20'
+      : isFb
+      ? 'bg-blue-500/10 border-blue-500/20'
+      : 'bg-pink-500/10 border-pink-500/20';
+
+    const timeStr = p.publishingJob?.scheduledTime
+      ? new Date(p.publishingJob.scheduledTime).toLocaleDateString([], { month: 'short', day: 'numeric' }) +
+        ' • ' +
+        new Date(p.publishingJob.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : p.status === 'published'
+      ? 'Published Live'
+      : 'Ready in Dispatch Queue';
+
+    return {
+      id: p.id,
+      project: p,
+      platform: p.brief.platform,
+      platformName,
+      title: p.name,
+      scheduledTime: timeStr,
+      status: p.status,
+      icon: Icon,
+      iconColor,
+      iconBg,
+    };
+  });
 
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto text-[#171A22] dark:text-white">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto text-[#202124] dark:text-white">
       {/* Top Bar with Month & View Switcher */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#E5E4DE] dark:border-[#2A3347] pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EAE7E1] dark:border-[#2E2E2E] pb-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight text-[#171A22] dark:text-white">
-            Publishing & Calendar
-          </h1>
-          <p className="text-xs sm:text-sm text-[#777D88] dark:text-slate-400 mt-0.5">
-            Cross-platform automated publishing for YouTube Shorts, Reels, Facebook and WhatsApp.
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFD43B] text-[#151515] font-black">
+              <CalendarIcon className="h-4 w-4" />
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[#202124] dark:text-white">
+              Publishing &amp; Content Calendar
+            </h1>
+          </div>
+          <p className="text-xs text-[#737373] dark:text-[#A3A3A3] mt-1">
+            Synchronized cross-platform publishing schedule for YouTube Shorts, Instagram Reels &amp; Facebook.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Month / Week / Day Switcher (Section 9 of Blueprint) */}
-          <div className="flex items-center p-1 rounded-xl bg-white dark:bg-[#1C2230] border border-[#E5E4DE] dark:border-[#2A3347] text-xs font-bold">
+          {/* Month / Week / Day Switcher */}
+          <div className="flex items-center p-1 rounded-xl bg-white dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] text-xs font-bold">
             {(['month', 'week', 'day'] as const).map((mode) => (
               <button
                 key={mode}
                 onClick={() => setViewMode(mode)}
                 className={`px-3 py-1 rounded-lg capitalize transition ${
                   viewMode === mode
-                    ? 'bg-[#6750D8] text-white shadow-2xs'
-                    : 'text-[#777D88] hover:text-[#171A22] dark:hover:text-white'
+                    ? 'bg-[#FFD43B] text-[#151515] shadow-xs'
+                    : 'text-[#737373] hover:text-[#202124] dark:hover:text-white'
                 }`}
               >
                 {mode}
@@ -120,73 +128,88 @@ export function CalendarTab({
 
           <button
             onClick={onNewProject}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#6750D8] hover:bg-[#5841C5] text-white text-xs font-bold transition shadow-xs"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] text-xs font-bold transition shadow-xs active:scale-95"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Schedule Post</span>
+            <span>Schedule Project</span>
           </button>
         </div>
       </div>
 
-      {/* Main 2-Column Layout matching Blueprint Section 9 */}
+      {/* Main 2-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left Column (8 cols): Calendar Grid */}
-        <div className="lg:col-span-8 rounded-2xl border border-[#E5E4DE] dark:border-[#2A3347] bg-white dark:bg-[#1C2230] overflow-hidden shadow-2xs">
+        <div className="lg:col-span-8 rounded-3xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] overflow-hidden shadow-2xs">
           {/* Calendar Header with Month & Arrows */}
-          <div className="px-5 py-3.5 border-b border-[#E5E4DE] dark:border-[#2A3347] flex items-center justify-between">
-            <span className="text-sm font-bold text-[#171A22] dark:text-white">
+          <div className="px-5 py-3.5 border-b border-[#EAE7E1] dark:border-[#2E2E2E] flex items-center justify-between">
+            <span className="text-sm font-bold text-[#202124] dark:text-white">
               {currentMonth}
             </span>
             <div className="flex items-center gap-1">
-              <button className="p-1 rounded-lg text-[#777D88] hover:text-[#171A22] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+              <button className="p-1 rounded-lg text-[#737373] hover:text-[#202124] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <button className="p-1 rounded-lg text-[#777D88] hover:text-[#171A22] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+              <button className="p-1 rounded-lg text-[#737373] hover:text-[#202124] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition">
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </div>
 
           {/* Days of Week Header */}
-          <div className="grid grid-cols-7 border-b border-[#E5E4DE] dark:border-[#2A3347] bg-[#F5F5F0]/60 dark:bg-[#141821]/60 text-center text-xs font-bold text-[#777D88] py-2.5">
+          <div className="grid grid-cols-7 border-b border-[#EAE7E1] dark:border-[#2E2E2E] bg-[#FAF9F6] dark:bg-[#151515] text-center text-xs font-bold text-[#737373] py-2.5">
             {daysOfWeek.map((day) => (
               <div key={day}>{day}</div>
             ))}
           </div>
 
           {/* Days Grid */}
-          <div className="grid grid-cols-7 auto-rows-[75px] sm:auto-rows-[90px] divide-x divide-y divide-[#E5E4DE] dark:divide-[#2A3347] bg-white dark:bg-[#1C2230]">
+          <div className="grid grid-cols-7 auto-rows-[75px] sm:auto-rows-[90px] divide-x divide-y divide-[#EAE7E1] dark:divide-[#2E2E2E] bg-white dark:bg-[#202020]">
             {calendarDays.map((day) => {
-              const isToday = day === 27;
-              const hasPost = [27, 28, 29, 30].includes(day);
+              const isToday = day === today.getDate();
+              // Find any scheduled projects corresponding to this day
+              const dayProjects = upcomingPosts.filter((post) => {
+                if (post.project.publishingJob?.scheduledTime) {
+                  return new Date(post.project.publishingJob.scheduledTime).getDate() === day;
+                }
+                return false;
+              });
 
               return (
                 <div
                   key={day}
                   className={`p-2 transition-colors flex flex-col justify-between ${
-                    isToday ? 'bg-[#6750D8]/5 dark:bg-[#6750D8]/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                    isToday ? 'bg-[#FFD43B]/10 dark:bg-[#FFD43B]/10' : 'hover:bg-slate-50 dark:hover:bg-white/[0.02]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span
                       className={`text-xs font-bold ${
                         isToday
-                          ? 'flex h-5 w-5 items-center justify-center rounded-full bg-[#6750D8] text-white shadow-xs'
-                          : 'text-[#171A22] dark:text-slate-300'
+                          ? 'flex h-5 w-5 items-center justify-center rounded-full bg-[#FFD43B] text-[#151515] shadow-xs'
+                          : 'text-[#202124] dark:text-slate-300'
                       }`}
                     >
                       {day}
                     </span>
-                    {hasPost && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#6750D8]" />
+                    {dayProjects.length > 0 && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#FFD43B]" />
                     )}
                   </div>
 
-                  {hasPost && (
+                  {dayProjects.length > 0 && (
                     <div className="space-y-0.5">
-                      <div className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#6750D8]/10 text-[#6750D8] dark:text-[#8B5CF6] truncate border border-[#6750D8]/20">
-                        {day === 27 ? 'Travel Vlog' : day === 28 ? 'Finance Tips' : day === 29 ? 'Motivation' : 'Broadcast'}
-                      </div>
+                      {dayProjects.slice(0, 1).map((p) => (
+                        <div
+                          key={p.id}
+                          onClick={() => {
+                            onSelectProject(p.project);
+                            onTabChange('queue');
+                          }}
+                          className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] truncate border border-[#FFD43B]/40 cursor-pointer"
+                        >
+                          {p.title}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -195,60 +218,80 @@ export function CalendarTab({
           </div>
         </div>
 
-        {/* Right Column (4 cols): Upcoming Posts Queue (Section 9 of Blueprint) */}
-        <div className="lg:col-span-4 rounded-2xl border border-[#E5E4DE] dark:border-[#2A3347] bg-white dark:bg-[#1C2230] p-5 shadow-2xs flex flex-col justify-between">
+        {/* Right Column (4 cols): Upcoming Posts Queue */}
+        <div className="lg:col-span-4 rounded-3xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#202020] p-6 shadow-2xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-sm font-bold text-[#171A22] dark:text-white">
-                Upcoming Posts
+              <h2 className="text-sm font-bold text-[#202124] dark:text-white">
+                Upcoming &amp; Scheduled Queue
               </h2>
               <button
                 onClick={() => onTabChange('queue')}
-                className="text-xs font-bold text-[#6750D8] dark:text-[#8B5CF6] hover:underline"
+                className="text-xs font-bold text-[#FFD43B] hover:underline"
               >
-                View All
+                Open Queue
               </button>
             </div>
 
-            <div className="space-y-3">
-              {upcomingPosts.map((post) => {
-                const Icon = post.icon;
-                return (
-                  <div
-                    key={post.id}
-                    onClick={() => onTabChange('queue')}
-                    className="p-3 rounded-xl bg-[#F5F5F0] dark:bg-[#141821] border border-[#E5E4DE] dark:border-[#2A3347] hover:border-[#6750D8] dark:hover:border-[#6750D8] transition cursor-pointer flex items-center justify-between group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-9 h-9 rounded-xl border flex items-center justify-center ${post.iconBg}`}>
-                        <Icon className={`w-4 h-4 ${post.iconColor}`} />
+            {upcomingPosts.length === 0 ? (
+              <div className="p-6 text-center rounded-2xl bg-[#FAF9F6] dark:bg-[#151515] border border-dashed border-[#EAE7E1] dark:border-[#2E2E2E] space-y-2">
+                <Clock className="w-6 h-6 text-[#FFD43B] mx-auto" />
+                <p className="text-xs font-bold text-[#202124] dark:text-white">
+                  No Posts Currently Scheduled
+                </p>
+                <p className="text-[11px] text-[#737373] dark:text-[#A3A3A3]">
+                  Select a video project and schedule publication via the Publishing Queue.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {upcomingPosts.map((post) => {
+                  const Icon = post.icon;
+                  return (
+                    <div
+                      key={post.id}
+                      onClick={() => {
+                        onSelectProject(post.project);
+                        onTabChange('queue');
+                      }}
+                      className="p-3.5 rounded-2xl bg-[#FAF9F6] dark:bg-[#151515] border border-[#EAE7E1] dark:border-[#2E2E2E] hover:border-[#FFD43B]/50 transition cursor-pointer flex items-center justify-between group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-xl border flex items-center justify-center ${post.iconBg}`}>
+                          <Icon className={`w-4 h-4 ${post.iconColor}`} />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-[#737373] uppercase tracking-wider block">
+                              {post.platformName}
+                            </span>
+                            <span className="text-[9px] px-1.5 py-0.2 rounded-full border border-[#FFD43B]/30 text-[#FFD43B] font-mono">
+                              {post.status}
+                            </span>
+                          </div>
+                          <p className="text-xs font-bold text-[#202124] dark:text-white group-hover:text-[#FFD43B] transition-colors truncate max-w-[150px]">
+                            {post.title}
+                          </p>
+                          <span className="text-[10px] text-[#737373] dark:text-[#A3A3A3]">
+                            {post.scheduledTime}
+                          </span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-[10px] font-bold text-[#777D88] uppercase tracking-wider block">
-                          {post.platformName}
-                        </span>
-                        <p className="text-xs font-bold text-[#171A22] dark:text-white group-hover:text-[#6750D8] dark:group-hover:text-[#8B5CF6] transition-colors truncate max-w-[140px]">
-                          {post.title}
-                        </p>
-                        <span className="text-[10px] text-[#777D88] dark:text-slate-400">
-                          {post.scheduledTime}
-                        </span>
-                      </div>
-                    </div>
 
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
-                  </div>
-                );
-              })}
-            </div>
+                      <ArrowRight className="w-3.5 h-3.5 text-slate-400 group-hover:translate-x-0.5 group-hover:text-[#FFD43B] transition-all" />
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <button
-            onClick={onNewProject}
-            className="w-full mt-4 py-2.5 rounded-xl text-xs font-bold text-[#6750D8] dark:text-[#8B5CF6] bg-[#6750D8]/10 hover:bg-[#6750D8]/20 transition-colors flex items-center justify-center gap-1.5"
+            onClick={() => onTabChange('queue')}
+            className="w-full mt-4 py-2.5 rounded-xl text-xs font-bold text-[#202124] bg-[#FFD43B] hover:bg-[#FFC928] transition-colors flex items-center justify-center gap-1.5 shadow-xs"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Schedule New Multi-Platform Reel</span>
+            <Layers className="w-3.5 h-3.5" />
+            <span>Manage Publishing Queue</span>
           </button>
         </div>
       </div>

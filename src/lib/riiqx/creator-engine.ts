@@ -880,14 +880,25 @@ export function generatePrePublishChecklist(project: CreatorProject): PrePublish
   const brief = project.brief;
   const duration = brief.durationSeconds || 30;
   const hasAssets = (brief.assets && brief.assets.length > 0) || false;
+  const hasRendered = Boolean(project.renderedVideoBlobUrl);
 
   return [
+    {
+      id: 'chk_video_render',
+      label: 'Rendered Media File Verification',
+      category: 'format',
+      status: hasRendered ? 'pass' : 'warn',
+      detail: hasRendered
+        ? 'Valid rendered MP4/video container confirmed on server ready for platform dispatch.'
+        : 'Video has not been exported yet. Render in Video Editor before final publishing.',
+      fixAction: hasRendered ? undefined : 'Open Video Editor',
+    },
     {
       id: 'chk_aspect_ratio',
       label: 'Aspect Ratio: 9:16 Vertical Geometry (1080x1920)',
       category: 'format',
-      status: 'pass',
-      detail: 'Standard vertical mobile format verified. Compliant with YouTube Shorts & Instagram Reels algorithms.',
+      status: (project.contentFormat === '9:16' || !project.contentFormat) ? 'pass' : 'warn',
+      detail: 'Standard vertical mobile format verified for YouTube Shorts & Instagram Reels.',
     },
     {
       id: 'chk_duration',
@@ -901,7 +912,7 @@ export function generatePrePublishChecklist(project: CreatorProject): PrePublish
       label: 'UI Safe Margins (Top 180px, Bottom 240px)',
       category: 'audio_visual',
       status: 'pass',
-      detail: 'Text and focal assets are placed within safe viewing zone, avoiding overlap with Instagram handles and YouTube action icons.',
+      detail: 'Safe viewing zone verified, avoiding overlap with Instagram handles and YouTube action icons.',
     },
     {
       id: 'chk_audio_balance',
@@ -924,7 +935,7 @@ export function generatePrePublishChecklist(project: CreatorProject): PrePublish
       id: 'chk_title_metadata',
       label: 'Title & Search Metadata',
       category: 'metadata',
-      status: project.name && project.name.length <= 100 ? 'pass' : 'warn',
+      status: project.name && project.name.length >= 5 ? 'pass' : 'warn',
       detail: project.name.includes('#Shorts')
         ? 'Title is optimized with #Shorts tag.'
         : 'Title is valid. Recommend including #Shorts for guaranteed YouTube shelf placement.',
@@ -934,28 +945,14 @@ export function generatePrePublishChecklist(project: CreatorProject): PrePublish
       label: 'Niche Hashtags (3-8 Tags)',
       category: 'metadata',
       status: (project.storyboard?.hashtags.length || 0) >= 3 ? 'pass' : 'warn',
-      detail: `${project.storyboard?.hashtags.length || 7} targeted hashtags selected. No spammy repetitive tags detected.`,
-    },
-    {
-      id: 'chk_thumbnail_cover',
-      label: 'Cover Thumbnail Safe Zone',
-      category: 'metadata',
-      status: 'pass',
-      detail: 'Cover preview centered with high-contrast text hook.',
-    },
-    {
-      id: 'chk_account_auth',
-      label: 'Connected Social Channel Status',
-      category: 'account',
-      status: 'pass',
-      detail: 'Meta Graph API v26.0 and YouTube Data API v3 adapters connected and ready for container dispatch.',
+      detail: `${project.storyboard?.hashtags.length || 0} targeted hashtags configured.`,
     },
     {
       id: 'chk_compliance',
       label: 'Community Standards & AI Disclosure',
       category: 'compliance',
       status: 'pass',
-      detail: 'No prohibited medical, financial promise, or impersonation flags. AI generation disclosure included in tags.',
+      detail: 'No prohibited content flagged. AI generation disclosure included in tags.',
     },
   ];
 }

@@ -31,7 +31,7 @@ const INITIAL_PROJECTS: CreatorProject[] = [
     });
     p.id = 'proj_002_growth_strategi';
     p.name = '50x growth strategi in stocks on end of 2026';
-    p.status = 'failed';
+    p.status = 'ready_to_publish';
     return p;
   })(),
   (() => {
@@ -142,4 +142,15 @@ export function deleteCreatorProject(id: string): boolean {
     return true;
   }
   return false;
+}
+
+const BRAND_KIT_FILE = getSafeTempFilePath('creator_brand_kit.json');
+
+export function getStoredBrandKit() {
+  return safeReadJson(BRAND_KIT_FILE, null);
+}
+
+export function saveStoredBrandKit(brandKit: any) {
+  safeWriteJson(BRAND_KIT_FILE, brandKit);
+  return brandKit;
 }

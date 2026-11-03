@@ -12,6 +12,8 @@ import {
   saveAllCreatorProjects,
   deleteCreatorProject,
   getCreatorProject,
+  getStoredBrandKit,
+  saveStoredBrandKit,
 } from '@/lib/riiqx/creator-store';
 
 export const dynamic = 'force-dynamic';
@@ -27,6 +29,11 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: 'Project not found' }, { status: 404 });
       }
       return NextResponse.json({ success: true, project });
+    }
+
+    if (searchParams.get('type') === 'brand_kit') {
+      const kit = getStoredBrandKit();
+      return NextResponse.json({ success: true, brandKit: kit });
     }
 
     const projects = listCreatorProjects();
@@ -75,6 +82,12 @@ export async function POST(req: NextRequest) {
     if (body.action === 'delete_project' && body.id) {
       const deleted = deleteCreatorProject(body.id);
       return NextResponse.json({ success: deleted });
+    }
+
+    // 3.5 Brand Kit Save
+    if (body.action === 'save_brand_kit' && body.brandKit) {
+      const saved = saveStoredBrandKit(body.brandKit);
+      return NextResponse.json({ success: true, brandKit: saved });
     }
 
     // 4. Default: Storyboard & Script Generation

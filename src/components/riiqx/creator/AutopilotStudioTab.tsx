@@ -42,12 +42,13 @@ interface AutopilotStudioTabProps {
 
 interface PendingApprovalPost {
   id: string;
+  projectId?: string;
   title: string;
   hook: string;
-  platforms: Array<'instagram' | 'youtube' | 'facebook'>;
+  platforms: string[];
   caption: string;
   scheduledTime: string;
-  estimatedReach: string;
+  reachStatus: string;
   status: 'pending_approval' | 'approved' | 'rejected';
 }
 
@@ -61,29 +62,43 @@ export function AutopilotStudioTab({
   const [emergencyKillSwitch, setEmergencyKillSwitch] = useState(false);
   const [autopilotLevel, setAutopilotLevel] = useState<number>(3); // Level 3: Copilot (Approval Required)
 
-  // Demo Pending Approval Queue
-  const [approvalQueue, setApprovalQueue] = useState<PendingApprovalPost[]>([
-    {
-      id: 'post_01',
-      title: project?.name || 'Online-First Cloud Intelligence vs Local Bottlenecks',
-      hook: 'Stop trying to run 70B models on your MacBook when cloud APIs are 10x faster and cheaper.',
-      platforms: ['instagram', 'youtube', 'facebook'],
-      caption: 'Why developers are switching to cloud-first AI in 2026. The latency bottleneck is broken. #ai #tech #cloud #riiqx',
-      scheduledTime: 'Today, 6:30 PM (Peak Engagement)',
-      estimatedReach: '25K - 45K views',
-      status: 'pending_approval',
-    },
-    {
-      id: 'post_02',
-      title: '3 Prompt Hacks That 10x Claude Sonnet Output',
-      hook: 'Most people prompt AI like Google search. Here are 3 structural rules that actually work.',
-      platforms: ['youtube', 'instagram'],
-      caption: 'Transform your output quality with XML tags and structured constraints. #productivity #ai #claude',
-      scheduledTime: 'Tomorrow, 9:00 AM',
-      estimatedReach: '18K - 30K views',
-      status: 'pending_approval',
-    },
-  ]);
+  // Derive genuine pending approval items from projects
+  const [approvalQueue, setApprovalQueue] = useState<PendingApprovalPost[]>(() => {
+    const candidates = projects.filter(
+      (p) => p.status === 'ready_to_publish' || p.status === 'producing' || p.status === 'scheduled'
+    );
+    if (candidates.length > 0) {
+      return candidates.map((p) => ({
+        id: p.id,
+        projectId: p.id,
+        title: p.name,
+        hook:
+          p.storyboard?.scenes?.[0]?.narrationScript ||
+          p.storyboard?.scenes?.[0]?.onScreenText ||
+          'High-impact vertical video hook optimized for algorithm retention.',
+        platforms: ['youtube', 'instagram', 'facebook'],
+        caption: p.storyboard?.caption || `${p.name} #Shorts #Reels #AI`,
+        scheduledTime: p.publishingJob?.scheduledTime
+          ? new Date(p.publishingJob.scheduledTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          : 'Ready for Dispatch',
+        reachStatus: 'Algorithm Optimized (9:16)',
+        status: 'pending_approval',
+      }));
+    }
+    return [
+      {
+        id: project?.id || 'post_01',
+        projectId: project?.id,
+        title: project?.name || 'Online-First Cloud Intelligence vs Local Bottlenecks',
+        hook: 'Stop trying to run 70B models on your MacBook when cloud APIs are 10x faster and cheaper.',
+        platforms: ['instagram', 'youtube', 'facebook'],
+        caption: 'Why developers are switching to cloud-first AI in 2026. #ai #tech #cloud #riiqx',
+        scheduledTime: 'Today, 6:30 PM (Peak Engagement)',
+        reachStatus: 'Algorithm Optimized (9:16)',
+        status: 'pending_approval',
+      },
+    ];
+  });
 
   const handleApprove = (id: string) => {
     setApprovalQueue((prev) =>
@@ -312,7 +327,7 @@ export function AutopilotStudioTab({
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-bold text-white">{item.title}</span>
                     <span className="rounded-full bg-[#151515] px-2 py-0.5 text-[10px] text-[#FFD43B] font-semibold">
-                      {item.estimatedReach}
+                      {item.reachStatus}
                     </span>
                   </div>
                   <p className="text-xs text-[#A3A3A3] italic bg-[#151515] p-2.5 rounded-lg border border-[#2E2E2E]">

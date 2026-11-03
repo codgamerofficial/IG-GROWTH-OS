@@ -180,11 +180,18 @@ export function RiiqxCreatorStudio() {
     }).catch((err) => console.warn('Failed to persist new project to server:', err));
   }, []);
 
-  // Convert Idea to Project
+  // Convert Idea to Project with durable server save
   const handleConvertIdeaToProject = useCallback((newProj: CreatorProject) => {
     setProjects((prev) => [newProj, ...prev]);
     setActiveProject(newProj);
     setActiveSubTab('script');
+
+    // Durable Server Persistence
+    fetch('/api/riiqx/creator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save_project', project: newProj }),
+    }).catch((err) => console.warn('Failed to persist new project to server:', err));
   }, []);
 
   return (
@@ -315,6 +322,10 @@ export function RiiqxCreatorStudio() {
           <TemplatesTab
             onSelectProject={setActiveProject}
             onTabChange={setActiveSubTab}
+            onApplyTemplateProject={(p) => {
+              handleConvertIdeaToProject(p);
+              setActiveSubTab('editor');
+            }}
           />
         )}
 

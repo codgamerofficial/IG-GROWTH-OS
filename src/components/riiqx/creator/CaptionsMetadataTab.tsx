@@ -57,6 +57,15 @@ export function CaptionsMetadataTab({
     project?.storyboard?.hashtags || ['#AI', '#Shorts', '#ViralReels', '#Automation', '#RIIQX']
   );
 
+  React.useEffect(() => {
+    if (project) {
+      setTitle(project.name || '');
+      setCaption(project.storyboard?.caption || '');
+      setHashtags(project.storyboard?.hashtags || ['#AI', '#Shorts', '#ViralReels', '#Automation', '#RIIQX']);
+      setChecks(generatePrePublishChecklist(project));
+    }
+  }, [project?.id, project?.name, project?.renderedVideoBlobUrl]);
+
   if (!project) {
     return (
       <div className="flex h-96 flex-col items-center justify-center p-8 text-center text-[#737373]">

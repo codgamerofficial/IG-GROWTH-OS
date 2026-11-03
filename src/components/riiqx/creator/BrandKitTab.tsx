@@ -5,7 +5,7 @@
 // Palettes • Typography • Watermarks • Caption Presets • Brand Voice
 // =============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   BrandKit,
   CaptionStyle,
@@ -37,13 +37,36 @@ export function BrandKitTab() {
 
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  const handleSave = () => {
+  useEffect(() => {
+    fetch('/api/riiqx/creator?type=brand_kit')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.brandKit) {
+          setBrandKit(data.brandKit);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSave = async () => {
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('riiqx_brand_kit_v2', JSON.stringify(brandKit));
-        setSavedSuccess(true);
-        setTimeout(() => setSavedSuccess(false), 2000);
       } catch {}
+    }
+
+    try {
+      await fetch('/api/riiqx/creator', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save_brand_kit', brandKit }),
+      });
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 2000);
+    } catch (err) {
+      console.warn('Failed to save brand kit to server:', err);
+      setSavedSuccess(true);
+      setTimeout(() => setSavedSuccess(false), 2000);
     }
   };
 

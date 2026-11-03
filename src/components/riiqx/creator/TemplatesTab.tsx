@@ -30,11 +30,13 @@ import {
 interface TemplatesTabProps {
   onSelectProject: (proj: CreatorProject) => void;
   onTabChange: (tab: CreatorStudioTab) => void;
+  onApplyTemplateProject?: (proj: CreatorProject) => void;
 }
 
 export function TemplatesTab({
   onSelectProject,
   onTabChange,
+  onApplyTemplateProject,
 }: TemplatesTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -65,8 +67,12 @@ export function TemplatesTab({
       trendingAudioVibe: tmpl.audioVibe,
       goal: `Viral engagement via ${tmpl.name}`,
     });
-    onSelectProject(newProj);
-    onTabChange('editor');
+    if (onApplyTemplateProject) {
+      onApplyTemplateProject(newProj);
+    } else {
+      onSelectProject(newProj);
+      onTabChange('editor');
+    }
   };
 
   return (

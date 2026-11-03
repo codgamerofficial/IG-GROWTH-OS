@@ -14,6 +14,8 @@ import {
   ViralHook,
   CreatorStudioTab,
   ContentTone,
+  CreatorStoryboard,
+  VideoScene,
 } from '@/lib/riiqx/creator-types';
 import { generateScript, createDefaultProject } from '@/lib/riiqx/creator-engine';
 import {
@@ -185,9 +187,48 @@ export function ScriptStudioTab({
   };
 
   const handleProceedToStoryboard = () => {
+    // Synchronize script scenes to storyboard scenes
+    const duration = script.totalDurationSeconds || project.brief.durationSeconds || 30;
+    const avgDuration = Math.round(duration / Math.max(script.scenes.length, 1));
+    const storyboardScenes: VideoScene[] = script.scenes.map((sc, i) => ({
+      sceneNumber: sc.sceneNumber || i + 1,
+      durationSeconds: sc.durationSeconds || avgDuration,
+      visualPrompt: sc.visualDirections || sc.bRollSuggestion || sc.title,
+      onScreenText: sc.onScreenText || sc.title,
+      narrationScript: sc.narration,
+      transition: 'cut',
+      backgroundColor: '#151515',
+    }));
+
+    const existingSb = project.storyboard as CreatorStoryboard | undefined;
+    const updatedStoryboard: CreatorStoryboard = {
+      ...(existingSb || {
+        id: `sb_${Date.now()}`,
+        brief: project.brief,
+        title: script.title || project.name,
+        aspectRatio: project.contentFormat || '9:16',
+        selectedHook: script.hooks[script.selectedHookIndex] || script.hooks[0],
+        alternativeHooks: script.hooks.filter((_, idx) => idx !== script.selectedHookIndex),
+        totalDurationSeconds: duration,
+        caption: `${script.title} #Shorts #Reels`,
+        hashtags: ['#AI', '#Shorts', '#ViralReels'],
+        thumbnailPrompt: script.title,
+        createdAt: new Date().toISOString(),
+        validationStatus: 'validated',
+      }),
+      scenes: storyboardScenes,
+      selectedHook: script.hooks[script.selectedHookIndex] || script.hooks[0],
+      alternativeHooks: script.hooks.filter((_, idx) => idx !== script.selectedHookIndex),
+      title: script.title || project.name,
+      totalDurationSeconds: duration,
+      caption: existingSb?.caption || `${script.title} #Shorts #Reels`,
+      hashtags: existingSb?.hashtags || ['#AI', '#Shorts', '#ViralReels'],
+    };
+
     onUpdateProject({
       ...project,
       script,
+      storyboard: updatedStoryboard,
       status: 'producing',
       updatedAt: new Date().toISOString(),
     });

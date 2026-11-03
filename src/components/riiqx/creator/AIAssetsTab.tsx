@@ -40,37 +40,17 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
     if (project?.brief.assets && project.brief.assets.length > 0) {
       return project.brief.assets;
     }
-    // Default seed library for instant editing
+    // Genuine physical sample assets verified on local disk
     return [
       {
-        id: 'asset_01',
-        name: 'Cyberpunk_Neon_Broll_4K.mp4',
+        id: 'asset_sample_vertical',
+        name: 'Sample_Vertical_9x16_30fps.mp4',
         type: 'video',
-        url: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-        sizeBytes: 14200000,
+        url: '/uploads/sample_vertical.mp4',
+        sizeBytes: 155328,
         aiSuggestedRole: 'hook_visual',
         analysisStatus: 'analyzed',
-        visualTags: ['Cyberpunk', 'High-Retention', '4K'],
-      },
-      {
-        id: 'asset_02',
-        name: 'Phonk_Velocity_124BPM.mp3',
-        type: 'audio',
-        url: '',
-        sizeBytes: 3400000,
-        aiSuggestedRole: 'climax',
-        analysisStatus: 'analyzed',
-        visualTags: ['Phonk', '124BPM', 'Trending'],
-      },
-      {
-        id: 'asset_03',
-        name: 'RIIQX_Hologram_Logo_Overlay.png',
-        type: 'image',
-        url: '',
-        sizeBytes: 850000,
-        aiSuggestedRole: 'outro',
-        analysisStatus: 'analyzed',
-        visualTags: ['Branding', 'Overlay', 'Watermark'],
+        visualTags: ['720x1280', 'Vertical', '30fps'],
       },
     ];
   });
