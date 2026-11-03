@@ -10,10 +10,11 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   ActivityIndicator,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { api } from '../../src/services/api';
 import { colors } from '../../src/theme/colors';
 
 interface TaskStep {
@@ -40,22 +41,14 @@ export default function TasksScreen() {
     {
       id: 'step_2',
       order: 2,
-      description: 'Verify AWS Bedrock Claude Sonnet 4 / 3.7 runtime connectivity in ap-southeast-2',
-      tool: 'bedrock_verifier',
+      description: 'Verify AI provider runtimes (Google Gemini, Groq, Bedrock)',
+      tool: 'provider_verifier',
       status: 'completed',
       requiresPermission: false,
     },
     {
       id: 'step_3',
       order: 3,
-      description: 'Validate Meta Instagram Graph API v26.0 publishing token for ID: 596660929655724',
-      tool: 'instagram_auth_probe',
-      status: 'completed',
-      requiresPermission: true,
-    },
-    {
-      id: 'step_4',
-      order: 4,
       description: 'Synthesize viral 9:16 vertical storyboard and schedule render',
       tool: 'creator_synthesizer',
       status: 'pending',
@@ -63,39 +56,69 @@ export default function TasksScreen() {
     },
   ]);
 
-  const handlePlanGoal = () => {
+  const handlePlanGoal = async () => {
     if (!goal.trim()) return;
+    const targetGoal = goal.trim();
     setIsPlanning(true);
-    setTimeout(() => {
-      setSteps([
-        {
-          id: `step_${Date.now()}_1`,
-          order: 1,
-          description: `Analyze objective and constraints: "${goal.trim()}"`,
-          tool: 'goal_analyzer',
-          status: 'completed',
-          requiresPermission: false,
-        },
-        {
-          id: `step_${Date.now()}_2`,
-          order: 2,
-          description: 'Retrieve real-world data and citations via SearXNG',
-          tool: 'search_researcher',
-          status: 'running',
-          requiresPermission: false,
-        },
-        {
-          id: `step_${Date.now()}_3`,
-          order: 3,
-          description: 'Execute production changes and verify output integrity',
-          tool: 'autonomous_executor',
-          status: 'pending',
-          requiresPermission: true,
-        },
-      ]);
+
+    try {
+      const res = await fetch(`${api.getBaseUrl()}/riiqx/tasks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ goal: targetGoal }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        const planSteps = data.agentPlan?.steps || data.legacyPlan?.steps || [];
+        if (planSteps.length > 0) {
+          setSteps(
+            planSteps.map((s: any, idx: number) => ({
+              id: s.id || `step_${idx + 1}`,
+              order: idx + 1,
+              description: s.description || s.title || 'Execute plan phase',
+              tool: s.tool || 'autonomous_executor',
+              status: idx === 0 ? 'completed' : idx === 1 ? 'running' : 'pending',
+              requiresPermission: s.requiresApproval ?? false,
+            }))
+          );
+          setGoal('');
+          return;
+        }
+      }
+    } catch {
+      // Fallback local breakdown if offline
+    } finally {
       setIsPlanning(false);
-      setGoal('');
-    }, 600);
+    }
+
+    setSteps([
+      {
+        id: `step_${Date.now()}_1`,
+        order: 1,
+        description: `Analyze objective and constraints: "${targetGoal}"`,
+        tool: 'goal_analyzer',
+        status: 'completed',
+        requiresPermission: false,
+      },
+      {
+        id: `step_${Date.now()}_2`,
+        order: 2,
+        description: 'Verify real-world citations & parameters via model router',
+        tool: 'model_router',
+        status: 'running',
+        requiresPermission: false,
+      },
+      {
+        id: `step_${Date.now()}_3`,
+        order: 3,
+        description: 'Execute production changes and verify output integrity',
+        tool: 'autonomous_executor',
+        status: 'pending',
+        requiresPermission: true,
+      },
+    ]);
+    setGoal('');
   };
 
   return (

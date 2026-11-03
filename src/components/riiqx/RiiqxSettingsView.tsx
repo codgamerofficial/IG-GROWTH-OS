@@ -670,8 +670,8 @@ export function RiiqxSettingsView() {
                   </div>
                   <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#151515] border border-[#EAE7E1] dark:border-[#2E2E2E]">
                     <span className="text-[10px] uppercase font-bold text-[#737373]">Active Models</span>
-                    <p className="text-xl font-black text-[#202124] dark:text-white mt-1">4 Providers</p>
-                    <span className="text-[10px] text-[#737373]">Bedrock, Groq, OpenRouter, Cohere</span>
+                    <p className="text-xl font-black text-[#202124] dark:text-white mt-1">5 Providers</p>
+                    <span className="text-[10px] text-[#737373]">Google Gemini, Groq, OpenRouter, Cohere, Bedrock</span>
                   </div>
                   <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#151515] border border-[#EAE7E1] dark:border-[#2E2E2E]">
                     <span className="text-[10px] uppercase font-bold text-[#737373]">Concurrency Protection</span>

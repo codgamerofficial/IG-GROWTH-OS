@@ -140,6 +140,92 @@ export class MultimodalModelRouter {
   ): Promise<InferenceResponse> {
     const t0 = Date.now();
 
+    // 0. Google Provider (Gemini Generative Language API)
+    if (model.providerId === 'google') {
+      const apiKey =
+        process.env.GEMINI_API_KEY ||
+        process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+        process.env.GOOGLE_AI_STUDIO_API_KEY ||
+        process.env.GOOGLE_API_KEY;
+      if (!apiKey) throw new Error('GEMINI_API_KEY not configured');
+
+      const systemMsg = req.messages?.find((m) => m.role === 'system');
+      const nonSystem = (req.messages || []).filter(
+        (m) => m.role !== 'system' && m.content && m.content.trim().length > 0
+      );
+
+      const sanitizedContents: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
+      for (const m of nonSystem) {
+        const role = m.role === 'assistant' ? 'model' : 'user';
+        if (
+          sanitizedContents.length > 0 &&
+          sanitizedContents[sanitizedContents.length - 1].role === role
+        ) {
+          sanitizedContents[sanitizedContents.length - 1].parts.push({ text: m.content });
+        } else {
+          sanitizedContents.push({ role, parts: [{ text: m.content }] });
+        }
+      }
+
+      if (sanitizedContents.length === 0) {
+        sanitizedContents.push({ role: 'user', parts: [{ text: 'Hello' }] });
+      }
+
+      if (sanitizedContents[0].role !== 'user') {
+        sanitizedContents.unshift({ role: 'user', parts: [{ text: 'Hello' }] });
+      }
+
+      const payload: Record<string, unknown> = {
+        contents: sanitizedContents,
+        generationConfig: {
+          maxOutputTokens: req.maxTokens || 2048,
+          temperature: req.temperature ?? 0.7,
+        },
+      };
+
+      if (systemMsg && systemMsg.content.trim()) {
+        payload.system_instruction = {
+          parts: [{ text: systemMsg.content.trim() }],
+        };
+      }
+
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model.modelId}:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(15000),
+        }
+      );
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error?.message || `Google Generative AI error HTTP ${res.status}`);
+      }
+
+      const parts = data.candidates?.[0]?.content?.parts || [];
+      const reply = parts.map((p: any) => p.text).filter(Boolean).join('\n') || '';
+
+      return {
+        providerId: 'google',
+        modelId: model.modelId,
+        reply,
+        latencyMs: Date.now() - t0,
+        isFreeTier: true,
+        finishReason: data.candidates?.[0]?.finishReason,
+        tokensUsed: data.usageMetadata
+          ? {
+              prompt: data.usageMetadata.promptTokenCount,
+              completion: data.usageMetadata.candidatesTokenCount,
+              total: data.usageMetadata.totalTokenCount,
+            }
+          : undefined,
+      };
+    }
+
     // 1. Groq Provider
     if (model.providerId === 'groq') {
       const apiKey = process.env.GROQ_API_KEY;

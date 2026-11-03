@@ -27,7 +27,7 @@ export async function registerDevicePushToken(
     const { data, error } = await supabase.rpc('register_device_token', {
       p_push_token: pushToken,
       p_platform: platform,
-      p_user_id: userId || null,
+      p_user_id: userId || undefined,
     });
 
     if (error) {

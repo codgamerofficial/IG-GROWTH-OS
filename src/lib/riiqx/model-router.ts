@@ -32,6 +32,13 @@ export class ModelRouter {
    */
   public static isProviderConfigured(provider: string): boolean {
     switch (provider) {
+      case 'google':
+        return Boolean(
+          process.env.GEMINI_API_KEY ||
+          process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+          process.env.GOOGLE_AI_STUDIO_API_KEY ||
+          process.env.GOOGLE_API_KEY
+        );
       case 'groq':
         return Boolean(process.env.GROQ_API_KEY || process.env.groq_api_key);
       case 'openrouter':
@@ -71,6 +78,7 @@ export class ModelRouter {
     preferredModelId?: string,
     requireFreeOnly: boolean = false
   ): RouteResolution {
+    const hasGoogle = this.isProviderConfigured('google');
     const hasGroq = this.isProviderConfigured('groq');
     const hasOpenRouter = this.isProviderConfigured('openrouter');
     const hasCohere = this.isProviderConfigured('cohere');
@@ -109,7 +117,9 @@ export class ModelRouter {
 
         // Provider is unconfigured: smoothly failover to active configured model
         let autoFallbackModel: RiiqxModel | undefined;
-        if (hasGroq) {
+        if (hasGoogle) {
+          autoFallbackModel = RIIQX_MODELS.find((m) => m.id === 'gemini-25-flash') || RIIQX_MODELS[0];
+        } else if (hasGroq) {
           autoFallbackModel = RIIQX_MODELS.find((m) => m.id === 'groq-qwen-27b') || RIIQX_MODELS[0];
         } else if (hasOpenRouter) {
           autoFallbackModel = RIIQX_MODELS.find((m) => m.id === 'openrouter-llama-70b');
@@ -253,7 +263,11 @@ export class ModelRouter {
         break;
 
       case 'vision':
-        if (hasBedrock) {
+        if (hasGoogle) {
+          primaryId = 'gemini-25-flash';
+          fallbackId = 'gemini-25-flash-lite';
+          reason = 'Native multimodal image and video comprehension via Gemini 2.5 Flash (1M Context, Free Tier)';
+        } else if (hasBedrock) {
           primaryId = 'bedrock-claude-sonnet';
           fallbackId = hasOpenRouter ? 'openrouter-llama-70b' : 'groq-qwen-27b';
           reason = 'Multimodal image and storyboard comprehension via AWS Bedrock';

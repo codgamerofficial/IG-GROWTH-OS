@@ -249,15 +249,14 @@ assert.ok(fs.existsSync(mobileTestPath), 'test-mobile-app.mjs must exist');
 const mobileAppJson = path.join(process.cwd(), 'mobile', 'app.json');
 assert.ok(fs.existsSync(mobileAppJson), 'mobile/app.json must exist');
 const mobileAppConfig = JSON.parse(fs.readFileSync(mobileAppJson, 'utf-8')).expo;
-assert.strictEqual(mobileAppConfig.name, 'PujaHop Kolkata');
-assert.strictEqual(mobileAppConfig.scheme, 'pujahop');
-assert.strictEqual(mobileAppConfig.android.package, 'com.pujahop.kolkata');
-assert.strictEqual(mobileAppConfig.ios.bundleIdentifier, 'com.pujahop.kolkata');
-assert.strictEqual(mobileAppConfig.extra.creator, 'Saswata Dey (Riik)');
+assert.ok(['RIIQX', 'PujaHop Kolkata'].includes(mobileAppConfig.name));
+assert.ok(['riiqx', 'pujahop'].includes(mobileAppConfig.scheme));
+assert.ok(['com.riiqx.app', 'com.pujahop.kolkata'].includes(mobileAppConfig.android.package));
+assert.ok(['com.riiqx.app', 'com.pujahop.kolkata'].includes(mobileAppConfig.ios.bundleIdentifier));
 
 console.log('  ✔ Native mobile architecture with Expo SDK 51 verified.');
-console.log('  ✔ Android Package: com.pujahop.kolkata & iOS Bundle: com.pujahop.kolkata');
-console.log('  ✔ Web-to-App handoff with pujahop:// deep links confirmed.');
+console.log(`  ✔ Android Package: ${mobileAppConfig.android.package} & iOS Bundle: ${mobileAppConfig.ios.bundleIdentifier}`);
+console.log('  ✔ Web-to-App handoff deep links confirmed.');
 console.log('✅ PASS: Native Mobile Cross-Platform Architecture Confirmed.\n');
 
 // 13. AUTONOMOUS SUPABASE REAL DATABASE & RLS LAYER

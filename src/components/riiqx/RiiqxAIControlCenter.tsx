@@ -56,7 +56,7 @@ interface ProviderStatus {
 }
 
 export function RiiqxAIControlCenter() {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'reasoning' | 'fast' | 'coding' | 'multilingual' | 'audio'>('all');
+  const [activeCategory, setActiveCategory] = useState<'all' | 'vision' | 'reasoning' | 'fast' | 'coding' | 'multilingual' | 'audio'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [models, setModels] = useState<ModelItem[]>([]);
@@ -141,11 +141,12 @@ export function RiiqxAIControlCenter() {
     if (!matchesSearch) return false;
 
     if (activeCategory === 'all') return true;
-    if (activeCategory === 'reasoning') return m.recommendedFor === 'reasoning' || m.modelString.includes('nemotron') || m.modelString.includes('r1');
-    if (activeCategory === 'fast') return m.recommendedFor === 'fast' || m.modelString.includes('groq') || m.modelString.includes('laguna');
-    if (activeCategory === 'coding') return m.recommendedFor === 'coding' || m.modelString.includes('code') || m.modelString.includes('coder');
-    if (activeCategory === 'multilingual') return m.modelString.includes('aya') || m.modelString.includes('qwen');
-    if (activeCategory === 'audio') return m.modelString.includes('whisper');
+    if (activeCategory === 'vision') return m.modelString.includes('gemini') || m.recommendedFor === 'general' || m.description.toLowerCase().includes('multimodal');
+    if (activeCategory === 'reasoning') return m.recommendedFor === 'reasoning' || m.modelString.includes('nemotron') || m.modelString.includes('r1') || m.modelString.includes('gemini-3');
+    if (activeCategory === 'fast') return m.recommendedFor === 'fast' || m.modelString.includes('groq') || m.modelString.includes('laguna') || m.modelString.includes('flash-lite');
+    if (activeCategory === 'coding') return m.recommendedFor === 'coding' || m.modelString.includes('code') || m.modelString.includes('coder') || m.modelString.includes('gemma');
+    if (activeCategory === 'multilingual') return m.modelString.includes('aya') || m.modelString.includes('qwen') || m.modelString.includes('gemini');
+    if (activeCategory === 'audio') return m.modelString.includes('whisper') || m.modelString.includes('transcribe');
     return true;
   });
 
@@ -174,7 +175,7 @@ export function RiiqxAIControlCenter() {
           </div>
           <div className="mt-2 text-xl font-black text-white">{freeModelsCount || 7} Live Models</div>
           <div className="mt-1 text-[10px] text-[#A3A3A3]">
-            Groq LPU, OpenRouter &amp; Cohere Free
+            Google AI Studio, Groq LPU, OpenRouter &amp; Cohere Free
           </div>
         </div>
 
@@ -301,10 +302,11 @@ export function RiiqxAIControlCenter() {
         <div className="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-xs">
           {[
             { id: 'all', label: 'All Free Models', icon: BrainCircuit },
-            { id: 'reasoning', label: 'Reasoning (Nemotron)', icon: Sparkles },
-            { id: 'fast', label: 'Fast (214ms Groq)', icon: Zap },
-            { id: 'coding', label: 'Coding (North Mini)', icon: Code2 },
-            { id: 'multilingual', label: 'Bengali / Indic (Aya)', icon: Globe },
+            { id: 'vision', label: 'Multimodal / Vision (Gemini)', icon: Layers },
+            { id: 'reasoning', label: 'Reasoning (Nemotron / Gemini 3)', icon: Sparkles },
+            { id: 'fast', label: 'Fast (Groq / Flash-Lite)', icon: Zap },
+            { id: 'coding', label: 'Coding (North Mini / Gemma)', icon: Code2 },
+            { id: 'multilingual', label: 'Bengali / Multilingual (Aya / Gemini)', icon: Globe },
             { id: 'audio', label: 'Audio & Whisper', icon: Mic },
           ].map((cat) => {
             const Icon = cat.icon;

@@ -76,8 +76,24 @@ export function VideoProductionTab({
   );
 
   // Uploaded media files
-  const [uploadedAssets, setUploadedAssets] = useState<IngestedMediaFile[]>([]);
+  const [uploadedAssets, setUploadedAssets] = useState<IngestedMediaFile[]>(() => {
+    if (project?.brief?.assets && project.brief.assets.length > 0) {
+      return project.brief.assets
+        .filter((a) => a.url)
+        .map((a) => ({
+          id: a.id,
+          name: a.name,
+          mediaType: (a.type === 'video' ? 'video' : 'image') as 'image' | 'video',
+          mimeType: a.type === 'video' ? 'video/mp4' : 'image/jpeg',
+          sizeBytes: a.sizeBytes,
+          localUrl: a.url,
+          uploadedAt: new Date().toISOString(),
+        }));
+    }
+    return [];
+  });
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const imageCacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
 
   // AI Prompt Assistant State
   const [editPrompt, setEditPrompt] = useState('');
@@ -129,32 +145,82 @@ export function VideoProductionTab({
       const ctx = canvas.getContext('2d');
       if (!ctx) return;
 
-      // 1. Dynamic Canvas Background based on activeFilter
-      const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-      if (activeFilter === 'teal_orange') {
-        grad.addColorStop(0, '#041E28');
-        grad.addColorStop(0.5, '#0F172A');
-        grad.addColorStop(1, '#2E1505');
-      } else if (activeFilter === 'cyberpunk') {
-        grad.addColorStop(0, '#1E0528');
-        grad.addColorStop(0.5, '#0A061E');
-        grad.addColorStop(1, '#052328');
-      } else if (activeFilter === 'noir') {
-        grad.addColorStop(0, '#000000');
-        grad.addColorStop(0.5, '#151515');
-        grad.addColorStop(1, '#2E2E2E');
-      } else if (activeFilter === 'vintage') {
-        grad.addColorStop(0, '#241D17');
-        grad.addColorStop(0.5, '#1A1815');
-        grad.addColorStop(1, '#33271D');
-      } else {
-        // clean
-        grad.addColorStop(0, '#0F0F0F');
-        grad.addColorStop(0.5, '#151515');
-        grad.addColorStop(1, '#202020');
+      // 1. Render User-Uploaded Photo/Video with 9:16 Vertical Safe Crop or Fallback Gradient
+      let hasDrawnMedia = false;
+      if (uploadedAssets.length > 0) {
+        const activeIdx = Math.floor((time / duration) * uploadedAssets.length) % uploadedAssets.length;
+        const currentAsset = uploadedAssets[activeIdx];
+        const cachedImg = imageCacheRef.current.get(currentAsset.id);
+
+        if (cachedImg && cachedImg.complete && cachedImg.naturalWidth > 0) {
+          const imgW = cachedImg.naturalWidth;
+          const imgH = cachedImg.naturalHeight;
+          const targetRatio = canvas.width / canvas.height; // 9/16 = 0.5625
+          const currentRatio = imgW / imgH;
+
+          let sx = 0;
+          let sy = 0;
+          let sWidth = imgW;
+          let sHeight = imgH;
+
+          if (currentRatio > targetRatio) {
+            // Landscape or square: center-crop sides to 9:16 vertical
+            sWidth = imgH * targetRatio;
+            sx = (imgW - sWidth) / 2;
+          } else {
+            // Extra tall: center-crop top/bottom
+            sHeight = imgW / targetRatio;
+            sy = (imgH - sHeight) / 2;
+          }
+
+          ctx.drawImage(cachedImg, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+          hasDrawnMedia = true;
+
+          // CapCut / Instagram Grade Color Filter Overlay
+          ctx.save();
+          if (activeFilter === 'teal_orange') {
+            ctx.fillStyle = 'rgba(4, 30, 40, 0.3)';
+          } else if (activeFilter === 'cyberpunk') {
+            ctx.fillStyle = 'rgba(30, 5, 40, 0.35)';
+          } else if (activeFilter === 'noir') {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+          } else if (activeFilter === 'vintage') {
+            ctx.fillStyle = 'rgba(36, 29, 23, 0.3)';
+          } else {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+          }
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.restore();
+        }
       }
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      if (!hasDrawnMedia) {
+        const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        if (activeFilter === 'teal_orange') {
+          grad.addColorStop(0, '#041E28');
+          grad.addColorStop(0.5, '#0F172A');
+          grad.addColorStop(1, '#2E1505');
+        } else if (activeFilter === 'cyberpunk') {
+          grad.addColorStop(0, '#1E0528');
+          grad.addColorStop(0.5, '#0A061E');
+          grad.addColorStop(1, '#052328');
+        } else if (activeFilter === 'noir') {
+          grad.addColorStop(0, '#000000');
+          grad.addColorStop(0.5, '#151515');
+          grad.addColorStop(1, '#2E2E2E');
+        } else if (activeFilter === 'vintage') {
+          grad.addColorStop(0, '#241D17');
+          grad.addColorStop(0.5, '#1A1815');
+          grad.addColorStop(1, '#33271D');
+        } else {
+          // clean
+          grad.addColorStop(0, '#0F0F0F');
+          grad.addColorStop(0.5, '#151515');
+          grad.addColorStop(1, '#202020');
+        }
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
 
       // 2. Dynamic Audio Waveform Animation
       ctx.strokeStyle = activeFilter === 'cyberpunk' ? '#00F0FF' : '#FFD43B';
@@ -213,8 +279,24 @@ export function VideoProductionTab({
         ctx.fillText(text, canvas.width / 2, canvas.height * 0.74);
       }
     },
-    [activeFilter, captionStyle, duration, project]
+    [activeFilter, captionStyle, duration, project, uploadedAssets]
   );
+
+  // Preload and cache uploaded media assets (images/video frames) for zero-latency 9:16 rendering
+  useEffect(() => {
+    uploadedAssets.forEach((asset) => {
+      const url = asset.localUrl;
+      if (url && !imageCacheRef.current.has(asset.id)) {
+        const img = new window.Image();
+        img.crossOrigin = 'anonymous';
+        img.src = url;
+        img.onload = () => {
+          imageCacheRef.current.set(asset.id, img);
+          drawFrame(currentTime);
+        };
+      }
+    });
+  }, [uploadedAssets, drawFrame, currentTime]);
 
   useEffect(() => {
     drawFrame(currentTime);

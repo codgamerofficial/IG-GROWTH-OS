@@ -255,18 +255,18 @@ test('Research Engine: Formats Real Citations into Markdown Footnotes', () => {
 // -----------------------------------------------------------------------------
 // Test 10: Full Android Mobile Application Architecture
 // -----------------------------------------------------------------------------
-test('Mobile Client: Expo SDK 51, com.riiqx.app Package, and Hardware SecureStore', () => {
+test('Mobile Client: Expo SDK 57, com.riiqx.app Package, and Hardware SecureStore', () => {
   const mobileConfig = {
     name: 'RIIQX',
     slug: 'riiqx',
     package: 'com.riiqx.app',
-    tabs: ['index', 'creator', 'autopilot', 'tasks', 'settings'],
+    tabs: ['index', 'chat', 'creator', 'autopilot', 'tasks', 'settings'],
     secureStoreKey: 'riiqx_auth_token',
   };
 
   assert.strictEqual(mobileConfig.name, 'RIIQX');
   assert.strictEqual(mobileConfig.package, 'com.riiqx.app');
-  assert.strictEqual(mobileConfig.tabs.length, 5);
+  assert.strictEqual(mobileConfig.tabs.length, 6);
   assert.strictEqual(mobileConfig.secureStoreKey, 'riiqx_auth_token');
 });
 

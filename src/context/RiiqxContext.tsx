@@ -67,7 +67,12 @@ interface RiiqxContextType {
   selectedModel: RiiqxModel;
   setSelectedModel: (model: RiiqxModel) => void;
   providerHealth: {
+    google?: ProviderHealth;
     bedrock?: ProviderHealth;
+    groq?: ProviderHealth;
+    openrouter?: ProviderHealth;
+    cohere?: ProviderHealth;
+    openai?: ProviderHealth;
     agentrouter?: ProviderHealth;
     ollama?: ProviderHealth;
   } | null;
@@ -237,9 +242,14 @@ export function RiiqxProvider({ children }: { children: ReactNode }) {
   );
 
   const [models] = useState<RiiqxModel[]>(RIIQX_MODELS);
-  const [selectedModel, setSelectedModel] = useState<RiiqxModel>(RIIQX_MODELS[0]); // Default: AWS Bedrock Claude Sonnet
+  const [selectedModel, setSelectedModel] = useState<RiiqxModel>(RIIQX_MODELS[0]); // Default: Gemini 2.5 Flash / Groq Qwen
   const [providerHealth, setProviderHealth] = useState<{
+    google?: ProviderHealth;
     bedrock?: ProviderHealth;
+    groq?: ProviderHealth;
+    openrouter?: ProviderHealth;
+    cohere?: ProviderHealth;
+    openai?: ProviderHealth;
     agentrouter?: ProviderHealth;
     ollama?: ProviderHealth;
   } | null>(null);

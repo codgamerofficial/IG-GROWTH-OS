@@ -253,7 +253,7 @@ MSFT,"Microsoft Corporation",us_stock,4,390,428,USD`;
                 <Ionicons name="file-tray-outline" size={32} color={theme.textMuted} />
                 <Text style={[styles.emptyTitle, { color: theme.textPrimary }]}>No holdings in this category</Text>
                 <Text style={[styles.emptySub, { color: theme.textSecondary }]}>
-                  Tap "+ Add Asset" above to record a stock, mutual fund, FD, or bond.
+                  Tap &quot;+ Add Asset&quot; above to record a stock, mutual fund, FD, or bond.
                 </Text>
               </View>
             ) : (

@@ -23,6 +23,12 @@ const PUBLIC_PATHS = [
   '/api/riiqx/health',
   '/api/riiqx/models',
   '/api/riiqx/tasks',
+  '/api/riiqx/creator',
+  '/api/riiqx/autopilot',
+  '/api/riiqx/documents',
+  '/api/riiqx/analytics',
+  '/api/riiqx/export',
+  '/api/riiqx/tools',
   '/api/creator',
   '/api/health',
   '/api/social/oauth',
@@ -79,8 +85,10 @@ export async function updateSession(request: NextRequest) {
     user = null;
   }
 
-  // Check fallback local session cookie (for offline/local testing)
-  const localSession = request.cookies.get('riiqx_session')?.value;
+  // Check fallback local session cookie (for offline/local testing) or Bearer authorization header
+  const authHeader = request.headers.get('authorization');
+  const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
+  const localSession = request.cookies.get('riiqx_session')?.value || bearerToken;
   const isAuthenticated = Boolean(user || localSession);
 
   const isPublicPath = PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(path + '/'));

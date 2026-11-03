@@ -1,10 +1,11 @@
 // =============================================================================
-// PujaHop Kolkata Mobile: Supabase Native Client
-// AsyncStorage Session Persistence • Strict Anon Key Only • Zero Service Role
+// RIIQX Mobile — Supabase Native Client
+// AsyncStorage Session Persistence · SSR-Safe · Strict Anon Key · Zero Service Role
 // =============================================================================
 
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import type { Database } from '../types/database.types';
 
 const supabaseUrl =
@@ -25,9 +26,39 @@ export const isMobileSupabaseConfigured = (): boolean => {
   );
 };
 
+// SSR-Safe Storage wrapper preventing "window is not defined" during web static rendering
+const isBrowser = typeof window !== 'undefined';
+
+const safeStorage = {
+  getItem: async (key: string): Promise<string | null> => {
+    if (Platform.OS === 'web' && !isBrowser) return null;
+    try {
+      return await AsyncStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  },
+  setItem: async (key: string, value: string): Promise<void> => {
+    if (Platform.OS === 'web' && !isBrowser) return;
+    try {
+      await AsyncStorage.setItem(key, value);
+    } catch {
+      // Ignored
+    }
+  },
+  removeItem: async (key: string): Promise<void> => {
+    if (Platform.OS === 'web' && !isBrowser) return;
+    try {
+      await AsyncStorage.removeItem(key);
+    } catch {
+      // Ignored
+    }
+  },
+};
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: AsyncStorage,
+    storage: safeStorage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,

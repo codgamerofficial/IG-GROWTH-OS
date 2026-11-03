@@ -1,49 +1,110 @@
+// =============================================================================
+// RIIQX — Creator Studio & Project Persistence API Gateway
+// Multi-Device Synchronized Workspace (Web + Mobile Parity)
+// =============================================================================
+
 import { NextRequest, NextResponse } from 'next/server';
 import { generateStoryboard, validateVideoOutput } from '@/lib/riiqx/creator-engine';
-import { CreatorBrief } from '@/lib/riiqx/creator-types';
+import { CreatorBrief, CreatorProject } from '@/lib/riiqx/creator-types';
+import {
+  listCreatorProjects,
+  saveCreatorProject,
+  saveAllCreatorProjects,
+  deleteCreatorProject,
+  getCreatorProject,
+} from '@/lib/riiqx/creator-store';
 
 export const dynamic = 'force-dynamic';
 
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (id) {
+      const project = getCreatorProject(id);
+      if (!project) {
+        return NextResponse.json({ error: 'Project not found' }, { status: 404 });
+      }
+      return NextResponse.json({ success: true, project });
+    }
+
+    const projects = listCreatorProjects();
+    return NextResponse.json({
+      success: true,
+      projects,
+      total: projects.length,
+      activeProjectsCount: projects.length,
+    });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Failed to retrieve creator projects';
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
-    let raw: Partial<CreatorBrief>;
+    let body: any;
     try {
-      raw = await req.json();
+      body = await req.json();
     } catch {
       return NextResponse.json({ error: 'Invalid or missing JSON payload.' }, { status: 400 });
     }
 
-    if (!raw || typeof raw !== 'object') {
+    if (!body || typeof body !== 'object') {
       return NextResponse.json({ error: 'Request body must be a JSON object.' }, { status: 400 });
     }
 
-    if (!raw.topic || !raw.topic.trim()) {
+    // 1. Save or Update Single Project
+    if (body.action === 'save_project' && body.project) {
+      const saved = saveCreatorProject(body.project as CreatorProject);
+      return NextResponse.json({ success: true, project: saved });
+    }
+
+    // 2. Synchronize Batch of Projects
+    if (body.action === 'sync_projects' && Array.isArray(body.projects)) {
+      saveAllCreatorProjects(body.projects as CreatorProject[]);
+      return NextResponse.json({
+        success: true,
+        projects: listCreatorProjects(),
+        total: listCreatorProjects().length,
+      });
+    }
+
+    // 3. Delete Project Action
+    if (body.action === 'delete_project' && body.id) {
+      const deleted = deleteCreatorProject(body.id);
+      return NextResponse.json({ success: deleted });
+    }
+
+    // 4. Default: Storyboard & Script Generation
+    if (!body.topic || !body.topic.trim()) {
       return NextResponse.json({ error: 'Topic is required.' }, { status: 400 });
     }
 
     const brief: CreatorBrief = {
-      id: raw.id || `brief_${Date.now()}`,
-      topic: raw.topic.trim(),
-      niche: raw.niche?.trim() || 'Tech & AI',
-      targetAudience: raw.targetAudience?.trim() || 'General Audience',
-      platform: raw.platform || 'instagram_reels',
-      aspectRatio: raw.aspectRatio || '9:16',
-      durationSeconds: raw.durationSeconds || 30,
-      creationPreset: raw.creationPreset || 'viral_hook',
-      creativeDirection: raw.creativeDirection || 'safe_relevant',
-      brandVoice: raw.brandVoice || raw.tone || 'energetic',
-      tone: raw.tone || raw.brandVoice || 'energetic',
-      language: raw.language || 'en',
-      goal: raw.goal || 'Educate and Engage',
-      includeSubtitles: raw.includeSubtitles ?? true,
-      backgroundMusic: raw.backgroundMusic || 'ambient_synth',
-      trendingAudioVibe: raw.trendingAudioVibe || 'phonk',
-      captionStyle: raw.captionStyle || 'mrbeast',
-      callToAction: raw.callToAction || 'Follow @RIIQX for daily breakdowns',
-      watermark: raw.watermark,
-      voiceoverEnabled: raw.voiceoverEnabled ?? true,
-      musicVolume: raw.musicVolume ?? 0.6,
-      assets: raw.assets || [],
+      id: body.id || `brief_${Date.now()}`,
+      topic: body.topic.trim(),
+      niche: body.niche?.trim() || 'Tech & AI',
+      targetAudience: body.targetAudience?.trim() || 'General Audience',
+      platform: body.platform || 'instagram_reels',
+      aspectRatio: body.aspectRatio || '9:16',
+      durationSeconds: body.durationSeconds || 30,
+      creationPreset: body.creationPreset || 'viral_hook',
+      creativeDirection: body.creativeDirection || 'safe_relevant',
+      brandVoice: body.brandVoice || body.tone || 'energetic',
+      tone: body.tone || body.brandVoice || 'energetic',
+      language: body.language || 'en',
+      goal: body.goal || 'Educate and Engage',
+      includeSubtitles: body.includeSubtitles ?? true,
+      backgroundMusic: body.backgroundMusic || 'ambient_synth',
+      trendingAudioVibe: body.trendingAudioVibe || 'phonk',
+      captionStyle: body.captionStyle || 'mrbeast',
+      callToAction: body.callToAction || 'Follow @RIIQX for daily breakdowns',
+      watermark: body.watermark,
+      voiceoverEnabled: body.voiceoverEnabled ?? true,
+      musicVolume: body.musicVolume ?? 0.6,
+      assets: body.assets || [],
     };
 
     const storyboard = generateStoryboard(brief);
@@ -56,6 +117,21 @@ export async function POST(req: NextRequest) {
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Creator Studio error';
+    return NextResponse.json({ error: msg }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    if (!id) {
+      return NextResponse.json({ error: 'Missing project id parameter' }, { status: 400 });
+    }
+    const success = deleteCreatorProject(id);
+    return NextResponse.json({ success });
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'Failed to delete project';
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

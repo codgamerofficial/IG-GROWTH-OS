@@ -5,7 +5,7 @@
   "version": "2.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p 3001",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -14,10 +14,11 @@
     "test:riiqx": "node tests/test-riiqx.mjs",
     "test:finance": "node tests/test-riiqx-finance.mjs",
     "test:ai": "node tests/test-ai-infrastructure.mjs",
-    "mobile:start": "cd mobile && npx expo start",
+    "mobile:start": "cd mobile && npx expo start --offline",
     "mobile:android": "cd mobile && npx expo start --android",
     "mobile:ios": "cd mobile && npx expo start --ios",
-    "mobile:typecheck": "cd mobile && npx tsc --noEmit"
+    "mobile:typecheck": "cd mobile && npx tsc --noEmit",
+    "mobile:test": "node tests/test-mobile-app.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.1147.0",

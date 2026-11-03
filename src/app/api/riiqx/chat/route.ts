@@ -111,6 +111,17 @@ function detectToolIntent(userText: string): ToolExecutionCandidate | null {
 
 function detectTaskType(userText: string): TaskType {
   const text = userText.toLowerCase();
+  if (
+    text.includes('photo') ||
+    text.includes('image') ||
+    text.includes('picture') ||
+    text.includes('visual') ||
+    text.includes('vision') ||
+    text.includes('screenshot') ||
+    text.includes('video frame')
+  ) {
+    return 'vision';
+  }
   if (text.includes('code') || text.includes('bug') || text.includes('function') || text.includes('typescript') || text.includes('error')) {
     return 'coding';
   }
@@ -163,7 +174,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid or missing JSON payload.' }, { status: 400 });
     }
 
-    const { modelId, messages, enableWebSearch, documents, stream: requestStreaming } = body;
+    const {
+      modelId,
+      messages,
+      enableWebSearch,
+      documents,
+      stream: requestStreaming,
+      taskCategory,
+    } = body;
 
     if (!Array.isArray(messages) || messages.length === 0) {
       return NextResponse.json({ error: 'Messages array is required.' }, { status: 400 });
@@ -182,7 +200,7 @@ export async function POST(req: NextRequest) {
     }
 
     const lastUserMessage = validMessages[validMessages.length - 1];
-    const taskType = detectTaskType(lastUserMessage.content);
+    const taskType = (taskCategory as TaskType) || detectTaskType(lastUserMessage.content);
 
     // Resolve model using intelligent router
     const route = ModelRouter.routeModelForTask(taskType, modelId);
@@ -253,7 +271,11 @@ ${augmentedUserContent}`;
 
     const processedMessages = [
       ...validMessages.slice(0, -1),
-      { role: lastUserMessage.role, content: augmentedUserContent },
+      {
+        role: lastUserMessage.role,
+        content: augmentedUserContent,
+        attachments: (lastUserMessage as any).attachments,
+      },
     ];
 
     const acceptsSSE =

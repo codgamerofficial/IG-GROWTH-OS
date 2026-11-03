@@ -35,10 +35,10 @@ export default function OnboardingSuccessScreen() {
 
         {/* Headings */}
         <Text style={[styles.title, { color: theme.textPrimary }]}>
-          You're all set!
+          You&apos;re all set!
         </Text>
         <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-          Your accounts are synchronized and ready to monitor. Let's build a smarter financial future together.
+          Your accounts are synchronized and ready to monitor. Let&apos;s build a smarter financial future together.
         </Text>
 
         {/* Portfolio Snapshot Summary Card */}

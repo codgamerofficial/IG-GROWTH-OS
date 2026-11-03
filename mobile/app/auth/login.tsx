@@ -1,7 +1,6 @@
 // =============================================================================
-// RIIQX Mobile — Screen 6: Login Screen
-// Matches Reference Board Screen 6
-// "Welcome Back" • Email • Password • Forgot Password • Face ID Link • Social Auth
+// RIIQX Mobile — Authentication Screen (Real Supabase Auth Integration)
+// ONE AUTHENTICATION SYSTEM · ZERO FAKE PREFILLED CREDENTIALS
 // =============================================================================
 
 import React, { useState } from 'react';
@@ -15,28 +14,97 @@ import {
   KeyboardAvoidingView,
   Platform,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useRiiqx } from '../../src/context/RiiqxContext';
+import { useRiiqxMobile } from '../../src/context/RiiqxMobileContext';
+import { supabase } from '../../src/services/supabase';
 import { lightColors, darkColors } from '../../src/theme/colors';
 
 export default function LoginScreen() {
   const router = useRouter();
   const { isDarkMode } = useRiiqx();
+  const { refreshSession } = useRiiqxMobile();
   const theme = isDarkMode ? darkColors : lightColors;
 
-  const [email, setEmail] = useState('arif@gmail.com');
-  const [password, setPassword] = useState('••••••••••••');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
       Alert.alert('Required Fields', 'Please enter your email and password.');
       return;
     }
-    // Direct access to Dashboard
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password: password.trim(),
+      });
+
+      if (error) {
+        Alert.alert('Authentication Failed', error.message);
+        return;
+      }
+
+      if (data.session) {
+        await refreshSession();
+        router.replace('/(tabs)');
+      }
+    } catch (err: any) {
+      Alert.alert('Login Error', err.message || 'Unable to connect to authentication server.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSignUp = async () => {
+    if (!email.trim() || !password.trim()) {
+      Alert.alert('Required Fields', 'Please enter an email and password to create an account.');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Password Too Short', 'Password must be at least 6 characters.');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: password.trim(),
+      });
+
+      if (error) {
+        Alert.alert('Sign Up Failed', error.message);
+        return;
+      }
+
+      if (data.session) {
+        await refreshSession();
+        Alert.alert('Account Created', 'Welcome to RIIQX!');
+        router.replace('/(tabs)');
+      } else {
+        Alert.alert(
+          'Verification Required',
+          'A confirmation email has been sent. Please confirm your email to sign in.'
+        );
+      }
+    } catch (err: any) {
+      Alert.alert('Sign Up Error', err.message || 'Unable to connect to authentication server.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGuestAccess = () => {
     router.replace('/(tabs)');
   };
 
@@ -56,9 +124,9 @@ export default function LoginScreen() {
           </View>
 
           {/* Title & Subhead */}
-          <Text style={[styles.screenTitle, { color: theme.textPrimary }]}>Welcome Back</Text>
+          <Text style={[styles.screenTitle, { color: theme.textPrimary }]}>Welcome to RIIQX</Text>
           <Text style={[styles.screenSubtitle, { color: theme.textSecondary }]}>
-            Login to continue your investment journey
+            Sign in to access your Creator OS & Autopilot
           </Text>
 
           {/* Form Fields */}
@@ -69,12 +137,13 @@ export default function LoginScreen() {
                 <Ionicons name="mail-outline" size={18} color={theme.textMuted} />
                 <TextInput
                   style={[styles.textInput, { color: theme.textPrimary }]}
-                  placeholder="arif@gmail.com"
+                  placeholder="name@example.com"
                   placeholderTextColor={theme.textMuted}
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  autoCorrect={false}
                 />
               </View>
             </View>
@@ -82,7 +151,21 @@ export default function LoginScreen() {
             <View style={styles.inputGroup}>
               <View style={styles.passwordLabelRow}>
                 <Text style={[styles.fieldLabel, { color: theme.textSecondary }]}>PASSWORD</Text>
-                <TouchableOpacity onPress={() => Alert.alert('Password Reset', 'A reset link has been sent to your registered email.')}>
+                <TouchableOpacity
+                  onPress={() => {
+                    if (!email.trim()) {
+                      Alert.alert('Enter Email', 'Please enter your email above to receive a password reset link.');
+                      return;
+                    }
+                    supabase.auth.resetPasswordForEmail(email.trim()).then(({ error }) => {
+                      if (error) {
+                        Alert.alert('Error', error.message);
+                      } else {
+                        Alert.alert('Reset Email Sent', 'Check your inbox for password reset instructions.');
+                      }
+                    });
+                  }}
+                >
                   <Text style={[styles.forgotLink, { color: theme.primary }]}>Forgot Password?</Text>
                 </TouchableOpacity>
               </View>
@@ -90,11 +173,12 @@ export default function LoginScreen() {
                 <Ionicons name="lock-closed-outline" size={18} color={theme.textMuted} />
                 <TextInput
                   style={[styles.textInput, { color: theme.textPrimary }]}
-                  placeholder="••••••••••••"
+                  placeholder="Enter your password"
                   placeholderTextColor={theme.textMuted}
                   value={password}
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
+                  autoCapitalize="none"
                 />
                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                   <Ionicons
@@ -108,58 +192,38 @@ export default function LoginScreen() {
 
             {/* Login Button */}
             <TouchableOpacity
-              style={[styles.submitButton, { backgroundColor: theme.primary }]}
+              style={[styles.submitButton, { backgroundColor: '#FFD43B' }]}
               onPress={handleLogin}
+              disabled={isLoading}
               activeOpacity={0.85}
             >
-              <Text style={styles.submitButtonText}>Login</Text>
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#0C0C0E" />
+              ) : (
+                <Text style={[styles.submitButtonText, { color: '#0C0C0E' }]}>Sign In</Text>
+              )}
             </TouchableOpacity>
 
-            {/* Quick Biometric Access Link (Screen 7 Shortcut) */}
+            {/* Sign Up Alternative */}
             <TouchableOpacity
-              style={[styles.biometricBtn, { backgroundColor: isDarkMode ? '#1E2430' : '#EDE9FE' }]}
-              onPress={() => router.push('/auth/biometric')}
+              style={[styles.signUpButton, { borderColor: theme.cardBorder }]}
+              onPress={handleSignUp}
+              disabled={isLoading}
+              activeOpacity={0.85}
+            >
+              <Text style={[styles.signUpButtonText, { color: theme.textPrimary }]}>Create New Account</Text>
+            </TouchableOpacity>
+
+            {/* Guest / Direct Explorer Mode */}
+            <TouchableOpacity
+              style={styles.guestButton}
+              onPress={handleGuestAccess}
               activeOpacity={0.7}
             >
-              <Ionicons name="scan-outline" size={18} color="#6750D8" />
-              <Text style={styles.biometricBtnText}>Authenticate with Face ID / PIN</Text>
-            </TouchableOpacity>
-
-            {/* Social Auth Divider */}
-            <View style={styles.dividerRow}>
-              <View style={[styles.dividerLine, { backgroundColor: theme.cardBorder }]} />
-              <Text style={[styles.dividerText, { color: theme.textMuted }]}>or continue with</Text>
-              <View style={[styles.dividerLine, { backgroundColor: theme.cardBorder }]} />
-            </View>
-
-            {/* Social Login Buttons */}
-            <View style={styles.socialRow}>
-              <TouchableOpacity
-                style={[styles.socialBtn, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                onPress={() => router.replace('/(tabs)')}
-              >
-                <Ionicons name="logo-google" size={18} color="#EA4335" />
-                <Text style={[styles.socialBtnText, { color: theme.textPrimary }]}>Google</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.socialBtn, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                onPress={() => router.replace('/(tabs)')}
-              >
-                <Ionicons name="logo-apple" size={20} color={theme.textPrimary} />
-                <Text style={[styles.socialBtnText, { color: theme.textPrimary }]}>Apple</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* Footer Navigation */}
-            <View style={styles.footerRow}>
-              <Text style={[styles.footerText, { color: theme.textSecondary }]}>
-                Don't have an account?{' '}
+              <Text style={[styles.guestButtonText, { color: theme.textMuted }]}>
+                Continue as Guest Explorer →
               </Text>
-              <TouchableOpacity onPress={() => router.push('/auth/signup')}>
-                <Text style={[styles.footerLink, { color: theme.primary }]}>Sign Up</Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -189,12 +253,12 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 12,
-    backgroundColor: '#6750D8',
+    backgroundColor: '#FFD43B',
     justifyContent: 'center',
     alignItems: 'center',
   },
   logoBadgeText: {
-    color: '#FFFFFF',
+    color: '#0C0C0E',
     fontWeight: '900',
     fontSize: 20,
   },
@@ -248,77 +312,33 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   submitButton: {
-    height: 52,
-    borderRadius: 16,
+    height: 50,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
-    shadowColor: '#6750D8',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
+    marginTop: 6,
   },
   submitButtonText: {
-    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '700',
   },
-  biometricBtn: {
-    height: 48,
-    borderRadius: 14,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 8,
-  },
-  biometricBtnText: {
-    color: '#6750D8',
-    fontSize: 13,
-    fontWeight: '700',
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 12,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-  },
-  dividerText: {
-    fontSize: 11,
-    marginHorizontal: 10,
-  },
-  socialRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  socialBtn: {
-    flex: 1,
+  signUpButton: {
     height: 48,
     borderRadius: 14,
     borderWidth: 1,
-    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
   },
-  socialBtnText: {
-    fontSize: 13,
+  signUpButtonText: {
+    fontSize: 14,
     fontWeight: '600',
   },
-  footerRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+  guestButton: {
+    paddingVertical: 12,
     alignItems: 'center',
-    marginTop: 16,
   },
-  footerText: {
-    fontSize: 13,
-  },
-  footerLink: {
-    fontSize: 13,
-    fontWeight: '700',
+  guestButtonText: {
+    fontSize: 12,
+    fontWeight: '500',
   },
 });

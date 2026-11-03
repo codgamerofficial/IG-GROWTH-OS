@@ -8,11 +8,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  SafeAreaView,
   Image,
   ScrollView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { colors } from '../../src/theme/colors';
@@ -65,7 +65,7 @@ export default function MobileVideoEditorScreen() {
             borderRadius: 16,
           }}
         >
-          <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '800' }}>
+          <Text style={{ color: '#0C0C0E', fontSize: 12, fontWeight: '800' }}>
             {isExporting ? 'Exporting...' : '+ Export'}
           </Text>
         </TouchableOpacity>

@@ -9,6 +9,7 @@ import { executeToolSafe, RiiqxToolResult } from './tools';
 import { recordInferenceUsage } from './usage-monitor';
 
 export type AIProviderId =
+  | 'google'
   | 'openrouter'
   | 'groq'
   | 'cohere'
@@ -80,6 +81,7 @@ export interface ProviderRecord {
 // In-Memory Circuit Breakers
 // -----------------------------------------------------------------------------
 const CIRCUIT_BREAKERS: Record<AIProviderId, CircuitBreakerState> = {
+  google: { state: 'closed', failureCount: 0, lastFailureTime: 0 },
   openrouter: { state: 'closed', failureCount: 0, lastFailureTime: 0 },
   groq: { state: 'closed', failureCount: 0, lastFailureTime: 0 },
   cohere: { state: 'closed', failureCount: 0, lastFailureTime: 0 },
@@ -127,6 +129,162 @@ function recordFailure(providerId: AIProviderId, error: string) {
 // Model Capabilities Catalog
 // -----------------------------------------------------------------------------
 export const MODEL_CAPABILITIES_CATALOG: Record<string, ModelCapabilitySpec> = {
+  // 0. Google AI Studio / Gemini Generative Language (Verified 100% Free Developer Tier)
+  'gemini-2.5-flash': {
+    modelId: 'gemini-2.5-flash',
+    provider: 'google',
+    name: 'Gemini 2.5 Flash (Google AI Studio Free Tier)',
+    contextWindow: 1048576,
+    streaming: true,
+    toolCalling: true,
+    structuredOutput: true,
+    vision: true,
+    embeddings: false,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['general', 'vision', 'reasoning', 'scriptwriting', 'fast'],
+  },
+  'gemini-2.5-flash-lite': {
+    modelId: 'gemini-2.5-flash-lite',
+    provider: 'google',
+    name: 'Gemini 2.5 Flash-Lite (Google AI Studio Free Tier)',
+    contextWindow: 1048576,
+    streaming: true,
+    toolCalling: true,
+    structuredOutput: true,
+    vision: true,
+    embeddings: false,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['fast', 'general', 'vision'],
+  },
+  'gemini-flash-lite-latest': {
+    modelId: 'gemini-flash-lite-latest',
+    provider: 'google',
+    name: 'Gemini Flash-Lite Latest (Google AI Studio Free Tier)',
+    contextWindow: 1048576,
+    streaming: true,
+    toolCalling: true,
+    structuredOutput: true,
+    vision: true,
+    embeddings: false,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['fast', 'general'],
+  },
+  'gemini-3-flash-preview': {
+    modelId: 'gemini-3-flash-preview',
+    provider: 'google',
+    name: 'Gemini 3 Flash Preview (Google AI Studio Free Tier)',
+    contextWindow: 1048576,
+    streaming: true,
+    toolCalling: true,
+    structuredOutput: true,
+    vision: true,
+    embeddings: false,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['reasoning', 'general', 'vision'],
+  },
+  'gemini-3.5-flash': {
+    modelId: 'gemini-3.5-flash',
+    provider: 'google',
+    name: 'Gemini 3.5 Flash (Google AI Studio Free Tier)',
+    contextWindow: 1048576,
+    streaming: true,
+    toolCalling: true,
+    structuredOutput: true,
+    vision: true,
+    embeddings: false,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['general', 'vision', 'reasoning'],
+  },
+  'gemini-3.5-flash-lite': {
+    modelId: 'gemini-3.5-flash-lite',
+    provider: 'google',
+    name: 'Gemini 3.5 Flash-Lite (Google AI Studio Free Tier)',
+    contextWindow: 1048576,
+    streaming: true,
+    toolCalling: true,
+    structuredOutput: true,
+    vision: true,
+    embeddings: false,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['fast', 'general'],
+  },
+  'gemini-3.6-flash': {
+    modelId: 'gemini-3.6-flash',
+    provider: 'google',
+    name: 'Gemini 3.6 Flash (Google AI Studio Free Tier)',
+    contextWindow: 1048576,
+    streaming: true,
+    toolCalling: true,
+    structuredOutput: true,
+    vision: true,
+    embeddings: false,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['general', 'vision', 'reasoning'],
+  },
+  'gemma-4-26b-a4b-it': {
+    modelId: 'gemma-4-26b-a4b-it',
+    provider: 'google',
+    name: 'Gemma 4 26B IT (Google Generative AI Free Tier)',
+    contextWindow: 262144,
+    streaming: true,
+    toolCalling: false,
+    structuredOutput: true,
+    vision: false,
+    embeddings: false,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['general', 'coding'],
+  },
+  'gemini-embedding-001': {
+    modelId: 'gemini-embedding-001',
+    provider: 'google',
+    name: 'Gemini Embedding 001 (Google AI Studio)',
+    contextWindow: 2048,
+    streaming: false,
+    toolCalling: false,
+    structuredOutput: false,
+    vision: false,
+    embeddings: true,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['research'],
+  },
+  'gemini-embedding-2': {
+    modelId: 'gemini-embedding-2',
+    provider: 'google',
+    name: 'Gemini Embedding 2 (Google AI Studio)',
+    contextWindow: 8192,
+    streaming: false,
+    toolCalling: false,
+    structuredOutput: false,
+    vision: true,
+    embeddings: true,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['research'],
+  },
+  'gemini-3.5-transcribe': {
+    modelId: 'gemini-3.5-transcribe',
+    provider: 'google',
+    name: 'Gemini 3.5 Transcribe (Google Audio Free Tier)',
+    contextWindow: 98304,
+    streaming: false,
+    toolCalling: false,
+    structuredOutput: true,
+    vision: false,
+    embeddings: false,
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['fast'],
+  },
+
   // 1. Groq Ultra-Fast (Free Tier)
   'qwen/qwen3.8-27b': {
     modelId: 'qwen/qwen3.8-27b',
@@ -330,6 +488,12 @@ export class AIProviderRegistry {
    * Safe discovery of configured providers without exposing secrets
    */
   public static getProviders(): ProviderRecord[] {
+    const geminiKey = Boolean(
+      process.env.GEMINI_API_KEY ||
+        process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+        process.env.GOOGLE_AI_STUDIO_API_KEY ||
+        process.env.GOOGLE_API_KEY
+    );
     const groqKey = Boolean(process.env.GROQ_API_KEY);
     const openrouterKey = Boolean(
       process.env.OPENROUTER_API_KEY || process.env['sk-or-v1-openrouter_api_key']
@@ -352,6 +516,45 @@ export class AIProviderRegistry {
     );
 
     return [
+      // 0. Google AI Studio / Gemini Generative Language (Verified 100% Free Developer Tier)
+      {
+        providerId: 'google',
+        displayName: 'Google AI Studio (Gemini)',
+        configVarNames: ['GEMINI_API_KEY', 'GOOGLE_GENERATIVE_AI_API_KEY'],
+        authMethod: 'header-key',
+        apiBaseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+        availableModels: [
+          'gemini-2.5-flash',
+          'gemini-2.5-flash-lite',
+          'gemini-3-flash-preview',
+          'gemini-3.5-flash-lite',
+          'gemini-3.6-flash',
+          'gemma-4-26b-a4b-it',
+          'gemini-embedding-001',
+          'gemini-embedding-2',
+          'gemini-3.5-transcribe',
+        ],
+        freeTierAvailable: true,
+        quotaInfo: 'Google Generative Language Free Developer Tier (15 RPM / 1M Context / Native Multimodal)',
+        contextLimits: {
+          'gemini-2.5-flash': 1048576,
+          'gemini-2.5-flash-lite': 1048576,
+          'gemini-3-flash-preview': 1048576,
+          'gemini-3.5-flash-lite': 1048576,
+          'gemini-3.6-flash': 1048576,
+          'gemma-4-26b-a4b-it': 262144,
+        },
+        capabilities: {
+          streaming: true,
+          toolCalling: true,
+          structuredOutput: true,
+          vision: true,
+          embeddings: true,
+        },
+        status: geminiKey ? 'configured' : 'unconfigured',
+        circuitBreaker: CIRCUIT_BREAKERS.google,
+      },
+
       // 1. Groq Cloud (Verified Active Free Tier)
       {
         providerId: 'groq',
@@ -615,6 +818,24 @@ export class AIProviderRegistry {
     try {
       if (!checkCircuit(providerId)) {
         return { ok: false, latencyMs: 0, error: 'Circuit breaker is open' };
+      }
+
+      if (providerId === 'google') {
+        const key =
+          process.env.GEMINI_API_KEY ||
+          process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+          process.env.GOOGLE_AI_STUDIO_API_KEY ||
+          process.env.GOOGLE_API_KEY;
+        if (!key) throw new Error('GEMINI_API_KEY is not configured');
+        const ctrl = new AbortController();
+        const tm = setTimeout(() => ctrl.abort(), 4000);
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash?key=${key}`, {
+          signal: ctrl.signal,
+        });
+        clearTimeout(tm);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        recordSuccess(providerId);
+        return { ok: true, latencyMs: Date.now() - start };
       }
 
       if (providerId === 'groq') {

@@ -66,10 +66,21 @@ export function getCohereKey(): string {
   return (process.env.COHERE_API_KEY || process.env.cohera_api_key || '').trim();
 }
 
+export function getGeminiKey(): string {
+  return (
+    process.env.GEMINI_API_KEY ||
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+    process.env.GOOGLE_AI_STUDIO_API_KEY ||
+    process.env.GOOGLE_API_KEY ||
+    ''
+  ).trim();
+}
+
 /**
  * Check real-time health of online and fallback model providers
  */
 export async function checkProviderHealth(): Promise<{
+  google: ProviderHealth;
   bedrock: ProviderHealth;
   groq: ProviderHealth;
   openrouter: ProviderHealth;
@@ -78,6 +89,49 @@ export async function checkProviderHealth(): Promise<{
   agentrouter: ProviderHealth;
   ollama: ProviderHealth;
 }> {
+  // 0. Probe Google AI Studio (Gemini Generative Language API)
+  const geminiKey = getGeminiKey();
+  const googleHealth: ProviderHealth = {
+    provider: 'google',
+    status: geminiKey ? 'checking' : 'unconfigured',
+    endpoint: 'https://generativelanguage.googleapis.com/v1beta',
+    availableModels: [
+      'gemini-2.5-flash',
+      'gemini-2.5-flash-lite',
+      'gemini-3-flash-preview',
+      'gemini-3.5-flash-lite',
+      'gemini-3.6-flash',
+      'gemma-4-26b-a4b-it',
+    ],
+    checkedAt: new Date().toISOString(),
+  };
+
+  if (geminiKey) {
+    try {
+      const startProbe = Date.now();
+      const ctrl = new AbortController();
+      const tm = setTimeout(() => ctrl.abort(), 3000);
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash?key=${geminiKey}`,
+        {
+          signal: ctrl.signal,
+          cache: 'no-store',
+        }
+      );
+      clearTimeout(tm);
+      if (res.ok) {
+        googleHealth.status = 'online';
+        googleHealth.latencyMs = Date.now() - startProbe;
+      } else {
+        googleHealth.status = 'offline';
+        googleHealth.errorMessage = `HTTP ${res.status}`;
+      }
+    } catch {
+      googleHealth.status = 'offline';
+      googleHealth.errorMessage = 'Connection timeout';
+    }
+  }
+
   // 1. Probe AWS Bedrock (Primary Online Provider)
   const region = process.env.AWS_REGION || 'ap-southeast-2';
   const bedrockModel = process.env.BEDROCK_MODEL_ID || 'au.anthropic.claude-sonnet-4-6';
@@ -327,6 +381,7 @@ export async function checkProviderHealth(): Promise<{
   }
 
   return {
+    google: googleHealth,
     bedrock: bedrockHealth,
     groq: groqHealth,
     openrouter: openrouterHealth,
@@ -347,10 +402,58 @@ export async function streamChatCompletion({
   onChunk,
 }: {
   model: RiiqxModel;
-  messages: { role: string; content: string }[];
+  messages: { role: string; content: string; attachments?: any[] }[];
   signal?: AbortSignal;
   onChunk: (chunk: string) => void;
 }): Promise<{ fullText: string; tokensEstimated: number }> {
+  // --- 0. Google AI Studio / Gemini Generative Language (Primary Free Multimodal Engine) ---
+  if (model.provider === 'google') {
+    const geminiKey = getGeminiKey();
+    if (!geminiKey) {
+      const groqKey = getGroqKey();
+      if (groqKey) {
+        onChunk('*Google Gemini key not detected; dynamically routed to active Groq Cloud LPU...*\n\n');
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getGroqBase(),
+          apiKey: groqKey,
+          modelString: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'Groq Cloud (Auto-Route)',
+        });
+      }
+      const notice = `> ⚠️ **Google Gemini Not Configured**\n> Please add \`GEMINI_API_KEY=...\` in your \`.env.local\` to activate Gemini models.`;
+      onChunk(notice);
+      return { fullText: notice, tokensEstimated: 25 };
+    }
+
+    try {
+      return await executeGeminiChat({
+        apiKey: geminiKey,
+        modelString: model.modelString || 'gemini-2.5-flash',
+        messages,
+        signal,
+        onChunk,
+      });
+    } catch (geminiErr: any) {
+      const groqKey = getGroqKey();
+      if (groqKey) {
+        onChunk(`\n\n*Google Gemini encountered an issue (${geminiErr.message || 'error'}); auto-failover to verified Groq Cloud LPU...*\n\n`);
+        return await executeOpenAiCompatibleChat({
+          baseUrl: getGroqBase(),
+          apiKey: groqKey,
+          modelString: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+          messages,
+          signal,
+          onChunk,
+          providerName: 'Groq Cloud (Fallback)',
+        });
+      }
+      throw geminiErr;
+    }
+  }
+
   // --- 1. AWS Bedrock Runtime (Primary Online AI) ---
   if (model.provider === 'bedrock') {
     try {
@@ -992,6 +1095,205 @@ async function executeCohereChat({
 
     const notice = `> ⚠️ **Cohere Cloud Notice**\n> Model: \`${modelString}\`\n> Details: ${errorMsg}`;
     onChunk(notice);
+    return { fullText: notice, tokensEstimated: 30 };
+  }
+}
+
+/**
+ * Google Generative Language API (Gemini) chat executor with SSE streaming
+ */
+async function executeGeminiChat({
+  apiKey,
+  modelString,
+  messages,
+  signal,
+  onChunk,
+}: {
+  apiKey: string;
+  modelString: string;
+  messages: { role: string; content: string; attachments?: any[] }[];
+  signal?: AbortSignal;
+  onChunk: (chunk: string) => void;
+}): Promise<{ fullText: string; tokensEstimated: number }> {
+  const startTime = Date.now();
+  try {
+    // 1. Separate system message if present
+    const systemMsg = messages.find((m) => m.role === 'system');
+    const nonSystem = messages.filter(
+      (m) => m.role !== 'system' && ((m.content && m.content.trim().length > 0) || (Array.isArray(m.attachments) && m.attachments.length > 0))
+    );
+
+    // Helper to build parts from text and attachments
+    const buildParts = (m: { role: string; content: string; attachments?: any[] }) => {
+      const parts: any[] = [];
+      if (m.content && m.content.trim().length > 0) {
+        parts.push({ text: m.content.trim() });
+      }
+      if (Array.isArray(m.attachments)) {
+        for (const att of m.attachments) {
+          const rawBase64 = att.base64 || att.data;
+          if (rawBase64) {
+            const cleanBase64 = rawBase64.includes(',') ? rawBase64.split(',')[1] : rawBase64;
+            parts.push({
+              inline_data: {
+                mime_type: att.mimeType || 'image/png',
+                data: cleanBase64,
+              },
+            });
+          }
+        }
+      }
+      return parts.length > 0 ? parts : [{ text: ' ' }];
+    };
+
+    // 2. Map and merge consecutive messages with the same role (Gemini expects alternating user/model)
+    const sanitizedContents: { role: 'user' | 'model'; parts: any[] }[] = [];
+    for (const m of nonSystem) {
+      const role = m.role === 'assistant' ? 'model' : 'user';
+      const mParts = buildParts(m);
+      if (
+        sanitizedContents.length > 0 &&
+        sanitizedContents[sanitizedContents.length - 1].role === role
+      ) {
+        sanitizedContents[sanitizedContents.length - 1].parts.push(...mParts);
+      } else {
+        sanitizedContents.push({ role, parts: mParts });
+      }
+    }
+
+    if (sanitizedContents.length === 0) {
+      sanitizedContents.push({ role: 'user', parts: [{ text: 'Hello' }] });
+    }
+
+    // Google API requires the first turn to be 'user'
+    if (sanitizedContents[0].role !== 'user') {
+      sanitizedContents.unshift({ role: 'user', parts: [{ text: 'Hello' }] });
+    }
+
+    const payload: Record<string, unknown> = {
+      contents: sanitizedContents,
+    };
+
+    if (systemMsg && systemMsg.content.trim()) {
+      payload.system_instruction = {
+        parts: [{ text: systemMsg.content.trim() }],
+      };
+    }
+
+    // Use SSE streaming endpoint
+    const streamUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelString}:streamGenerateContent?alt=sse&key=${apiKey}`;
+
+    const response = await fetch(streamUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+      signal,
+    });
+
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => ({}));
+      const errMsg =
+        errJson.error?.message ||
+        `Google Generative Language API returned HTTP ${response.status} (${response.statusText})`;
+      throw new Error(errMsg);
+    }
+
+    if (!response.body) {
+      throw new Error('Google Generative Language API returned empty response body');
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let fullText = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() || '';
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed || !trimmed.startsWith('data:')) continue;
+        const dataStr = trimmed.slice(5).trim();
+
+        try {
+          const parsed = JSON.parse(dataStr);
+          const candidates = parsed.candidates || [];
+          for (const cand of candidates) {
+            const parts = cand.content?.parts || [];
+            for (const part of parts) {
+              if (part.text) {
+                fullText += part.text;
+                onChunk(part.text);
+              }
+            }
+          }
+        } catch {
+          // Fragmented chunk line
+        }
+      }
+    }
+
+    // Flush remaining buffer if present
+    if (buffer.trim().startsWith('data:')) {
+      const dataStr = buffer.trim().slice(5).trim();
+      if (dataStr) {
+        try {
+          const parsed = JSON.parse(dataStr);
+          const candidates = parsed.candidates || [];
+          for (const cand of candidates) {
+            const parts = cand.content?.parts || [];
+            for (const part of parts) {
+              if (part.text) {
+                fullText += part.text;
+                onChunk(part.text);
+              }
+            }
+          }
+        } catch {}
+      }
+    }
+
+    if (!fullText.trim()) {
+      fullText = 'Execution finished.';
+      onChunk(fullText);
+    }
+
+    const tokensEstimated = Math.ceil(fullText.length / 4);
+
+    recordInferenceUsage({
+      provider: 'google',
+      model: modelString,
+      success: true,
+      latencyMs: Date.now() - startTime,
+      outputTokens: tokensEstimated,
+    });
+
+    return {
+      fullText,
+      tokensEstimated,
+    };
+  } catch (err: unknown) {
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw err;
+    }
+    const errorMsg = err instanceof Error ? err.message : 'Google Gemini connection error';
+
+    recordInferenceUsage({
+      provider: 'google',
+      model: modelString,
+      success: false,
+      latencyMs: Date.now() - startTime,
+      errorMessage: errorMsg,
+    });
+
+    const notice = `> ⚠️ **Google Gemini Notice**\n> Model: \`${modelString}\`\n> Details: ${errorMsg}`;
     return { fullText: notice, tokensEstimated: 30 };
   }
 }

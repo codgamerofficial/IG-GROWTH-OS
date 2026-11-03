@@ -344,7 +344,70 @@ async function testAiml() {
   }
 }
 
+// 6. Test Google Generative AI / Gemini AI Studio
+async function testGoogle() {
+  const key = env.GEMINI_API_KEY || env.GOOGLE_GENERATIVE_AI_API_KEY || env.GOOGLE_AI_STUDIO_API_KEY;
+  if (!key) {
+    results.google = { status: 'NOT_CONFIGURED' };
+    return;
+  }
+  console.log('\n--- Probing Google AI Studio (Gemini) ---');
+  try {
+    const t0 = Date.now();
+    const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`);
+    const modelsData = await modelsRes.json();
+    const discoveryLatency = Date.now() - t0;
+
+    if (!modelsRes.ok || modelsData.error) {
+      console.log(`  ❌ Google AI Studio Discovery Failed: ${modelsRes.status} ${modelsData.error?.message || ''}`);
+      results.google = { status: 'DISCOVERY_FAILED', error: modelsData.error?.message, statusHttp: modelsRes.status };
+      return;
+    }
+
+    const models = (modelsData.models || []).map((m) => m.name.replace('models/', ''));
+    console.log(`  ✅ Google AI Studio Discovered ${models.length} models in ${discoveryLatency}ms.`);
+    console.log(`     Sample models: ${models.slice(0, 6).join(', ')}`);
+
+    // Live Inference test on flagship gemini-2.5-flash-lite
+    const candidate = 'gemini-2.5-flash-lite';
+    const t1 = Date.now();
+    const genRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${candidate}:generateContent?key=${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: 'Respond with exactly: RIIQX_GEMINI_ONLINE' }] }],
+      }),
+    });
+    const inferLatency = Date.now() - t1;
+    const genData = await genRes.json();
+
+    if (!genRes.ok || genData.error) {
+      console.log(`  ❌ Google Inference Failed on ${candidate}: ${genData.error?.message || ''}`);
+      results.google = {
+        status: 'AUTHENTICATION_FAILED',
+        error: genData.error?.message,
+        modelsCount: models.length,
+      };
+    } else {
+      const reply = genData.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      console.log(`  ✅ Google Inference Success on ${candidate} (${inferLatency}ms): "${reply}"`);
+      results.google = {
+        status: 'AVAILABLE',
+        testedModel: candidate,
+        reply,
+        latencyMs: inferLatency,
+        modelsCount: models.length,
+        models,
+      };
+    }
+  } catch (err) {
+    console.log(`  ❌ Google Network Error: ${err.message}`);
+    results.google = { status: 'PROVIDER_ERROR', error: err.message };
+  }
+}
+
 async function run() {
+  await testGoogle();
   await testGroq();
   await testOpenRouter();
   await testNvidia();

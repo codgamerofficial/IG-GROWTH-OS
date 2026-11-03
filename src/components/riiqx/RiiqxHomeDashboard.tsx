@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRiiqx } from '@/context/RiiqxContext';
-import { loadCreatorProjectsFromStorage } from '@/lib/riiqx/storage';
+import { loadCreatorProjectsFromStorage, saveCreatorProjectsToStorage } from '@/lib/riiqx/storage';
 import { CreatorProject } from '@/lib/riiqx/creator-types';
 import { AIThinkingOrb } from '@/components/riiqx/ai/AIThinkingOrb';
 import {
@@ -36,10 +36,25 @@ export function RiiqxHomeDashboard() {
   const [promptInput, setPromptInput] = useState('');
 
   useEffect(() => {
-    const saved = loadCreatorProjectsFromStorage();
-    if (saved && saved.length > 0) {
-      setProjects(saved);
-    }
+    fetch('/api/riiqx/creator')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && data.projects && data.projects.length > 0) {
+          setProjects(data.projects);
+          saveCreatorProjectsToStorage(data.projects);
+        } else {
+          const saved = loadCreatorProjectsFromStorage();
+          if (saved && saved.length > 0) {
+            setProjects(saved);
+          }
+        }
+      })
+      .catch(() => {
+        const saved = loadCreatorProjectsFromStorage();
+        if (saved && saved.length > 0) {
+          setProjects(saved);
+        }
+      });
   }, []);
 
   const handleQuickPrompt = (e: React.FormEvent) => {
@@ -205,9 +220,9 @@ export function RiiqxHomeDashboard() {
             </div>
           </div>
           <div>
-            <span className="text-2xl font-black text-[#10B981] tabular-nums">4 Providers</span>
+            <span className="text-2xl font-black text-[#10B981] tabular-nums">5 Providers</span>
             <span className="text-[11px] text-[#737373] dark:text-[#A1A1AA] font-medium block mt-0.5">
-              Bedrock, Groq, OpenRouter, Cohere
+              Google Gemini, Groq, OpenRouter, Cohere, Bedrock
             </span>
           </div>
         </div>

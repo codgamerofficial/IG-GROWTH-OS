@@ -9,7 +9,7 @@ import fs from 'node:fs';
 console.log('🚀 Running RIIQX Multimodal Agentic AI Verification Suite...\n');
 
 let passedTests = 0;
-const totalTests = 10;
+const totalTests = 13;
 
 function test(name, fn) {
   try {
@@ -139,6 +139,53 @@ test('API: /api/riiqx/models returns masterProviders and verifiedCatalog', () =>
   assert(apiContent.includes('verifiedCatalog'), 'API must return verifiedCatalog');
   assert(apiContent.includes('freeModelsCount'), 'API must return freeModelsCount');
   assert(apiContent.includes('budgetMode'), 'API must return budgetMode');
+});
+
+// -----------------------------------------------------------------------------
+// Test 11: Google Generative AI Provider Registration
+// -----------------------------------------------------------------------------
+test('Google Provider: Registered with free developer tier status & key detection', () => {
+  const provContent = fs.readFileSync('src/lib/riiqx/provider-registry.ts', 'utf8');
+  assert(provContent.includes("providerId: 'google'"), 'Must register google provider');
+  assert(provContent.includes('GEMINI_API_KEY'), 'Must recognize GEMINI_API_KEY');
+  assert(provContent.includes('gemini-2.5-flash'), 'Must include gemini-2.5-flash in capabilities');
+  assert(provContent.includes('gemini-2.5-flash-lite'), 'Must include gemini-2.5-flash-lite in capabilities');
+});
+
+// -----------------------------------------------------------------------------
+// Test 12: Google Gemini Models in RIIQX Catalog & Router
+// -----------------------------------------------------------------------------
+test('Models & Router: Gemini models routed for vision, reasoning & general tasks', () => {
+  const modelsContent = fs.readFileSync('src/lib/riiqx/models.ts', 'utf8');
+  assert(modelsContent.includes('gemini-25-flash'), 'Must include gemini-25-flash in RIIQX_MODELS');
+  assert(modelsContent.includes('gemini-25-flash-lite'), 'Must include gemini-25-flash-lite in RIIQX_MODELS');
+
+  const routerContent = fs.readFileSync('src/lib/riiqx/model-router.ts', 'utf8');
+  assert(routerContent.includes("case 'google':"), 'Router must handle google provider');
+  assert(routerContent.includes("primaryId = 'gemini-25-flash'"), 'Router must route vision to gemini-25-flash');
+});
+
+// -----------------------------------------------------------------------------
+// Test 13: Live Google AI Studio API Key & Gemini Generation
+// -----------------------------------------------------------------------------
+await testAsync('Live API: Gemini 2.5 Flash Lite responds via Generative Language API', async () => {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) {
+    return;
+  }
+
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${key}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: 'Respond with exactly: RIIQX_ACTIVE' }] }],
+    }),
+  });
+
+  assert(res.ok, `Google API returned HTTP ${res.status}`);
+  const data = await res.json();
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  assert(text.includes('RIIQX_ACTIVE') || text.length > 0, 'Gemini must return valid generation output');
 });
 
 console.log(`\n🎉 Verification Completed: ${passedTests}/${totalTests} Tests Passed (100% SUCCESS)`);

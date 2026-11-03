@@ -37,6 +37,17 @@ const MAX_LEDGER_SIZE = 500;
 // Known cost per 1M tokens (USD) for verified models. Free-tier models are 0.
 const MODEL_PRICING_PER_1M: Record<string, { prompt: number; completion: number; isFree: boolean }> = {
   // Free tier models
+  'gemini-2.5-flash': { prompt: 0, completion: 0, isFree: true },
+  'gemini-2.5-flash-lite': { prompt: 0, completion: 0, isFree: true },
+  'gemini-flash-lite-latest': { prompt: 0, completion: 0, isFree: true },
+  'gemini-3-flash-preview': { prompt: 0, completion: 0, isFree: true },
+  'gemini-3.5-flash': { prompt: 0, completion: 0, isFree: true },
+  'gemini-3.5-flash-lite': { prompt: 0, completion: 0, isFree: true },
+  'gemini-3.6-flash': { prompt: 0, completion: 0, isFree: true },
+  'gemma-4-26b-a4b-it': { prompt: 0, completion: 0, isFree: true },
+  'gemini-embedding-001': { prompt: 0, completion: 0, isFree: true },
+  'gemini-embedding-2': { prompt: 0, completion: 0, isFree: true },
+  'gemini-3.5-transcribe': { prompt: 0, completion: 0, isFree: true },
   'qwen/qwen3.8-27b': { prompt: 0, completion: 0, isFree: true },
   'openai/gpt-oss-120b': { prompt: 0, completion: 0, isFree: true },
   'openai/gpt-oss-20b': { prompt: 0, completion: 0, isFree: true },
@@ -77,7 +88,11 @@ export function recordInferenceUsage(entry: {
   const pricing = MODEL_PRICING_PER_1M[entry.model] || {
     prompt: 0,
     completion: 0,
-    isFree: entry.model.includes(':free') || entry.provider === 'groq' || entry.provider === 'ollama',
+    isFree:
+      entry.model.includes(':free') ||
+      entry.provider === 'groq' ||
+      entry.provider === 'google' ||
+      entry.provider === 'ollama',
   };
 
   const isFreeTier = pricing.isFree;

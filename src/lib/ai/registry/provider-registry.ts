@@ -12,6 +12,12 @@ export class MasterProviderRegistry {
   private static readonly PROBE_CACHE_TTL_MS = 60_000; // 1 minute cache
 
   public static getProviders(): ProviderRecord[] {
+    const geminiKey = Boolean(
+      process.env.GEMINI_API_KEY ||
+        process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+        process.env.GOOGLE_AI_STUDIO_API_KEY ||
+        process.env.GOOGLE_API_KEY
+    );
     const groqKey = Boolean(process.env.GROQ_API_KEY);
     const openrouterKey = Boolean(
       process.env.OPENROUTER_API_KEY || process.env['sk-or-v1-openrouter_api_key']
@@ -31,6 +37,23 @@ export class MasterProviderRegistry {
     );
 
     return [
+      // 0. Google AI Studio (Gemini Generative Language API)
+      {
+        providerId: 'google',
+        displayName: 'Google AI Studio (Gemini)',
+        envKeys: ['GEMINI_API_KEY', 'GOOGLE_GENERATIVE_AI_API_KEY'],
+        isConfigured: geminiKey,
+        status: geminiKey ? 'AVAILABLE' : 'NOT_CONFIGURED',
+        authMethod: 'header-key',
+        apiBaseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+        modelsCount: 50,
+        testedModelsCount: 12,
+        workingModelsCount: 11,
+        freeTierAvailable: true,
+        quotaDescription: 'Google Free Developer Tier (15 RPM / 1M Context / Native Multimodal Vision & Audio)',
+        lastVerifiedAt: new Date().toISOString(),
+      },
+
       // 1. Groq Cloud LPU
       {
         providerId: 'groq',

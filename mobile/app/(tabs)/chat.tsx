@@ -1,6 +1,6 @@
 // =============================================================================
-// RIIQX Mobile 2.0 — AI Agent Chat Screen (Matching Image 2 Screen 3)
-// Model Switcher • Step-by-Step Tool Execution Checklist • Video Result Card
+// RIIQX Mobile 2.0 — AI Agent Chat Screen (Creator OS Production Core)
+// Yellow #FFD43B • Obsidian #0C0C0E • Multimodal Vision • Model Switcher
 // =============================================================================
 
 import React, { useState } from 'react';
@@ -10,87 +10,119 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Image,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Modal,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useRiiqxMobile } from '../../src/context/RiiqxMobileContext';
-import { colors } from '../../src/theme/colors';
+
+const AVAILABLE_MODELS = [
+  { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', provider: 'Google AI Studio', tag: '1M Context · Free' },
+  { id: 'groq-qwen-27b', name: 'Groq Qwen 27B', provider: 'Groq LPU', tag: '150ms Speed · Free' },
+  { id: 'cohere-command-r', name: 'Cohere Command R+', provider: 'Cohere Cloud', tag: 'Citations · Free' },
+  { id: 'bedrock-claude-sonnet', name: 'Claude Sonnet 4 / 3.7', provider: 'AWS Bedrock', tag: 'ap-southeast-2' },
+];
 
 export default function MobileChatScreen() {
   const router = useRouter();
-  const { messages, isGenerating, sendMessage, selectedModel } = useRiiqxMobile();
+  const { messages, isGenerating, sendMessage, selectedModel, setSelectedModel, models } = useRiiqxMobile();
   const [inputText, setInputText] = useState('');
+  const [showModelModal, setShowModelModal] = useState(false);
+  const [attachedImage, setAttachedImage] = useState<string | null>(null);
+
+  const displayModels = models && models.length > 0 ? models.slice(0, 6) : AVAILABLE_MODELS.map(m => ({
+    id: m.id,
+    name: m.name,
+    provider: m.provider,
+    description: m.tag,
+    contextWindow: 1000000,
+    isOnlineFirst: true,
+  }));
+
+  const activeModelName = selectedModel?.name || 'Gemini 2.5 Flash';
 
   const handleSend = () => {
-    if (!inputText.trim() || isGenerating) return;
-    const text = inputText;
+    if ((!inputText.trim() && !attachedImage) || isGenerating) return;
+    const text = attachedImage
+      ? `[Attached Image] ${inputText.trim() || 'Please analyze this photo in detail.'}`
+      : inputText.trim();
     setInputText('');
+    setAttachedImage(null);
     sendMessage(text);
   };
 
+  const handleAttachSample = () => {
+    setAttachedImage('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80');
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: colors.bg }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0C0C0E' }} edges={['top']}>
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Top Header / Model Switcher (Matching Image 2 Screen 3) */}
+        {/* Top Header / Model Switcher */}
         <View
           style={{
             paddingHorizontal: 16,
             paddingVertical: 12,
             borderBottomWidth: 1,
-            borderBottomColor: colors.cardBorder,
-            backgroundColor: colors.surface,
+            borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+            backgroundColor: '#141418',
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-between',
           }}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
             <View
               style={{
-                width: 28,
-                height: 28,
-                borderRadius: 8,
-                backgroundColor: colors.violet,
+                width: 32,
+                height: 32,
+                borderRadius: 10,
+                backgroundColor: '#FFD43B',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <Ionicons name="flash" size={16} color="#FFFFFF" />
+              <Ionicons name="sparkles" size={18} color="#0C0C0E" />
             </View>
             <View>
-              <Text style={{ color: colors.textPrimary, fontSize: 15, fontWeight: '800' }}>
+              <Text style={{ color: '#FFFFFF', fontSize: 15, fontWeight: '800' }}>
                 RIIQX AI Agent
+              </Text>
+              <Text style={{ color: '#A1A1AA', fontSize: 10 }}>
+                Multimodal Reasoning Engine
               </Text>
             </View>
           </View>
 
           {/* Model Selector Pill */}
-          <View
+          <TouchableOpacity
+            onPress={() => setShowModelModal(true)}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              gap: 4,
-              backgroundColor: colors.bgSubtle,
+              gap: 6,
+              backgroundColor: '#1C1C20',
               paddingHorizontal: 10,
-              paddingVertical: 4,
+              paddingVertical: 5,
               borderRadius: 12,
               borderWidth: 1,
-              borderColor: colors.cardBorder,
+              borderColor: 'rgba(255, 255, 255, 0.08)',
             }}
           >
-            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.emerald }} />
-            <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textPrimary }}>
-              Llama 3.3 70B
+            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: '#10B981' }} />
+            <Text style={{ fontSize: 11, fontWeight: '700', color: '#FFFFFF' }}>
+              {activeModelName}
             </Text>
-            <Ionicons name="chevron-down" size={12} color={colors.textMuted} />
-          </View>
+            <Ionicons name="chevron-down" size={12} color="#A1A1AA" />
+          </TouchableOpacity>
         </View>
 
         {/* Messages Stream */}
@@ -99,266 +131,300 @@ export default function MobileChatScreen() {
           contentContainerStyle={{ padding: 16, paddingBottom: 24, gap: 16 }}
           showsVerticalScrollIndicator={false}
         >
-          {/* User Message (Matching Image 2 Screen 3) */}
-          <View style={{ alignSelf: 'flex-end', maxWidth: '85%' }}>
-            <View
-              style={{
-                backgroundColor: colors.violetSubtle,
-                borderRadius: 20,
-                borderBottomRightRadius: 4,
-                padding: 14,
-              }}
-            >
-              <Text style={{ color: colors.violet, fontSize: 14, fontWeight: '600' }}>
-                Create a trending Instagram reel from my travel photos with cinematic style.
-              </Text>
-            </View>
-          </View>
-
-          {/* AI Agent Response with Tool Checklist (Matching Image 2 Screen 3) */}
-          <View style={{ alignSelf: 'flex-start', maxWidth: '92%', gap: 12 }}>
-            {/* Analyzing text */}
-            <Text style={{ fontSize: 13, color: colors.textSecondary, fontWeight: '600' }}>
-              Analyzing your media...
-            </Text>
-
-            {/* Media thumbnail strip with checkmark badges */}
-            <View style={{ flexDirection: 'row', gap: 8 }}>
-              {[
-                'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=200&auto=format&fit=crop&q=80',
-                'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=200&auto=format&fit=crop&q=80',
-                'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=200&auto=format&fit=crop&q=80',
-              ].map((img, i) => (
-                <View key={i} style={{ width: 60, height: 60, borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
-                  <Image source={{ uri: img }} style={{ width: '100%', height: '100%' }} />
-                  <View
+          {messages.map((msg, index) => {
+            const isUser = msg.role === 'user';
+            return (
+              <View
+                key={msg.id || index}
+                style={{
+                  alignSelf: isUser ? 'flex-end' : 'flex-start',
+                  maxWidth: isUser ? '85%' : '94%',
+                }}
+              >
+                <View
+                  style={{
+                    backgroundColor: isUser ? '#FFD43B' : '#141418',
+                    borderRadius: 18,
+                    borderBottomRightRadius: isUser ? 4 : 18,
+                    borderBottomLeftRadius: isUser ? 18 : 4,
+                    padding: 14,
+                    borderWidth: isUser ? 0 : 1,
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                    gap: 8,
+                  }}
+                >
+                  <Text
                     style={{
-                      position: 'absolute',
-                      top: 4,
-                      right: 4,
-                      width: 16,
-                      height: 16,
-                      borderRadius: 8,
-                      backgroundColor: colors.emerald,
-                      alignItems: 'center',
-                      justifyContent: 'center',
+                      color: isUser ? '#0C0C0E' : '#FFFFFF',
+                      fontSize: 13,
+                      lineHeight: 19,
+                      fontWeight: isUser ? '600' : '400',
                     }}
                   >
-                    <Ionicons name="checkmark" size={10} color="#FFFFFF" />
-                  </View>
-                </View>
-              ))}
-            </View>
+                    {msg.content}
+                  </Text>
 
-            {/* Step-by-Step Tool Execution Checklist */}
+                  {/* Tool execution checklist card if agent message mentions creation */}
+                  {!isUser && msg.content.toLowerCase().includes('reel') && (
+                    <View
+                      style={{
+                        backgroundColor: '#0C0C0E',
+                        borderRadius: 12,
+                        padding: 12,
+                        borderWidth: 1,
+                        borderColor: 'rgba(255, 255, 255, 0.08)',
+                        gap: 8,
+                        marginTop: 4,
+                      }}
+                    >
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+                        <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700' }}>
+                          Creator Studio 9:16 Preset Applied
+                        </Text>
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => router.push('/(tabs)/creator' as any)}
+                        style={{
+                          backgroundColor: '#FFD43B',
+                          paddingVertical: 8,
+                          paddingHorizontal: 12,
+                          borderRadius: 8,
+                          alignItems: 'center',
+                          marginTop: 4,
+                        }}
+                      >
+                        <Text style={{ color: '#0C0C0E', fontSize: 11, fontWeight: '800' }}>
+                          Open in Video Studio →
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+
+                  {/* Citations if available */}
+                  {msg.citations && msg.citations.length > 0 && (
+                    <View style={{ borderTopWidth: 1, borderTopColor: 'rgba(255, 255, 255, 0.08)', paddingTop: 8, gap: 4 }}>
+                      <Text style={{ color: '#A1A1AA', fontSize: 10, fontWeight: '700' }}>SOURCES:</Text>
+                      {msg.citations.map((c, ci) => (
+                        <Text key={ci} style={{ color: '#38BDF8', fontSize: 10 }}>
+                          [{ci + 1}] {c.title}
+                        </Text>
+                      ))}
+                    </View>
+                  )}
+
+                  <Text
+                    style={{
+                      color: isUser ? 'rgba(12,12,14,0.6)' : '#737373',
+                      fontSize: 9,
+                      alignSelf: isUser ? 'flex-end' : 'flex-start',
+                    }}
+                  >
+                    {msg.timestamp || 'Just now'}
+                  </Text>
+                </View>
+              </View>
+            );
+          })}
+
+          {isGenerating && (
             <View
               style={{
-                backgroundColor: colors.surface,
-                borderRadius: 20,
-                padding: 14,
+                alignSelf: 'flex-start',
+                backgroundColor: '#141418',
+                padding: 12,
+                borderRadius: 14,
                 borderWidth: 1,
-                borderColor: colors.cardBorder,
+                borderColor: 'rgba(255, 255, 255, 0.08)',
+                flexDirection: 'row',
+                alignItems: 'center',
                 gap: 8,
               }}
             >
-              {[
-                'Detected 12 photos',
-                'Generating storyline',
-                'Creating captions',
-                'Preparing video...',
-              ].map((step, idx) => (
-                <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Ionicons name="checkmark-circle" size={16} color={colors.emerald} />
-                  <Text style={{ fontSize: 12, fontWeight: '600', color: colors.textPrimary }}>
-                    {step}
-                  </Text>
-                </View>
-              ))}
-            </View>
-
-            {/* Reel Ready Output Card (Matching Image 2 Screen 3) */}
-            <View
-              style={{
-                backgroundColor: colors.surface,
-                borderRadius: 22,
-                padding: 14,
-                borderWidth: 1,
-                borderColor: colors.cardBorder,
-                gap: 12,
-              }}
-            >
-              <Text style={{ fontSize: 14, fontWeight: '800', color: colors.textPrimary }}>
-                Your reel is ready! 🎉
+              <ActivityIndicator size="small" color="#FFD43B" />
+              <Text style={{ color: '#A1A1AA', fontSize: 12 }}>
+                RIIQX is reasoning with {activeModelName}...
               </Text>
-              <Text style={{ fontSize: 12, color: colors.textSecondary }}>
-                A cinematic travel reel with trending music, captions, and seamless transitions.
-              </Text>
-
-              {/* Video Preview Card */}
-              <TouchableOpacity
-                onPress={() => router.push('/(tabs)/studio' as any)}
-                activeOpacity={0.85}
-                style={{
-                  width: '100%',
-                  height: 160,
-                  borderRadius: 16,
-                  overflow: 'hidden',
-                  backgroundColor: '#000',
-                  position: 'relative',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Image
-                  source={{
-                    uri: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80',
-                  }}
-                  style={{ width: '100%', height: '100%' }}
-                />
-                <View
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 22,
-                    backgroundColor: 'rgba(255,255,255,0.9)',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Ionicons name="play" size={20} color="#0F172A" style={{ marginLeft: 2 }} />
-                </View>
-                <View
-                  style={{
-                    position: 'absolute',
-                    bottom: 8,
-                    right: 8,
-                    backgroundColor: 'rgba(0,0,0,0.7)',
-                    paddingHorizontal: 8,
-                    paddingVertical: 3,
-                    borderRadius: 6,
-                  }}
-                >
-                  <Text style={{ color: '#FFFFFF', fontSize: 10, fontWeight: '700' }}>00:28</Text>
-                </View>
-              </TouchableOpacity>
-
-              {/* Suggested Caption */}
-              <View
-                style={{
-                  backgroundColor: colors.bgSubtle,
-                  padding: 10,
-                  borderRadius: 12,
-                }}
-              >
-                <Text style={{ fontSize: 11, fontWeight: '700', color: colors.textPrimary }}>
-                  Suggested caption:
-                </Text>
-                <Text style={{ fontSize: 11, color: colors.textSecondary, marginTop: 2 }}>
-                  Lost in beautiful places 🌄 #travel #explore #adventure #india #mountains #wanderlust
-                </Text>
-              </View>
-
-              {/* Action Buttons: Edit in Studio & Export Video */}
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <TouchableOpacity
-                  onPress={() => router.push('/(tabs)/studio' as any)}
-                  style={{
-                    flex: 1,
-                    backgroundColor: colors.violetSubtle,
-                    paddingVertical: 10,
-                    borderRadius: 14,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexDirection: 'row',
-                    gap: 6,
-                  }}
-                >
-                  <Ionicons name="create-outline" size={16} color={colors.violet} />
-                  <Text style={{ fontSize: 12, fontWeight: '800', color: colors.violet }}>
-                    Edit in Studio
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => router.push('/(tabs)/studio' as any)}
-                  style={{
-                    flex: 1,
-                    backgroundColor: colors.violet,
-                    paddingVertical: 10,
-                    borderRadius: 14,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexDirection: 'row',
-                    gap: 6,
-                  }}
-                >
-                  <Ionicons name="download-outline" size={16} color="#FFFFFF" />
-                  <Text style={{ fontSize: 12, fontWeight: '800', color: '#FFFFFF' }}>
-                    Export Video
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
-          </View>
+          )}
         </ScrollView>
 
-        {/* Persistent Bottom Composer (Matching Image 2 Screen 3) */}
+        {/* Attached Image Preview */}
+        {attachedImage && (
+          <View
+            style={{
+              paddingHorizontal: 16,
+              paddingVertical: 8,
+              backgroundColor: '#141418',
+              borderTopWidth: 1,
+              borderTopColor: 'rgba(255, 255, 255, 0.08)',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Image
+                source={{ uri: attachedImage }}
+                style={{ width: 44, height: 44, borderRadius: 8 }}
+              />
+              <View>
+                <Text style={{ color: '#FFFFFF', fontSize: 11, fontWeight: '700' }}>
+                  Photo Attached (Multimodal Vision)
+                </Text>
+                <Text style={{ color: '#10B981', fontSize: 10 }}>
+                  Ready for Gemini 2.5 Flash inspection
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity onPress={() => setAttachedImage(null)}>
+              <Ionicons name="close-circle" size={20} color="#EF4444" />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* Persistent Bottom Composer */}
         <View
           style={{
             paddingHorizontal: 16,
             paddingVertical: 10,
             borderTopWidth: 1,
-            borderTopColor: colors.cardBorder,
-            backgroundColor: colors.surface,
+            borderTopColor: 'rgba(255, 255, 255, 0.08)',
+            backgroundColor: '#141418',
           }}
         >
           <View
             style={{
               flexDirection: 'row',
               alignItems: 'center',
-              backgroundColor: colors.bgSubtle,
+              backgroundColor: '#1C1C20',
               borderRadius: 24,
               paddingHorizontal: 12,
               paddingVertical: 6,
               borderWidth: 1,
-              borderColor: colors.cardBorder,
+              borderColor: 'rgba(255, 255, 255, 0.08)',
             }}
           >
             <TextInput
               value={inputText}
               onChangeText={setInputText}
-              placeholder="Ask RIIQX anything..."
-              placeholderTextColor={colors.textMuted}
+              placeholder="Ask RIIQX anything or describe a goal..."
+              placeholderTextColor="#737373"
               style={{
                 flex: 1,
                 fontSize: 13,
-                color: colors.textPrimary,
+                color: '#FFFFFF',
                 paddingVertical: 6,
                 paddingHorizontal: 4,
               }}
+              onSubmitEditing={handleSend}
             />
-            <TouchableOpacity style={{ padding: 6 }}>
-              <Ionicons name="mic-outline" size={18} color={colors.textMuted} />
+
+            <TouchableOpacity
+              onPress={handleAttachSample}
+              style={{ padding: 6 }}
+              title="Attach photo"
+            >
+              <Ionicons
+                name={attachedImage ? 'image' : 'image-outline'}
+                size={20}
+                color={attachedImage ? '#10B981' : '#A1A1AA'}
+              />
             </TouchableOpacity>
-            <TouchableOpacity style={{ padding: 6 }}>
-              <Ionicons name="attach-outline" size={18} color={colors.textMuted} />
-            </TouchableOpacity>
+
             <TouchableOpacity
               onPress={handleSend}
+              disabled={isGenerating || (!inputText.trim() && !attachedImage)}
               style={{
                 width: 32,
                 height: 32,
                 borderRadius: 16,
-                backgroundColor: colors.textPrimary,
+                backgroundColor: !inputText.trim() && !attachedImage ? '#26262E' : '#FFD43B',
                 alignItems: 'center',
                 justifyContent: 'center',
                 marginLeft: 4,
               }}
             >
-              <Ionicons name="arrow-up" size={16} color={colors.bg} />
+              <Ionicons name="arrow-up" size={16} color="#0C0C0E" />
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Model Switcher Modal */}
+        <Modal
+          visible={showModelModal}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowModelModal(false)}
+        >
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              backgroundColor: 'rgba(0,0,0,0.7)',
+              justifyContent: 'flex-end',
+            }}
+            activeOpacity={1}
+            onPress={() => setShowModelModal(false)}
+          >
+            <View
+              style={{
+                backgroundColor: '#141418',
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+                padding: 20,
+                borderTopWidth: 1,
+                borderColor: 'rgba(255, 255, 255, 0.08)',
+                gap: 14,
+              }}
+            >
+              <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '800' }}>
+                Select AI Model (All Free Tier Verified)
+              </Text>
+
+              {displayModels.map((m) => {
+                const isSelected = selectedModel?.id === m.id || (!selectedModel && m.id.includes('gemini'));
+                return (
+                  <TouchableOpacity
+                    key={m.id}
+                    onPress={() => {
+                      setSelectedModel({
+                        id: m.id,
+                        name: m.name,
+                        provider: m.provider,
+                        contextWindow: m.contextWindow || 1000000,
+                        isOnlineFirst: true,
+                        description: m.description,
+                      });
+                      setShowModelModal(false);
+                    }}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: 14,
+                      borderRadius: 14,
+                      backgroundColor: isSelected ? 'rgba(255, 212, 59, 0.15)' : '#1C1C20',
+                      borderWidth: 1,
+                      borderColor: isSelected ? '#FFD43B' : 'rgba(255, 255, 255, 0.08)',
+                    }}
+                  >
+                    <View style={{ gap: 2 }}>
+                      <Text style={{ color: '#FFFFFF', fontSize: 13, fontWeight: '700' }}>
+                        {m.name}
+                      </Text>
+                      <Text style={{ color: '#A1A1AA', fontSize: 11 }}>
+                        {m.provider} {m.description ? `· ${m.description.slice(0, 40)}` : ''}
+                      </Text>
+                    </View>
+                    {isSelected && (
+                      <Ionicons name="checkmark-circle" size={20} color="#FFD43B" />
+                    )}
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </TouchableOpacity>
+        </Modal>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

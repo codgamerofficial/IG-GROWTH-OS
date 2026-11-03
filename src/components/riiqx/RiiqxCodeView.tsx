@@ -39,6 +39,12 @@ interface CodeFile {
 
 const CODING_MODELS = [
   {
+    id: 'gemini-2.5-flash',
+    name: 'Gemini 2.5 Flash (1M Context / Multimodal)',
+    badge: 'Flagship Multimodal',
+    cost: '₹0 Free Tier',
+  },
+  {
     id: 'cohere/north-mini-code:free',
     name: 'Cohere North Mini Code (256K Context)',
     badge: 'Code Specialist',

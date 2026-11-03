@@ -1,313 +1,401 @@
 // =============================================================================
-// RIIQX Mobile — Wealth Dashboard (Home Screen)
-// Total Net Worth • Allocation Donut • Health Score • Maturities • AI Feed
-// Matches Master Blueprint Specification & Design Mockups 1, 2, 4 & 5
+// RIIQX Mobile 2.0 — Master Creator Home Dashboard (Production Core)
+// Matches Web Dashboard Reference Exactly
+// AI CREATOR OS • PRODUCTION CORE • Yellow #FFD43B + Obsidian #0C0C0E
 // =============================================================================
 
 import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  ScrollView,
+  TextInput,
   TouchableOpacity,
+  ScrollView,
   RefreshControl,
+  StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useRiiqx } from '../../src/context/RiiqxContext';
-import { Header } from '../../src/components/common/Header';
-import { AllocationChart } from '../../src/components/common/AllocationChart';
-import { AddAssetModal } from '../../src/components/common/AddAssetModal';
-import { lightColors, darkColors } from '../../src/theme/colors';
+import { useRiiqxMobile } from '../../src/context/RiiqxMobileContext';
 
-export default function HomeScreen() {
+export default function MobileHomeScreen() {
   const router = useRouter();
-  const { isDarkMode, portfolioSummary, holdings, goals, formatMoney } = useRiiqx();
-  const theme = isDarkMode ? darkColors : lightColors;
+  const {
+    sendMessage,
+    isGenerating,
+    autopilotQueue,
+    emergencyStop,
+    toggleEmergencyStop,
+    refreshAll,
+    selectedModel,
+    dashboardMetrics,
+    isBackendConnected,
+    apiBaseUrl,
+  } = useRiiqxMobile();
 
+  const [promptInput, setPromptInput] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState<'1D' | '1W' | '1M' | '1Y' | 'ALL'>('ALL');
-  const [showAddModal, setShowAddModal] = useState(false);
 
-  const onRefresh = () => {
+  const onRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+    await refreshAll();
+    setTimeout(() => setRefreshing(false), 500);
   };
 
-  const isPositive = portfolioSummary.unrealizedPnL >= 0;
+  const handleDispatchGoal = () => {
+    if (!promptInput.trim()) return;
+    const text = promptInput.trim();
+    setPromptInput('');
+    sendMessage(text);
+    router.push('/(tabs)/chat' as any);
+  };
 
-  // Upcoming fixed income maturities
-  const upcomingMaturities = holdings.filter((h) => h.maturityDate);
+  const workflows = [
+    {
+      title: 'Creator Studio',
+      desc: '14-stage 9:16 Shorts & Reels production...',
+      icon: 'videocam',
+      color: '#FFD43B',
+      route: '/(tabs)/creator',
+    },
+    {
+      title: 'AI Video Editor',
+      desc: 'Multi-track timeline, kinetic captions &...',
+      icon: 'color-wand',
+      color: '#FF6B5E',
+      route: '/(tabs)/studio',
+    },
+    {
+      title: 'AI Agent Chat',
+      desc: 'Autonomous multi-model intelligence &...',
+      icon: 'chatbubble-ellipses',
+      color: '#FFD43B',
+      route: '/(tabs)/chat',
+    },
+    {
+      title: 'Autopilot Center',
+      desc: 'Autonomous 12-state queue, scheduler &...',
+      icon: 'time',
+      color: '#FF6B5E',
+      route: '/(tabs)/autopilot',
+    },
+    {
+      title: 'Deep Research',
+      desc: 'Fact-checked citations, viral hook...',
+      icon: 'globe',
+      color: '#10B981',
+      route: '/(tabs)/research',
+    },
+    {
+      title: 'Task Planner',
+      desc: 'Goal decomposition & production...',
+      icon: 'calendar',
+      color: '#F59E0B',
+      route: '/(tabs)/tasks',
+    },
+  ];
+
+  const recentProjects = dashboardMetrics.recentProjects;
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.canvas }]} edges={['top']}>
-      <Header />
-
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.primary} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#FFD43B" />}
       >
-        {/* Hero Net Worth Card */}
-        <View style={[styles.heroCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-          <View style={styles.heroTopRow}>
-            <View>
-              <Text style={[styles.heroLabel, { color: theme.textMuted }]}>TOTAL PORTFOLIO VALUE</Text>
-              <Text style={[styles.heroValue, { color: theme.textPrimary }]}>
-                {formatMoney(portfolioSummary.totalCurrentValue)}
-              </Text>
+        {/* Top Header */}
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.badgeText}>AI CREATOR OS • PRODUCTION CORE</Text>
+            <Text style={styles.titleText}>Welcome to RIIQX</Text>
+            <Text style={styles.subtitleText}>
+              Autonomous vertical video production, multi-model AI routing, and social growth.
+            </Text>
+          </View>
+
+          <TouchableOpacity
+            onPress={() => router.push('/(tabs)/creator' as any)}
+            style={styles.newProjectButton}
+          >
+            <Ionicons name="add" size={16} color="#0C0C0E" />
+            <Text style={styles.newProjectText}>New Video Project</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Intelligence Orb & Dispatch Card */}
+        <View style={styles.orbCard}>
+          <View style={styles.orbRow}>
+            {/* 3D Glowing Gradient Orb simulation */}
+            <View style={styles.orbContainer}>
+              <View style={styles.orbGlow} />
+              <View style={styles.orbCore} />
             </View>
 
-            <View
-              style={[
-                styles.pnlBadge,
-                { backgroundColor: isPositive ? theme.positiveSubtle : theme.negativeSubtle },
-              ]}
+            <View style={{ flex: 1, gap: 2 }}>
+              <View style={styles.coreTagRow}>
+                <Text style={styles.coreTagText}>RIIQX INTELLIGENCE CORE</Text>
+                <View style={styles.greenPulseDot} />
+              </View>
+              <Text style={styles.coreTitle}>Ready to generate, research, or publish.</Text>
+              <Text style={styles.coreDesc}>
+                State any goal to dispatch across AWS Bedrock, Groq, YouTube Data API, or Meta Graph API v26.0.
+              </Text>
+            </View>
+          </View>
+
+          {/* Goal Dispatcher Bar */}
+          <View style={styles.dispatchBar}>
+            <TextInput
+              value={promptInput}
+              onChangeText={setPromptInput}
+              placeholder="Type a goal (e.g., 'Plan 3 viral reels')..."
+              placeholderTextColor="#737373"
+              style={styles.dispatchInput}
+              onSubmitEditing={handleDispatchGoal}
+            />
+            <TouchableOpacity
+              onPress={handleDispatchGoal}
+              disabled={isGenerating || !promptInput.trim()}
+              style={[styles.dispatchButton, !promptInput.trim() && styles.dispatchButtonDisabled]}
             >
-              <Ionicons
-                name={isPositive ? 'arrow-up-circle' : 'arrow-down-circle'}
-                size={16}
-                color={isPositive ? theme.positiveText : theme.negativeText}
-              />
-              <Text
-                style={[
-                  styles.pnlBadgeText,
-                  { color: isPositive ? theme.positiveText : theme.negativeText },
-                ]}
-              >
-                {isPositive ? '+' : ''}{portfolioSummary.unrealizedPnLPct}%
-              </Text>
-            </View>
-          </View>
-
-          {/* Invested vs P&L row */}
-          <View style={[styles.heroSubRow, { borderTopColor: theme.cardBorderSubtle }]}>
-            <View style={styles.heroSubCol}>
-              <Text style={[styles.subColLabel, { color: theme.textMuted }]}>Invested Capital</Text>
-              <Text style={[styles.subColValue, { color: theme.textPrimary }]}>
-                {formatMoney(portfolioSummary.totalInvested)}
-              </Text>
-            </View>
-
-            <View style={styles.heroSubCol}>
-              <Text style={[styles.subColLabel, { color: theme.textMuted }]}>Unrealized Profit/Loss</Text>
-              <Text
-                style={[
-                  styles.subColValue,
-                  { color: isPositive ? theme.positive : theme.negative },
-                ]}
-              >
-                {isPositive ? '+' : ''}{formatMoney(portfolioSummary.unrealizedPnL)}
-              </Text>
-            </View>
-          </View>
-
-          {/* Period selector */}
-          <View style={[styles.periodBar, { backgroundColor: isDarkMode ? '#1E2430' : '#F9FAFB' }]}>
-            {(['1D', '1W', '1M', '1Y', 'ALL'] as const).map((period) => (
-              <TouchableOpacity
-                key={period}
-                style={[
-                  styles.periodBtn,
-                  selectedPeriod === period && {
-                    backgroundColor: theme.primary,
-                    borderRadius: 8,
-                  },
-                ]}
-                onPress={() => setSelectedPeriod(period)}
-              >
-                <Text
-                  style={[
-                    styles.periodText,
-                    {
-                      color: selectedPeriod === period ? '#FFFFFF' : theme.textSecondary,
-                      fontWeight: selectedPeriod === period ? '700' : '500',
-                    },
-                  ]}
-                >
-                  {period}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
-        {/* Quick Action Bar */}
-        <View style={styles.actionGrid}>
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-            onPress={() => setShowAddModal(true)}
-            activeOpacity={0.7}
-          >
-            <View style={[styles.actionIconCircle, { backgroundColor: '#EDE9FE' }]}>
-              <Ionicons name="add" size={20} color="#6750D8" />
-            </View>
-            <Text style={[styles.actionBtnText, { color: theme.textPrimary }]}>Add Asset</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-            onPress={() => router.push('/(tabs)/analyst')}
-            activeOpacity={0.7}
-          >
-            <View style={[styles.actionIconCircle, { backgroundColor: '#D1FAE5' }]}>
-              <Ionicons name="sparkles" size={18} color="#16865D" />
-            </View>
-            <Text style={[styles.actionBtnText, { color: theme.textPrimary }]}>AI Audit</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-            onPress={() => router.push('/(tabs)/explore')}
-            activeOpacity={0.7}
-          >
-            <View style={[styles.actionIconCircle, { backgroundColor: '#DBEAFE' }]}>
-              <Ionicons name="search" size={18} color="#2563EB" />
-            </View>
-            <Text style={[styles.actionBtnText, { color: theme.textPrimary }]}>Screener</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.actionBtn, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-            onPress={() => router.push('/(tabs)/portfolio')}
-            activeOpacity={0.7}
-          >
-            <View style={[styles.actionIconCircle, { backgroundColor: '#FEF3C7' }]}>
-              <Ionicons name="receipt-outline" size={18} color="#D97706" />
-            </View>
-            <Text style={[styles.actionBtnText, { color: theme.textPrimary }]}>Ledger</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Allocation Donut & Breakdown */}
-        <AllocationChart
-          allocation={portfolioSummary.allocation}
-          totalValue={portfolioSummary.totalCurrentValue}
-        />
-
-        {/* Portfolio Health & Risk Score */}
-        <View style={[styles.healthCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-          <View style={styles.healthTopRow}>
-            <View style={styles.healthScoreBadge}>
-              <Text style={styles.healthScoreNum}>{portfolioSummary.healthScore}</Text>
-              <Text style={styles.healthScoreMax}>/100</Text>
-            </View>
-            <View style={styles.healthTextCol}>
-              <View style={styles.healthTitleRow}>
-                <Text style={[styles.healthTitle, { color: theme.textPrimary }]}>Portfolio Health Score</Text>
-                <View style={[styles.healthPill, { backgroundColor: theme.positiveSubtle }]}>
-                  <Text style={[styles.healthPillText, { color: theme.positiveText }]}>
-                    {portfolioSummary.healthStatus.toUpperCase()}
-                  </Text>
-                </View>
-              </View>
-              <Text style={[styles.healthDesc, { color: theme.textSecondary }]}>
-                {portfolioSummary.healthScore >= 75
-                  ? `Balanced multi-asset cushioning across ${portfolioSummary.allocation.length} asset classes with low single-stock correlation.`
-                  : `Elevated concentration in ${portfolioSummary.topAsset} (${portfolioSummary.topConcentrationPct}%). Consider rebalancing.`}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Upcoming Maturities & Liquidity Tracker */}
-        {upcomingMaturities.length > 0 && (
-          <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-            <View style={styles.cardHeaderRow}>
-              <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>Upcoming Maturities</Text>
-              <Ionicons name="calendar-outline" size={18} color={theme.textMuted} />
-            </View>
-            {upcomingMaturities.map((item) => (
-              <View key={item.id} style={[styles.maturityRow, { borderBottomColor: theme.cardBorderSubtle }]}>
-                <View style={styles.maturityIconBox}>
-                  <Ionicons name="shield-checkmark" size={18} color={theme.primary} />
-                </View>
-                <View style={styles.maturityTextCol}>
-                  <Text style={[styles.maturityName, { color: theme.textPrimary }]}>{item.name}</Text>
-                  <Text style={[styles.maturityDate, { color: theme.textMuted }]}>
-                    Maturity: {item.maturityDate} {item.interestRatePct ? `· ${item.interestRatePct}% p.a.` : ''}
-                  </Text>
-                </View>
-                <Text style={[styles.maturityAmount, { color: theme.textPrimary }]}>
-                  {formatMoney(item.quantity * item.currentPrice)}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
-
-        {/* Financial Goals Tracker */}
-        <View style={[styles.card, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-          <View style={styles.cardHeaderRow}>
-            <Text style={[styles.cardTitle, { color: theme.textPrimary }]}>Financial Goals Progress</Text>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/profile')}>
-              <Text style={[styles.viewAllText, { color: theme.primary }]}>Plan More</Text>
+              {isGenerating ? (
+                <ActivityIndicator size="small" color="#0C0C0E" />
+              ) : (
+                <Text style={styles.dispatchButtonText}>Dispatch</Text>
+              )}
             </TouchableOpacity>
           </View>
-
-          {goals.map((g) => {
-            const pct = Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100));
-            return (
-              <View key={g.id} style={styles.goalRow}>
-                <View style={styles.goalTitleRow}>
-                  <Text style={[styles.goalTitle, { color: theme.textPrimary }]}>{g.title}</Text>
-                  <Text style={[styles.goalPct, { color: theme.textSecondary }]}>{pct}%</Text>
-                </View>
-                <View style={[styles.progressBarBg, { backgroundColor: isDarkMode ? '#2D3748' : '#F3F4F6' }]}>
-                  <View
-                    style={[
-                      styles.progressBarFill,
-                      {
-                        width: `${pct}%`,
-                        backgroundColor: pct >= 80 ? theme.positive : theme.primary,
-                      },
-                    ]}
-                  />
-                </View>
-                <View style={styles.goalBottomRow}>
-                  <Text style={[styles.goalValues, { color: theme.textMuted }]}>
-                    {formatMoney(g.currentAmount)} of {formatMoney(g.targetAmount)}
-                  </Text>
-                  <Text style={[styles.goalTargetDate, { color: theme.textMuted }]}>
-                    Target: {g.targetDate}
-                  </Text>
-                </View>
-              </View>
-            );
-          })}
         </View>
 
-        {/* AI Portfolio Observation Card */}
-        <View style={[styles.aiCard, { backgroundColor: isDarkMode ? '#1E2430' : '#F5F3FF', borderColor: theme.primary }]}>
-          <View style={styles.aiCardHeader}>
-            <View style={styles.aiIconBadge}>
-              <Ionicons name="sparkles" size={14} color="#FFFFFF" />
+        {/* 4 Activity Metric Cards */}
+        <View style={styles.metricGrid}>
+          {/* Card 1: Active Projects */}
+          <View style={styles.metricCard}>
+            <View style={styles.metricTopRow}>
+              <Text style={styles.metricLabel}>Active Projects</Text>
+              <View style={[styles.metricIconBox, { backgroundColor: 'rgba(255, 212, 59, 0.2)' }]}>
+                <Ionicons name="videocam" size={14} color="#FFD43B" />
+              </View>
             </View>
-            <Text style={[styles.aiCardTitle, { color: theme.primary }]}>RIIQX AI RESEARCH INSIGHT</Text>
+            <Text style={styles.metricValue}>{dashboardMetrics.activeProjectsCount}</Text>
+            <Text style={[styles.metricSub, { color: '#10B981' }]}>Creator Studio Workspace</Text>
           </View>
-          <Text style={[styles.aiCardBody, { color: theme.textPrimary }]}>
-            Your multi-asset allocation maintains strong downside resistance. Equity represents{' '}
-            {portfolioSummary.allocation
-              .filter((a) => ['indian_stock', 'mutual_fund', 'us_stock'].includes(a.assetClass))
-              .reduce((s, a) => s + a.percentage, 0)
-              .toFixed(1)}
-            % while fixed-income & sovereign debt form a reliable inflation-hedged foundation.
-          </Text>
-          <TouchableOpacity
-            style={[styles.aiActionBtn, { backgroundColor: theme.primary }]}
-            onPress={() => router.push('/(tabs)/analyst')}
-          >
-            <Text style={styles.aiActionBtnText}>Ask AI Analyst</Text>
-            <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
+
+          {/* Card 2: AI Conversations */}
+          <View style={styles.metricCard}>
+            <View style={styles.metricTopRow}>
+              <Text style={styles.metricLabel}>AI Conversations</Text>
+              <View style={[styles.metricIconBox, { backgroundColor: 'rgba(255, 107, 94, 0.2)' }]}>
+                <Ionicons name="chatbubble" size={14} color="#FF6B5E" />
+              </View>
+            </View>
+            <Text style={styles.metricValue}>{dashboardMetrics.conversationsCount}</Text>
+            <Text style={styles.metricSub}>Active thread memories</Text>
+          </View>
+
+          {/* Card 3: AI Runtimes */}
+          <View style={styles.metricCard}>
+            <View style={styles.metricTopRow}>
+              <Text style={styles.metricLabel}>AI Runtimes</Text>
+              <View style={[styles.metricIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.2)' }]}>
+                <Ionicons name="hardware-chip" size={14} color="#10B981" />
+              </View>
+            </View>
+            <Text style={[styles.metricValue, { color: '#10B981', fontSize: 20 }]}>
+              5 Providers
+            </Text>
+            <Text style={styles.metricSub} numberOfLines={2}>
+              Google Gemini, Groq, OpenRouter, Cohere, Bedrock
+            </Text>
+          </View>
+
+          {/* Card 4: Social Autopilot */}
+          <View style={styles.metricCard}>
+            <View style={styles.metricTopRow}>
+              <Text style={styles.metricLabel}>Social Autopilot</Text>
+              <View style={[styles.metricIconBox, { backgroundColor: 'rgba(245, 158, 11, 0.2)' }]}>
+                <Ionicons name="share-social" size={14} color="#F59E0B" />
+              </View>
+            </View>
+            <Text style={styles.metricValue}>Level 3</Text>
+            <Text style={[styles.metricSub, { color: '#10B981' }]}>
+              Autonomous with safety gating
+            </Text>
+          </View>
+        </View>
+
+        {/* Section: Production Workflows */}
+        <Text style={styles.sectionHeading}>Production Workflows</Text>
+        <View style={styles.workflowGrid}>
+          {workflows.map((wf, idx) => (
+            <TouchableOpacity
+              key={idx}
+              onPress={() => router.push(wf.route as any)}
+              activeOpacity={0.8}
+              style={styles.workflowCard}
+            >
+              <View style={[styles.workflowIconBox, { backgroundColor: `${wf.color}20` }]}>
+                <Ionicons name={wf.icon as any} size={18} color={wf.color} />
+              </View>
+              <Text style={styles.workflowTitle}>{wf.title}</Text>
+              <Text style={styles.workflowDesc} numberOfLines={2}>
+                {wf.desc}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Section: Recent Creator Projects */}
+        <View style={styles.sectionHeaderRow}>
+          <Text style={styles.sectionHeading}>Recent Creator Projects</Text>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/creator' as any)}>
+            <Text style={styles.linkText}>Open Studio ↗</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
 
-      {/* Add Asset Modal */}
-      <AddAssetModal visible={showAddModal} onClose={() => setShowAddModal(false)} />
+        <View style={styles.projectsStack}>
+          {recentProjects && recentProjects.length > 0 ? (
+            recentProjects.map((proj: any, pIdx: number) => {
+              const topic = proj.brief?.topic || proj.name || proj.title || 'Autonomous Video Reel';
+              const niche = proj.brief?.niche || proj.niche || 'TECH & AI';
+              const duration = proj.brief?.durationSeconds || proj.durationSeconds || 30;
+              const rawStatus = proj.status || 'ready_to_publish';
+              const isReady = rawStatus === 'ready_to_publish';
+              const isFailed = rawStatus === 'failed';
+              const isPublished = rawStatus === 'published';
+              const statusColor = isPublished ? '#10B981' : isFailed ? '#EF4444' : '#FFD43B';
+              const displayStatus = isReady ? 'Ready_to_publish' : isFailed ? 'Failed' : isPublished ? 'Published' : rawStatus;
+
+              return (
+                <View key={proj.id || pIdx} style={styles.projectCard}>
+                  <View style={styles.projectHeaderRow}>
+                    <Text style={styles.projectNiche}>{niche.toUpperCase()}</Text>
+                    <View style={[styles.projectStatusBadge, { backgroundColor: `${statusColor}20`, borderColor: `${statusColor}40`, borderWidth: 1 }]}>
+                      <Text style={[styles.projectStatusText, { color: statusColor }]}>
+                        {displayStatus}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Text style={styles.projectTitle} numberOfLines={2}>{topic}</Text>
+
+                  <View style={styles.projectFooterRow}>
+                    <Text style={styles.projectDuration}>Duration: {duration}s</Text>
+                    <TouchableOpacity
+                      onPress={() => router.push('/(tabs)/studio' as any)}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                    >
+                      <Text style={[styles.editInStudioText, { color: '#FFFFFF', fontWeight: '700' }]}>Edit in Studio</Text>
+                      <Ionicons name="chevron-forward" size={12} color="#FFFFFF" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              );
+            })
+          ) : (
+            <View style={[styles.projectCard, { alignItems: 'center', paddingVertical: 24, gap: 6 }]}>
+              <Ionicons name="film-outline" size={28} color="#737373" />
+              <Text style={[styles.projectTitle, { textAlign: 'center', fontSize: 13, color: '#A1A1AA', marginTop: 4 }]}>
+                No Active Video Projects Yet
+              </Text>
+              <Text style={{ fontSize: 11, color: '#737373', textAlign: 'center', maxWidth: 280, lineHeight: 16 }}>
+                State a goal above or tap &apos;New Video Project&apos; to generate your first Shorts or Reels storyboard.
+              </Text>
+              <TouchableOpacity
+                onPress={() => router.push('/(tabs)/creator' as any)}
+                style={{
+                  marginTop: 10,
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                  borderRadius: 12,
+                  backgroundColor: '#FFD43B',
+                }}
+              >
+                <Text style={{ color: '#0C0C0E', fontSize: 12, fontWeight: '700' }}>Create Video Reel</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+
+        {/* Bottom Section: Social Connectors & AI Engine Health */}
+        <View style={styles.doubleCardsRow}>
+          {/* Social Channel Connectors */}
+          <View style={styles.bottomCard}>
+            <View style={styles.bottomCardHeader}>
+              <Text style={styles.bottomCardTitle}>Social Channel Connectors</Text>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/settings' as any)}>
+                <Text style={styles.bottomCardLink}>Manage</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.connectorItem}>
+              <View style={styles.connectorIconBox}>
+                <Ionicons name="logo-youtube" size={16} color="#EF4444" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.connectorName}>YouTube Shorts</Text>
+                <Text style={styles.connectorSub}>Data API v3 Authorized</Text>
+              </View>
+              <View style={styles.connectedBadge}>
+                <Text style={styles.connectedBadgeText}>Connected</Text>
+              </View>
+            </View>
+
+            <View style={[styles.connectorItem, { borderBottomWidth: 0 }]}>
+              <View style={styles.connectorIconBox}>
+                <Ionicons name="logo-instagram" size={16} color="#E1306C" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.connectorName}>Instagram Reels</Text>
+                <Text style={styles.connectorSub}>Meta Graph API v26.0</Text>
+              </View>
+              <View style={styles.connectedBadge}>
+                <Text style={styles.connectedBadgeText}>Connected</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* AI Engine Health */}
+          <View style={styles.bottomCard}>
+            <View style={styles.bottomCardHeader}>
+              <Text style={styles.bottomCardTitle}>AI Engine Health</Text>
+              <TouchableOpacity onPress={() => router.push('/(tabs)/settings' as any)}>
+                <Text style={styles.bottomCardLink}>Settings</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.connectorItem}>
+              <View style={styles.connectorIconBox}>
+                <Ionicons name="hardware-chip-outline" size={16} color="#10B981" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.connectorName}>AWS Bedrock Runtime</Text>
+                <Text style={styles.connectorSub}>ap-southeast-2 • Claude 3.7</Text>
+              </View>
+              <View style={styles.connectedBadge}>
+                <Text style={styles.connectedBadgeText}>Online Live</Text>
+              </View>
+            </View>
+
+            <View style={[styles.connectorItem, { borderBottomWidth: 0 }]}>
+              <View style={styles.connectorIconBox}>
+                <Ionicons name="flash-outline" size={16} color="#FFD43B" />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.connectorName}>Groq LPU Free Tier</Text>
+                <Text style={styles.connectorSub}>Qwen 3.8 27B • ~460ms</Text>
+              </View>
+              <View style={styles.connectedBadge}>
+                <Text style={styles.connectedBadgeText}>Active</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -315,289 +403,368 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: '#0C0C0E',
   },
   container: {
     flex: 1,
   },
   scrollContent: {
     paddingHorizontal: 16,
+    paddingTop: 12,
     paddingBottom: 40,
+    gap: 18,
   },
-  heroCard: {
-    borderRadius: 22,
-    borderWidth: 1,
-    padding: 18,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 3,
+  header: {
+    gap: 12,
   },
-  heroTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 16,
-  },
-  heroLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.6,
-  },
-  heroValue: {
-    fontSize: 32,
+  badgeText: {
+    color: '#A1A1AA',
+    fontSize: 10,
     fontWeight: '800',
-    marginTop: 4,
-    fontVariant: ['tabular-nums'],
-    letterSpacing: -0.5,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
   },
-  pnlBadge: {
+  freeTierBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
+    gap: 6,
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
   },
-  pnlBadgeText: {
+  freeTierText: {
+    color: '#10B981',
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  titleText: {
+    color: '#FFFFFF',
+    fontSize: 26,
+    fontWeight: '900',
+    letterSpacing: -0.5,
+    marginTop: 2,
+  },
+  subtitleText: {
+    color: '#A1A1AA',
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 2,
+  },
+  newProjectButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#FFD43B',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 14,
+    alignSelf: 'flex-start',
+  },
+  newProjectText: {
+    color: '#0C0C0E',
     fontSize: 12,
     fontWeight: '800',
   },
-  heroSubRow: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    paddingTop: 12,
-    marginBottom: 14,
-  },
-  heroSubCol: {
-    flex: 1,
-  },
-  subColLabel: {
-    fontSize: 11,
-    fontWeight: '500',
-  },
-  subColValue: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginTop: 2,
-    fontVariant: ['tabular-nums'],
-  },
-  periodBar: {
-    flexDirection: 'row',
-    borderRadius: 10,
-    padding: 3,
-  },
-  periodBtn: {
-    flex: 1,
-    paddingVertical: 6,
-    alignItems: 'center',
-  },
-  periodText: {
-    fontSize: 11,
-  },
-  actionGrid: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 16,
-  },
-  actionBtn: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-  },
-  actionIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  actionBtnText: {
-    fontSize: 11,
-    fontWeight: '700',
-  },
-  healthCard: {
-    borderRadius: 20,
-    borderWidth: 1,
+  orbCard: {
+    backgroundColor: 'rgba(20, 20, 24, 0.9)',
+    borderRadius: 22,
     padding: 16,
-    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 14,
   },
-  healthTopRow: {
+  orbRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 14,
   },
-  healthScoreBadge: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#6750D8',
+  orbContainer: {
+    width: 52,
+    height: 52,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
+    position: 'relative',
   },
-  healthScoreNum: {
-    color: '#FFFFFF',
-    fontSize: 20,
-    fontWeight: '800',
+  orbGlow: {
+    position: 'absolute',
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#FFD43B',
+    opacity: 0.25,
   },
-  healthScoreMax: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 9,
-    fontWeight: '700',
+  orbCore: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FF9F43',
+    borderWidth: 2,
+    borderColor: '#FFD43B',
   },
-  healthTextCol: {
-    flex: 1,
-  },
-  healthTitleRow: {
+  coreTagRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 4,
+    gap: 6,
   },
-  healthTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  healthPill: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  healthPillText: {
-    fontSize: 9,
-    fontWeight: '800',
-  },
-  healthDesc: {
-    fontSize: 11,
-    lineHeight: 16,
-  },
-  card: {
-    borderRadius: 20,
-    borderWidth: 1,
-    padding: 16,
-    marginBottom: 16,
-  },
-  cardHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  cardTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  viewAllText: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  maturityRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-  },
-  maturityIconBox: {
-    marginRight: 10,
-  },
-  maturityTextCol: {
-    flex: 1,
-  },
-  maturityName: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  maturityDate: {
-    fontSize: 11,
-    marginTop: 2,
-  },
-  maturityAmount: {
-    fontSize: 13,
-    fontWeight: '700',
-    fontVariant: ['tabular-nums'],
-  },
-  goalRow: {
-    marginBottom: 12,
-  },
-  goalTitleRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  goalTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  goalPct: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  progressBarBg: {
-    height: 6,
-    borderRadius: 3,
-    overflow: 'hidden',
-    marginVertical: 4,
-  },
-  progressBarFill: {
-    height: '100%',
-    borderRadius: 3,
-  },
-  goalBottomRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  goalValues: {
+  coreTagText: {
+    color: '#FFD43B',
     fontSize: 10,
-  },
-  goalTargetDate: {
-    fontSize: 10,
-  },
-  aiCard: {
-    borderRadius: 20,
-    borderWidth: 1,
-    padding: 16,
-    marginBottom: 16,
-  },
-  aiCardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  aiIconBadge: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#6750D8',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  aiCardTitle: {
-    fontSize: 11,
     fontWeight: '800',
     letterSpacing: 0.5,
   },
-  aiCardBody: {
-    fontSize: 12,
-    lineHeight: 18,
-    marginBottom: 12,
+  greenPulseDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#10B981',
   },
-  aiActionBtn: {
+  coreTitle: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  coreDesc: {
+    color: '#A1A1AA',
+    fontSize: 10,
+    lineHeight: 14,
+  },
+  dispatchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    alignSelf: 'flex-start',
+    backgroundColor: '#1C1C20',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  dispatchInput: {
+    flex: 1,
+    color: '#FFFFFF',
+    fontSize: 12,
+    paddingVertical: 8,
+  },
+  dispatchButton: {
+    backgroundColor: '#FFD43B',
     paddingHorizontal: 14,
     paddingVertical: 8,
-    borderRadius: 10,
+    borderRadius: 12,
+  },
+  dispatchButtonDisabled: {
+    backgroundColor: '#3F3F46',
+  },
+  dispatchButtonText: {
+    color: '#0C0C0E',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  metricGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  metricCard: {
+    width: '48%',
+    backgroundColor: 'rgba(20, 20, 24, 0.85)',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     gap: 6,
   },
-  aiActionBtnText: {
+  metricTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  metricLabel: {
+    color: '#A1A1AA',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  metricIconBox: {
+    width: 26,
+    height: 26,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  metricValue: {
+    color: '#FFFFFF',
+    fontSize: 22,
+    fontWeight: '900',
+    letterSpacing: -0.5,
+  },
+  metricSub: {
+    color: '#A1A1AA',
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  sectionHeading: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  sectionHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  linkText: {
+    color: '#FFD43B',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  workflowGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  workflowCard: {
+    width: '48%',
+    backgroundColor: 'rgba(20, 20, 24, 0.85)',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 6,
+  },
+  workflowIconBox: {
+    width: 34,
+    height: 34,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  workflowTitle: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  workflowDesc: {
+    color: '#A1A1AA',
+    fontSize: 10,
+    lineHeight: 14,
+  },
+  projectsStack: {
+    gap: 10,
+  },
+  projectCard: {
+    backgroundColor: 'rgba(20, 20, 24, 0.85)',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 8,
+  },
+  projectHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  projectNiche: {
+    color: '#A1A1AA',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  projectStatusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  projectStatusText: {
+    fontSize: 9,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
+  projectTitle: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+    lineHeight: 18,
+  },
+  projectFooterRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 6,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  projectDuration: {
+    color: '#737373',
+    fontSize: 10,
+  },
+  editInStudioText: {
+    color: '#A1A1AA',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  doubleCardsRow: {
+    gap: 12,
+  },
+  bottomCard: {
+    backgroundColor: 'rgba(20, 20, 24, 0.85)',
+    borderRadius: 18,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+    gap: 10,
+  },
+  bottomCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  bottomCardTitle: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  bottomCardLink: {
+    color: '#A1A1AA',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  connectorItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  connectorIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    backgroundColor: '#1C1C20',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  connectorName: {
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
+  },
+  connectorSub: {
+    color: '#737373',
+    fontSize: 10,
+    marginTop: 1,
+  },
+  connectedBadge: {
+    backgroundColor: 'rgba(16, 185, 129, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  connectedBadgeText: {
+    color: '#10B981',
+    fontSize: 9,
+    fontWeight: '800',
   },
 });

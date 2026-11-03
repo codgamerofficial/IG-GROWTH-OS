@@ -57,6 +57,7 @@ export interface AutopilotSystemStatus {
   queuedJobsCount: number;
   inProgressJobsCount: number;
   publishedTodayCount: number;
+  autonomousLevel: number;
   lastHaltedAt?: string;
   timeZone: string;
 }

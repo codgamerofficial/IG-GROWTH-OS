@@ -4,6 +4,7 @@
 // =============================================================================
 
 export type ModelProviderType =
+  | 'google'
   | 'bedrock'
   | 'groq'
   | 'openrouter'
@@ -40,6 +41,91 @@ export interface ProviderHealth {
 }
 
 export const RIIQX_MODELS: RiiqxModel[] = [
+  // 0. Google AI Studio — Flagship 1M Context Multimodal Model (Verified Free Tier)
+  {
+    id: 'gemini-25-flash',
+    name: 'Gemini 2.5 Flash (Google AI Studio)',
+    tag: 'Flagship 1M Context Multimodal Free Tier',
+    provider: 'google',
+    modelString: 'gemini-2.5-flash',
+    description: 'Flagship 1M token context multimodal model with native vision, audio, reasoning, and sub-1.5s latency on Google free tier.',
+    contextWindow: 1048576,
+    recommendedFor: 'general',
+    license: 'Google AI Studio Terms of Service / Free Tier',
+    isOnline: true,
+    isOpenWeight: false,
+    isFreeTier: true,
+    strengths: ['1,048,576 Token Context', 'Native Vision & Multimodal', 'Structured JSON Output', '100% Free Developer Tier'],
+  },
+
+  // 0b. Google AI Studio — 720ms Ultra-Fast Multimodal Model (Verified Free Tier)
+  {
+    id: 'gemini-25-flash-lite',
+    name: 'Gemini 2.5 Flash-Lite (Google AI Studio)',
+    tag: '720ms Ultra-Fast Multimodal',
+    provider: 'google',
+    modelString: 'gemini-2.5-flash-lite',
+    description: 'Sub-second 720ms ultra-low-latency multimodal model with 1M context window served 100% free.',
+    contextWindow: 1048576,
+    recommendedFor: 'fast',
+    license: 'Google AI Studio Terms of Service / Free Tier',
+    isOnline: true,
+    isOpenWeight: false,
+    isFreeTier: true,
+    strengths: ['720ms measured latency', '1M Context Window', 'Vision & Audio understanding', 'Empirically verified'],
+  },
+
+  // 0c. Google AI Studio — Gemini 3 Flash Preview (Frontier Reasoning Free Tier)
+  {
+    id: 'gemini-3-flash-preview',
+    name: 'Gemini 3 Flash Preview (Google AI Studio)',
+    tag: 'Next-Gen Frontier Reasoning',
+    provider: 'google',
+    modelString: 'gemini-3-flash-preview',
+    description: 'Next-generation Gemini 3 architecture with enhanced multimodal reasoning and 1M context.',
+    contextWindow: 1048576,
+    recommendedFor: 'reasoning',
+    license: 'Google AI Studio Terms of Service / Free Tier',
+    isOnline: true,
+    isOpenWeight: false,
+    isFreeTier: true,
+    strengths: ['Next-Gen Gemini 3 logic', '1M Context Window', 'Multimodal analysis', 'Free developer tier'],
+  },
+
+  // 0d. Google AI Studio — Gemini 3.5 Flash Lite
+  {
+    id: 'gemini-35-flash-lite',
+    name: 'Gemini 3.5 Flash-Lite (Google AI Studio)',
+    tag: 'High-Efficiency Frontier Lite',
+    provider: 'google',
+    modelString: 'gemini-3.5-flash-lite',
+    description: 'Frontier lightweight Gemini 3.5 checkpoint optimized for rapid conversational turns and tools.',
+    contextWindow: 1048576,
+    recommendedFor: 'fast',
+    license: 'Google AI Studio Terms of Service / Free Tier',
+    isOnline: true,
+    isOpenWeight: false,
+    isFreeTier: true,
+    strengths: ['Sub-second generation', '1M context', 'High reliability', 'Empirically verified'],
+  },
+
+  // 0e. Google Generative AI — Gemma 4 26B IT (Open-Weight Free Tier)
+  {
+    id: 'google-gemma-26b',
+    name: 'Gemma 4 26B IT (Google Generative AI)',
+    tag: 'Google Open-Weight 262K',
+    provider: 'google',
+    modelString: 'gemma-4-26b-a4b-it',
+    description: 'Google open-weight 26B instruction-tuned model hosted directly on Google Generative AI with 262K context.',
+    contextWindow: 262144,
+    recommendedFor: 'coding',
+    license: 'Gemma Terms of Use / Free Tier',
+    isOnline: true,
+    isOpenWeight: true,
+    isFreeTier: true,
+    strengths: ['Open-weight architecture', '262K context window', 'Zero token charges', 'Empirically verified'],
+  },
+
   // 1. Ultra-Fast Verified Free Model: Groq Qwen 3.8 27B
   {
     id: 'groq-qwen-27b',
@@ -157,6 +243,40 @@ export const RIIQX_MODELS: RiiqxModel[] = [
     isOpenWeight: false,
     isFreeTier: true,
     strengths: ['128K context window', 'Native citations', 'Deep research', '967ms measured latency'],
+  },
+
+  // 7b. Verified Online Free Model: Cohere Command R+ (Cohere Free Developer Tier)
+  {
+    id: 'cohere-command-r-plus',
+    name: 'Command R+ 08-2024 (Cohere Cloud)',
+    tag: '128K Context Enterprise Reasoning Model',
+    provider: 'cohere',
+    modelString: 'command-r-plus-08-2024',
+    description: 'Flagship enterprise reasoning model with 128k context window and deep synthesis via Cohere Free Developer Tier.',
+    contextWindow: 128000,
+    recommendedFor: 'reasoning',
+    license: 'Cohere Developer Tier',
+    isOnline: true,
+    isOpenWeight: false,
+    isFreeTier: true,
+    strengths: ['128K context window', 'Native citations', 'Deep research', 'Free developer tier'],
+  },
+
+  // 7c. Verified Online Free Model: Gemma 4 31B IT (OpenRouter Free Tier)
+  {
+    id: 'openrouter-gemma-free',
+    name: 'Gemma 4 31B IT (OpenRouter Free)',
+    tag: '100% Free OpenRouter Tier',
+    provider: 'openrouter',
+    modelString: 'google/gemma-4-31b-it:free',
+    description: 'Google Gemma 4 instruction-tuned model served with zero token charges via OpenRouter free tier.',
+    contextWindow: 32768,
+    recommendedFor: 'general',
+    license: 'Gemma Terms of Use',
+    isOnline: true,
+    isOpenWeight: true,
+    isFreeTier: true,
+    strengths: ['100% Free tier (Cost $0.00)', 'Clean instruction following', 'General conversation', 'Live verified'],
   },
 
   // 8. Cohere Aya Expanse 32B (Bengali & Multilingual Specialist)

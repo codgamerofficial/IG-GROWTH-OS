@@ -101,6 +101,7 @@ export function getAutopilotSystemStatus(): AutopilotSystemStatus {
         j.status !== 'halted'
     ).length,
     publishedTodayCount: globalJobs.filter((j) => j.status === 'published').length,
+    autonomousLevel: 3,
     timeZone: 'Asia/Kolkata',
   };
 }

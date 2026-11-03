@@ -10,11 +10,12 @@ import {
   Text,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   Image,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { api } from '../../src/services/api';
 import { colors } from '../../src/theme/colors';
 
 export default function MobileCreatorScreen() {
@@ -34,12 +35,22 @@ export default function MobileCreatorScreen() {
     { id: 'Storytelling', label: 'Storytelling', sub: 'Emotional', icon: 'heart', img: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=200&auto=format&fit=crop&q=80' },
   ];
 
-  const handleCreateReel = () => {
+  const handleCreateReel = async () => {
     setIsGenerating(true);
-    setTimeout(() => {
-      setIsGenerating(false);
+    try {
+      await api.generateStoryboard({
+        topic: `${selectedStyle} Content Reel`,
+        niche: selectedStyle,
+        platform: aspectRatio === '9:16' ? 'instagram_reels' : 'youtube_shorts',
+        durationSeconds: 30,
+      });
       router.push('/(tabs)/studio' as any);
-    }, 800);
+    } catch {
+      // Direct navigation to studio if offline
+      router.push('/(tabs)/studio' as any);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -76,7 +87,7 @@ export default function MobileCreatorScreen() {
             </Text>
           </View>
 
-          <TouchableOpacity onPress={() => router.push('/settings' as any)}>
+          <TouchableOpacity onPress={() => router.push('/(tabs)/settings' as any)}>
             <Image
               source={{
                 uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80',
@@ -303,7 +314,7 @@ export default function MobileCreatorScreen() {
             elevation: 4,
           }}
         >
-          <Text style={{ color: '#FFFFFF', fontSize: 16, fontWeight: '900', letterSpacing: 0.5 }}>
+          <Text style={{ color: '#0C0C0E', fontSize: 16, fontWeight: '900', letterSpacing: 0.5 }}>
             {isGenerating ? 'Analyzing & Synthesizing...' : 'Create My Reel >'}
           </Text>
         </TouchableOpacity>

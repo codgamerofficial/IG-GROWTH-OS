@@ -1,46 +1,41 @@
 // =============================================================================
-// RIIQX Mobile — Primary 5-Tab Navigator
-// Home • Portfolio • Explore • AI Analyst • Profile
-// Modern Editorial Fintech Layout • Subtle Accents • Dynamic Dark/Light Theme
+// RIIQX Mobile 2.0 — Master Agentic Tab Navigator
+// 100% PURE NATIVE REACT NATIVE COMPONENT • ZERO WEBVIEW • ZERO IFRAME
+// Home • AI Agent • Creator Studio • Autopilot • Modules Hub
+// Deep Obsidian Aesthetic • Obsidian #0C0C0E • Primary Yellow #FFD43B
 // =============================================================================
 
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { View, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRiiqx } from '../../src/context/RiiqxContext';
-import { lightColors, darkColors } from '../../src/theme/colors';
 
 export default function TabLayout() {
-  const { isDarkMode } = useRiiqx();
-  const theme = isDarkMode ? darkColors : lightColors;
-
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: theme.surface,
-          borderTopColor: theme.cardBorder,
-          height: 64,
-          paddingBottom: 8,
-          paddingTop: 8,
+          backgroundColor: '#0C0C0E',
+          borderTopColor: 'rgba(255, 255, 255, 0.08)',
+          height: 60,
+          paddingBottom: 6,
+          paddingTop: 6,
           borderTopWidth: 1,
         },
-        tabBarActiveTintColor: theme.primary,
-        tabBarInactiveTintColor: theme.textMuted,
+        tabBarActiveTintColor: '#FFD43B',
+        tabBarInactiveTintColor: '#737373',
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '700',
         },
       }}
     >
-      {/* Tab 1: Home (Wealth Dashboard) */}
+      {/* Tab 1: Home (Agentic OS Command Center) */}
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) => (
             <Ionicons
               name={focused ? 'home' : 'home-outline'}
               size={size - 2}
@@ -50,42 +45,12 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Tab 2: Portfolio & Ledger */}
+      {/* Tab 2: AI Agent & Multimodal Chat */}
       <Tabs.Screen
-        name="portfolio"
+        name="chat"
         options={{
-          title: 'Portfolio',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'pie-chart' : 'pie-chart-outline'}
-              size={size - 2}
-              color={color}
-            />
-          ),
-        }}
-      />
-
-      {/* Tab 3: Explore & Screener */}
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={focused ? 'compass' : 'compass-outline'}
-              size={size - 2}
-              color={color}
-            />
-          ),
-        }}
-      />
-
-      {/* Tab 4: AI Analyst */}
-      <Tabs.Screen
-        name="analyst"
-        options={{
-          title: 'AI Analyst',
-          tabBarIcon: ({ color, size, focused }) => (
+          title: 'AI Agent',
+          tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) => (
             <Ionicons
               name={focused ? 'sparkles' : 'sparkles-outline'}
               size={size - 2}
@@ -95,14 +60,14 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Tab 5: Profile & Legal */}
+      {/* Tab 3: Creator Studio (9:16 Video Canvas & Subtitles) */}
       <Tabs.Screen
-        name="profile"
+        name="creator"
         options={{
-          title: 'Profile',
-          tabBarIcon: ({ color, size, focused }) => (
+          title: 'Creator',
+          tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) => (
             <Ionicons
-              name={focused ? 'person' : 'person-outline'}
+              name={focused ? 'videocam' : 'videocam-outline'}
               size={size - 2}
               color={color}
             />
@@ -110,14 +75,45 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Hidden legacy tab entries */}
-      <Tabs.Screen name="apps" options={{ href: null }} />
-      <Tabs.Screen name="autopilot" options={{ href: null }} />
-      <Tabs.Screen name="chat" options={{ href: null }} />
-      <Tabs.Screen name="creator" options={{ href: null }} />
-      <Tabs.Screen name="settings" options={{ href: null }} />
-      <Tabs.Screen name="studio" options={{ href: null }} />
+      {/* Tab 4: Social Autopilot & Emergency STOP */}
+      <Tabs.Screen
+        name="autopilot"
+        options={{
+          title: 'Autopilot',
+          tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) => (
+            <Ionicons
+              name={focused ? 'sync' : 'sync-outline'}
+              size={size - 2}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* Tab 5: All 11 Modules Hub */}
+      <Tabs.Screen
+        name="apps"
+        options={{
+          title: 'Modules',
+          tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) => (
+            <Ionicons
+              name={focused ? 'grid' : 'grid-outline'}
+              size={size - 2}
+              color={color}
+            />
+          ),
+        }}
+      />
+
+      {/* Registered Sub-Screens (Accessible via Navigation / Hub) */}
       <Tabs.Screen name="tasks" options={{ href: null }} />
+      <Tabs.Screen name="research" options={{ href: null }} />
+      <Tabs.Screen name="code" options={{ href: null }} />
+      <Tabs.Screen name="integrations" options={{ href: null }} />
+      <Tabs.Screen name="analytics" options={{ href: null }} />
+      <Tabs.Screen name="library" options={{ href: null }} />
+      <Tabs.Screen name="studio" options={{ href: null }} />
+      <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   );
 }
