@@ -25,12 +25,16 @@ async function runTests() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (!data.success || !Array.isArray(data.capabilities)) throw new Error('Invalid capabilities response');
-    if (data.count < 4) throw new Error(`Expected at least 4 adapters, got ${data.count}`);
+    if (data.count < 7) throw new Error(`Expected at least 7 adapters, got ${data.count}`);
     const hasRemotion = data.capabilities.some(c => c.provider === 'remotion');
     const hasVoice = data.capabilities.some(c => c.provider === 'voicestudio');
     const hasClip = data.capabilities.some(c => c.provider === 'autoshorts');
     const hasSeo = data.capabilities.some(c => c.provider === 'openseo');
-    if (!hasRemotion || !hasVoice || !hasClip || !hasSeo) throw new Error('Missing core capability adapters');
+    const hasHiggsfield = data.capabilities.some(c => c.provider === 'higgsfield');
+    const hasPurffle = data.capabilities.some(c => c.provider === 'purffleshorts');
+    if (!hasRemotion || !hasVoice || !hasClip || !hasSeo || !hasHiggsfield || !hasPurffle) {
+      throw new Error('Missing core capability adapters');
+    }
   });
 
   // 2. Video Clipping Adapter (AI-Shorts & AutoShorts)
@@ -124,6 +128,79 @@ async function runTests() {
     if (!data.result?.renderedVideoUrl || !data.result?.totalDurationSeconds) throw new Error('Invalid render output');
   });
 
+  // 6. Media Generation Adapter (Open-Higgsfield-AI)
+  await test('Media Generation Adapter: Cinema-style Text-to-Video generation', async () => {
+    const res = await fetch('http://localhost:3001/api/riiqx/capabilities/media.generate.video', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        providerId: 'higgsfield',
+        payload: {
+          mode: 'text_to_video',
+          prompt: 'Futuristic AI datacenter glowing in gold and obsidian neon, cinematic lighting, 8k',
+          aspectRatio: '9:16',
+          durationSeconds: 5,
+          cinemaControls: {
+            cameraMotion: 'pan_right',
+            lightingStyle: 'cinematic',
+            colorGrade: 'teal_orange',
+          },
+        },
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.success || data.status !== 'completed') throw new Error(data.errorMessage || 'Media generation failed');
+    if (!data.result?.assetUrl || data.result.mediaType !== 'video') throw new Error('Invalid media generation output');
+  });
+
+  // 7. Voice Dubbing Adapter (VoiceStudio)
+  await test('Voice Dubbing Adapter: Audio demuxing, translation & dubbing to Bengali', async () => {
+    const res = await fetch('http://localhost:3001/api/riiqx/capabilities/voice.dub', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        providerId: 'voicestudio',
+        payload: {
+          sourceVideoUrl: '/uploads/sample_vertical.mp4',
+          targetLanguage: 'bn',
+          preserveBackgroundMusic: true,
+        },
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.success || data.status !== 'completed') throw new Error(data.errorMessage || 'Voice dubbing failed');
+    if (!data.result?.dubbedVideoUrl || !Array.isArray(data.result?.translatedTranscript)) {
+      throw new Error('Invalid dubbing result payload');
+    }
+  });
+
+  // 8. Faceless Video Factory (PurffleShorts)
+  await test('Faceless Video Factory: End-to-end viral hook, voice, stock matching & Remotion burn-in', async () => {
+    const res = await fetch('http://localhost:3001/api/riiqx/capabilities/video.faceless', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        providerId: 'purffleshorts',
+        payload: {
+          topic: '5 Unbreakable Mindset Habits of Top Founders',
+          niche: 'motivation',
+          durationSeconds: 30,
+          language: 'en',
+          stylePreset: 'viral_kinetic',
+          aspectRatio: '9:16',
+        },
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.success || data.status !== 'completed') throw new Error(data.errorMessage || 'Faceless video creation failed');
+    if (!data.result?.renderedVideoUrl || !data.result?.script?.hook || !Array.isArray(data.result?.scenes)) {
+      throw new Error('Invalid faceless video output structure');
+    }
+  });
+
   console.log('\n============================================================');
   console.log(`🎉 TEST SUMMARY: ${passed}/${total} CAPABILITY TESTS PASSED CLEANLY!`);
   console.log('============================================================\n');
@@ -135,3 +212,4 @@ runTests().catch(err => {
   console.error('Fatal test error:', err);
   process.exit(1);
 });
+

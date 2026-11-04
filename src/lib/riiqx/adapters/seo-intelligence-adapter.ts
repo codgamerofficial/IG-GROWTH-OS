@@ -137,3 +137,4 @@ export class SEOIntelligenceAdapter implements CapabilityAdapter<KeywordResearch
     };
   }
 }
+

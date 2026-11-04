@@ -115,3 +115,4 @@ export interface CapabilityJobRecord {
   updatedAt: string;
   completedAt?: string;
 }
+

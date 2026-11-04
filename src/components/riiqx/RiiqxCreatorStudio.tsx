@@ -40,6 +40,8 @@ import { PublishedContentTab } from './creator/PublishedContentTab';
 import { PerformanceAnalyticsTab } from './creator/PerformanceAnalyticsTab';
 import { TemplatesTab } from './creator/TemplatesTab';
 import { BrandKitTab } from './creator/BrandKitTab';
+import { VoiceStudioTab } from './creator/VoiceStudioTab';
+import { ShortsFactoryTab } from './creator/ShortsFactoryTab';
 
 export function RiiqxCreatorStudio() {
   const { setActiveTab: setGlobalWorkspaceTab } = useRiiqx();
@@ -221,6 +223,22 @@ export function RiiqxCreatorStudio() {
 
         {activeSubTab === 'ai_creation' && (
           <AICreationLabTab
+            project={activeProject}
+            onUpdateProject={handleUpdateProject}
+            onTabChange={setActiveSubTab}
+          />
+        )}
+
+        {activeSubTab === 'shorts_factory' && (
+          <ShortsFactoryTab
+            project={activeProject}
+            onUpdateProject={handleUpdateProject}
+            onTabChange={setActiveSubTab}
+          />
+        )}
+
+        {activeSubTab === 'voice_studio' && (
+          <VoiceStudioTab
             project={activeProject}
             onUpdateProject={handleUpdateProject}
             onTabChange={setActiveSubTab}

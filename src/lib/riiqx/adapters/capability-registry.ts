@@ -15,6 +15,9 @@ import { RemotionAdapter } from './remotion-adapter';
 import { VideoClippingAdapter } from './video-clipping-adapter';
 import { VoiceStudioAdapter } from './voice-studio-adapter';
 import { SEOIntelligenceAdapter } from './seo-intelligence-adapter';
+import { MediaGenerationAdapter } from './media-generation-adapter';
+import { VoiceDubbingAdapter } from './voice-dubbing-adapter';
+import { FacelessVideoAdapter } from './faceless-video-adapter';
 
 class CapabilityRegistry {
   private adapters = new Map<string, CapabilityAdapter>();
@@ -28,6 +31,9 @@ class CapabilityRegistry {
     this.register(new VideoClippingAdapter());
     this.register(new VoiceStudioAdapter());
     this.register(new SEOIntelligenceAdapter());
+    this.register(new MediaGenerationAdapter());
+    this.register(new VoiceDubbingAdapter());
+    this.register(new FacelessVideoAdapter());
   }
 
   /**
@@ -169,3 +175,4 @@ class CapabilityRegistry {
 
 // Global Singleton Instance
 export const capabilityRegistry = new CapabilityRegistry();
+

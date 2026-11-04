@@ -69,6 +69,8 @@ export type ProjectLifecycleStatus =
 export type CreatorStudioTab =
   | 'overview'
   | 'ai_creation'
+  | 'shorts_factory'
+  | 'voice_studio'
   | 'ideas'
   | 'planner'
   | 'script'

@@ -32,6 +32,8 @@ import {
   FolderKanban,
   Check,
   ShieldCheck,
+  Scissors,
+  Mic,
 } from 'lucide-react';
 
 interface CreatorStudioNavProps {
@@ -61,6 +63,8 @@ export function CreatorStudioNav({
   }> = [
     { id: 'overview', label: 'Overview', icon: LayoutGrid },
     { id: 'ai_creation', label: 'AI Creation Lab', icon: Sparkles, badge: 'AI 2.0' },
+    { id: 'shorts_factory', label: 'Shorts Factory', icon: Scissors, badge: 'P3 Engine' },
+    { id: 'voice_studio', label: 'Voice Studio', icon: Mic, badge: 'P2 Voice' },
     { id: 'editor', label: 'Video Editor', icon: Video },
     { id: 'script', label: 'Script Studio', icon: FileText },
     { id: 'storyboard', label: 'Storyboard', icon: Layers },

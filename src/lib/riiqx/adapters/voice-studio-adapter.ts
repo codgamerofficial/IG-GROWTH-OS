@@ -112,3 +112,4 @@ export class VoiceStudioAdapter implements CapabilityAdapter<VoiceSynthesisInput
     };
   }
 }
+
