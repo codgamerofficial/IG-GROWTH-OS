@@ -49,23 +49,24 @@ export function CalendarTab({
   // Derive genuine scheduled or ready projects
   const scheduledProjects = projects.filter(
     (p) =>
-      p.status === 'scheduled' ||
-      p.publishingJob?.status === 'scheduled' ||
-      p.status === 'ready_to_publish' ||
-      p.status === 'published'
+      p &&
+      (p.status === 'scheduled' ||
+        p.publishingJob?.status === 'scheduled' ||
+        p.status === 'ready_to_publish' ||
+        p.status === 'published')
   );
 
   const upcomingPosts = scheduledProjects.map((p) => {
     const effectivePlatform = p.brief?.platform || p.publishingJob?.platform || 'both';
-    const isYt = effectivePlatform === 'youtube_shorts';
-    const isFb = (effectivePlatform as string) === 'facebook';
+    const isYouTube = effectivePlatform === 'youtube_shorts';
+    const isFacebook = (effectivePlatform as string) === 'facebook';
 
-    const Icon = isYt ? Youtube : isFb ? Share2 : Instagram;
-    const platformName = isYt ? 'YouTube Short' : isFb ? 'Facebook Reel' : 'Instagram Reel';
-    const iconColor = isYt ? 'text-red-500' : isFb ? 'text-blue-500' : 'text-pink-500';
-    const iconBg = isYt
+    const Icon = isYouTube ? Youtube : isFacebook ? Share2 : Instagram;
+    const platformName = isYouTube ? 'YouTube Short' : isFacebook ? 'Facebook Reel' : 'Instagram Reel';
+    const iconColor = isYouTube ? 'text-red-500' : isFacebook ? 'text-blue-500' : 'text-pink-500';
+    const iconBg = isYouTube
       ? 'bg-red-500/10 border-red-500/20'
-      : isFb
+      : isFacebook
       ? 'bg-blue-500/10 border-blue-500/20'
       : 'bg-pink-500/10 border-pink-500/20';
 
