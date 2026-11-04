@@ -255,6 +255,17 @@ export function RiiqxAnalyticsView() {
               >
                 <Instagram className="w-4 h-4" />
               </button>
+              <button
+                onClick={() => setSelectedPlatform('facebook')}
+                title="Meta Facebook Pages"
+                className={`p-1.5 rounded-xl transition ${
+                  selectedPlatform === 'facebook'
+                    ? 'bg-[#1877F2]/20 text-[#1877F2]'
+                    : 'text-[#737373] hover:text-[#1877F2]'
+                }`}
+              >
+                <Share2 className="w-4 h-4" />
+              </button>
             </div>
 
             {/* Sync Live Button */}
@@ -396,91 +407,144 @@ export function RiiqxAnalyticsView() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {accounts.map((acc) => {
                     const isYt = acc.platform === 'youtube';
-                    const Icon = isYt ? Youtube : Instagram;
-                    const iconColor = isYt ? 'text-[#FF4D4F]' : 'text-[#FF6B5E]';
+                    const isIg = acc.platform === 'instagram';
+                    const isFb = acc.platform === 'facebook';
+                    const Icon = isYt ? Youtube : isFb ? Share2 : Instagram;
+                    const iconColor = isYt ? 'text-[#FF4D4F]' : isFb ? 'text-[#1877F2]' : 'text-[#FF6B5E]';
                     const isConnected = acc.connectionStatus === 'connected';
+
+                    const primaryMetric = acc.metrics.subscribers || acc.metrics.followers;
+                    const primaryLabel = isYt ? 'Subscribers' : isFb ? 'Page Followers' : 'Followers';
+                    const isPrimaryCached = primaryMetric?.status === 'CACHED';
+
+                    let secondaryMetric = acc.metrics.totalViews;
+                    let secondaryLabel = 'Channel Views';
+
+                    if (
+                      isYt &&
+                      (secondaryMetric?.value === null || secondaryMetric?.value === undefined) &&
+                      acc.metrics.publishedContentCount?.value !== null &&
+                      acc.metrics.publishedContentCount?.value !== undefined
+                    ) {
+                      secondaryMetric = acc.metrics.publishedContentCount;
+                      secondaryLabel = 'Published Videos';
+                    } else if (!isYt) {
+                      secondaryMetric = acc.metrics.publishedContentCount;
+                      secondaryLabel = isFb ? 'Page Posts' : 'Media Posts';
+                    }
+                    const isSecondaryCached = secondaryMetric?.status === 'CACHED';
 
                     return (
                       <div
                         key={acc.id}
-                        className="p-5 rounded-2xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#18181C] space-y-3"
+                        className="p-5 rounded-2xl border border-[#EAE7E1] dark:border-[#2E2E2E] bg-white dark:bg-[#18181C] space-y-3 flex flex-col justify-between"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2.5">
-                            {acc.avatarUrl ? (
-                              /* eslint-disable-next-line @next/next/no-img-element */
-                              <img
-                                src={acc.avatarUrl}
-                                alt={acc.displayName}
-                                className="w-8 h-8 rounded-full object-cover border border-black/10 dark:border-white/10"
-                              />
-                            ) : (
-                              <div className="w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center">
-                                <Icon className={`w-4 h-4 ${iconColor}`} />
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2.5">
+                              {acc.avatarUrl ? (
+                                /* eslint-disable-next-line @next/next/no-img-element */
+                                <img
+                                  src={acc.avatarUrl}
+                                  alt={acc.displayName}
+                                  className="w-8 h-8 rounded-full object-cover border border-black/10 dark:border-white/10"
+                                />
+                              ) : (
+                                <div className="w-8 h-8 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                                  <Icon className={`w-4 h-4 ${iconColor}`} />
+                                </div>
+                              )}
+                              <div>
+                                <div className="text-xs font-bold text-[#202124] dark:text-white truncate max-w-[130px]">
+                                  @{acc.username}
+                                </div>
+                                <div className="text-[10px] text-[#737373] uppercase font-mono">
+                                  {acc.platform} {acc.accountType}
+                                </div>
                               </div>
-                            )}
-                            <div>
-                              <div className="text-xs font-bold text-[#202124] dark:text-white truncate max-w-[130px]">
-                                @{acc.username}
-                              </div>
-                              <div className="text-[10px] text-[#737373] uppercase font-mono">
-                                {acc.platform} {acc.accountType}
-                              </div>
                             </div>
-                          </div>
 
-                          <span
-                            className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                              isConnected
-                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                                : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
-                            }`}
-                          >
-                            {isConnected ? 'AUTHENTICATED' : 'REAUTH NEEDED'}
-                          </span>
-                        </div>
-
-                        {/* Metrics Breakdown */}
-                        <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#EAE7E1] dark:border-white/[0.05]">
-                          <div className="p-2.5 rounded-xl bg-[#FAF9F6] dark:bg-[#141418]">
-                            <div className="text-[10px] text-[#737373]">
-                              {isYt ? 'Subscribers' : 'Followers'}
-                            </div>
-                            <div className="text-base font-black text-[#202124] dark:text-white">
-                              {acc.metrics.subscribers?.value !== null && acc.metrics.subscribers?.value !== undefined
-                                ? acc.metrics.subscribers.value.toLocaleString()
-                                : acc.metrics.followers?.value !== null && acc.metrics.followers?.value !== undefined
-                                ? acc.metrics.followers.value.toLocaleString()
-                                : 'Not Available'}
-                            </div>
-                          </div>
-
-                          <div className="p-2.5 rounded-xl bg-[#FAF9F6] dark:bg-[#141418]">
-                            <div className="text-[10px] text-[#737373]">
-                              {isYt ? 'Channel Views' : 'Media Posts'}
-                            </div>
-                            <div className="text-base font-black text-[#202124] dark:text-white">
-                              {isYt
-                                ? acc.metrics.totalViews?.value !== null && acc.metrics.totalViews?.value !== undefined
-                                  ? acc.metrics.totalViews.value.toLocaleString()
-                                  : 'Not Available'
-                                : acc.metrics.publishedContentCount?.value !== null && acc.metrics.publishedContentCount?.value !== undefined
-                                ? acc.metrics.publishedContentCount.value.toLocaleString()
-                                : 'Not Available'}
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Permission Status */}
-                        {acc.metrics.reach?.status === 'PERMISSION_MISSING' && (
-                          <div className="p-2 rounded-xl text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 flex items-start gap-1.5">
-                            <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-                            <span>
-                              {acc.metrics.reach.statusExplanation ||
-                                'Deep account reach requires App Review permissions.'}
+                            <span
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                isConnected
+                                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                                  : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                              }`}
+                            >
+                              {isConnected ? 'AUTHENTICATED' : 'REAUTH NEEDED'}
                             </span>
                           </div>
-                        )}
+
+                          {/* Metrics Breakdown */}
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#EAE7E1] dark:border-white/[0.05]">
+                            <div className="p-2.5 rounded-xl bg-[#FAF9F6] dark:bg-[#141418]">
+                              <div className="text-[10px] text-[#737373] flex items-center justify-between">
+                                <span>{primaryLabel}</span>
+                                {isPrimaryCached && (
+                                  <span className="text-[8px] font-bold text-amber-500 uppercase">Cached</span>
+                                )}
+                              </div>
+                              <div className="text-base font-black text-[#202124] dark:text-white">
+                                {primaryMetric?.value !== null && primaryMetric?.value !== undefined
+                                  ? primaryMetric.value.toLocaleString()
+                                  : 'Not Available'}
+                              </div>
+                            </div>
+
+                            <div className="p-2.5 rounded-xl bg-[#FAF9F6] dark:bg-[#141418]">
+                              <div className="text-[10px] text-[#737373] flex items-center justify-between">
+                                <span>{secondaryLabel}</span>
+                                {isSecondaryCached && (
+                                  <span className="text-[8px] font-bold text-amber-500 uppercase">Cached</span>
+                                )}
+                              </div>
+                              <div className="text-base font-black text-[#202124] dark:text-white">
+                                {secondaryMetric?.value !== null && secondaryMetric?.value !== undefined
+                                  ? secondaryMetric.value.toLocaleString()
+                                  : 'Not Available'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Actions & Warnings */}
+                        <div className="space-y-2 pt-1">
+                          {/* Reconnect Action if Expired */}
+                          {!isConnected && (
+                            <a
+                              href={
+                                isYt
+                                  ? '/api/social/oauth/authorize?provider=youtube'
+                                  : '/api/social/oauth/authorize?provider=meta'
+                              }
+                              className="flex items-center justify-center gap-1.5 w-full py-1.5 px-3 rounded-xl bg-[#FFD43B] hover:bg-[#FFC928] text-[#151515] text-[11px] font-bold shadow-xs transition"
+                            >
+                              <RefreshCw className="w-3 h-3" />
+                              <span>Reconnect Channel</span>
+                            </a>
+                          )}
+
+                          {/* Connection Warning Note */}
+                          {!isConnected && (
+                            <div className="p-2 rounded-xl text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 flex items-start gap-1.5">
+                              <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                              <span>
+                                OAuth access token expired. Click Reconnect Channel above to resume live telemetry.
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Permission Status */}
+                          {acc.metrics.reach?.status === 'PERMISSION_MISSING' && (
+                            <div className="p-2 rounded-xl text-[10px] text-amber-500 bg-amber-500/10 border border-amber-500/20 flex items-start gap-1.5">
+                              <Info className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                              <span>
+                                {acc.metrics.reach.statusExplanation ||
+                                  'Deep account reach requires App Review permissions.'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -509,23 +573,23 @@ export function RiiqxAnalyticsView() {
                       <div
                         key={item.id}
                         onClick={() => setSelectedContentDetail(item)}
-                        className="flex items-center justify-between p-3 rounded-2xl border border-[#EAE7E1] dark:border-white/[0.05] hover:border-[#FFD43B] bg-[#FAF9F6] dark:bg-[#18181C] cursor-pointer transition"
+                        className="flex items-center justify-between p-3 rounded-2xl border border-[#EAE7E1] dark:border-white/[0.05] hover:border-[#FFD43B] bg-[#FAF9F6] dark:bg-[#18181C] cursor-pointer transition gap-3"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0 flex-1">
                           {item.thumbnailUrl ? (
                             /* eslint-disable-next-line @next/next/no-img-element */
                             <img
                               src={item.thumbnailUrl}
                               alt=""
-                              className="w-12 h-12 rounded-xl object-cover"
+                              className="w-12 h-12 rounded-xl object-cover shrink-0"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-xl bg-black/10 dark:bg-white/10 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-xl bg-black/10 dark:bg-white/10 flex items-center justify-center shrink-0">
                               <Video className="w-5 h-5 text-[#737373]" />
                             </div>
                           )}
-                          <div>
-                            <div className="text-xs font-bold text-[#202124] dark:text-white line-clamp-1 max-w-xs sm:max-w-md">
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-bold text-[#202124] dark:text-white truncate">
                               {item.title || item.caption || 'Untitled Asset'}
                             </div>
                             <div className="text-[10px] text-[#737373] flex items-center gap-2 mt-0.5">
@@ -536,11 +600,11 @@ export function RiiqxAnalyticsView() {
                           </div>
                         </div>
 
-                        <div className="text-right">
-                          <div className="text-xs font-black text-[#202124] dark:text-white">
+                        <div className="text-right shrink-0 whitespace-nowrap pl-2">
+                          <div className="text-xs font-black text-[#202124] dark:text-white whitespace-nowrap">
                             {item.views !== null ? `${item.views.toLocaleString()} views` : `${item.likes ?? 0} likes`}
                           </div>
-                          <div className="text-[10px] text-[#737373]">{item.comments ?? 0} comments</div>
+                          <div className="text-[10px] text-[#737373] whitespace-nowrap">{item.comments ?? 0} comments</div>
                         </div>
                       </div>
                     ))}

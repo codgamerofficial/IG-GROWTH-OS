@@ -120,6 +120,57 @@ export async function syncYouTubeAccountAnalytics(
         intel.connectionStatus = 'expired';
         intel.authorizationStatus = 'refresh_needed';
       }
+
+      // Populate cached snapshot metrics so the creator does not see empty "Not Available"
+      const cachedSubs =
+        (account.platform_metadata?.subscriberCount as number) ??
+        (account.platform_metadata?.subscribers as number) ??
+        null;
+      const cachedVideos = (account.platform_metadata?.videoCount as number) ?? null;
+      const cachedViews =
+        (account.platform_metadata?.viewCount as number) ??
+        (account.platform_metadata?.totalViews as number) ??
+        null;
+
+      if (cachedSubs !== null) {
+        intel.metrics.subscribers = {
+          name: 'subscribers',
+          displayName: 'Subscribers',
+          value: cachedSubs,
+          status: 'CACHED',
+          statusExplanation: 'OAuth token expired. Displaying last verified snapshot. Re-authenticate to refresh live telemetry.',
+          sourceApi: 'Cached YouTube Channel Snapshot',
+          reportingPeriod: 'lifetime',
+          lastSyncedAt: account.last_verified_at || now,
+        };
+      }
+
+      if (cachedVideos !== null) {
+        intel.metrics.publishedContentCount = {
+          name: 'video_count',
+          displayName: 'Published Videos',
+          value: cachedVideos,
+          status: 'CACHED',
+          statusExplanation: 'OAuth token expired. Displaying last verified count.',
+          sourceApi: 'Cached YouTube Channel Snapshot',
+          reportingPeriod: 'lifetime',
+          lastSyncedAt: account.last_verified_at || now,
+        };
+      }
+
+      if (cachedViews !== null) {
+        intel.metrics.totalViews = {
+          name: 'total_views',
+          displayName: 'Channel Total Views',
+          value: cachedViews,
+          status: 'CACHED',
+          statusExplanation: 'OAuth token expired. Displaying last verified view count.',
+          sourceApi: 'Cached YouTube Channel Snapshot',
+          reportingPeriod: 'lifetime',
+          lastSyncedAt: account.last_verified_at || now,
+        };
+      }
+
       return { account: intel, contentItems: [] };
     }
 
@@ -302,6 +353,32 @@ export async function syncYouTubeAccountAnalytics(
     return { account: intel, contentItems };
   } catch (err) {
     console.error('[syncYouTubeAccountAnalytics] Sync error:', err);
+    if (Object.keys(intel.metrics).length === 0) {
+      const cachedSubs = (account.platform_metadata?.subscriberCount as number) ?? null;
+      const cachedVideos = (account.platform_metadata?.videoCount as number) ?? null;
+      if (cachedSubs !== null) {
+        intel.metrics.subscribers = {
+          name: 'subscribers',
+          displayName: 'Subscribers',
+          value: cachedSubs,
+          status: 'CACHED',
+          sourceApi: 'Cached YouTube Channel Snapshot',
+          reportingPeriod: 'lifetime',
+          lastSyncedAt: account.last_verified_at || now,
+        };
+      }
+      if (cachedVideos !== null) {
+        intel.metrics.publishedContentCount = {
+          name: 'video_count',
+          displayName: 'Published Videos',
+          value: cachedVideos,
+          status: 'CACHED',
+          sourceApi: 'Cached YouTube Channel Snapshot',
+          reportingPeriod: 'lifetime',
+          lastSyncedAt: account.last_verified_at || now,
+        };
+      }
+    }
     return { account: intel, contentItems: [] };
   }
 }
@@ -619,18 +696,23 @@ export async function syncAllAccountsAnalytics(userId: string): Promise<UnifiedA
 }
 
 function createUnauthenticatedAccount(
-  platform: 'youtube' | 'instagram',
+  platform: 'youtube' | 'instagram' | 'facebook' | 'twitter' | 'linkedin',
   accountId: string,
-  handle: string
+  handle: string,
+  meta?: Record<string, unknown>
 ): SocialAccountIntelligence {
   const now = new Date().toISOString();
-  return {
+  const subs = (meta?.subscriberCount as number) ?? (meta?.subscribers as number) ?? null;
+  const videos = (meta?.videoCount as number) ?? null;
+  const followers = (meta?.followersCount as number) ?? (meta?.followers as number) ?? null;
+
+  const intel: SocialAccountIntelligence = {
     id: accountId,
     platform,
     platformAccountId: accountId,
     username: handle.replace(/^@/, ''),
     displayName: handle,
-    accountType: platform === 'youtube' ? 'channel' : 'creator',
+    accountType: platform === 'youtube' ? 'channel' : platform === 'facebook' ? 'page' : 'creator',
     connectionStatus: 'expired',
     authorizationStatus: 'refresh_needed',
     grantedScopes: [],
@@ -641,6 +723,47 @@ function createUnauthenticatedAccount(
     historicalDataCoverageDays: 0,
     metrics: {},
   };
+
+  if (subs !== null) {
+    intel.metrics.subscribers = {
+      name: 'subscribers',
+      displayName: 'Subscribers',
+      value: subs,
+      status: 'CACHED',
+      statusExplanation: 'Authentication required to sync live subscriber delta.',
+      sourceApi: 'Cached Channel Snapshot',
+      reportingPeriod: 'lifetime',
+      lastSyncedAt: now,
+    };
+  }
+
+  if (videos !== null) {
+    intel.metrics.publishedContentCount = {
+      name: 'video_count',
+      displayName: 'Published Videos',
+      value: videos,
+      status: 'CACHED',
+      statusExplanation: 'Authentication required to sync live video count.',
+      sourceApi: 'Cached Channel Snapshot',
+      reportingPeriod: 'lifetime',
+      lastSyncedAt: now,
+    };
+  }
+
+  if (followers !== null) {
+    intel.metrics.followers = {
+      name: 'followers',
+      displayName: 'Followers',
+      value: followers,
+      status: 'CACHED',
+      statusExplanation: 'Authentication required to sync live followers.',
+      sourceApi: 'Cached Channel Snapshot',
+      reportingPeriod: 'lifetime',
+      lastSyncedAt: now,
+    };
+  }
+
+  return intel;
 }
 
 function parseISO8601Duration(duration: string): number {
