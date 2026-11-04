@@ -21,6 +21,7 @@ import { api, SocialAccountItem } from '../../src/services/api';
 const SUPPORTED_GATEWAYS = [
   { id: 'youtube', name: 'YouTube Data API v3', icon: 'logo-youtube', color: '#FF0000', desc: 'Shorts auto-publishing & video analytics' },
   { id: 'instagram', name: 'Meta Instagram Graph API v26.0', icon: 'logo-instagram', color: '#E1306C', desc: 'Reels container dispatch & hook tracking' },
+  { id: 'facebook', name: 'Meta Facebook Pages API v26.0', icon: 'logo-facebook', color: '#1877F2', desc: 'Page video dispatch & audience telemetry' },
   { id: 'google_drive', name: 'Google Drive Asset Storage', icon: 'cloud-upload', color: '#4285F4', desc: 'Raw footage & b-roll cloud sync' },
   { id: 'github', name: 'GitHub Integration', icon: 'logo-github', color: '#F0F6FC', desc: 'Code repository push & sync' },
 ];
@@ -82,43 +83,53 @@ export default function IntegrationsScreen() {
           {loading ? (
             <ActivityIndicator size="small" color="#FFD43B" style={{ marginVertical: 20 }} />
           ) : accounts.length > 0 ? (
-            accounts.map((acc) => (
-              <View key={acc.id} style={styles.accountCard}>
-                <View style={styles.accountHeader}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                    <Ionicons
-                      name={acc.provider.includes('youtube') ? 'logo-youtube' : 'logo-instagram'}
-                      size={20}
-                      color="#FFD43B"
-                    />
-                    <View>
-                      <Text style={styles.accountName}>{acc.accountName}</Text>
-                      {acc.accountHandle ? (
-                        <Text style={styles.accountHandle}>{acc.accountHandle}</Text>
-                      ) : null}
+            accounts.map((acc) => {
+              const isYt = acc.provider.includes('youtube');
+              const isFb = acc.provider.includes('facebook');
+              const iconName = isYt ? 'logo-youtube' : isFb ? 'logo-facebook' : 'logo-instagram';
+              const iconColor = isYt ? '#FF4D4F' : isFb ? '#1877F2' : '#FF6B5E';
+              const isExpired = acc.status === 'expired';
+
+              return (
+                <View key={acc.id} style={styles.accountCard}>
+                  <View style={styles.accountHeader}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                      <Ionicons
+                        name={iconName as any}
+                        size={22}
+                        color={iconColor}
+                      />
+                      <View>
+                        <Text style={styles.accountName}>{acc.accountName}</Text>
+                        <Text style={styles.accountHandle}>
+                          {acc.accountHandle || `@${acc.provider}`} • {acc.provider.toUpperCase()}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={[styles.statusBadge, isExpired && { backgroundColor: 'rgba(245, 158, 11, 0.15)', borderColor: 'rgba(245, 158, 11, 0.3)' }]}>
+                      <Text style={[styles.statusText, isExpired && { color: '#F59E0B' }]}>
+                        {isExpired ? 'REAUTH' : acc.status.toUpperCase()}
+                      </Text>
                     </View>
                   </View>
-                  <View style={styles.statusBadge}>
-                    <Text style={styles.statusText}>{acc.status.toUpperCase()}</Text>
-                  </View>
-                </View>
 
-                <TouchableOpacity
-                  style={styles.testButton}
-                  onPress={() => handleTestAccount(acc.id)}
-                  disabled={testingId === acc.id}
-                >
-                  {testingId === acc.id ? (
-                    <ActivityIndicator size="small" color="#A3A3A3" />
-                  ) : (
-                    <>
-                      <Ionicons name="flash-outline" size={14} color="#A3A3A3" style={{ marginRight: 4 }} />
-                      <Text style={styles.testButtonText}>Probe Connection</Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-              </View>
-            ))
+                  <TouchableOpacity
+                    style={styles.testButton}
+                    onPress={() => handleTestAccount(acc.id)}
+                    disabled={testingId === acc.id}
+                  >
+                    {testingId === acc.id ? (
+                      <ActivityIndicator size="small" color="#A3A3A3" />
+                    ) : (
+                      <>
+                        <Ionicons name="flash-outline" size={14} color="#A3A3A3" style={{ marginRight: 4 }} />
+                        <Text style={styles.testButtonText}>Probe Connection</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              );
+            })
           ) : (
             <View style={styles.emptyCard}>
               <Ionicons name="link-outline" size={32} color="#737373" />
