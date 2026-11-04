@@ -1,0 +1,28 @@
+{
+  "id": "job_1793831505322_o5ehye",
+  "userId": "test_creator_1",
+  "jobType": "video_render",
+  "status": "cancelled",
+  "progressPct": 0,
+  "stageMessage": "Cancelled: User aborted render",
+  "stageHistory": [
+    {
+      "stage": "queued",
+      "message": "Job submitted and registered in queue",
+      "timestamp": "2026-11-04T22:31:45.322Z",
+      "progressPct": 0
+    },
+    {
+      "stage": "cancelled",
+      "message": "User aborted render",
+      "timestamp": "2026-11-04T22:31:45.384Z",
+      "progressPct": 0
+    }
+  ],
+  "payload": {
+    "videoId": "vid_123"
+  },
+  "createdAt": "2026-11-04T22:31:45.322Z",
+  "updatedAt": "2026-11-04T22:31:45.384Z",
+  "completedAt": "2026-11-04T22:31:45.384Z"
+}

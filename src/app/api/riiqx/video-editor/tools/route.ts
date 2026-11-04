@@ -214,3 +214,4 @@ export async function GET() {
     verifiedAt: new Date().toISOString(),
   });
 }
+

@@ -1,0 +1,47 @@
+{
+  "id": "job_1793831197246_edju99",
+  "userId": "test_creator_1",
+  "jobType": "campaign_generation",
+  "status": "completed",
+  "progressPct": 100,
+  "stageMessage": "Operation completed successfully.",
+  "stageHistory": [
+    {
+      "stage": "queued",
+      "message": "Job submitted and registered in queue",
+      "timestamp": "2026-11-04T22:26:37.246Z",
+      "progressPct": 0
+    },
+    {
+      "stage": "market_research",
+      "message": "Analyzing competitive angle and hashtags...",
+      "timestamp": "2026-11-04T22:26:38.386Z",
+      "progressPct": 35
+    },
+    {
+      "stage": "content_pillars",
+      "message": "Synthesizing 4 core pillars for Instagram & YouTube",
+      "timestamp": "2026-11-04T22:26:39.901Z",
+      "progressPct": 75
+    },
+    {
+      "stage": "completed",
+      "message": "Job completed with verified result payload.",
+      "timestamp": "2026-11-04T22:26:41.698Z",
+      "progressPct": 100
+    }
+  ],
+  "payload": {
+    "brandName": "RIIQX Creative",
+    "objective": "brand_awareness"
+  },
+  "createdAt": "2026-11-04T22:26:37.246Z",
+  "updatedAt": "2026-11-04T22:26:41.698Z",
+  "startedAt": "2026-11-04T22:26:38.386Z",
+  "result": {
+    "strategyId": "strat_verified_123",
+    "pillarsCount": 4,
+    "totalBriefs": 6
+  },
+  "completedAt": "2026-11-04T22:26:41.698Z"
+}

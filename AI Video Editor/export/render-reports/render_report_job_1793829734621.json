@@ -1,0 +1,21 @@
+{
+  "jobId": "job_1793829734621",
+  "renderedAt": "2026-11-04T22:02:46.619Z",
+  "renderTimeMs": 31998,
+  "checks": {
+    "fileExists": true,
+    "fileSizeBytes": 132258,
+    "resolutionPass": true,
+    "targetResolution": "1080x1920",
+    "probedResolution": "1080x1920",
+    "fpsPass": true,
+    "probedFps": 30,
+    "durationSeconds": 10.101995,
+    "hasAudioStream": true,
+    "audioCodec": "aac",
+    "videoCodec": "h264",
+    "blackFramesDetected": 0,
+    "audioNormalizedLufs": -14.2
+  },
+  "isQualityCertified": true
+}

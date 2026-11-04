@@ -679,3 +679,4 @@ export function AIVideoEditorPipeline({
     </div>
   );
 }
+
