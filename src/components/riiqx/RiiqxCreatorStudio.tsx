@@ -42,6 +42,8 @@ import { TemplatesTab } from './creator/TemplatesTab';
 import { BrandKitTab } from './creator/BrandKitTab';
 import { VoiceStudioTab } from './creator/VoiceStudioTab';
 import { ShortsFactoryTab } from './creator/ShortsFactoryTab';
+import { CaptureStudioTab } from './creator/CaptureStudioTab';
+import { SEOIntelligenceTab } from './creator/SEOIntelligenceTab';
 
 export function RiiqxCreatorStudio() {
   const { setActiveTab: setGlobalWorkspaceTab } = useRiiqx();
@@ -242,6 +244,31 @@ export function RiiqxCreatorStudio() {
             project={activeProject}
             onUpdateProject={handleUpdateProject}
             onTabChange={setActiveSubTab}
+          />
+        )}
+
+        {activeSubTab === 'capture_studio' && (
+          <CaptureStudioTab
+            project={activeProject}
+            onUpdateProject={handleUpdateProject}
+            onTabChange={setActiveSubTab}
+          />
+        )}
+
+        {activeSubTab === 'seo_intelligence' && (
+          <SEOIntelligenceTab
+            project={activeProject}
+            onUpdateProject={handleUpdateProject}
+            onTabChange={setActiveSubTab}
+            onNewProjectFromKeyword={(kw) => {
+              const newProj = createDefaultProject({
+                topic: kw,
+                niche: 'AI & SaaS',
+                durationSeconds: 30,
+                platform: 'both',
+              });
+              handleConvertIdeaToProject(newProj);
+            }}
           />
         )}
 

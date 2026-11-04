@@ -162,3 +162,4 @@ export class FacelessVideoAdapter implements CapabilityAdapter<FacelessVideoInpu
     };
   }
 }
+

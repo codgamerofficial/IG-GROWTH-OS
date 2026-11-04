@@ -18,6 +18,9 @@ import { SEOIntelligenceAdapter } from './seo-intelligence-adapter';
 import { MediaGenerationAdapter } from './media-generation-adapter';
 import { VoiceDubbingAdapter } from './voice-dubbing-adapter';
 import { FacelessVideoAdapter } from './faceless-video-adapter';
+import { SEOAuditAdapter } from './seo-audit-adapter';
+import { CaptureRecordingAdapter } from './capture-recording-adapter';
+import { KnowledgeWorkspaceAdapter } from './knowledge-workspace-adapter';
 
 class CapabilityRegistry {
   private adapters = new Map<string, CapabilityAdapter>();
@@ -34,6 +37,9 @@ class CapabilityRegistry {
     this.register(new MediaGenerationAdapter());
     this.register(new VoiceDubbingAdapter());
     this.register(new FacelessVideoAdapter());
+    this.register(new SEOAuditAdapter());
+    this.register(new CaptureRecordingAdapter());
+    this.register(new KnowledgeWorkspaceAdapter());
   }
 
   /**

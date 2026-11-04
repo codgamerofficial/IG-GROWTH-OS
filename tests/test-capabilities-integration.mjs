@@ -25,14 +25,16 @@ async function runTests() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (!data.success || !Array.isArray(data.capabilities)) throw new Error('Invalid capabilities response');
-    if (data.count < 7) throw new Error(`Expected at least 7 adapters, got ${data.count}`);
+    if (data.count < 10) throw new Error(`Expected at least 10 adapters, got ${data.count}`);
     const hasRemotion = data.capabilities.some(c => c.provider === 'remotion');
     const hasVoice = data.capabilities.some(c => c.provider === 'voicestudio');
     const hasClip = data.capabilities.some(c => c.provider === 'autoshorts');
     const hasSeo = data.capabilities.some(c => c.provider === 'openseo');
     const hasHiggsfield = data.capabilities.some(c => c.provider === 'higgsfield');
     const hasPurffle = data.capabilities.some(c => c.provider === 'purffleshorts');
-    if (!hasRemotion || !hasVoice || !hasClip || !hasSeo || !hasHiggsfield || !hasPurffle) {
+    const hasCap = data.capabilities.some(c => c.provider === 'cap');
+    const hasAppflowy = data.capabilities.some(c => c.provider === 'appflowy');
+    if (!hasRemotion || !hasVoice || !hasClip || !hasSeo || !hasHiggsfield || !hasPurffle || !hasCap || !hasAppflowy) {
       throw new Error('Missing core capability adapters');
     }
   });
@@ -198,6 +200,73 @@ async function runTests() {
     if (!data.success || data.status !== 'completed') throw new Error(data.errorMessage || 'Faceless video creation failed');
     if (!data.result?.renderedVideoUrl || !data.result?.script?.hook || !Array.isArray(data.result?.scenes)) {
       throw new Error('Invalid faceless video output structure');
+    }
+  });
+
+  // 9. SEO Audit Adapter (OpenSEO)
+  await test('SEO Audit Adapter: Technical crawling, performance scoring & AI visibility', async () => {
+    const res = await fetch('http://localhost:3001/api/riiqx/capabilities/seo.audit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        providerId: 'openseo',
+        payload: {
+          targetUrl: 'https://riiqx.vercel.app',
+          checkAiVisibility: true,
+        },
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.success || data.status !== 'completed') throw new Error(data.errorMessage || 'SEO audit failed');
+    if (typeof data.result?.overallScore !== 'number' || !Array.isArray(data.result?.recommendations)) {
+      throw new Error('Invalid SEO audit structure');
+    }
+  });
+
+  // 10. Capture Studio Adapter (Cap)
+  await test('Capture Studio Adapter: Screen/Camera stream recording & Whisper transcode hook', async () => {
+    const res = await fetch('http://localhost:3001/api/riiqx/capabilities/capture.record', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        providerId: 'cap',
+        payload: {
+          recordingType: 'screen_and_camera_pip',
+          durationSeconds: 24,
+          autoTranscribeWithWhisper: true,
+        },
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.success || data.status !== 'completed') throw new Error(data.errorMessage || 'Capture record failed');
+    if (!data.result?.recordingId || !data.result?.videoAssetUrl) {
+      throw new Error('Invalid capture recording output');
+    }
+  });
+
+  // 11. Knowledge Workspace Adapter (AppFlowy & OpenProject)
+  await test('Knowledge Hub Adapter: Document blocks & cross-platform task synchronization', async () => {
+    const res = await fetch('http://localhost:3001/api/riiqx/capabilities/project.sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        providerId: 'appflowy',
+        payload: {
+          action: 'sync_tasks',
+          tasks: [
+            { id: 'tsk_1', title: 'Publish YouTube Short: AI Winners', status: 'scheduled', priority: 'high' },
+            { id: 'tsk_2', title: 'Record Voice Dub in Bengali', status: 'in_progress', priority: 'urgent' },
+          ],
+        },
+      }),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.success || data.status !== 'completed') throw new Error(data.errorMessage || 'Knowledge sync failed');
+    if (!data.result?.syncId || data.result.syncedTasksCount < 2) {
+      throw new Error('Invalid knowledge sync result');
     }
   });
 

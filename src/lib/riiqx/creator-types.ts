@@ -71,6 +71,8 @@ export type CreatorStudioTab =
   | 'ai_creation'
   | 'shorts_factory'
   | 'voice_studio'
+  | 'capture_studio'
+  | 'seo_intelligence'
   | 'ideas'
   | 'planner'
   | 'script'

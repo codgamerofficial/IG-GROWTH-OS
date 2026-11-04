@@ -34,6 +34,8 @@ import {
   ShieldCheck,
   Scissors,
   Mic,
+  Camera,
+  Search,
 } from 'lucide-react';
 
 interface CreatorStudioNavProps {
@@ -65,6 +67,8 @@ export function CreatorStudioNav({
     { id: 'ai_creation', label: 'AI Creation Lab', icon: Sparkles, badge: 'AI 2.0' },
     { id: 'shorts_factory', label: 'Shorts Factory', icon: Scissors, badge: 'P3 Engine' },
     { id: 'voice_studio', label: 'Voice Studio', icon: Mic, badge: 'P2 Voice' },
+    { id: 'capture_studio', label: 'Capture Studio', icon: Camera, badge: 'Cap P5' },
+    { id: 'seo_intelligence', label: 'SEO Intelligence', icon: Search, badge: 'OpenSEO P4' },
     { id: 'editor', label: 'Video Editor', icon: Video },
     { id: 'script', label: 'Script Studio', icon: FileText },
     { id: 'storyboard', label: 'Storyboard', icon: Layers },

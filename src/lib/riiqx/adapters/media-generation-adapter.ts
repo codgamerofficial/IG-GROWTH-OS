@@ -130,3 +130,4 @@ export class MediaGenerationAdapter implements CapabilityAdapter<MediaGeneration
     };
   }
 }
+

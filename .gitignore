@@ -26,6 +26,7 @@ public/uploads/generated/
 public/uploads/videos/
 public/uploads/rendered/
 public/uploads/keyframes/
+public/uploads/recordings/
 tests/*.jpg
 tests/*.mp4
 
