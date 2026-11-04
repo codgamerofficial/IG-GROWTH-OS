@@ -153,3 +153,4 @@ export class SEOAuditAdapter implements CapabilityAdapter<SEOAuditInput, SEOAudi
     };
   }
 }
+

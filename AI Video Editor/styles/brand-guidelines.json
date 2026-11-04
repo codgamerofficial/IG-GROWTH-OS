@@ -1,0 +1,41 @@
+{
+  "brandName": "Autonomous Viral Mindset",
+  "version": "2.4.0",
+  "analyzedFrom": "https://www.youtube.com/shorts/test_reference_reel",
+  "updatedAt": "2026-11-04T21:35:50.111Z",
+  "canvas": {
+    "width": 1080,
+    "height": 1920,
+    "aspectRatio": "9:16",
+    "fps": 30
+  },
+  "typography": {
+    "fontFamily": "Montserrat, sans-serif",
+    "fontWeight": 800,
+    "primaryColor": "#FFFFFF",
+    "highlightColor": "#FFD43B",
+    "strokeColor": "#000000",
+    "strokeWidthPx": 2,
+    "wordsPerLine": 4
+  },
+  "palette": {
+    "background": "#0C0C0E",
+    "primaryAccent": "#FFD43B",
+    "secondaryAccent": "#FF6B5E",
+    "neutralText": "#F4F4F6"
+  },
+  "captions": {
+    "animationStyle": "hyperframes_kinetic_word",
+    "positionYPercent": 82
+  },
+  "audio": {
+    "voiceTargetLufs": -14,
+    "bgMusicVolumeDb": -22,
+    "autoDuckMusic": true
+  },
+  "editingRhythm": {
+    "targetCutIntervalSec": 2.4,
+    "hookDurationSec": 3.1,
+    "removePausesLongerThanSec": 0.65
+  }
+}

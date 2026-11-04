@@ -94,3 +94,4 @@ export class KnowledgeWorkspaceAdapter implements CapabilityAdapter<KnowledgeSyn
     };
   }
 }
+

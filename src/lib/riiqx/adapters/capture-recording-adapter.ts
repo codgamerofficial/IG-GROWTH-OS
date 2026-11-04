@@ -111,3 +111,4 @@ export class CaptureRecordingAdapter implements CapabilityAdapter<CaptureRecordi
     };
   }
 }
+

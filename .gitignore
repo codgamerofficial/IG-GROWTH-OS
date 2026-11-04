@@ -62,3 +62,12 @@ mobile/.expo/
 __pycache__/
 *.py[cod]
 *$py.class
+
+# AI Video Editor media binaries
+AI Video Editor/raw footage/uploads/*.mp4
+AI Video Editor/raw footage/processed/*.mp4
+AI Video Editor/reference/downloaded-references/*.mp4
+AI Video Editor/reference/uploaded-reels/*.mp4
+AI Video Editor/export/final-videos/*.mp4
+AI Video Editor/export/preview-renders/*.mp4
+AI Video Editor/export/thumbnails/*.jpg

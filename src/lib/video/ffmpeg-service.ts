@@ -174,6 +174,39 @@ export class FFmpegService {
   }
 
   /**
+   * Extract a single high-quality thumbnail image at a specific timestamp
+   */
+  public static async extractThumbnail(
+    videoPath: string,
+    outputPath: string,
+    timestampSec: number = 1.0
+  ): Promise<string> {
+    const outDir = path.dirname(outputPath);
+    if (!fs.existsSync(outDir)) {
+      fs.mkdirSync(outDir, { recursive: true });
+    }
+
+    return new Promise((resolve, reject) => {
+      ffmpeg(videoPath)
+        .seekInput(timestampSec)
+        .outputOptions(['-vframes 1', '-q:v 2'])
+        .output(outputPath)
+        .on('end', () => resolve(outputPath))
+        .on('error', () => {
+          // Fallback to start of video if requested timestamp is out of range
+          ffmpeg(videoPath)
+            .seekInput(0)
+            .outputOptions(['-vframes 1', '-q:v 2'])
+            .output(outputPath)
+            .on('end', () => resolve(outputPath))
+            .on('error', (err2) => reject(new Error(`FFmpeg thumbnail extraction failed: ${err2.message}`)))
+            .run();
+        })
+        .run();
+    });
+  }
+
+  /**
    * Trims a video segment with optional speed multiplier and color LUT filter
    */
   public static async trimAndProcessSegment(

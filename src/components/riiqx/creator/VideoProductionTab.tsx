@@ -50,6 +50,7 @@ import {
   FileCheck,
   RefreshCw,
 } from 'lucide-react';
+import { AIVideoEditorPipeline } from './AIVideoEditorPipeline';
 
 interface VideoProductionTabProps {
   project: CreatorProject | null;
@@ -65,6 +66,7 @@ export function VideoProductionTab({
   onUpdateProject,
   onTabChange,
 }: VideoProductionTabProps) {
+  const [editorViewMode, setEditorViewMode] = useState<'pipeline' | 'timeline'>('pipeline');
   const duration = project?.brief.durationSeconds || 30;
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(3.5);
@@ -642,6 +644,32 @@ export function VideoProductionTab({
           </p>
         </div>
 
+        {/* Pipeline vs Timeline View Toggle */}
+        <div className="flex items-center gap-1 rounded-xl bg-[#141418] p-1 border border-[#2E2E2E]">
+          <button
+            onClick={() => setEditorViewMode('pipeline')}
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
+              editorViewMode === 'pipeline'
+                ? 'bg-[#FFD43B] text-black shadow-md'
+                : 'text-neutral-400 hover:text-white'
+            }`}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            AI Video Pipeline (HyperFrames + FFmpeg)
+          </button>
+          <button
+            onClick={() => setEditorViewMode('timeline')}
+            className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-xs font-bold transition-all ${
+              editorViewMode === 'timeline'
+                ? 'bg-[#FFD43B] text-black shadow-md'
+                : 'text-neutral-400 hover:text-white'
+            }`}
+          >
+            <Sliders className="h-3.5 w-3.5" />
+            Timeline Studio
+          </button>
+        </div>
+
         <div className="flex items-center gap-2">
           {renderedBlobUrl ? (
             <div className="flex items-center gap-2">
@@ -691,7 +719,15 @@ export function VideoProductionTab({
         </div>
       </div>
 
-      {/* AI Natural-Language Edit Prompt Assistant Bar */}
+      {editorViewMode === 'pipeline' ? (
+        <AIVideoEditorPipeline
+          project={project}
+          onUpdateProject={onUpdateProject}
+          onTabChange={onTabChange}
+        />
+      ) : (
+        <>
+          {/* AI Natural-Language Edit Prompt Assistant Bar */}
       <div className="rounded-2xl border border-[#2E2E2E] bg-[#18181C] p-3.5 sm:p-4 space-y-2.5 shadow-xs">
         <div className="flex items-center justify-between text-xs font-bold text-white">
           <span className="flex items-center gap-2">
@@ -1088,6 +1124,8 @@ export function VideoProductionTab({
           </div>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 }

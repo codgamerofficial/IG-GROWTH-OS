@@ -1,0 +1,97 @@
+{
+  "id": "sb_1793827949912",
+  "projectName": "Autonomous Creator Masterclass",
+  "sourceVideo": "D:\\GlowFit AI\\public\\uploads\\sample_vertical.mp4",
+  "targetAspect": "9:16",
+  "totalDurationSeconds": 14,
+  "approvalStatus": "approved",
+  "isApproved": true,
+  "approvedAt": "2026-11-04T21:32:33.958Z",
+  "beats": [
+    {
+      "id": "beat_1",
+      "sceneNumber": 1,
+      "title": "Scene 01 — Viral Pattern Interrupt Hook",
+      "inSec": 0,
+      "outSec": 3,
+      "durationSeconds": 3,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "Most creators make this fatal mistake in 2026.",
+      "visualComposition": "Center-framed speaker with fast 1.15x punch-in zoom on \"fatal\".",
+      "captionText": "MOST CREATORS MAKE THIS FATAL MISTAKE",
+      "highlightedWords": [
+        "FATAL",
+        "MISTAKE",
+        "2026"
+      ],
+      "motionGraphics": "HyperFrames Kinetic Word Burst with Gold Accent Glow",
+      "transition": "Hard Cut",
+      "audioSfx": "Sub-bass impact hit on word \"fatal\"",
+      "bRollInstruction": "Fast flash of declining reach graph in upper-right corner"
+    },
+    {
+      "id": "beat_2",
+      "sceneNumber": 2,
+      "title": "Scene 02 — Core Pain Point & Conflict",
+      "inSec": 3,
+      "outSec": 7.5,
+      "durationSeconds": 4.5,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "They chase isolated hacks instead of building automated distribution engines.",
+      "visualComposition": "Medium shot with split-screen B-roll showing endless manual tabs.",
+      "captionText": "STOP CHASING HACKS • BUILD ENGINES",
+      "highlightedWords": [
+        "HACKS",
+        "AUTOMATED",
+        "ENGINES"
+      ],
+      "motionGraphics": "Animated Red Crossout over \"HACKS\" -> Neon Glow on \"ENGINES\"",
+      "transition": "12-frame horizontal whip-pan",
+      "audioSfx": "Subtle high-frequency whoosh",
+      "bRollInstruction": "Split-screen overlay: Left manual typing, Right autonomous pipeline"
+    },
+    {
+      "id": "beat_3",
+      "sceneNumber": 3,
+      "title": "Scene 03 — Solution Demonstration",
+      "inSec": 7.5,
+      "outSec": 12,
+      "durationSeconds": 4.5,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "RIIQX connects your channels and automates your entire creative workflow.",
+      "visualComposition": "Fluid punch-out with floating UI cards showing YouTube & Instagram sync.",
+      "captionText": "RIIQX AUTOMATES YOUR CREATIVE WORKFLOW",
+      "highlightedWords": [
+        "RIIQX",
+        "AUTOMATES",
+        "ENTIRE"
+      ],
+      "motionGraphics": "HyperFrames Liquid Cards pop with telemetry checkmarks",
+      "transition": "Zoom-in cut",
+      "audioSfx": "Clean metallic UI confirmation pop",
+      "bRollInstruction": "B-roll of live Social Intelligence dashboard"
+    },
+    {
+      "id": "beat_4",
+      "sceneNumber": 4,
+      "title": "Scene 04 — Retention Call to Action",
+      "inSec": 12,
+      "outSec": 14,
+      "durationSeconds": 2,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "Follow for daily tactics.",
+      "visualComposition": "Direct eye-contact close-up with pulsing Follow / Subscribe badge.",
+      "captionText": "FOLLOW FOR DAILY TACTICS",
+      "highlightedWords": [
+        "FOLLOW",
+        "DAILY"
+      ],
+      "motionGraphics": "Pulsing Gold Follow Button Overlay",
+      "transition": "Fast cut to black finish",
+      "audioSfx": "Subtle rising chime",
+      "bRollInstruction": "End card with RIIQX watermark badge"
+    }
+  ],
+  "createdAt": "2026-11-04T21:32:29.913Z",
+  "gateUnlocked": true
+}
