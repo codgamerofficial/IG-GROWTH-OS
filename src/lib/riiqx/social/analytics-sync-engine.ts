@@ -22,7 +22,11 @@ import {
   getContentIntelligenceHistory,
   getHistoricalSnapshots,
 } from './analytics-repository';
-import { generateGrowthRecommendations, generatePerformanceForecasts } from './growth-intelligence';
+import {
+  generateGrowthRecommendations,
+  generatePerformanceForecasts,
+  generateCrossAccountComparisons,
+} from './growth-intelligence';
 
 /**
  * Synchronizes an individual YouTube account with automatic token refresh
@@ -589,6 +593,208 @@ export async function syncInstagramAccountAnalytics(
 }
 
 /**
+ * Synchronizes an individual Facebook Page account
+ */
+export async function syncFacebookAccountAnalytics(
+  accountId: string,
+  userId: string
+): Promise<{ account: SocialAccountIntelligence; contentItems: ContentIntelligenceItem[] }> {
+  const creds = await getAccountWithCredentials(accountId, userId);
+
+  if (!creds || !creds.accessToken) {
+    return {
+      account: createUnauthenticatedAccount('facebook', accountId, '@unknown'),
+      contentItems: [],
+    };
+  }
+
+  const { account, accessToken } = creds;
+  const pageId = account.platform_account_id;
+  const now = new Date().toISOString();
+
+  const intel: SocialAccountIntelligence = {
+    id: accountId,
+    platform: 'facebook',
+    platformAccountId: pageId,
+    username: (account.account_handle || account.account_name).replace(/^@/, ''),
+    displayName: account.account_name,
+    avatarUrl: account.avatar_url,
+    accountType: 'page',
+    connectionStatus: 'connected',
+    authorizationStatus: 'valid',
+    grantedScopes: account.scopes,
+    missingPermissions: ['read_insights'],
+    lastSyncAt: now,
+    nextEligibleSyncAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+    tokenExpiresAt: account.token_expires_at,
+    isTokenExpired: false,
+    historicalDataCoverageDays: 60,
+    metrics: {},
+  };
+
+  const contentItems: ContentIntelligenceItem[] = [];
+
+  try {
+    // 1. Fetch Page Profile info (name, username, category, followers_count, fan_count, picture)
+    const pageUrl = `https://graph.facebook.com/v26.0/${pageId}?fields=id,name,username,category,followers_count,fan_count,picture{url},link&access_token=${accessToken}`;
+    const pageRes = await fetch(pageUrl);
+    const pageData = await pageRes.json();
+
+    if (!pageRes.ok || pageData.error) {
+      if (pageData.error?.code === 190) {
+        intel.connectionStatus = 'expired';
+        intel.authorizationStatus = 'refresh_needed';
+      }
+      return { account: intel, contentItems: [] };
+    }
+
+    if (pageData.name) intel.displayName = pageData.name;
+    if (pageData.username) intel.username = pageData.username;
+    if (pageData.picture?.data?.url) intel.avatarUrl = pageData.picture.data.url;
+
+    const followers =
+      typeof pageData.followers_count === 'number'
+        ? pageData.followers_count
+        : typeof pageData.fan_count === 'number'
+        ? pageData.fan_count
+        : null;
+
+    intel.metrics.followers = {
+      name: 'followers',
+      displayName: 'Page Followers',
+      value: followers,
+      status: followers !== null ? 'VERIFIED' : 'UNAVAILABLE',
+      sourceApi: 'Meta Graph API v26.0 /{page-id} (followers_count)',
+      reportingPeriod: 'lifetime',
+      lastSyncedAt: now,
+    };
+
+    if (followers !== null) {
+      await saveMetricSnapshot({
+        accountId,
+        platform: 'facebook',
+        metricName: 'followers',
+        metricValue: followers,
+        reportingPeriod: 'lifetime',
+        sourceApi: 'Meta Graph API v26.0',
+        status: 'VERIFIED',
+        timestamp: now,
+      });
+    }
+
+    // 2. Ingest Published Posts
+    const postsUrl = `https://graph.facebook.com/v26.0/${pageId}/published_posts?fields=id,message,created_time,permalink_url,shares,attachments{media_type,media,type,unshimmed_url,title}&limit=25&access_token=${accessToken}`;
+    const postsRes = await fetch(postsUrl);
+    const postsData = await postsRes.json();
+
+    if (postsRes.ok && Array.isArray(postsData.data)) {
+      for (const p of postsData.data) {
+        const shares = p.shares?.count ?? null;
+        const attachment = p.attachments?.data?.[0];
+        const isVideo = attachment?.media_type === 'video' || attachment?.type === 'video_inline';
+
+        contentItems.push({
+          id: `fb_${p.id}`,
+          platform: 'facebook',
+          accountId,
+          accountHandle: `@${intel.username}`,
+          contentId: p.id,
+          contentType: isVideo ? 'video' : 'post',
+          title: attachment?.title || undefined,
+          caption: p.message || '',
+          hashtags: extractHashtags(p.message || ''),
+          publishedAt: p.created_time || now,
+          permalink: p.permalink_url || `https://facebook.com/${p.id}`,
+          thumbnailUrl: attachment?.media?.image?.src || attachment?.unshimmed_url,
+          views: null,
+          likes: null,
+          comments: null,
+          shares,
+          saves: null,
+          engagementRate: null,
+          category: pageData.category,
+          lastSyncedAt: now,
+        });
+      }
+    }
+
+    // 3. Ingest Page Videos / Reels
+    let totalViewsSum = 0;
+    const videosUrl = `https://graph.facebook.com/v26.0/${pageId}/videos?fields=id,title,description,length,views,created_time,permalink_url,picture&limit=25&access_token=${accessToken}`;
+    const videosRes = await fetch(videosUrl);
+    const videosData = await videosRes.json();
+
+    if (videosRes.ok && Array.isArray(videosData.data)) {
+      for (const v of videosData.data) {
+        const existingIdx = contentItems.findIndex((c) => c.contentId === v.id);
+        const durationSec = typeof v.length === 'number' ? Math.round(v.length) : undefined;
+        const isShort = durationSec !== undefined && durationSec <= 60;
+        const vViews = typeof v.views === 'number' ? v.views : null;
+        if (vViews) totalViewsSum += vViews;
+
+        const videoItem: ContentIntelligenceItem = {
+          id: `fb_vid_${v.id}`,
+          platform: 'facebook',
+          accountId,
+          accountHandle: `@${intel.username}`,
+          contentId: v.id,
+          contentType: isShort ? 'reel' : 'video',
+          title: v.title || 'Facebook Video',
+          caption: v.description || '',
+          hashtags: extractHashtags(v.description || ''),
+          publishedAt: v.created_time || now,
+          permalink: v.permalink_url || `https://facebook.com/${pageId}/videos/${v.id}`,
+          thumbnailUrl: v.picture,
+          durationSeconds: durationSec,
+          durationFormatted: durationSec ? formatSeconds(durationSec) : undefined,
+          views: vViews,
+          likes: null,
+          comments: null,
+          shares: null,
+          saves: null,
+          engagementRate: null,
+          category: pageData.category,
+          lastSyncedAt: now,
+        };
+
+        if (existingIdx >= 0) {
+          contentItems[existingIdx] = { ...contentItems[existingIdx], ...videoItem };
+        } else {
+          contentItems.push(videoItem);
+        }
+      }
+    }
+
+    intel.metrics.publishedContentCount = {
+      name: 'published_content',
+      displayName: 'Published Posts & Videos',
+      value: contentItems.length,
+      status: 'VERIFIED',
+      sourceApi: 'Meta Graph API v26.0 /{page-id}/published_posts',
+      reportingPeriod: 'lifetime',
+      lastSyncedAt: now,
+    };
+
+    if (totalViewsSum > 0) {
+      intel.metrics.totalViews = {
+        name: 'total_views',
+        displayName: 'Total Video Views',
+        value: totalViewsSum,
+        status: 'VERIFIED',
+        sourceApi: 'Meta Graph API v26.0 /{page-id}/videos',
+        reportingPeriod: 'recent_videos',
+        lastSyncedAt: now,
+      };
+    }
+
+    return { account: intel, contentItems };
+  } catch (err) {
+    console.error('[syncFacebookAccountAnalytics] Sync error:', err);
+    return { account: intel, contentItems: [] };
+  }
+}
+
+/**
  * Synchronizes all authorized accounts and builds the unified social intelligence payload
  */
 export async function syncAllAccountsAnalytics(userId: string): Promise<UnifiedAnalyticsResponse> {
@@ -605,6 +811,10 @@ export async function syncAllAccountsAnalytics(userId: string): Promise<UnifiedA
       allContentItems.push(...res.contentItems);
     } else if (acc.provider === 'instagram') {
       const res = await syncInstagramAccountAnalytics(acc.id, userId);
+      syncedAccounts.push(res.account);
+      allContentItems.push(...res.contentItems);
+    } else if (acc.provider === 'facebook') {
+      const res = await syncFacebookAccountAnalytics(acc.id, userId);
       syncedAccounts.push(res.account);
       allContentItems.push(...res.contentItems);
     }
@@ -658,6 +868,7 @@ export async function syncAllAccountsAnalytics(userId: string): Promise<UnifiedA
   // Generate evidence-backed AI recommendations & forecasts
   const growthRecommendations = generateGrowthRecommendations(syncedAccounts, fullContentHistory);
   const forecasts = generatePerformanceForecasts(syncedAccounts, historicalSnapshots);
+  const comparisons = generateCrossAccountComparisons(syncedAccounts, fullContentHistory);
 
   return {
     accounts: syncedAccounts,
@@ -678,6 +889,7 @@ export async function syncAllAccountsAnalytics(userId: string): Promise<UnifiedA
     futureContent: [], // populated from creator projects in route handler
     growthRecommendations,
     forecasts,
+    comparisons,
     diagnostics: {
       lastGlobalSyncAt: new Date().toISOString(),
       apiRateLimitStatus: {

@@ -9,6 +9,8 @@ import {
   HistoricalMetricSnapshot,
   AIGrowthRecommendation,
   PerformanceForecast,
+  CrossAccountComparisonResult,
+  MetricComparisonItem,
 } from './analytics-types';
 
 /**
@@ -263,5 +265,148 @@ function computeLinearTrend(points: Array<{ x: number; y: number }>): { slope: n
   const intercept = (sumY - slope * sumX) / n;
 
   return { slope, intercept };
+}
+
+/**
+ * Produces structured cross-account comparative analytics across connected channels
+ */
+export function generateCrossAccountComparisons(
+  accounts: SocialAccountIntelligence[],
+  contentHistory: ContentIntelligenceItem[]
+): CrossAccountComparisonResult[] {
+  const comparisons: CrossAccountComparisonResult[] = [];
+  if (accounts.length < 2) return comparisons;
+
+  const now = new Date().toISOString();
+
+  // Create comparisons between distinct accounts (up to 6 prominent pairs)
+  for (let i = 0; i < accounts.length; i++) {
+    for (let j = i + 1; j < accounts.length; j++) {
+      const a = accounts[i];
+      const b = accounts[j];
+
+      const valAudienceA = a.metrics.followers?.value ?? a.metrics.subscribers?.value ?? null;
+      const valAudienceB = b.metrics.followers?.value ?? b.metrics.subscribers?.value ?? null;
+
+      const valPostsA = a.metrics.publishedContentCount?.value ?? null;
+      const valPostsB = b.metrics.publishedContentCount?.value ?? null;
+
+      const valViewsA = a.metrics.totalViews?.value ?? null;
+      const valViewsB = b.metrics.totalViews?.value ?? null;
+
+      const valLikesA = a.metrics.totalLikes?.value ?? null;
+      const valLikesB = b.metrics.totalLikes?.value ?? null;
+
+      const valCommentsA = a.metrics.totalComments?.value ?? null;
+      const valCommentsB = b.metrics.totalComments?.value ?? null;
+
+      const valEngagementA = a.metrics.avgEngagementRate?.value ?? null;
+      const valEngagementB = b.metrics.avgEngagementRate?.value ?? null;
+
+      const metrics: MetricComparisonItem[] = [
+        {
+          metricName: 'audience',
+          displayName: 'Audience (Followers / Subs)',
+          valueA: valAudienceA,
+          valueB: valAudienceB,
+          winnerAccountId:
+            valAudienceA !== null && valAudienceB !== null
+              ? valAudienceA >= valAudienceB
+                ? a.id
+                : b.id
+              : undefined,
+          isComparable: true,
+        },
+        {
+          metricName: 'published_content',
+          displayName: 'Total Published Content',
+          valueA: valPostsA,
+          valueB: valPostsB,
+          winnerAccountId:
+            valPostsA !== null && valPostsB !== null
+              ? valPostsA >= valPostsB
+                ? a.id
+                : b.id
+              : undefined,
+          isComparable: true,
+        },
+        {
+          metricName: 'views',
+          displayName: 'Channel / Post Views',
+          valueA: valViewsA,
+          valueB: valViewsB,
+          winnerAccountId:
+            valViewsA !== null && valViewsB !== null
+              ? valViewsA >= valViewsB
+                ? a.id
+                : b.id
+              : undefined,
+          isComparable: valViewsA !== null && valViewsB !== null,
+        },
+        {
+          metricName: 'likes',
+          displayName: 'Tracked Interactions (Likes)',
+          valueA: valLikesA,
+          valueB: valLikesB,
+          winnerAccountId:
+            valLikesA !== null && valLikesB !== null
+              ? valLikesA >= valLikesB
+                ? a.id
+                : b.id
+              : undefined,
+          isComparable: true,
+        },
+        {
+          metricName: 'comments',
+          displayName: 'Tracked Comments',
+          valueA: valCommentsA,
+          valueB: valCommentsB,
+          winnerAccountId:
+            valCommentsA !== null && valCommentsB !== null
+              ? valCommentsA >= valCommentsB
+                ? a.id
+                : b.id
+              : undefined,
+          isComparable: true,
+        },
+        {
+          metricName: 'engagement_rate',
+          displayName: 'Average Engagement Rate (%)',
+          valueA: valEngagementA,
+          valueB: valEngagementB,
+          unit: '%',
+          winnerAccountId:
+            valEngagementA !== null && valEngagementB !== null
+              ? valEngagementA >= valEngagementB
+                ? a.id
+                : b.id
+              : undefined,
+          isComparable: valEngagementA !== null && valEngagementB !== null,
+        },
+      ];
+
+      const topA = contentHistory
+        .filter((c) => c.accountId === a.id)
+        .sort((x, y) => ((y.likes || 0) + (y.views || 0)) - ((x.likes || 0) + (x.views || 0)))[0];
+
+      const topB = contentHistory
+        .filter((c) => c.accountId === b.id)
+        .sort((x, y) => ((y.likes || 0) + (y.views || 0)) - ((x.likes || 0) + (x.views || 0)))[0];
+
+      comparisons.push({
+        accountA: a,
+        accountB: b,
+        comparisonDate: now,
+        metrics,
+        topContentA: topA,
+        topContentB: topB,
+      });
+
+      if (comparisons.length >= 6) break;
+    }
+    if (comparisons.length >= 6) break;
+  }
+
+  return comparisons;
 }
 

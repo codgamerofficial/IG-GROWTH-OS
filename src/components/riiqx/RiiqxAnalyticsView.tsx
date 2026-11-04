@@ -12,6 +12,7 @@ import {
   TrendingUp,
   Youtube,
   Instagram,
+  Facebook,
   Share2,
   Clock,
   Eye,
@@ -82,6 +83,16 @@ export function RiiqxAnalyticsView() {
   ]);
   const [isAssistantThinking, setIsAssistantThinking] = useState<boolean>(false);
 
+  // Facebook Pages Discovery Modal State
+  const [isPagesModalOpen, setIsPagesModalOpen] = useState<boolean>(false);
+  const [discoveredPages, setDiscoveredPages] = useState<any[]>([]);
+  const [isDiscoveringPages, setIsDiscoveringPages] = useState<boolean>(false);
+  const [pagesActionMessage, setPagesActionMessage] = useState<string | null>(null);
+
+  // Cross-Account Comparison State
+  const [compareAccountAId, setCompareAccountAId] = useState<string>('');
+  const [compareAccountBId, setCompareAccountBId] = useState<string>('');
+
   // Fetch real analytics from backend
   const fetchLiveAnalytics = useCallback(async () => {
     setIsSyncing(true);
@@ -104,6 +115,50 @@ export function RiiqxAnalyticsView() {
       setIsSyncing(false);
     }
   }, [selectedAccountId, selectedPlatform, timeRange]);
+
+  const fetchDiscoveredPages = useCallback(async () => {
+    setIsDiscoveringPages(true);
+    setPagesActionMessage(null);
+    try {
+      const res = await fetch('/api/social/pages');
+      const data = await res.json();
+      if (res.ok && Array.isArray(data.pages)) {
+        setDiscoveredPages(data.pages);
+      }
+    } catch (err) {
+      console.error('[fetchDiscoveredPages] error:', err);
+    } finally {
+      setIsDiscoveringPages(false);
+    }
+  }, []);
+
+  const handleTogglePageConnection = async (page: any) => {
+    try {
+      if (page.isConnected) {
+        const res = await fetch(`/api/social/pages?pageId=${page.id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          setPagesActionMessage(`Page "${page.name}" disconnected.`);
+          fetchDiscoveredPages();
+          fetchLiveAnalytics();
+        }
+      } else {
+        const res = await fetch('/api/social/pages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pageId: page.id }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setPagesActionMessage(`Page "${page.name}" connected and activated.`);
+          fetchDiscoveredPages();
+          fetchLiveAnalytics();
+        }
+      }
+    } catch {
+      setPagesActionMessage('Network error toggling page connection.');
+    }
+  };
 
   useEffect(() => {
     fetchLiveAnalytics();
@@ -214,11 +269,39 @@ export function RiiqxAnalyticsView() {
               className="px-3 py-2 rounded-2xl bg-white dark:bg-[#18181C] border border-[#EAE7E1] dark:border-white/[0.08] text-xs font-bold text-[#202124] dark:text-white shadow-2xs focus:outline-hidden"
             >
               <option value="all">All Channels ({accounts.length})</option>
-              {accounts.map((acc) => (
-                <option key={acc.id} value={acc.id}>
-                  {acc.platform.toUpperCase()}: @{acc.username}
-                </option>
-              ))}
+              {accounts.some((a) => a.platform === 'youtube') && (
+                <optgroup label="YouTube Channels">
+                  {accounts
+                    .filter((a) => a.platform === 'youtube')
+                    .map((acc) => (
+                      <option key={acc.id} value={acc.id}>
+                        YouTube: @{acc.username}
+                      </option>
+                    ))}
+                </optgroup>
+              )}
+              {accounts.some((a) => a.platform === 'instagram') && (
+                <optgroup label="Instagram Accounts">
+                  {accounts
+                    .filter((a) => a.platform === 'instagram')
+                    .map((acc) => (
+                      <option key={acc.id} value={acc.id}>
+                        Instagram: @{acc.username}
+                      </option>
+                    ))}
+                </optgroup>
+              )}
+              {accounts.some((a) => a.platform === 'facebook') && (
+                <optgroup label="Facebook Pages">
+                  {accounts
+                    .filter((a) => a.platform === 'facebook')
+                    .map((acc) => (
+                      <option key={acc.id} value={acc.id}>
+                        Facebook: {acc.displayName || `@${acc.username}`}
+                      </option>
+                    ))}
+                </optgroup>
+              )}
             </select>
 
             {/* Platform Filter Buttons */}
@@ -264,7 +347,7 @@ export function RiiqxAnalyticsView() {
                     : 'text-[#737373] hover:text-[#1877F2]'
                 }`}
               >
-                <Share2 className="w-4 h-4" />
+                <Facebook className="w-4 h-4" />
               </button>
             </div>
 
@@ -409,7 +492,7 @@ export function RiiqxAnalyticsView() {
                     const isYt = acc.platform === 'youtube';
                     const isIg = acc.platform === 'instagram';
                     const isFb = acc.platform === 'facebook';
-                    const Icon = isYt ? Youtube : isFb ? Share2 : Instagram;
+                    const Icon = isYt ? Youtube : isFb ? Facebook : Instagram;
                     const iconColor = isYt ? 'text-[#FF4D4F]' : isFb ? 'text-[#1877F2]' : 'text-[#FF6B5E]';
                     const isConnected = acc.connectionStatus === 'connected';
 
@@ -430,7 +513,7 @@ export function RiiqxAnalyticsView() {
                       secondaryLabel = 'Published Videos';
                     } else if (!isYt) {
                       secondaryMetric = acc.metrics.publishedContentCount;
-                      secondaryLabel = isFb ? 'Page Posts' : 'Media Posts';
+                      secondaryLabel = isFb ? 'Published Posts' : 'Media Posts';
                     }
                     const isSecondaryCached = secondaryMetric?.status === 'CACHED';
 
@@ -664,81 +747,169 @@ export function RiiqxAnalyticsView() {
                   Granular token health, granted scopes, and verified capabilities for every connected social channel.
                 </p>
               </div>
-              <button
-                onClick={() => setActiveTab('integrations')}
-                className="px-3.5 py-2 rounded-2xl bg-[#FFD43B] text-[#202124] text-xs font-bold shadow-xs hover:bg-[#FFD43B]/90 transition"
-              >
-                + Connect Another Channel
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => {
+                    setIsPagesModalOpen(true);
+                    fetchDiscoveredPages();
+                  }}
+                  className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-[#1877F2]/10 text-[#1877F2] border border-[#1877F2]/20 hover:bg-[#1877F2]/20 text-xs font-bold transition shadow-2xs"
+                >
+                  <Facebook className="w-3.5 h-3.5" />
+                  <span>Discover &amp; Manage Facebook Pages</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab('integrations')}
+                  className="px-3.5 py-2 rounded-2xl bg-[#FFD43B] text-[#202124] text-xs font-bold shadow-xs hover:bg-[#FFD43B]/90 transition"
+                >
+                  + Connect Another Channel
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {accounts.map((acc) => (
-                <div
-                  key={acc.id}
-                  className="p-6 rounded-3xl bg-white/80 dark:bg-[#141418]/80 backdrop-blur-md border border-[#EAE7E1] dark:border-white/[0.08] shadow-sm space-y-4"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {acc.avatarUrl ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={acc.avatarUrl}
-                          alt=""
-                          className="w-10 h-10 rounded-full object-cover border border-black/10 dark:border-white/10"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center font-bold">
-                          {acc.username[0]?.toUpperCase()}
+              {accounts.map((acc) => {
+                const isYt = acc.platform === 'youtube';
+                const isIg = acc.platform === 'instagram';
+                const isFb = acc.platform === 'facebook';
+                const Icon = isYt ? Youtube : isFb ? Facebook : Instagram;
+                const isConnected = acc.connectionStatus === 'connected';
+
+                const primaryMetric = acc.metrics.subscribers || acc.metrics.followers;
+                const primaryLabel = isYt ? 'Subscribers' : isFb ? 'Page Followers' : 'Followers';
+                const isPrimaryCached = primaryMetric?.status === 'CACHED';
+
+                return (
+                  <div
+                    key={acc.id}
+                    className="p-6 rounded-3xl bg-white/80 dark:bg-[#141418]/80 backdrop-blur-md border border-[#EAE7E1] dark:border-white/[0.08] shadow-sm space-y-4 flex flex-col justify-between"
+                  >
+                    <div className="space-y-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          {acc.avatarUrl ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                              src={acc.avatarUrl}
+                              alt=""
+                              className="w-11 h-11 rounded-full object-cover border border-black/10 dark:border-white/10"
+                            />
+                          ) : (
+                            <div className="w-11 h-11 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center font-bold">
+                              <Icon className={`w-5 h-5 ${isYt ? 'text-[#FF4D4F]' : isFb ? 'text-[#1877F2]' : 'text-[#FF6B5E]'}`} />
+                            </div>
+                          )}
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <h3 className="text-sm font-bold text-[#202124] dark:text-white">
+                                {acc.displayName || `@${acc.username}`}
+                              </h3>
+                              <span className="text-[10px] font-mono text-[#737373]">
+                                (@{acc.username})
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] flex items-center gap-1">
+                                <Icon className="w-3 h-3" />
+                                {acc.platform} • {acc.accountType}
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      )}
-                      <div>
-                        <h3 className="text-sm font-bold text-[#202124] dark:text-white">
-                          @{acc.username}
-                        </h3>
-                        <p className="text-xs text-[#737373]">{acc.displayName}</p>
+
+                        <span
+                          className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                            isConnected
+                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                              : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                          }`}
+                        >
+                          {isConnected ? 'AUTHENTICATED' : 'REAUTH NEEDED'}
+                        </span>
+                      </div>
+
+                      {/* Primary Metrics Summary */}
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div className="p-3 rounded-xl bg-[#FAF9F6] dark:bg-[#18181C]">
+                          <span className="text-[10px] text-[#737373] flex items-center justify-between">
+                            <span>{primaryLabel}</span>
+                            {isPrimaryCached && (
+                              <span className="text-[8px] font-bold text-amber-500 uppercase">Cached</span>
+                            )}
+                          </span>
+                          <span className="font-mono font-bold text-base text-[#202124] dark:text-white">
+                            {primaryMetric?.value !== null && primaryMetric?.value !== undefined
+                              ? primaryMetric.value.toLocaleString()
+                              : 'Not Available'}
+                          </span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-[#FAF9F6] dark:bg-[#18181C]">
+                          <span className="text-[10px] text-[#737373] block">Published Content</span>
+                          <span className="font-mono font-bold text-base text-[#202124] dark:text-white">
+                            {acc.metrics.publishedContentCount?.value !== null &&
+                            acc.metrics.publishedContentCount?.value !== undefined
+                              ? acc.metrics.publishedContentCount.value.toLocaleString()
+                              : '—'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Scopes & Permissions */}
+                      <div className="space-y-1.5 pt-2 border-t border-black/5 dark:border-white/[0.05]">
+                        <div className="text-[10px] font-bold text-[#737373] uppercase tracking-wider">
+                          Granted OAuth Permissions
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {acc.grantedScopes.map((scope) => (
+                            <span
+                              key={scope}
+                              className="px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/5 text-[10px] font-mono text-[#737373] dark:text-[#A1A1AA]"
+                            >
+                              {scope}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Telemetry Summary */}
+                      <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+                        <div className="p-2.5 rounded-xl bg-[#FAF9F6] dark:bg-[#18181C]">
+                          <span className="text-[10px] text-[#737373] block">Token Expiration</span>
+                          <span className="font-mono text-[11px] text-[#202124] dark:text-white">
+                            {acc.tokenExpiresAt ? new Date(acc.tokenExpiresAt).toLocaleDateString() : 'Long-Lived'}
+                          </span>
+                        </div>
+                        <div className="p-2.5 rounded-xl bg-[#FAF9F6] dark:bg-[#18181C]">
+                          <span className="text-[10px] text-[#737373] block">Data Coverage</span>
+                          <span className="font-mono text-[11px] text-[#202124] dark:text-white">
+                            Last {acc.historicalDataCoverageDays} Days
+                          </span>
+                        </div>
                       </div>
                     </div>
 
-                    <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      {acc.connectionStatus.toUpperCase()}
-                    </span>
-                  </div>
-
-                  {/* Scopes & Permissions */}
-                  <div className="space-y-1.5 pt-2 border-t border-black/5 dark:border-white/[0.05]">
-                    <div className="text-[10px] font-bold text-[#737373] uppercase tracking-wider">
-                      Granted OAuth Permissions
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {acc.grantedScopes.map((scope) => (
-                        <span
-                          key={scope}
-                          className="px-2 py-0.5 rounded-lg bg-black/5 dark:bg-white/5 text-[10px] font-mono text-[#737373] dark:text-[#A1A1AA]"
+                    {/* Reconnect Action if Expired */}
+                    {!isConnected && (
+                      <div className="pt-3 border-t border-black/5 dark:border-white/[0.05] space-y-2">
+                        <a
+                          href={
+                            isYt
+                              ? '/api/social/oauth/authorize?provider=youtube'
+                              : '/api/social/oauth/authorize?provider=meta'
+                          }
+                          className="flex items-center justify-center gap-1.5 w-full py-2 px-3 rounded-xl bg-[#FFD43B] hover:bg-[#FFC928] text-[#151515] text-xs font-bold shadow-xs transition"
                         >
-                          {scope}
-                        </span>
-                      ))}
-                    </div>
+                          <RefreshCw className="w-3.5 h-3.5" />
+                          <span>Reconnect Channel</span>
+                        </a>
+                        <p className="text-[10px] text-amber-500 bg-amber-500/10 p-2 rounded-xl border border-amber-500/20">
+                          OAuth access token expired. Re-authenticate above to resume live API polling.
+                        </p>
+                      </div>
+                    )}
                   </div>
-
-                  {/* Telemetry Summary */}
-                  <div className="grid grid-cols-2 gap-2 text-xs pt-2">
-                    <div className="p-3 rounded-xl bg-[#FAF9F6] dark:bg-[#18181C]">
-                      <span className="text-[10px] text-[#737373] block">Token Expiration</span>
-                      <span className="font-mono text-[11px] text-[#202124] dark:text-white">
-                        {acc.tokenExpiresAt ? new Date(acc.tokenExpiresAt).toLocaleDateString() : 'Long-Lived'}
-                      </span>
-                    </div>
-                    <div className="p-3 rounded-xl bg-[#FAF9F6] dark:bg-[#18181C]">
-                      <span className="text-[10px] text-[#737373] block">Data Coverage</span>
-                      <span className="font-mono text-[11px] text-[#202124] dark:text-white">
-                        Last {acc.historicalDataCoverageDays} Days
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
@@ -890,69 +1061,207 @@ export function RiiqxAnalyticsView() {
 
         {/* SUBTAB 5: CROSS-ACCOUNT COMPARISON */}
         {activeSubTab === 'compare' && (
-          <div className="space-y-4">
-            <div>
-              <h2 className="text-base font-bold text-[#202124] dark:text-white">
-                Cross-Account Comparative Analytics
-              </h2>
-              <p className="text-xs text-[#737373]">
-                Side-by-side performance evaluation across distinct platforms and channels.
-              </p>
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-[#202124] dark:text-white">
+                  Cross-Account Comparative Analytics
+                </h2>
+                <p className="text-xs text-[#737373]">
+                  Side-by-side performance evaluation across YouTube, Instagram, and Facebook.
+                </p>
+              </div>
+
+              {/* Dynamic Account Pair Selector */}
+              {accounts.length >= 2 && (
+                <div className="flex flex-wrap items-center gap-2 p-2 rounded-2xl bg-white/80 dark:bg-[#141418]/80 border border-[#EAE7E1] dark:border-white/[0.08] shadow-2xs">
+                  <select
+                    value={compareAccountAId || accounts[0]?.id}
+                    onChange={(e) => setCompareAccountAId(e.target.value)}
+                    className="px-2.5 py-1.5 rounded-xl bg-black/5 dark:bg-[#18181C] text-xs font-bold text-[#202124] dark:text-white border border-black/10 dark:border-white/10 focus:outline-hidden"
+                  >
+                    {accounts.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.platform.toUpperCase()}: {a.displayName || `@${a.username}`}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="text-xs font-black text-[#FFD43B] px-1">VS</span>
+                  <select
+                    value={compareAccountBId || accounts[1]?.id}
+                    onChange={(e) => setCompareAccountBId(e.target.value)}
+                    className="px-2.5 py-1.5 rounded-xl bg-black/5 dark:bg-[#18181C] text-xs font-bold text-[#202124] dark:text-white border border-black/10 dark:border-white/10 focus:outline-hidden"
+                  >
+                    {accounts.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.platform.toUpperCase()}: {a.displayName || `@${a.username}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
 
-            {comparisons.length === 0 ? (
-              <div className="p-8 rounded-3xl bg-white/80 dark:bg-[#141418]/80 border border-[#EAE7E1] dark:border-white/[0.08] text-center text-xs text-[#737373]">
-                At least 2 connected accounts required to activate cross-channel comparative analytics.
-              </div>
-            ) : (
-              comparisons.map((comp, idx) => (
-                <div
-                  key={idx}
-                  className="p-6 rounded-3xl bg-white/80 dark:bg-[#141418]/80 backdrop-blur-md border border-[#EAE7E1] dark:border-white/[0.08] shadow-sm space-y-6"
-                >
+            {/* Dynamic Comparison Card for the chosen pair */}
+            {(() => {
+              const accountA = accounts.find((a) => a.id === (compareAccountAId || accounts[0]?.id)) || accounts[0];
+              const accountB = accounts.find((a) => a.id === (compareAccountBId || accounts[1]?.id)) || accounts[1];
+
+              if (!accountA || !accountB || accountA.id === accountB.id) {
+                return (
+                  <div className="p-8 rounded-3xl bg-white/80 dark:bg-[#141418]/80 border border-[#EAE7E1] dark:border-white/[0.08] text-center text-xs text-[#737373]">
+                    Please select two distinct channels to view comparative analytics.
+                  </div>
+                );
+              }
+
+              const isYtA = accountA.platform === 'youtube';
+              const isFbA = accountA.platform === 'facebook';
+              const IconA = isYtA ? Youtube : isFbA ? Facebook : Instagram;
+
+              const isYtB = accountB.platform === 'youtube';
+              const isFbB = accountB.platform === 'facebook';
+              const IconB = isYtB ? Youtube : isFbB ? Facebook : Instagram;
+
+              const valAudienceA = accountA.metrics.followers?.value ?? accountA.metrics.subscribers?.value ?? null;
+              const valAudienceB = accountB.metrics.followers?.value ?? accountB.metrics.subscribers?.value ?? null;
+
+              const valPostsA = accountA.metrics.publishedContentCount?.value ?? null;
+              const valPostsB = accountB.metrics.publishedContentCount?.value ?? null;
+
+              const valViewsA = accountA.metrics.totalViews?.value ?? null;
+              const valViewsB = accountB.metrics.totalViews?.value ?? null;
+
+              const valLikesA = accountA.metrics.totalLikes?.value ?? null;
+              const valLikesB = accountB.metrics.totalLikes?.value ?? null;
+
+              const valCommentsA = accountA.metrics.totalComments?.value ?? null;
+              const valCommentsB = accountB.metrics.totalComments?.value ?? null;
+
+              const valEngagementA = accountA.metrics.avgEngagementRate?.value ?? null;
+              const valEngagementB = accountB.metrics.avgEngagementRate?.value ?? null;
+
+              const dynamicMetrics = [
+                {
+                  name: 'Audience (Followers / Subs)',
+                  valA: valAudienceA,
+                  valB: valAudienceB,
+                  unit: '',
+                },
+                {
+                  name: 'Published Content Assets',
+                  valA: valPostsA,
+                  valB: valPostsB,
+                  unit: '',
+                },
+                {
+                  name: 'Total Channel / Post Views',
+                  valA: valViewsA,
+                  valB: valViewsB,
+                  unit: '',
+                },
+                {
+                  name: 'Tracked Interactions (Likes)',
+                  valA: valLikesA,
+                  valB: valLikesB,
+                  unit: '',
+                },
+                {
+                  name: 'Tracked Comments',
+                  valA: valCommentsA,
+                  valB: valCommentsB,
+                  unit: '',
+                },
+                {
+                  name: 'Average Engagement Rate',
+                  valA: valEngagementA,
+                  valB: valEngagementB,
+                  unit: '%',
+                },
+              ];
+
+              return (
+                <div className="p-6 rounded-3xl bg-white/80 dark:bg-[#141418]/80 backdrop-blur-md border border-[#EAE7E1] dark:border-white/[0.08] shadow-sm space-y-6">
+                  {/* Channels Headers */}
                   <div className="grid grid-cols-2 gap-4 pb-4 border-b border-black/5 dark:border-white/[0.05]">
-                    <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#18181C] text-center">
-                      <span className="text-xs uppercase font-mono text-[#737373] block">
-                        Channel A ({comp.accountA.platform.toUpperCase()})
-                      </span>
-                      <span className="text-base font-black text-[#202124] dark:text-white">
-                        @{comp.accountA.username}
-                      </span>
+                    <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#18181C] flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                        <IconA className={`w-5 h-5 ${isYtA ? 'text-[#FF4D4F]' : isFbA ? 'text-[#1877F2]' : 'text-[#FF6B5E]'}`} />
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase font-mono font-bold text-[#737373] block">
+                          Channel A • {accountA.platform.toUpperCase()}
+                        </span>
+                        <span className="text-sm font-black text-[#202124] dark:text-white">
+                          {accountA.displayName || `@${accountA.username}`}
+                        </span>
+                        <span className="text-[10px] text-[#737373] block">@{accountA.username}</span>
+                      </div>
                     </div>
 
-                    <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#18181C] text-center">
-                      <span className="text-xs uppercase font-mono text-[#737373] block">
-                        Channel B ({comp.accountB.platform.toUpperCase()})
-                      </span>
-                      <span className="text-base font-black text-[#202124] dark:text-white">
-                        @{comp.accountB.username}
-                      </span>
+                    <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#18181C] flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-black/5 dark:bg-white/5 flex items-center justify-center">
+                        <IconB className={`w-5 h-5 ${isYtB ? 'text-[#FF4D4F]' : isFbB ? 'text-[#1877F2]' : 'text-[#FF6B5E]'}`} />
+                      </div>
+                      <div>
+                        <span className="text-[10px] uppercase font-mono font-bold text-[#737373] block">
+                          Channel B • {accountB.platform.toUpperCase()}
+                        </span>
+                        <span className="text-sm font-black text-[#202124] dark:text-white">
+                          {accountB.displayName || `@${accountB.username}`}
+                        </span>
+                        <span className="text-[10px] text-[#737373] block">@{accountB.username}</span>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="space-y-3">
-                    {comp.metrics.map((m) => (
-                      <div
-                        key={m.metricName}
-                        className="flex items-center justify-between p-3.5 rounded-2xl border border-[#EAE7E1] dark:border-white/[0.05] bg-[#FAF9F6] dark:bg-[#18181C]"
-                      >
-                        <div className="text-xs font-bold text-[#202124] dark:text-white w-1/3">
-                          {m.displayName}
-                        </div>
+                  {/* Comparative Metrics Table */}
+                  <div className="space-y-2.5">
+                    {dynamicMetrics.map((m) => {
+                      const isWinnerA = m.valA !== null && m.valB !== null && m.valA > m.valB;
+                      const isWinnerB = m.valA !== null && m.valB !== null && m.valB > m.valA;
 
-                        <div className="text-center font-mono font-bold text-xs w-1/3 text-emerald-400">
-                          {m.valueA !== null ? m.valueA.toLocaleString() : '—'}
-                        </div>
+                      return (
+                        <div
+                          key={m.name}
+                          className="flex items-center justify-between p-3.5 rounded-2xl border border-[#EAE7E1] dark:border-white/[0.05] bg-[#FAF9F6] dark:bg-[#18181C]"
+                        >
+                          <div className="text-xs font-bold text-[#202124] dark:text-white w-2/5">
+                            {m.name}
+                          </div>
 
-                        <div className="text-right font-mono font-bold text-xs w-1/3 text-sky-400">
-                          {m.valueB !== null ? m.valueB.toLocaleString() : '—'}
+                          <div
+                            className={`text-center font-mono font-bold text-xs w-1/4 ${
+                              isWinnerA ? 'text-emerald-400 font-black' : 'text-[#202124] dark:text-white'
+                            }`}
+                          >
+                            {m.valA !== null ? `${m.valA.toLocaleString()}${m.unit}` : '—'}
+                            {isWinnerA && (
+                              <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                LEADER
+                              </span>
+                            )}
+                          </div>
+
+                          <div
+                            className={`text-right font-mono font-bold text-xs w-1/4 ${
+                              isWinnerB ? 'text-emerald-400 font-black' : 'text-[#202124] dark:text-white'
+                            }`}
+                          >
+                            {m.valB !== null ? `${m.valB.toLocaleString()}${m.unit}` : '—'}
+                            {isWinnerB && (
+                              <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                LEADER
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
-              ))
-            )}
+              );
+            })()}
           </div>
         )}
 
@@ -1248,6 +1557,150 @@ export function RiiqxAnalyticsView() {
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* Facebook Pages Discovery & Management Modal */}
+        {isPagesModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+            <div className="w-full max-w-2xl rounded-3xl bg-white dark:bg-[#141418] border border-[#EAE7E1] dark:border-white/[0.08] p-6 shadow-2xl space-y-5 max-h-[85vh] flex flex-col">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-[#EAE7E1] dark:border-white/[0.08] pb-3.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center">
+                    <Facebook className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[#202124] dark:text-white">
+                      Discover &amp; Manage Facebook Pages
+                    </h3>
+                    <p className="text-[11px] text-[#737373]">
+                      Official Meta Graph API v26.0 • Discovered Administered Pages
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={fetchDiscoveredPages}
+                    disabled={isDiscoveringPages}
+                    className="p-1.5 rounded-xl bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-xs font-bold text-[#202124] dark:text-white transition flex items-center gap-1"
+                    title="Rescan Meta Graph API"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${isDiscoveringPages ? 'animate-spin text-[#FFD43B]' : ''}`} />
+                    <span className="text-[11px] hidden sm:inline">Refresh Discovery</span>
+                  </button>
+                  <button
+                    onClick={() => setIsPagesModalOpen(false)}
+                    className="p-1.5 rounded-xl text-[#737373] hover:text-[#202124] dark:hover:text-white"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Action Message Feedback */}
+              {pagesActionMessage && (
+                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center justify-between">
+                  <span>{pagesActionMessage}</span>
+                  <button onClick={() => setPagesActionMessage(null)} className="text-[10px] hover:underline">
+                    Dismiss
+                  </button>
+                </div>
+              )}
+
+              {/* Body Content */}
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                {isDiscoveringPages ? (
+                  <div className="py-12 text-center text-xs text-[#737373] animate-pulse">
+                    Querying Meta Graph API v26.0 for administered Facebook Pages...
+                  </div>
+                ) : discoveredPages.length === 0 ? (
+                  <div className="py-10 text-center space-y-2 text-xs text-[#737373]">
+                    <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto" />
+                    <p className="font-bold text-[#202124] dark:text-white">No Facebook Pages Found</p>
+                    <p className="text-[11px] max-w-md mx-auto">
+                      Ensure your Meta account has granted the `pages_show_list`, `pages_manage_posts`, and `pages_read_engagement` scopes in Integrations.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {discoveredPages.map((page) => (
+                      <div
+                        key={page.id}
+                        className="p-4 rounded-2xl border border-[#EAE7E1] dark:border-white/[0.08] bg-[#FAF9F6] dark:bg-[#18181C] flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-3">
+                          {page.avatarUrl ? (
+                            /* eslint-disable-next-line @next/next/no-img-element */
+                            <img
+                              src={page.avatarUrl}
+                              alt=""
+                              className="w-10 h-10 rounded-full object-cover border border-black/10 dark:border-white/10"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center font-bold">
+                              <Facebook className="w-5 h-5" />
+                            </div>
+                          )}
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h4 className="text-xs font-bold text-[#202124] dark:text-white">
+                                {page.name}
+                              </h4>
+                              {page.username && (
+                                <span className="text-[10px] text-[#737373] font-mono">
+                                  @{page.username}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2 text-[10px] text-[#737373] mt-0.5">
+                              <span>Category: {page.category || 'General'}</span>
+                              <span>•</span>
+                              <span className="font-mono">Page ID: {page.id}</span>
+                              <span>•</span>
+                              <span className="font-bold text-emerald-400">
+                                {page.followersCount.toLocaleString()} followers
+                              </span>
+                            </div>
+                            {page.linkedInstagramAccount && (
+                              <div className="mt-1 flex items-center gap-1.5 text-[10px] text-[#FF6B5E]">
+                                <Instagram className="w-3 h-3" />
+                                <span>Linked to Instagram: @{page.linkedInstagramAccount.username}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                          <button
+                            onClick={() => handleTogglePageConnection(page)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+                              page.isConnected
+                                ? 'bg-black/5 dark:bg-white/5 text-[#FF4D4F] hover:bg-[#FF4D4F]/10 border border-[#FF4D4F]/20'
+                                : 'bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] shadow-xs'
+                            }`}
+                          >
+                            {page.isConnected ? 'Disconnect' : 'Connect Page'}
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="pt-3 border-t border-[#EAE7E1] dark:border-white/[0.08] flex items-center justify-between text-[11px] text-[#737373]">
+                <span>Connected pages are automatically ingested into Social Intelligence OS telemetry.</span>
+                <button
+                  onClick={() => setIsPagesModalOpen(false)}
+                  className="px-4 py-1.5 rounded-xl bg-black/5 dark:bg-white/5 text-xs font-bold text-[#202124] dark:text-white hover:bg-black/10 dark:hover:bg-white/10"
+                >
+                  Done
+                </button>
+              </div>
             </div>
           </div>
         )}
