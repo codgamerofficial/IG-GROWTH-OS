@@ -1,32 +1,32 @@
 {
-  "id": "brand_1793861975057_onzku",
+  "id": "brand_1793868446214_rf9re",
   "brandName": "GlowFit AI",
   "websiteUrl": "https://glowfit.ai/",
   "tagline": "Personalized Meal & Workout Plans",
-  "mission": "To empower individuals to achieve their health and fitness goals through AI-driven, personalized meal and workout plans, making healthy living accessible and sustainable.",
+  "mission": "To empower individuals to achieve their health and fitness goals through instantly generated, personalized meal and workout plans powered by AI.",
   "description": "High-impact creative operations.",
   "industry": "Health & Fitness Technology",
-  "targetAudience": "Individuals seeking personalized, convenient, and effective solutions for weight loss, muscle building, and overall fitness improvement.",
+  "targetAudience": "Individuals seeking convenient, personalized, and effective solutions for weight loss, muscle building, and overall fitness improvement.",
   "customerPersonas": [
-    "Busy professionals looking for efficient ways to manage their health.",
-    "Fitness enthusiasts seeking tailored workout and nutrition guidance.",
-    "Individuals new to fitness and nutrition who need a clear, personalized starting point.",
-    "People who have struggled with generic health plans and are looking for a customized approach."
+    "The Busy Professional: Needs quick, efficient, and tailored health plans that fit into a demanding schedule.",
+    "The Fitness Beginner: Requires guidance and structure to start their fitness journey, seeking clear, actionable plans.",
+    "The Health-Conscious Individual: Wants to optimize their diet and exercise for specific goals (weight loss, muscle gain) with data-driven recommendations.",
+    "The Frustrated Dieter: Has tried multiple generic plans without success and is looking for a personalized approach that is sustainable."
   ],
   "brandPersonality": [
-    "Empowering",
-    "Intelligent",
+    "Innovative",
     "Personalized",
     "Efficient",
-    "Supportive",
-    "Modern"
+    "Empowering",
+    "Accessible",
+    "Data-Driven"
   ],
-  "toneOfVoice": "Encouraging, knowledgeable, direct, and results-oriented, with a touch of modern innovation.",
+  "toneOfVoice": "Encouraging, direct, knowledgeable, and supportive, with a focus on simplicity and results.",
   "coreMessages": [
-    "Your health journey, personalized by AI.",
-    "Achieve your fitness goals faster with custom plans.",
-    "Simple questions, powerful results in minutes.",
-    "Stop generic plans, start your unique GlowFit AI journey."
+    "Your personalized health plan in 60 seconds.",
+    "Stop generic plans, start your custom journey with AI.",
+    "Achieve your fitness goals with tailored nutrition and workouts.",
+    "Simple questions, powerful results."
   ],
   "colorPalette": {
     "primary": "#FF7A00",
@@ -39,18 +39,17 @@
   "typography": {
     "heading": "system-ui",
     "body": "system-ui, sans-serif",
-    "code": "system-ui, monospace"
+    "code": "monospace"
   },
   "logoVariants": {
     "primaryUrl": "https://glowfit.ai/favicon.png",
     "iconOnlyUrl": "https://glowfit.ai/apple-touch-icon.png"
   },
   "visualRules": [
-    "Clean and modern interface design.",
-    "Use of vibrant, energetic colors that reflect health and vitality.",
-    "Imagery that showcases diverse individuals achieving fitness goals.",
-    "Clear, concise data visualization for progress tracking.",
-    "Emphasis on the simplicity and speed of the AI plan generation."
+    "Use vibrant and energetic imagery that reflects health and activity.",
+    "Incorporate clean, modern design elements.",
+    "Highlight user success stories and testimonials.",
+    "Visually represent the simplicity and speed of the AI plan generation process."
   ],
   "contentGuidelines": [
     "Hook within 3 seconds",
@@ -60,18 +59,17 @@
     "Get started today"
   ],
   "doNotUseRules": [
-    "Overly complex or cluttered design.",
-    "Generic stock photos that lack authenticity.",
-    "Technical jargon that alienates users.",
-    "Promises of unrealistic or unhealthy outcomes.",
-    "Outdated or uninspired visual elements."
+    "Avoid overly complex or technical jargon.",
+    "Do not use imagery that promotes unhealthy or extreme body types.",
+    "Refrain from using outdated or cluttered design aesthetics.",
+    "Do not make unrealistic or unsubstantiated health claims."
   ],
   "confidence": {
     "overallScore": 98,
     "extractedFactsCount": 13,
-    "aiRecommendationsCount": 14
+    "aiRecommendationsCount": 12
   },
   "version": 1,
-  "createdAt": "2026-11-05T06:59:35.057Z",
-  "updatedAt": "2026-11-05T06:59:35.057Z"
+  "createdAt": "2026-11-05T08:47:26.214Z",
+  "updatedAt": "2026-11-05T08:47:26.215Z"
 }

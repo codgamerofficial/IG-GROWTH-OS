@@ -1,0 +1,23 @@
+{
+  "userId": "riiqx_user_creator",
+  "name": "Product Render: GlowFit AI Biometric Smart Band (luxury_pedestal)",
+  "category": "product_images",
+  "mimeType": "image/svg+xml",
+  "fileSizeBytes": 2048,
+  "publicUrl": "/uploads/products/scene_1793868584149_17jz.svg",
+  "tags": [
+    "product_studio",
+    "wellness",
+    "luxury_pedestal",
+    "dramatic_rim"
+  ],
+  "metadata": {
+    "productId": "prod_1793868554826_3tn7",
+    "sceneId": "scene_1793868584149_17jz",
+    "environment": "luxury_pedestal",
+    "lighting": "dramatic_rim",
+    "headline": "Engineered for Flawless Performance"
+  },
+  "id": "asset_1793868586140_prc3d",
+  "createdAt": "2026-11-05T08:49:46.140Z"
+}

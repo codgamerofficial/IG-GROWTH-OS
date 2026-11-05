@@ -1,33 +1,33 @@
 # GlowFit AI — Brand DNA & Guidelines Specification
 > **Version**: 1.0 | **Generated**: 5/11/2026
 > **Tagline**: *Personalized Meal & Workout Plans*
-> **Confidence Score**: 98% (13 observed facts · 14 AI recommendations)
+> **Confidence Score**: 98% (13 observed facts · 12 AI recommendations)
 
 ---
 
 ## 1. Brand Identity & Purpose
-- **Mission**: To empower individuals to achieve their health and fitness goals through AI-driven, personalized meal and workout plans, making healthy living accessible and sustainable.
+- **Mission**: To empower individuals to achieve their health and fitness goals through instantly generated, personalized meal and workout plans powered by AI.
 - **Industry**: Health & Fitness Technology
 - **Description**: High-impact creative operations.
-- **Target Audience**: Individuals seeking personalized, convenient, and effective solutions for weight loss, muscle building, and overall fitness improvement.
+- **Target Audience**: Individuals seeking convenient, personalized, and effective solutions for weight loss, muscle building, and overall fitness improvement.
 
 ### Customer Personas:
-- Busy professionals looking for efficient ways to manage their health.
-- Fitness enthusiasts seeking tailored workout and nutrition guidance.
-- Individuals new to fitness and nutrition who need a clear, personalized starting point.
-- People who have struggled with generic health plans and are looking for a customized approach.
+- The Busy Professional: Needs quick, efficient, and tailored health plans that fit into a demanding schedule.
+- The Fitness Beginner: Requires guidance and structure to start their fitness journey, seeking clear, actionable plans.
+- The Health-Conscious Individual: Wants to optimize their diet and exercise for specific goals (weight loss, muscle gain) with data-driven recommendations.
+- The Frustrated Dieter: Has tried multiple generic plans without success and is looking for a personalized approach that is sustainable.
 
 ---
 
 ## 2. Voice, Tone & Personality
-- **Tone of Voice**: Encouraging, knowledgeable, direct, and results-oriented, with a touch of modern innovation.
-- **Personality Pillars**: Empowering • Intelligent • Personalized • Efficient • Supportive • Modern
+- **Tone of Voice**: Encouraging, direct, knowledgeable, and supportive, with a focus on simplicity and results.
+- **Personality Pillars**: Innovative • Personalized • Efficient • Empowering • Accessible • Data-Driven
 
 ### Core Messaging:
-- "Your health journey, personalized by AI."
-- "Achieve your fitness goals faster with custom plans."
-- "Simple questions, powerful results in minutes."
-- "Stop generic plans, start your unique GlowFit AI journey."
+- "Your personalized health plan in 60 seconds."
+- "Stop generic plans, start your custom journey with AI."
+- "Achieve your fitness goals with tailored nutrition and workouts."
+- "Simple questions, powerful results."
 
 ---
 
@@ -45,18 +45,17 @@
 ### Typography:
 - **Heading**: `system-ui` (Bold, tight tracking)
 - **Body**: `system-ui, sans-serif` (Clean, accessible line-height)
-- **Code / Metrics**: `system-ui, monospace`
+- **Code / Metrics**: `monospace`
 
 ---
 
 ## 4. Visual Execution & Content Rules
 
 ### Mandatory Visual Rules:
-- [x] Clean and modern interface design.
-- [x] Use of vibrant, energetic colors that reflect health and vitality.
-- [x] Imagery that showcases diverse individuals achieving fitness goals.
-- [x] Clear, concise data visualization for progress tracking.
-- [x] Emphasis on the simplicity and speed of the AI plan generation.
+- [x] Use vibrant and energetic imagery that reflects health and activity.
+- [x] Incorporate clean, modern design elements.
+- [x] Highlight user success stories and testimonials.
+- [x] Visually represent the simplicity and speed of the AI plan generation process.
 
 ### Content Guidelines:
 - Hook within 3 seconds
@@ -68,11 +67,10 @@
 ---
 
 ## 5. Strict Do-Not-Use Rules (Brand Safety)
-> ❌ **FORBIDDEN**: Overly complex or cluttered design.
-> ❌ **FORBIDDEN**: Generic stock photos that lack authenticity.
-> ❌ **FORBIDDEN**: Technical jargon that alienates users.
-> ❌ **FORBIDDEN**: Promises of unrealistic or unhealthy outcomes.
-> ❌ **FORBIDDEN**: Outdated or uninspired visual elements.
+> ❌ **FORBIDDEN**: Avoid overly complex or technical jargon.
+> ❌ **FORBIDDEN**: Do not use imagery that promotes unhealthy or extreme body types.
+> ❌ **FORBIDDEN**: Refrain from using outdated or cluttered design aesthetics.
+> ❌ **FORBIDDEN**: Do not make unrealistic or unsubstantiated health claims.
 
 ---
 *Exported automatically by RIIQX AI Brand Intelligence System.*

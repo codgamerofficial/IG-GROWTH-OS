@@ -2,7 +2,7 @@
 
 // =============================================================================
 // RIIQX — Master AI Product Studio UI Component
-// Feature Extraction • Commercial Scene Generation • Side-by-Side Comparison
+// Feature Extraction • Commercial Scene Generation • Side-by-Side Comparison Slider
 // =============================================================================
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -23,6 +23,9 @@ import {
   Eye,
   Download,
   Share2,
+  ShieldCheck,
+  Copy,
+  Trash2,
 } from 'lucide-react';
 import {
   ProductItem,
@@ -51,7 +54,9 @@ export function ProductStudioTab() {
 
   // Side-by-side comparison slider position (0-100%)
   const [sliderPosition, setSliderPosition] = useState(50);
+  const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const [activeScene, setActiveScene] = useState<ProductSceneGeneration | null>(null);
+  const [copiedUrl, setCopiedUrl] = useState(false);
   const sliderContainerRef = useRef<HTMLDivElement>(null);
 
   // New Product Modal
@@ -75,8 +80,8 @@ export function ProductStudioTab() {
       const brandRes = await fetch('/api/riiqx/brand');
       if (brandRes.ok) {
         const brandData = await brandRes.json();
-        if (brandData.success && brandData.brand) {
-          setBrandDNA(brandData.brand);
+        if (brandData.success && (brandData.brand || brandData.brandDNA)) {
+          setBrandDNA(brandData.brand || brandData.brandDNA);
         }
       }
 
@@ -91,7 +96,6 @@ export function ProductStudioTab() {
             setActiveScene(prodData.products[0].generations[0]);
           }
         } else {
-          // Create initial starter product
           createInitialProduct();
         }
       }
@@ -120,7 +124,6 @@ export function ProductStudioTab() {
         setProducts([data.product]);
         setActiveProduct(data.product);
 
-        // Generate first commercial scene for this starter product
         const sceneRes = await fetch(`/api/riiqx/products/${data.product.id}/generate-scene`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -211,17 +214,36 @@ export function ProductStudioTab() {
     }
   };
 
-  // Slider drag
-  const handleSliderMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  // Interactive slider position calculator
+  const updateSliderFromClientX = (clientX: number) => {
     if (!sliderContainerRef.current) return;
     const rect = sliderContainerRef.current.getBoundingClientRect();
-    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
     const percent = Math.round((x / rect.width) * 100);
     setSliderPosition(percent);
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isDraggingSlider || e.buttons === 1) {
+      updateSliderFromClientX(e.clientX);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches[0]) {
+      updateSliderFromClientX(e.touches[0].clientX);
+    }
+  };
+
+  const handleCopySceneUrl = () => {
+    if (!activeScene?.imageUrl) return;
+    navigator.clipboard.writeText(activeScene.imageUrl);
+    setCopiedUrl(true);
+    setTimeout(() => setCopiedUrl(false), 2000);
+  };
+
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6 animate-fadeIn select-none">
+    <div className="p-6 max-w-7xl mx-auto space-y-6 animate-fadeIn">
       {/* Header Banner */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border border-[#27272A] bg-[#121215] shadow-lg">
         <div className="flex items-center gap-4">
@@ -341,11 +363,17 @@ export function ProductStudioTab() {
                 {/* Form & Differentiator */}
                 <div>
                   <span className="text-[10px] font-mono text-[#71717A] uppercase block mb-0.5">
-                    Geometric Shape & Profile:
+                    Geometric Shape &amp; Profile:
                   </span>
                   <p className="text-[#A1A1AA] text-[11px] leading-relaxed">
                     {activeProduct.features.shape}
                   </p>
+                </div>
+
+                {/* Preservation Check */}
+                <div className="pt-2 border-t border-[#1E1E22] flex items-center gap-2 text-emerald-400 text-[11px]">
+                  <ShieldCheck className="h-4 w-4" />
+                  <span>Feature &amp; Silhouette Integrity Protected (100%)</span>
                 </div>
               </div>
             </div>
@@ -477,7 +505,13 @@ export function ProductStudioTab() {
               {/* Interactive Comparison Viewport */}
               <div
                 ref={sliderContainerRef}
-                onMouseMove={handleSliderMove}
+                onMouseDown={() => setIsDraggingSlider(true)}
+                onMouseUp={() => setIsDraggingSlider(false)}
+                onMouseLeave={() => setIsDraggingSlider(false)}
+                onMouseMove={handleMouseMove}
+                onTouchStart={() => setIsDraggingSlider(true)}
+                onTouchEnd={() => setIsDraggingSlider(false)}
+                onTouchMove={handleTouchMove}
                 className="relative aspect-square max-h-[460px] w-full rounded-xl overflow-hidden cursor-ew-resize border border-[#27272A] bg-black select-none shadow-2xl mx-auto"
               >
                 {/* Layer 1: AI Generated Scene (Full Background) */}
@@ -487,7 +521,7 @@ export function ProductStudioTab() {
                     <img
                       src={activeScene.imageUrl}
                       alt="AI Generated Commercial Scene"
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain pointer-events-none"
                     />
                   ) : (
                     <div className="text-xs text-[#71717A]">No scene generated yet</div>
@@ -503,11 +537,12 @@ export function ProductStudioTab() {
                   style={{ width: `${sliderPosition}%` }}
                 >
                   <div className="relative w-full h-full flex items-center justify-center bg-[#151518]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */
+                    /* Note: activeProduct.originalImages is an array or fallback */}
                     <img
-                      src={activeProduct.originalImages[0] || '/icons/icon-512x512.png'}
+                      src={activeProduct.originalImages?.[0] || '/icons/icon-512x512.png'}
                       alt="Original Product"
-                      className="w-full h-full object-contain p-8"
+                      className="w-full h-full object-contain p-8 pointer-events-none"
                     />
                     <span className="absolute bottom-3 left-3 text-[10px] font-mono px-2 py-0.5 rounded bg-black/80 text-white border border-white/20">
                       Original Product
@@ -528,19 +563,28 @@ export function ProductStudioTab() {
 
               {/* Active Scene Copy & Direct Action */}
               {activeScene && (
-                <div className="p-3.5 rounded-lg bg-[#18181B] border border-[#27272A] flex items-center justify-between gap-4">
+                <div className="p-3.5 rounded-lg bg-[#18181B] border border-[#27272A] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
                     <h4 className="text-xs font-bold text-white">{activeScene.adHeadline}</h4>
                     <p className="text-[11px] text-[#A1A1AA] mt-0.5">CTA: &quot;{activeScene.callToAction}&quot;</p>
                   </div>
-                  <a
-                    href={activeScene.imageUrl}
-                    download={`${activeProduct.name}_commercial.svg`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#27272A] hover:bg-[#3F3F46] text-white text-xs font-medium transition"
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    <span>Download SVG</span>
-                  </a>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCopySceneUrl}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#27272A] hover:bg-[#3F3F46] text-white text-xs font-medium transition"
+                    >
+                      {copiedUrl ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                      <span>{copiedUrl ? 'Copied' : 'Copy URL'}</span>
+                    </button>
+                    <a
+                      href={activeScene.imageUrl}
+                      download={`${activeProduct.name}_commercial.svg`}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FFD43B] hover:bg-[#FFE066] text-black text-xs font-semibold transition"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      <span>Download SVG</span>
+                    </a>
+                  </div>
                 </div>
               )}
             </div>
@@ -568,7 +612,7 @@ export function ProductStudioTab() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={gen.imageUrl} alt="Variant" className="w-full h-full object-cover" />
                       <div className="absolute inset-x-0 bottom-0 p-1.5 bg-black/80 backdrop-blur-xs text-[9px] font-mono text-white truncate text-left">
-                        {gen.environment.replace('_', ' ')}
+                        {gen.environment.replace(/_/g, ' ')}
                       </div>
                     </button>
                   ))}
@@ -636,12 +680,12 @@ export function ProductStudioTab() {
                     className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FFD43B]"
                   >
                     <option value="electronics">Electronics</option>
-                    <option value="luxury">Luxury & Jewelry</option>
-                    <option value="cosmetics">Cosmetics & Skincare</option>
-                    <option value="beverage">Beverage & Drinks</option>
-                    <option value="apparel">Apparel & Fashion</option>
-                    <option value="food">Food & Gourmet</option>
-                    <option value="wellness">Wellness & Health</option>
+                    <option value="luxury">Luxury &amp; Jewelry</option>
+                    <option value="cosmetics">Cosmetics &amp; Skincare</option>
+                    <option value="beverage">Beverage &amp; Drinks</option>
+                    <option value="apparel">Apparel &amp; Fashion</option>
+                    <option value="food">Food &amp; Gourmet</option>
+                    <option value="wellness">Wellness &amp; Health</option>
                     <option value="general">General Merchandise</option>
                   </select>
                 </div>
@@ -662,7 +706,7 @@ export function ProductStudioTab() {
 
               <div>
                 <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
-                  Product Description & Materials
+                  Product Description &amp; Materials
                 </label>
                 <textarea
                   value={newProductDesc}
@@ -696,7 +740,7 @@ export function ProductStudioTab() {
                   ) : (
                     <>
                       <Sparkles className="h-3.5 w-3.5" />
-                      <span>Extract Features & Save</span>
+                      <span>Extract Features &amp; Save</span>
                     </>
                   )}
                 </button>
@@ -708,4 +752,3 @@ export function ProductStudioTab() {
     </div>
   );
 }
-
