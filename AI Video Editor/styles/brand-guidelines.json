@@ -1,41 +1,73 @@
 {
-  "brandName": "RIIQX Viral Authority",
-  "version": "2.4.0",
-  "analyzedFrom": "https://youtu.be/itmBh8-KhIg?si=mGU7ExVzpCQk6Lx4",
-  "updatedAt": "2026-11-04T22:01:55.275Z",
-  "canvas": {
-    "width": 1080,
-    "height": 1920,
-    "aspectRatio": "9:16",
-    "fps": 30
+  "id": "brand_1793857399063_illdd",
+  "brandName": "GlowFit AI Performance",
+  "tagline": "Precision Biometrics for High-Velocity Athletes",
+  "mission": "To empower elite athletes and biohackers with next-generation biometric activewear, transforming human potential through data-driven insights and unparalleled endurance tracking.",
+  "description": "High-impact creative operations.",
+  "industry": "Sports Technology & Performance Apparel",
+  "targetAudience": "Marathon runners, hybrid athletes, and biohackers",
+  "customerPersonas": [
+    "The Endurance Elite: Marathoners and ultra-runners obsessed with optimizing every stride, seeking real-time biometric feedback to push past perceived limits.",
+    "The Versatile Vanguard: Hybrid athletes who demand multi-sport tracking and adaptive performance insights across diverse training regimens.",
+    "The Biohacker Optimizer: Individuals passionate about self-quantification, leveraging advanced biometrics to fine-tune their physiology and maximize human performance."
+  ],
+  "brandPersonality": [
+    "Innovative",
+    "High-Performance",
+    "Data-Driven",
+    "Empowering",
+    "Cutting-Edge",
+    "Precise",
+    "Ambitious"
+  ],
+  "toneOfVoice": "Authoritative yet inspiring, technical but accessible, confident, and forward-thinking. We speak with the precision of data and the passion of performance.",
+  "coreMessages": [
+    "Unlock unparalleled endurance and optimize every movement with AI-powered biometrics.",
+    "Experience the future of activewear, engineered for extreme performance and precision tracking.",
+    "Transform your training: data-driven insights for peak physical and mental performance.",
+    "GlowFit AI Performance: Where technology meets tenacity."
+  ],
+  "colorPalette": {
+    "primary": "#007BFF",
+    "secondary": "#2C3E50",
+    "accent": "#28A745",
+    "background": "#F8F9FA",
+    "neutral": "#6C757D",
+    "additional": []
   },
   "typography": {
-    "fontFamily": "Montserrat, sans-serif",
-    "fontWeight": 800,
-    "primaryColor": "#FFFFFF",
-    "highlightColor": "#FFD43B",
-    "strokeColor": "#000000",
-    "strokeWidthPx": 2,
-    "wordsPerLine": 4
+    "heading": "Montserrat",
+    "body": "Open Sans",
+    "code": "Fira Code"
   },
-  "palette": {
-    "background": "#0C0C0E",
-    "primaryAccent": "#FFD43B",
-    "secondaryAccent": "#FF6B5E",
-    "neutralText": "#F4F4F6"
+  "logoVariants": {},
+  "visualRules": [
+    "Emphasize sleek, futuristic designs and clean lines.",
+    "Incorporate dynamic motion graphics and data visualization elements.",
+    "Utilize a high-contrast aesthetic with vibrant accents against dark or light backgrounds.",
+    "Show athletes in peak performance, demonstrating precision and control.",
+    "Focus on the integration of technology and the human form."
+  ],
+  "contentGuidelines": [
+    "Hook within 3 seconds",
+    "Clear actionable CTA"
+  ],
+  "ctaStyles": [
+    "Get started today"
+  ],
+  "doNotUseRules": [
+    "Avoid cluttered or overly busy visual compositions.",
+    "Do not use outdated or generic sports imagery.",
+    "Steer clear of pastel colors or overly soft aesthetics that contradict high-performance.",
+    "Refrain from language or visuals that downplay the seriousness of athletic pursuit or data precision.",
+    "Do not use comic sans or overly decorative fonts."
+  ],
+  "confidence": {
+    "overallScore": 85,
+    "extractedFactsCount": 2,
+    "aiRecommendationsCount": 13
   },
-  "captions": {
-    "animationStyle": "hyperframes_kinetic_word",
-    "positionYPercent": 82
-  },
-  "audio": {
-    "voiceTargetLufs": -14,
-    "bgMusicVolumeDb": -22,
-    "autoDuckMusic": true
-  },
-  "editingRhythm": {
-    "targetCutIntervalSec": 2.4,
-    "hookDurationSec": 3.1,
-    "removePausesLongerThanSec": 0.65
-  }
+  "version": 2,
+  "createdAt": "2026-11-05T05:43:19.063Z",
+  "updatedAt": "2026-11-05T05:43:19.343Z"
 }

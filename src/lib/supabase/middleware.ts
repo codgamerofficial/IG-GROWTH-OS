@@ -31,6 +31,7 @@ const PUBLIC_PATHS = [
   '/api/riiqx/video-editor',
   '/api/riiqx/ai',
   '/api/riiqx/assets',
+  '/api/riiqx/brand',
   '/api/riiqx/export',
   '/api/riiqx/tools',
   '/api/creator',

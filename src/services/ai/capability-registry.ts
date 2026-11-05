@@ -227,3 +227,4 @@ export class CapabilityRegistry {
     return Boolean(model && model.capabilities.includes(capability));
   }
 }
+

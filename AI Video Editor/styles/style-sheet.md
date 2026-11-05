@@ -1,44 +1,77 @@
-# RIIQX Master Style Sheet — RIIQX Viral Authority
-**Generated:** 2026-11-04T22:01:55.274Z  
-**Source Reference:** https://youtu.be/itmBh8-KhIg?si=mGU7ExVzpCQk6Lx4  
-**Confidence Score:** 94% (Computed via multimodal reference telemetry)
+# GlowFit AI Performance — Brand DNA & Guidelines Specification
+> **Version**: 2.0 | **Generated**: 5/11/2026
+> **Tagline**: *Precision Biometrics for High-Velocity Athletes*
+> **Confidence Score**: 85% (2 observed facts · 13 AI recommendations)
 
 ---
 
-### A. Typography System
-- **Font Family:** Montserrat / Inter Bold (Estimated)
-- **Weight:** 800
-- **Colors:** Primary: `#FFFFFF (Measurable: 98% pure white luminance)` | Highlight: `#FFD43B (Measurable: Vibrant yellow accent)`
-- **Stroke & Shadow:** 2px solid #000000 (Measurable: High-contrast outline) | 0px 4px 14px rgba(0,0,0,0.85) (Measurable)
-- **Placement & Animation:** Center-bottom (82% vertical offset, safe margin compliant) | Word-by-word kinetic pop with scale-up on punch words
-- **Line Length:** Average 3-4 words per visual line (Measurable)
+## 1. Brand Identity & Purpose
+- **Mission**: To empower elite athletes and biohackers with next-generation biometric activewear, transforming human potential through data-driven insights and unparalleled endurance tracking.
+- **Industry**: Sports Technology & Performance Apparel
+- **Description**: High-impact creative operations.
+- **Target Audience**: Marathon runners, hybrid athletes, and biohackers
+
+### Customer Personas:
+- The Endurance Elite: Marathoners and ultra-runners obsessed with optimizing every stride, seeking real-time biometric feedback to push past perceived limits.
+- The Versatile Vanguard: Hybrid athletes who demand multi-sport tracking and adaptive performance insights across diverse training regimens.
+- The Biohacker Optimizer: Individuals passionate about self-quantification, leveraging advanced biometrics to fine-tune their physiology and maximize human performance.
 
 ---
 
-### B. Color Grading & Mood
-- **Dominant Hex Values:** `#0C0C0E`, `#FFD43B`, `#FF6B5E`, `#FFFFFF`
-- **Contrast & Saturation:** High Contrast (1:14 ratio) | Slightly desaturated background (-10%) with 120% saturated graphic overlays
-- **Temperature & Mood:** Cool obsidian shadows (6200K) with warm gold highlights | Authoritative, premium tech, high-focus
+## 2. Voice, Tone & Personality
+- **Tone of Voice**: Authoritative yet inspiring, technical but accessible, confident, and forward-thinking. We speak with the precision of data and the passion of performance.
+- **Personality Pillars**: Innovative • High-Performance • Data-Driven • Empowering • Cutting-Edge • Precise • Ambitious
+
+### Core Messaging:
+- "Unlock unparalleled endurance and optimize every movement with AI-powered biometrics."
+- "Experience the future of activewear, engineered for extreme performance and precision tracking."
+- "Transform your training: data-driven insights for peak physical and mental performance."
+- "GlowFit AI Performance: Where technology meets tenacity."
 
 ---
 
-### C. Composition & Safe Areas
-- **Geometry:** 9:16 (1080x1920)
-- **Framing:** Centered upper-body framing with eye-level at 38% from top
-- **Safe Zones:** Strict clearance: 180px top, 240px bottom, 60px sides
-- **Zoom Dynamics:** Subtle continuous slow punch-in (1.0x to 1.08x) resetting every 3 seconds
+## 3. Visual Identity & Design Tokens
+
+### Color Palette:
+| Role | Color Swatch | Hex Code | Purpose |
+| :--- | :--- | :--- | :--- |
+| **Primary** | 🟡 | `#007BFF` | Hero accents, primary buttons, brand emblem |
+| **Secondary** | ⚫ | `#2C3E50` | Structural dark containers, header elements |
+| **Accent** | 🔵 | `#28A745` | Kinetic highlights, badges, active glows |
+| **Background** | ⬛ | `#F8F9FA` | Core backdrop canvas |
+| **Neutral** | ⚪ | `#6C757D` | High-contrast readability text |
+
+### Typography:
+- **Heading**: `Montserrat` (Bold, tight tracking)
+- **Body**: `Open Sans` (Clean, accessible line-height)
+- **Code / Metrics**: `Fira Code`
 
 ---
 
-### D. Motion, Transitions & Pacing
-- **Primary Transitions:** Hard Cut with 1-frame flash on beat drops
-- **Secondary Transitions:** 12-frame horizontal whip-pan into B-roll
-- **Average Shot Duration:** 2.4s
-- **Rhythm Pattern:** Cut every Visual shift every 2.1 seconds
+## 4. Visual Execution & Content Rules
+
+### Mandatory Visual Rules:
+- [x] Emphasize sleek, futuristic designs and clean lines.
+- [x] Incorporate dynamic motion graphics and data visualization elements.
+- [x] Utilize a high-contrast aesthetic with vibrant accents against dark or light backgrounds.
+- [x] Show athletes in peak performance, demonstrating precision and control.
+- [x] Focus on the integration of technology and the human form.
+
+### Content Guidelines:
+- Hook within 3 seconds
+- Clear actionable CTA
+
+### Call to Action Styles:
+- "Get started today"
 
 ---
 
-### E. Sound Design
-- **Music Style:** Dark synthwave / Phonk lo-fi ambient (Ducked to -22 dB)
-- **Voice Target:** +8 dB voice dominance with -14 LUFS voice normalization
-- **Sound Effects:** Sub-bass impact on hook (0:00.8), subtle whoosh on scene changes, tactile click on keywords
+## 5. Strict Do-Not-Use Rules (Brand Safety)
+> ❌ **FORBIDDEN**: Avoid cluttered or overly busy visual compositions.
+> ❌ **FORBIDDEN**: Do not use outdated or generic sports imagery.
+> ❌ **FORBIDDEN**: Steer clear of pastel colors or overly soft aesthetics that contradict high-performance.
+> ❌ **FORBIDDEN**: Refrain from language or visuals that downplay the seriousness of athletic pursuit or data precision.
+> ❌ **FORBIDDEN**: Do not use comic sans or overly decorative fonts.
+
+---
+*Exported automatically by RIIQX AI Brand Intelligence System.*

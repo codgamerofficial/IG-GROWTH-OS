@@ -80,3 +80,4 @@ export class StructuredParsingError extends AIServiceError {
     this.rawResponse = rawResponse;
   }
 }
+

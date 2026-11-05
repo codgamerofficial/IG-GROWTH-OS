@@ -169,7 +169,29 @@ export class AIServiceManager {
     }
 
     try {
-      const parsedJson = JSON.parse(raw);
+      let parsedJson: any;
+      try {
+        parsedJson = JSON.parse(raw);
+      } catch (firstErr) {
+        // Simple repair for truncated strings or missing closing brackets
+        let repaired = raw;
+        const quotes = (repaired.match(/"/g) || []).length;
+        if (quotes % 2 !== 0) repaired += '"';
+        const openBrackets = (repaired.match(/\[/g) || []).length;
+        const closeBrackets = (repaired.match(/\]/g) || []).length;
+        for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
+        const openBraces = (repaired.match(/{/g) || []).length;
+        const closeBraces = (repaired.match(/}/g) || []).length;
+        for (let i = 0; i < openBraces - closeBraces; i++) repaired += '}';
+        parsedJson = JSON.parse(repaired);
+      }
+
+      if (parsedJson && typeof parsedJson === 'object') {
+        if (parsedJson.brandDNA) parsedJson = parsedJson.brandDNA;
+        else if (parsedJson.brand_dna) parsedJson = parsedJson.brand_dna;
+        else if (parsedJson.brand) parsedJson = parsedJson.brand;
+        else if (parsedJson.data) parsedJson = parsedJson.data;
+      }
       const validated = schema.parse(parsedJson);
 
       return {
@@ -213,16 +235,21 @@ export class AIServiceManager {
     const openrouterKey = process.env.OPENROUTER_API_KEY;
 
     if (spec.provider === 'google' && geminiKey) {
+      const isStructured = options.requiredCapabilities?.includes(AICapability.STRUCTURED_OUTPUT);
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${spec.modelId}:generateContent?key=${geminiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            ...(options.systemPrompt
+              ? { systemInstruction: { parts: [{ text: options.systemPrompt }] } }
+              : {}),
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: {
               temperature: options.temperature ?? 0.7,
-              maxOutputTokens: options.maxTokens ?? 2048,
+              maxOutputTokens: options.maxTokens ?? 4096,
+              ...(isStructured ? { responseMimeType: 'application/json' } : {}),
             },
           }),
         }
@@ -251,7 +278,7 @@ export class AIServiceManager {
             { role: 'user', content: prompt },
           ],
           temperature: options.temperature ?? 0.7,
-          max_tokens: options.maxTokens ?? 2048,
+          max_tokens: options.maxTokens ?? 4096,
         }),
       });
 

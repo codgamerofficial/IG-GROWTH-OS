@@ -119,3 +119,4 @@ export interface AIJobRecord {
   createdAt: string;
   updatedAt: string;
 }
+
