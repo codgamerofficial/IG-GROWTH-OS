@@ -1,0 +1,86 @@
+{
+  "id": "canvas_1793858979168_afb9",
+  "name": "Omnichannel Launch Moodboard",
+  "description": "Brand-synchronized visual concept space",
+  "blocks": [
+    {
+      "id": "b_text_1",
+      "type": "text",
+      "x": 100,
+      "y": 100,
+      "width": 320,
+      "height": 180,
+      "zIndex": 1,
+      "data": {
+        "title": "Primary Campaign Hook",
+        "text": "Stop wasting hours editing vertical videos manually.",
+        "statusTag": "Approved"
+      }
+    },
+    {
+      "id": "b_palette_1",
+      "type": "color_swatch",
+      "x": 480,
+      "y": 100,
+      "width": 280,
+      "height": 160,
+      "zIndex": 1,
+      "data": {
+        "title": "Hero Brand Tokens",
+        "hexCode": "#FFD43B",
+        "paletteColors": [
+          "#FFD43B",
+          "#0C0C0E",
+          "#06B6D4"
+        ]
+      }
+    },
+    {
+      "id": "b_video_1",
+      "type": "video",
+      "x": 100,
+      "y": 320,
+      "width": 320,
+      "height": 240,
+      "zIndex": 1,
+      "data": {
+        "title": "9:16 Kinetic Cut",
+        "videoUrl": "/uploads/sample_vertical.mp4",
+        "aspectRatio": "9:16",
+        "caption": "Hook pattern interrupt"
+      }
+    },
+    {
+      "id": "b_note_1",
+      "type": "sticky_note",
+      "x": 480,
+      "y": 320,
+      "width": 240,
+      "height": 160,
+      "zIndex": 1,
+      "data": {
+        "title": "Creative Direction",
+        "text": "Keep visual transitions punchy and under 2.5s per scene.",
+        "noteColor": "yellow"
+      }
+    }
+  ],
+  "connectors": [
+    {
+      "id": "c_1",
+      "fromBlockId": "b_text_1",
+      "toBlockId": "b_video_1",
+      "label": "Script to Video",
+      "color": "#FFD43B"
+    }
+  ],
+  "viewport": {
+    "x": 100,
+    "y": 50,
+    "zoom": 0.95
+  },
+  "brandProfileId": "brand_1793857399063_illdd",
+  "brandName": "GlowFit AI Performance",
+  "createdAt": "2026-11-05T06:09:39.168Z",
+  "updatedAt": "2026-11-05T06:09:39.168Z"
+}

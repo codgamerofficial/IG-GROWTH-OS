@@ -85,6 +85,7 @@ export function CreatorStudioNav({
     { id: 'templates', label: 'Templates', icon: Bookmark },
     { id: 'brand_kit', label: 'Brand Kit', icon: Palette },
     { id: 'campaign_studio', label: 'Campaign Studio', icon: Megaphone, badge: 'Phase 3' },
+    { id: 'creative_canvas', label: 'Creative Canvas', icon: Layers, badge: 'Phase 4' },
   ];
 
   const getStatusBadge = (status: ProjectLifecycleStatus) => {
