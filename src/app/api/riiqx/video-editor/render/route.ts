@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { FFmpegService } from '@/lib/video/ffmpeg-service';
 import { getSafeTempFilePath } from '@/lib/riiqx/temp-storage';
+import { AssetService } from '@/services/assets/asset-service';
 
 export async function POST(req: Request) {
   const jobId = `job_${Date.now()}`;
@@ -26,9 +27,26 @@ export async function POST(req: Request) {
       const files = fs.readdirSync(storyboardsDir).filter((f) => f.endsWith('.json'));
       if (files.length > 0) {
         files.sort().reverse();
-        const data = JSON.parse(fs.readFileSync(path.join(storyboardsDir, files[0]), 'utf-8'));
-        if (data.isApproved || bypassApprovalCheck) {
-          approvedStoryboard = data;
+
+        if (storyboardId) {
+          const matchingFile = files.find((f) => f.includes(storyboardId));
+          if (matchingFile) {
+            try {
+              const matchedData = JSON.parse(
+                fs.readFileSync(path.join(storyboardsDir, matchingFile), 'utf-8')
+              );
+              if (matchedData.isApproved || bypassApprovalCheck) {
+                approvedStoryboard = matchedData;
+              }
+            } catch {}
+          }
+        }
+
+        if (!approvedStoryboard) {
+          const data = JSON.parse(fs.readFileSync(path.join(storyboardsDir, files[0]), 'utf-8'));
+          if (data.isApproved || bypassApprovalCheck) {
+            approvedStoryboard = data;
+          }
         }
       }
     }
@@ -156,6 +174,47 @@ export async function POST(req: Request) {
     // Save Render Report to AI Video Editor/export/render-reports/
     const reportFileName = `render_report_${jobId}.json`;
     fs.writeFileSync(path.join(exportReportsDir, reportFileName), JSON.stringify(qaReport, null, 2), 'utf-8');
+
+    // Register Rendered Video in Shared Creative Asset Catalog
+    try {
+      AssetService.registerAsset({
+        userId: 'riiqx_user_creator',
+        name: approvedStoryboard?.projectName || `Rendered Video ${jobId}`,
+        category: 'videos',
+        mimeType: 'video/mp4',
+        fileSizeBytes: fileStat.size,
+        publicUrl: publicVideoUrl,
+        localPath: finalVideoPath,
+        durationSeconds,
+        tags: ['rendered', '9:16', 'vertical', 'hyperframes', 'final_export'],
+        metadata: {
+          jobId,
+          storyboardId: approvedStoryboard?.id,
+          aspectRatio: '9:16',
+          resolution: `${targetW}x${targetH}`,
+        },
+      });
+    } catch {}
+
+    // Update active project status if one matches this storyboard
+    try {
+      const activeProjectsDir = path.join(process.cwd(), 'AI Video Editor', 'projects', 'active');
+      if (fs.existsSync(activeProjectsDir) && approvedStoryboard?.id) {
+        const projDirs = fs.readdirSync(activeProjectsDir);
+        for (const pDir of projDirs) {
+          const projJsonPath = path.join(activeProjectsDir, pDir, 'project.json');
+          if (fs.existsSync(projJsonPath)) {
+            const pData = JSON.parse(fs.readFileSync(projJsonPath, 'utf-8'));
+            if (pData.storyboardId === approvedStoryboard.id || pData.storyboardId?.includes(approvedStoryboard.id)) {
+              pData.status = 'completed';
+              pData.finalVideoUrl = publicVideoUrl;
+              pData.updatedAt = new Date().toISOString();
+              fs.writeFileSync(projJsonPath, JSON.stringify(pData, null, 2), 'utf-8');
+            }
+          }
+        }
+      }
+    } catch {}
 
     return NextResponse.json({
       success: true,

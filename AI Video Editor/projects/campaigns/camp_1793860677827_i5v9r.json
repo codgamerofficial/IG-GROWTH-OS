@@ -1,0 +1,120 @@
+{
+  "id": "camp_1793860677827_i5v9r",
+  "userId": "riiqx_user_creator",
+  "brandProfileId": "brand_1793857399063_illdd",
+  "brandName": "GlowFit AI Performance",
+  "name": "Creative Director Kinetic Launch",
+  "objective": "product_launch",
+  "targetPlatforms": [
+    "instagram",
+    "youtube"
+  ],
+  "durationDays": 14,
+  "language": "English",
+  "tone": "Authoritative yet inspiring, technical but accessible, confident, and forward-thinking. We speak with the precision of data and the passion of performance.",
+  "callToAction": "Watch the full breakdown",
+  "offerDetails": "Autonomous Video Generation Masterclass",
+  "strategyOverview": "A comprehensive 14-day multi-channel campaign designed for product_launch focusing on audience retention and high conversion velocity across instagram, youtube.",
+  "keyPerformanceIndicators": [
+    "Total Audience Engagement Rate",
+    "Video Hook Retention Rate (>3.2s)",
+    "Click-through rate to landing page"
+  ],
+  "contentPillars": [
+    {
+      "id": "pillar_1",
+      "name": "The Productivity Dilemma",
+      "description": "Contrasting outdated manual work with modern AI leverage",
+      "targetEmotion": "Empathy & Realization",
+      "recommendedFormats": [
+        "Reels",
+        "Shorts"
+      ]
+    },
+    {
+      "id": "pillar_2",
+      "name": "Autonomous Architecture",
+      "description": "Showcasing the unified platform capabilities",
+      "targetEmotion": "Awe & Clarity",
+      "recommendedFormats": [
+        "Demo Video",
+        "Carousel"
+      ]
+    },
+    {
+      "id": "pillar_3",
+      "name": "Authority & Performance",
+      "description": "Data-driven metrics and proof points",
+      "targetEmotion": "Trust & Confidence",
+      "recommendedFormats": [
+        "Thought Leadership",
+        "Case Study"
+      ]
+    },
+    {
+      "id": "pillar_4",
+      "name": "The Immediate Action",
+      "description": "Irresistible early-access activation offer",
+      "targetEmotion": "Urgency & Anticipation",
+      "recommendedFormats": [
+        "Direct Ad",
+        "Story"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset_camp_1793860677827_i5v9r_1",
+      "campaignId": "camp_1793860677827_i5v9r",
+      "platform": "instagram",
+      "assetType": "reel_script",
+      "title": "GlowFit AI Performance High-Conversion Reel Hook",
+      "headline": "Stop Burning Out on Manual Content Creation",
+      "hookText": "Most creators spend 80% of their time on tedious edits instead of strategy.",
+      "contentBody": "Here is the truth: scaling a brand in 2026 requires automated distribution, not more hours behind a screen. With GlowFit AI Performance, your content pipeline runs continuously from script to rendered 9:16 vertical video.",
+      "visualDirections": "Dynamic 9:16 shot with kinetic typography popping on key pain points.",
+      "bRollSuggestions": "Fast split screen showing slow timeline editing vs instantaneous AI generation.",
+      "callToAction": "Watch the full breakdown",
+      "hashtags": [
+        "#CreatorEconomy",
+        "#AIAutomation",
+        "#VideoEditing",
+        "#ContentStrategy"
+      ],
+      "adCopyVariants": [
+        "How I automated my entire video production in one afternoon.",
+        "The exact AI workflow top creators use to 10x their reach."
+      ],
+      "approvalStatus": "in_production",
+      "createdAt": "2026-11-05T06:38:20.341Z",
+      "updatedAt": "2026-11-05T06:38:25.846Z"
+    },
+    {
+      "id": "asset_camp_1793860677827_i5v9r_2",
+      "campaignId": "camp_1793860677827_i5v9r",
+      "platform": "youtube",
+      "assetType": "shorts_script",
+      "title": "GlowFit AI Performance YouTube Shorts Retention Script",
+      "headline": "The Only Video AI Stack You Need This Year",
+      "hookText": "If you are still editing vertical videos manually in 2026, you are losing.",
+      "contentBody": "Watch this 15-second breakdown of how autonomous video generation works: 1. Input brand guidelines. 2. AI generates storyboard beats. 3. Canvas renders with synced voiceover in seconds.",
+      "visualDirections": "Fast-paced jump cuts with neon telemetry overlays highlighting stats.",
+      "bRollSuggestions": "Screen capture of RIIQX Social Intelligence and Video Editor HUD.",
+      "callToAction": "Watch the full breakdown",
+      "hashtags": [
+        "#YouTubeShorts",
+        "#CreatorTools",
+        "#VideoMarketing"
+      ],
+      "adCopyVariants": [
+        "Stop wasting hours editing. Start scaling."
+      ],
+      "approvalStatus": "draft",
+      "createdAt": "2026-11-05T06:38:20.341Z",
+      "updatedAt": "2026-11-05T06:38:20.341Z"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-11-05T06:38:20.341Z",
+  "updatedAt": "2026-11-05T06:38:25.846Z"
+}
