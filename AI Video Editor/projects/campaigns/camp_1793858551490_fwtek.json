@@ -1,0 +1,194 @@
+{
+  "id": "camp_1793858551490_fwtek",
+  "userId": "riiqx_user_creator",
+  "brandProfileId": "brand_1793857399063_illdd",
+  "brandName": "GlowFit AI Performance",
+  "name": "Autumn Velocity Creator Push",
+  "objective": "product_launch",
+  "targetPlatforms": [
+    "instagram",
+    "youtube",
+    "facebook",
+    "tiktok",
+    "linkedin"
+  ],
+  "durationDays": 21,
+  "language": "English",
+  "tone": "Authoritative yet inspiring, technical but accessible, confident, and forward-thinking. We speak with the precision of data and the passion of performance.",
+  "callToAction": "Claim your studio license today",
+  "offerDetails": "Free access to autonomous AI video editing studio",
+  "userInstructions": "Emphasize high retention and fast pacing for video formats",
+  "strategyOverview": "A comprehensive 21-day multi-channel campaign designed for product_launch focusing on audience retention and high conversion velocity across instagram, youtube, facebook, tiktok, linkedin.",
+  "keyPerformanceIndicators": [
+    "Total Audience Engagement Rate",
+    "Video Hook Retention Rate (>3.2s)",
+    "Click-through rate to landing page"
+  ],
+  "contentPillars": [
+    {
+      "id": "pillar_1",
+      "name": "The Productivity Dilemma",
+      "description": "Contrasting outdated manual work with modern AI leverage",
+      "targetEmotion": "Empathy & Realization",
+      "recommendedFormats": [
+        "Reels",
+        "Shorts"
+      ]
+    },
+    {
+      "id": "pillar_2",
+      "name": "Autonomous Architecture",
+      "description": "Showcasing the unified platform capabilities",
+      "targetEmotion": "Awe & Clarity",
+      "recommendedFormats": [
+        "Demo Video",
+        "Carousel"
+      ]
+    },
+    {
+      "id": "pillar_3",
+      "name": "Authority & Performance",
+      "description": "Data-driven metrics and proof points",
+      "targetEmotion": "Trust & Confidence",
+      "recommendedFormats": [
+        "Thought Leadership",
+        "Case Study"
+      ]
+    },
+    {
+      "id": "pillar_4",
+      "name": "The Immediate Action",
+      "description": "Irresistible early-access activation offer",
+      "targetEmotion": "Urgency & Anticipation",
+      "recommendedFormats": [
+        "Direct Ad",
+        "Story"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset_camp_1793858551490_fwtek_1",
+      "campaignId": "camp_1793858551490_fwtek",
+      "platform": "instagram",
+      "assetType": "reel_script",
+      "title": "GlowFit AI Performance High-Conversion Reel Hook",
+      "headline": "Stop Burning Out on Manual Content Creation",
+      "hookText": "UPDATED: 3 mistakes every creator makes before scaling",
+      "contentBody": "Here is the truth: scaling a brand in 2026 requires automated distribution, not more hours behind a screen. With GlowFit AI Performance, your content pipeline runs continuously from script to rendered 9:16 vertical video.",
+      "visualDirections": "Dynamic 9:16 shot with kinetic typography popping on key pain points.",
+      "bRollSuggestions": "Fast split screen showing slow timeline editing vs instantaneous AI generation.",
+      "callToAction": "Claim your studio license today",
+      "hashtags": [
+        "#CreatorEconomy",
+        "#AIAutomation",
+        "#VideoEditing",
+        "#ContentStrategy"
+      ],
+      "adCopyVariants": [
+        "How I automated my entire video production in one afternoon.",
+        "The exact AI workflow top creators use to 10x their reach."
+      ],
+      "approvalStatus": "in_production",
+      "createdAt": "2026-11-05T06:02:35.246Z",
+      "updatedAt": "2026-11-05T06:02:37.293Z"
+    },
+    {
+      "id": "asset_camp_1793858551490_fwtek_2",
+      "campaignId": "camp_1793858551490_fwtek",
+      "platform": "youtube",
+      "assetType": "shorts_script",
+      "title": "GlowFit AI Performance YouTube Shorts Retention Script",
+      "headline": "The Only Video AI Stack You Need This Year",
+      "hookText": "If you are still editing vertical videos manually in 2026, you are losing.",
+      "contentBody": "Watch this 15-second breakdown of how autonomous video generation works: 1. Input brand guidelines. 2. AI generates storyboard beats. 3. Canvas renders with synced voiceover in seconds.",
+      "visualDirections": "Fast-paced jump cuts with neon telemetry overlays highlighting stats.",
+      "bRollSuggestions": "Screen capture of RIIQX Social Intelligence and Video Editor HUD.",
+      "callToAction": "Claim your studio license today",
+      "hashtags": [
+        "#YouTubeShorts",
+        "#CreatorTools",
+        "#VideoMarketing"
+      ],
+      "adCopyVariants": [
+        "Stop wasting hours editing. Start scaling."
+      ],
+      "approvalStatus": "draft",
+      "createdAt": "2026-11-05T06:02:35.246Z",
+      "updatedAt": "2026-11-05T06:02:35.246Z"
+    },
+    {
+      "id": "asset_camp_1793858551490_fwtek_3",
+      "campaignId": "camp_1793858551490_fwtek",
+      "platform": "facebook",
+      "assetType": "ad_copy",
+      "title": "GlowFit AI Performance Conversion Ad Copy",
+      "headline": "Transform How You Create Content with GlowFit AI Performance",
+      "hookText": "Built for ambitious creators and teams.",
+      "contentBody": "Experience the future of AI-powered creative workflows. Unified brand DNA, multi-scene video generation, and continuous social intelligence.",
+      "callToAction": "Claim your studio license today",
+      "hashtags": [
+        "#Innovation",
+        "#Productivity"
+      ],
+      "adCopyVariants": [
+        "Join thousands of creators scaling effortlessly."
+      ],
+      "approvalStatus": "draft",
+      "createdAt": "2026-11-05T06:02:35.246Z",
+      "updatedAt": "2026-11-05T06:02:35.246Z"
+    },
+    {
+      "id": "asset_camp_1793858551490_fwtek_4",
+      "campaignId": "camp_1793858551490_fwtek",
+      "platform": "tiktok",
+      "assetType": "reel_script",
+      "title": "GlowFit AI Performance High-Conversion Reel Hook",
+      "headline": "Stop Burning Out on Manual Content Creation",
+      "hookText": "Most creators spend 80% of their time on tedious edits instead of strategy.",
+      "contentBody": "Here is the truth: scaling a brand in 2026 requires automated distribution, not more hours behind a screen. With GlowFit AI Performance, your content pipeline runs continuously from script to rendered 9:16 vertical video.",
+      "visualDirections": "Dynamic 9:16 shot with kinetic typography popping on key pain points.",
+      "bRollSuggestions": "Fast split screen showing slow timeline editing vs instantaneous AI generation.",
+      "callToAction": "Claim your studio license today",
+      "hashtags": [
+        "#CreatorEconomy",
+        "#AIAutomation",
+        "#VideoEditing",
+        "#ContentStrategy"
+      ],
+      "adCopyVariants": [
+        "How I automated my entire video production in one afternoon.",
+        "The exact AI workflow top creators use to 10x their reach."
+      ],
+      "approvalStatus": "draft",
+      "createdAt": "2026-11-05T06:02:35.246Z",
+      "updatedAt": "2026-11-05T06:02:35.246Z"
+    },
+    {
+      "id": "asset_camp_1793858551490_fwtek_5",
+      "campaignId": "camp_1793858551490_fwtek",
+      "platform": "linkedin",
+      "assetType": "thought_leadership",
+      "title": "Why Systematized Content Wins Every Single Time",
+      "headline": "The Shift From Solo Creator to Media Engine",
+      "hookText": "The bottleneck in modern marketing is never ideas. It is production velocity.",
+      "contentBody": "Over the past year, we analyzed hundreds of top-performing creator accounts. The difference between those who plateau and those who scale 10x is not talent—it is operational leverage.\n\nBy uniting brand intelligence with automated video execution, teams can produce 5x the volume without sacrificing identity.\n\nWhat is your biggest bottleneck in your current publishing schedule?",
+      "callToAction": "Claim your studio license today",
+      "hashtags": [
+        "#Leadership",
+        "#MarketingStrategy",
+        "#AIInnovation",
+        "#Operations"
+      ],
+      "adCopyVariants": [
+        "Autonomous workflows are replacing manual agency retainers. Here is how."
+      ],
+      "approvalStatus": "draft",
+      "createdAt": "2026-11-05T06:02:35.246Z",
+      "updatedAt": "2026-11-05T06:02:35.246Z"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-11-05T06:02:35.246Z",
+  "updatedAt": "2026-11-05T06:02:37.293Z"
+}

@@ -40,6 +40,7 @@ import { PublishedContentTab } from './creator/PublishedContentTab';
 import { PerformanceAnalyticsTab } from './creator/PerformanceAnalyticsTab';
 import { TemplatesTab } from './creator/TemplatesTab';
 import { BrandKitTab } from './creator/BrandKitTab';
+import { CampaignStudioTab } from './creator/CampaignStudioTab';
 import { VoiceStudioTab } from './creator/VoiceStudioTab';
 import { ShortsFactoryTab } from './creator/ShortsFactoryTab';
 import { CaptureStudioTab } from './creator/CaptureStudioTab';
@@ -375,6 +376,7 @@ export function RiiqxCreatorStudio() {
         )}
 
         {activeSubTab === 'brand_kit' && <BrandKitTab />}
+        {activeSubTab === 'campaign_studio' && <CampaignStudioTab />}
       </main>
     </div>
   );

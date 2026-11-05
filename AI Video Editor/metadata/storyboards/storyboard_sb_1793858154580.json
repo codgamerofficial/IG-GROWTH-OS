@@ -1,0 +1,103 @@
+{
+  "id": "sb_1793858154580",
+  "campaignId": "camp_1793858108864_iep4t",
+  "assetId": "asset_camp_1793858108864_iep4t_1",
+  "projectName": "Autumn Velocity Creator Push — GlowFit AI Performance High-Conversion Reel Hook",
+  "aspectRatio": "9:16",
+  "totalDurationSeconds": 15,
+  "isApproved": true,
+  "approvedAt": "2026-11-05T05:55:54.580Z",
+  "beats": [
+    {
+      "id": "beat_1",
+      "sceneNumber": 1,
+      "title": "Scene 01 — 3-Second Viral Hook",
+      "inSec": 0,
+      "outSec": 3.5,
+      "durationSeconds": 3.5,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "UPDATED: 3 mistakes every creator makes before scaling",
+      "visualComposition": "Dynamic 9:16 shot with kinetic typography popping on key pain points.",
+      "captionText": "UPDATED: 3 MISTAKES EVERY CREATOR MAKES BEFORE S",
+      "highlightedWords": [
+        "STOP",
+        "STRUGGLING",
+        "NOW"
+      ],
+      "motionGraphics": "Kinetic typography with brand primary glow",
+      "transition": "Fast whip-pan transition",
+      "audioSfx": "High retention whoosh drop",
+      "bRollInstruction": "Fast split screen showing slow timeline editing vs instantaneous AI generation."
+    },
+    {
+      "id": "beat_2",
+      "sceneNumber": 2,
+      "title": "Scene 02 — Problem Agitation & Contrast",
+      "inSec": 3.5,
+      "outSec": 8,
+      "durationSeconds": 4.5,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "Here is the truth: scaling a brand in 2026 requires automated distribution, not more hours behind a screen. With GlowFit",
+      "visualComposition": "Medium shot with split-screen B-roll highlighting friction vs autonomous execution.",
+      "captionText": "MOST CREATORS GET STUCK IN MANUAL GRIND",
+      "highlightedWords": [
+        "MANUAL",
+        "GRIND",
+        "STUCK"
+      ],
+      "motionGraphics": "Split screen with animated red crossout on manual workflow",
+      "transition": "Glitch slide",
+      "audioSfx": "Subtle metallic tension riser",
+      "bRollInstruction": "Messy timeline and frustrated creator workspace"
+    },
+    {
+      "id": "beat_3",
+      "sceneNumber": 3,
+      "title": "Scene 03 — Solution & Proof",
+      "inSec": 8,
+      "outSec": 12.5,
+      "durationSeconds": 4.5,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "GlowFit AI Performance automates your entire creative pipeline with zero manual bottlenecks.",
+      "visualComposition": "Fluid punch-in showing live autonomous dashboard telemetry.",
+      "captionText": "GLOWFIT AI PERFORMANCE AUTOMATES YOUR ENTIRE ENGINE",
+      "highlightedWords": [
+        "GLOWFIT AI PERFORMANCE",
+        "AUTOMATES",
+        "ENTIRE"
+      ],
+      "motionGraphics": "HyperFrames glass telemetry HUD with green verified badges",
+      "transition": "Zoom-in cut",
+      "audioSfx": "Crisp UI notification chime",
+      "bRollInstruction": "Clean screen recording of RIIQX dashboard and fast rendering progress"
+    },
+    {
+      "id": "beat_4",
+      "sceneNumber": 4,
+      "title": "Scene 04 — High-Conversion Call To Action",
+      "inSec": 12.5,
+      "outSec": 15,
+      "durationSeconds": 2.5,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "Claim your studio license today",
+      "visualComposition": "Direct eye contact with pulsing CTA button overlay and follow arrow.",
+      "captionText": "CLAIM YOUR STUDIO LICENSE TODAY",
+      "highlightedWords": [
+        "TAP",
+        "SCALE",
+        "TODAY"
+      ],
+      "motionGraphics": "Pulsing #007BFF hero button with kinetic bounce",
+      "transition": "Smooth fade to black finish",
+      "audioSfx": "Deep sub-bass impact chime",
+      "bRollInstruction": "Pulsing follow badge and profile link indicator"
+    }
+  ],
+  "brandGuidelines": {
+    "primaryColor": "#007BFF",
+    "secondaryColor": "#2C3E50",
+    "accentColor": "#28A745",
+    "font": "Montserrat"
+  },
+  "createdAt": "2026-11-05T05:55:54.581Z"
+}

@@ -86,6 +86,7 @@ export type CreatorStudioTab =
   | 'analytics'
   | 'templates'
   | 'brand_kit'
+  | 'campaign_studio'
   | 'autopilot';
 
 // -----------------------------------------------------------------------------
