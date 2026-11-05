@@ -1,0 +1,96 @@
+{
+  "projectId": "proj_ad_1793886873798",
+  "title": "Lumina RGB Aura Kinetic Levitating Desk Lamp — Viral Dropshipping Ad",
+  "targetPlatform": "Instagram Reels / TikTok / YouTube Shorts",
+  "aspectRatio": "9:16",
+  "resolution": {
+    "width": 1080,
+    "height": 1920
+  },
+  "fps": 30,
+  "status": "ready_to_edit",
+  "brandKitRef": "Brand Kit/brand-kit.md",
+  "productInfo": {
+    "id": "drop_lumina_01",
+    "supplierPrice": 850,
+    "sellingPrice": 2899,
+    "profitMarginPct": 70.6
+  },
+  "beats": [
+    {
+      "beatNumber": 1,
+      "timecode": "00:00 - 00:02.0",
+      "durationSeconds": 2,
+      "speechTranscript": "Stop buying boring lamps. This one literally floats in thin air!",
+      "visualDirection": "Extreme 1.1x punch-in on problem scenario, fast cut to Lumina RGB Aura Kinetic Levitating Desk Lamp beauty shot with neon glow.",
+      "captions": "Stop buying boring lamps. This one literally floats in thin air!",
+      "captionStyle": {
+        "highlightColor": "#FFD43B",
+        "animation": "pop_bounce"
+      },
+      "bRoll": "problem_scenario_hook.mp4",
+      "assets": [
+        "warning_icon.png",
+        "whoosh_sfx.wav"
+      ],
+      "approval": "approved"
+    },
+    {
+      "beatNumber": 2,
+      "timecode": "00:02.0 - 00:05.5",
+      "durationSeconds": 3.5,
+      "speechTranscript": "Meet the Lumina RGB Aura Kinetic Levitating Desk Lamp. It features Magnetic levitation floating ambient orb with 16 million colors, touch brightness control,...",
+      "visualDirection": "360 rotating 3D product view with glowing feature callout pills.",
+      "captions": "Engineered for MAXIMUM performance.",
+      "captionStyle": {
+        "highlightColor": "#06B6D4",
+        "animation": "karaoke_flow"
+      },
+      "bRoll": "product_360_rotate.mp4",
+      "assets": [
+        "spec_pill.png",
+        "digital_click.wav"
+      ],
+      "approval": "approved"
+    },
+    {
+      "beatNumber": 3,
+      "timecode": "00:05.5 - 00:08.5",
+      "durationSeconds": 3,
+      "speechTranscript": "Get yours today for just ₹2,899 with instant free shipping and cash on delivery!",
+      "visualDirection": "Price tag reveal with glowing green slash badge from original MRP to ₹2,899.",
+      "captions": "Only ₹2,899 — Limited Stock!",
+      "captionStyle": {
+        "highlightColor": "#10B981",
+        "animation": "pop_bounce"
+      },
+      "bRoll": "unboxing_lifestyle.mp4",
+      "assets": [
+        "price_badge.png",
+        "cash_register.wav"
+      ],
+      "approval": "approved"
+    },
+    {
+      "beatNumber": 4,
+      "timecode": "00:08.5 - 00:11.0",
+      "durationSeconds": 2.5,
+      "speechTranscript": "Tap the link in bio or order now before stock runs out!",
+      "visualDirection": "Animated CTA arrow pointing down to link in bio with pulsing order button.",
+      "captions": "TAP LINK IN BIO TO ORDER NOW!",
+      "captionStyle": {
+        "highlightColor": "#FFD43B",
+        "animation": "pulse"
+      },
+      "bRoll": "outro_lifestyle.mp4",
+      "assets": [
+        "cta_arrow.png",
+        "riser_braam.wav"
+      ],
+      "approval": "approved"
+    }
+  ],
+  "creatorFeedbackNotes": "High-converting dropshipping template pre-loaded with viral pacing rules.",
+  "createdAt": "2026-11-05T13:54:33.798Z",
+  "updatedAt": "2026-11-05T13:54:33.798Z"
+}

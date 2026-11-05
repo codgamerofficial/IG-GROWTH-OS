@@ -139,3 +139,4 @@ export class GiftCardArbitrageService {
     return rates[platform] || 4.0;
   }
 }
+

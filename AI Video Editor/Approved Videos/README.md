@@ -10,3 +10,4 @@ This directory archives all finalized, client-approved, or creator-verified vide
 
 ## Feedback Loop
 Videos moved here serve as ground truth for training the AI Video Editor on what you consider "perfect" editing quality.
+

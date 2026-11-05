@@ -104,3 +104,4 @@ export async function GET() {
     averageMarginPct: 72.2,
   });
 }
+

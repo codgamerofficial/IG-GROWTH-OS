@@ -140,3 +140,4 @@ export interface DropshippingProductItem {
   recommendedAngles: string[];
   creatorStudioProjectId?: string;
 }
+

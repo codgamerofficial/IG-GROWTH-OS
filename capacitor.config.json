@@ -1,0 +1,26 @@
+{
+  "appId": "com.glowfit.ai",
+  "appName": "GlowFit AI",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "http://10.0.2.2:3001",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#0C0C0E",
+      "showSpinner": true,
+      "spinnerColor": "#FFD43B"
+    },
+    "Camera": {
+      "permissions": ["camera", "photos"]
+    }
+  }
+}

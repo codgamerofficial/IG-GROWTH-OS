@@ -6,3 +6,4 @@ This directory holds the definitive visual and typography rules for your brand. 
 ## Files
 - `brand-kit.md`: Human and LLM-readable design rules (Hex codes, typography, caption styling, camera movement, cut pacing).
 - `brand-tokens.json`: Machine-readable tokens used by the Remotion and HyperFrames rendering engines.
+

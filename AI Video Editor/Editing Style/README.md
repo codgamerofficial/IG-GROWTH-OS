@@ -9,3 +9,4 @@ This directory defines the algorithmic rules, pacing formulas, sound effect plac
 - **Camera Movement**: Subtle 1.05x-1.12x digital pushes (punch-in) on key punchlines; slow whip-pans on section transitions.
 - **Audio Mix**: Dialogue normalized to -14 LUFS; background music side-chained (ducked) by -18 dB during speech.
 - **Sound Effects (SFX)**: Swooshes on text fly-ins, subtle digital clicks on list popups, cinematic braam on beat drops.
+

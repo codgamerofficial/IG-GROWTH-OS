@@ -19,3 +19,4 @@ This directory stores reference videos and reels whose visual style, editing rhy
    - Cut frequency (average shot length, cuts per minute).
 4. **Auto-update**:
    - Extracted visual style rules automatically populate `Brand Kit/brand-kit.md` and `Editing Style/editing-style-rules.json`.
+

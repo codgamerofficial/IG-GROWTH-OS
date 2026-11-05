@@ -7,3 +7,4 @@
 - **Duration**: ~12 seconds
 - **Storyboard Spec**: Defined in [`notes.json`](file:///AI%20Video%20Editor/Raw/Product%20Showcase%20Launch/notes.json)
 - **Brand Kit**: Linked to [`Brand Kit/brand-kit.md`](file:///AI%20Video%20Editor/Brand%20Kit/brand-kit.md)
+

@@ -17,3 +17,4 @@ AI Video Editor/Raw/[Project Name]/
 
 ## notes.json Spec
 Contains the storyboard beats, speech segments, visual directions, asset references, and creator approval state (Approved, Rejected, Needs Revision).
+

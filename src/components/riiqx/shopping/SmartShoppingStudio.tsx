@@ -36,8 +36,12 @@ import {
 } from '@/services/shopping/types';
 import { DROPSHIPPING_CATALOG } from '@/app/api/shopping/dropshipping/products/route';
 
+import { useRiiqx } from '@/context/RiiqxContext';
+
 export function SmartShoppingStudio() {
+  const { setActiveTab: setActiveWorkspaceTab } = useRiiqx();
   const [activeTab, setActiveTab] = useState<'scanner' | 'dropshipping' | 'wallet'>('scanner');
+  const [creatingAdId, setCreatingAdId] = useState<string | null>(null);
 
   // Scanner States
   const [urlInput, setUrlInput] = useState('');
@@ -130,6 +134,25 @@ export function SmartShoppingStudio() {
     navigator.clipboard.writeText(code);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
+  };
+
+  const handleCreateVideoAd = async (productId: string) => {
+    setCreatingAdId(productId);
+    try {
+      const res = await fetch('/api/shopping/dropshipping/create-video-ad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActiveWorkspaceTab('editor');
+      }
+    } catch (err) {
+      console.error('Failed to create video ad:', err);
+    } finally {
+      setCreatingAdId(null);
+    }
   };
 
   return (
@@ -600,22 +623,32 @@ export function SmartShoppingStudio() {
                   </div>
                 </div>
 
-                <div className="mt-5 flex items-center justify-between border-t border-zinc-800/80 pt-4">
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-zinc-800/80 pt-4">
                   <span className="text-[11px] text-zinc-500 font-mono">
                     Shipping: {item.shippingDays}
                   </span>
-                  <button
-                    onClick={() => {
-                      // Pre-fill search scanner with this product title
-                      setUrlInput(`https://www.amazon.in/s?k=${encodeURIComponent(item.title)}`);
-                      setActiveTab('scanner');
-                      handleAnalyze();
-                    }}
-                    className="flex items-center gap-1.5 rounded-xl bg-amber-400 px-4 py-2 text-xs font-bold text-black hover:bg-amber-300 transition"
-                  >
-                    <Zap className="h-3.5 w-3.5" />
-                    Arbitrage This Product
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleCreateVideoAd(item.id)}
+                      disabled={creatingAdId === item.id}
+                      className="flex items-center gap-1.5 rounded-xl border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs font-bold text-amber-400 hover:bg-amber-400/20 transition disabled:opacity-50"
+                    >
+                      <Film className="h-3.5 w-3.5" />
+                      {creatingAdId === item.id ? 'Creating Reel...' : 'Create Video Ad'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Pre-fill search scanner with this product title
+                        setUrlInput(`https://www.amazon.in/s?k=${encodeURIComponent(item.title)}`);
+                        setActiveTab('scanner');
+                        handleAnalyze();
+                      }}
+                      className="flex items-center gap-1.5 rounded-xl bg-amber-400 px-3.5 py-2 text-xs font-bold text-black hover:bg-amber-300 transition"
+                    >
+                      <Zap className="h-3.5 w-3.5" />
+                      Arbitrage Deal
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -685,3 +718,4 @@ export function SmartShoppingStudio() {
     </div>
   );
 }
+
