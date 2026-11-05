@@ -57,6 +57,7 @@ export function ProductStudioTab() {
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const [activeScene, setActiveScene] = useState<ProductSceneGeneration | null>(null);
   const [copiedUrl, setCopiedUrl] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState(false);
   const sliderContainerRef = useRef<HTMLDivElement>(null);
 
   // New Product Modal
@@ -67,6 +68,7 @@ export function ProductStudioTab() {
     'Precision-engineered wireless noise-canceling headphones with brushed matte aluminum finish and gold acoustic rings.'
   );
   const [newProductPrice, setNewProductPrice] = useState('$299.00');
+  const [newProductImageUrl, setNewProductImageUrl] = useState('');
   const [creatingProduct, setCreatingProduct] = useState(false);
 
   useEffect(() => {
@@ -157,10 +159,11 @@ export function ProductStudioTab() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: newProductName,
+          name: newProductName.trim(),
           category: newProductCategory,
-          description: newProductDesc,
-          price: newProductPrice,
+          description: newProductDesc.trim(),
+          price: newProductPrice.trim(),
+          imageUrl: newProductImageUrl.trim() || undefined,
         }),
       });
 
@@ -169,6 +172,7 @@ export function ProductStudioTab() {
         setProducts((prev) => [data.product, ...prev]);
         setActiveProduct(data.product);
         setShowNewModal(false);
+        setNewProductImageUrl('');
       } else {
         alert(data.error || 'Failed to create product');
       }
@@ -176,6 +180,31 @@ export function ProductStudioTab() {
       alert('Error creating product: ' + err.message);
     } finally {
       setCreatingProduct(false);
+    }
+  };
+
+  // Delete Product handler
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm('Are you sure you want to delete this product and its generated scenes?')) return;
+
+    setDeletingProduct(true);
+    try {
+      const res = await fetch(`/api/riiqx/products/${productId}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success) {
+        const remaining = products.filter((p) => p.id !== productId);
+        setProducts(remaining);
+        setActiveProduct(remaining[0] || null);
+        setActiveScene(remaining[0]?.generations?.[0] || null);
+      } else {
+        alert(data.error || 'Failed to delete product');
+      }
+    } catch (err: any) {
+      alert('Delete error: ' + err.message);
+    } finally {
+      setDeletingProduct(false);
     }
   };
 
@@ -276,30 +305,43 @@ export function ProductStudioTab() {
 
       {/* Product Selector Bar */}
       {products.length > 0 && (
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-[#27272A]">
-          <span className="text-xs font-semibold text-[#71717A] uppercase tracking-wider mr-2">
-            Products ({products.length}):
-          </span>
-          {products.map((prod) => (
+        <div className="flex items-center justify-between border-b border-[#27272A] pb-1 gap-4">
+          <div className="flex items-center gap-2 overflow-x-auto flex-1">
+            <span className="text-xs font-semibold text-[#71717A] uppercase tracking-wider mr-2 shrink-0">
+              Products ({products.length}):
+            </span>
+            {products.map((prod) => (
+              <button
+                key={prod.id}
+                onClick={() => {
+                  setActiveProduct(prod);
+                  if (prod.generations?.length > 0) setActiveScene(prod.generations[0]);
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-2 whitespace-nowrap shrink-0 ${
+                  activeProduct?.id === prod.id
+                    ? 'bg-[#27272A] text-white border border-[#FFD43B]/40'
+                    : 'text-[#A1A1AA] hover:text-white hover:bg-[#18181B]'
+                }`}
+              >
+                <ShoppingBag className="h-3.5 w-3.5 text-[#FFD43B]" />
+                <span>{prod.name}</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#18181B] text-[#71717A]">
+                  {prod.category}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          {activeProduct && (
             <button
-              key={prod.id}
-              onClick={() => {
-                setActiveProduct(prod);
-                if (prod.generations?.length > 0) setActiveScene(prod.generations[0]);
-              }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-2 whitespace-nowrap ${
-                activeProduct?.id === prod.id
-                  ? 'bg-[#27272A] text-white border border-[#FFD43B]/40'
-                  : 'text-[#A1A1AA] hover:text-white hover:bg-[#18181B]'
-              }`}
+              onClick={() => handleDeleteProduct(activeProduct.id)}
+              disabled={deletingProduct}
+              title="Delete Active Product"
+              className="p-1.5 rounded-lg bg-[#18181B] hover:bg-red-950/60 text-[#71717A] hover:text-red-400 border border-[#27272A] transition shrink-0"
             >
-              <ShoppingBag className="h-3.5 w-3.5 text-[#FFD43B]" />
-              <span>{prod.name}</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#18181B] text-[#71717A]">
-                {prod.category}
-              </span>
+              <Trash2 className="h-3.5 w-3.5" />
             </button>
-          ))}
+          )}
         </div>
       )}
 
@@ -332,7 +374,10 @@ export function ProductStudioTab() {
                   </span>
                   <div className="flex items-center gap-2">
                     {activeProduct.features.colors?.map((col, idx) => (
-                      <div key={idx} className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#18181B] border border-[#27272A]">
+                      <div
+                        key={idx}
+                        className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#18181B] border border-[#27272A]"
+                      >
                         <div
                           className="w-3.5 h-3.5 rounded-full border border-white/20"
                           style={{ backgroundColor: col }}
@@ -498,13 +543,14 @@ export function ProductStudioTab() {
                   </h3>
                 </div>
                 <span className="text-[10px] font-mono text-[#71717A]">
-                  Drag horizontally to compare
+                  Click or drag horizontally
                 </span>
               </div>
 
               {/* Interactive Comparison Viewport */}
               <div
                 ref={sliderContainerRef}
+                onClick={(e) => updateSliderFromClientX(e.clientX)}
                 onMouseDown={() => setIsDraggingSlider(true)}
                 onMouseUp={() => setIsDraggingSlider(false)}
                 onMouseLeave={() => setIsDraggingSlider(false)}
@@ -512,7 +558,7 @@ export function ProductStudioTab() {
                 onTouchStart={() => setIsDraggingSlider(true)}
                 onTouchEnd={() => setIsDraggingSlider(false)}
                 onTouchMove={handleTouchMove}
-                className="relative aspect-square max-h-[460px] w-full rounded-xl overflow-hidden cursor-ew-resize border border-[#27272A] bg-black select-none shadow-2xl mx-auto"
+                className="relative aspect-square max-h-[460px] w-full rounded-xl overflow-hidden cursor-ew-resize border border-[#27272A] bg-black shadow-2xl mx-auto"
               >
                 {/* Layer 1: AI Generated Scene (Full Background) */}
                 <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0C0C0E]">
@@ -537,8 +583,7 @@ export function ProductStudioTab() {
                   style={{ width: `${sliderPosition}%` }}
                 >
                   <div className="relative w-full h-full flex items-center justify-center bg-[#151518]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */
-                    /* Note: activeProduct.originalImages is an array or fallback */}
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={activeProduct.originalImages?.[0] || '/icons/icon-512x512.png'}
                       alt="Original Product"
@@ -566,14 +611,20 @@ export function ProductStudioTab() {
                 <div className="p-3.5 rounded-lg bg-[#18181B] border border-[#27272A] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
                     <h4 className="text-xs font-bold text-white">{activeScene.adHeadline}</h4>
-                    <p className="text-[11px] text-[#A1A1AA] mt-0.5">CTA: &quot;{activeScene.callToAction}&quot;</p>
+                    <p className="text-[11px] text-[#A1A1AA] mt-0.5">
+                      CTA: &quot;{activeScene.callToAction}&quot;
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleCopySceneUrl}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#27272A] hover:bg-[#3F3F46] text-white text-xs font-medium transition"
                     >
-                      {copiedUrl ? <Check className="h-3.5 w-3.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5" />}
+                      {copiedUrl ? (
+                        <Check className="h-3.5 w-3.5 text-emerald-400" />
+                      ) : (
+                        <Copy className="h-3.5 w-3.5" />
+                      )}
                       <span>{copiedUrl ? 'Copied' : 'Copy URL'}</span>
                     </button>
                     <a
@@ -610,7 +661,11 @@ export function ProductStudioTab() {
                       }`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={gen.imageUrl} alt="Variant" className="w-full h-full object-cover" />
+                      <img
+                        src={gen.imageUrl}
+                        alt="Variant"
+                        className="w-full h-full object-cover"
+                      />
                       <div className="absolute inset-x-0 bottom-0 p-1.5 bg-black/80 backdrop-blur-xs text-[9px] font-mono text-white truncate text-left">
                         {gen.environment.replace(/_/g, ' ')}
                       </div>
@@ -626,7 +681,8 @@ export function ProductStudioTab() {
           <ShoppingBag className="h-10 w-10 text-[#71717A] mx-auto" />
           <h3 className="text-base font-bold text-white">No Products Configured</h3>
           <p className="text-xs text-[#A1A1AA] max-w-md mx-auto">
-            Upload your first product to trigger multi-angle feature extraction and commercial scene synthesis.
+            Upload your first product to trigger multi-angle feature extraction and commercial scene
+            synthesis.
           </p>
           <button
             onClick={() => setShowNewModal(true)}
@@ -702,6 +758,19 @@ export function ProductStudioTab() {
                     className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FFD43B]"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
+                  Image URL / Photo Path (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={newProductImageUrl}
+                  onChange={(e) => setNewProductImageUrl(e.target.value)}
+                  placeholder="e.g. /icons/icon-512x512.png or https://..."
+                  className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FFD43B]"
+                />
               </div>
 
               <div>

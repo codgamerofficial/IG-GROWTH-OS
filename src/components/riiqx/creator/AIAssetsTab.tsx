@@ -5,7 +5,7 @@
 // Cross-Module Asset Browser • Multi-Category Filtering • Modal Preview • Timeline Bridge
 // =============================================================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   FolderOpen,
   UploadCloud,
@@ -28,7 +28,7 @@ import {
   Plus,
   Play,
 } from 'lucide-react';
-import { CreatorProject, CreatorStudioTab } from '@/lib/riiqx/creator-types';
+import { CreatorProject, CreatorStudioTab, UploadedAsset } from '@/lib/riiqx/creator-types';
 import { CreativeAssetItem, CreativeAssetCategory } from '@/services/assets/asset-service';
 
 interface AIAssetsTabProps {
@@ -46,6 +46,13 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
   const [previewAsset, setPreviewAsset] = useState<CreativeAssetItem | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [attachFeedback, setAttachFeedback] = useState<string | null>(null);
+
+  // Quick Register Asset State
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [newAssetName, setNewAssetName] = useState('');
+  const [newAssetUrl, setNewAssetUrl] = useState('');
+  const [newAssetCategory, setNewAssetCategory] = useState<CreativeAssetCategory>('generated_images');
+  const [registering, setRegistering] = useState(false);
 
   useEffect(() => {
     fetchCatalogAssets();
@@ -119,13 +126,21 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
       return;
     }
 
-    const newAssetEntry = {
+    const newAssetEntry: UploadedAsset = {
       id: asset.id,
       name: asset.name,
-      type: (asset.mimeType?.includes('video') ? 'video' : asset.mimeType?.includes('audio') ? 'audio' : 'image') as any,
+      type: asset.mimeType?.includes('video')
+        ? 'video'
+        : asset.mimeType?.includes('audio')
+        ? 'audio'
+        : 'image',
       url: asset.publicUrl,
-      size: asset.fileSizeBytes,
-      createdAt: asset.createdAt,
+      sizeBytes: asset.fileSizeBytes || 0,
+      width: asset.dimensions?.width,
+      height: asset.dimensions?.height,
+      durationSeconds: asset.durationSeconds,
+      analysisStatus: 'analyzed',
+      visualTags: asset.tags,
     };
 
     onUpdateProject({
@@ -135,6 +150,45 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
 
     setAttachFeedback(`Attached "${asset.name}" to active project`);
     setTimeout(() => setAttachFeedback(null), 2500);
+  };
+
+  const handleRegisterAsset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAssetName.trim() || !newAssetUrl.trim()) return;
+
+    setRegistering(true);
+    try {
+      const isVideo = newAssetUrl.endsWith('.mp4') || newAssetCategory === 'videos';
+      const isSvg = newAssetUrl.endsWith('.svg');
+      const mimeType = isVideo ? 'video/mp4' : isSvg ? 'image/svg+xml' : 'image/png';
+
+      const res = await fetch('/api/riiqx/assets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: newAssetName.trim(),
+          category: newAssetCategory,
+          publicUrl: newAssetUrl.trim(),
+          mimeType,
+          fileSizeBytes: 1024 * 150,
+          tags: ['custom', newAssetCategory],
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.asset) {
+        setAssets((prev) => [data.asset, ...prev]);
+        setShowRegisterModal(false);
+        setNewAssetName('');
+        setNewAssetUrl('');
+      } else {
+        alert(data.error || 'Failed to register asset');
+      }
+    } catch (err: any) {
+      alert('Registration error: ' + err.message);
+    } finally {
+      setRegistering(false);
+    }
   };
 
   const filteredAssets = assets.filter((asset) => {
@@ -186,6 +240,14 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
               ✓ {attachFeedback}
             </span>
           )}
+
+          <button
+            onClick={() => setShowRegisterModal(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#FFD43B] hover:bg-[#FFE066] text-black font-semibold text-xs transition shadow-md shadow-[#FFD43B]/10"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Add Asset URL</span>
+          </button>
 
           <button
             onClick={fetchCatalogAssets}
@@ -244,7 +306,10 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredAssets.map((asset) => {
             const isVideo = asset.category === 'videos' || asset.mimeType?.includes('video');
-            const isImage = asset.category === 'product_images' || asset.mimeType?.includes('image') || asset.publicUrl?.endsWith('.svg');
+            const isImage =
+              asset.category === 'product_images' ||
+              asset.mimeType?.includes('image') ||
+              asset.publicUrl?.endsWith('.svg');
 
             return (
               <div
@@ -379,6 +444,88 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
           <p className="text-xs text-[#71717A]">
             Generate creative copy in Campaign Studio, commercial scenes in Product Studio, or render vertical videos to populate your universal catalog.
           </p>
+        </div>
+      )}
+
+      {/* Register Asset Modal */}
+      {showRegisterModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md rounded-2xl border border-[#27272A] bg-[#121215] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
+              <h3 className="text-sm font-bold text-white">Add Asset to Catalog</h3>
+              <button
+                onClick={() => setShowRegisterModal(false)}
+                className="text-[#71717A] hover:text-white p-1 text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleRegisterAsset} className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
+                  Asset Name
+                </label>
+                <input
+                  type="text"
+                  value={newAssetName}
+                  onChange={(e) => setNewAssetName(e.target.value)}
+                  placeholder="e.g. Hero Product Studio Shot"
+                  required
+                  className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FFD43B]"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
+                  Public URL or Relative Path
+                </label>
+                <input
+                  type="text"
+                  value={newAssetUrl}
+                  onChange={(e) => setNewAssetUrl(e.target.value)}
+                  placeholder="e.g. /uploads/products/scene.svg or https://..."
+                  required
+                  className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FFD43B]"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
+                  Category
+                </label>
+                <select
+                  value={newAssetCategory}
+                  onChange={(e) => setNewAssetCategory(e.target.value as CreativeAssetCategory)}
+                  className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FFD43B]"
+                >
+                  <option value="product_images">Product Scene / Image</option>
+                  <option value="videos">Video / Short</option>
+                  <option value="campaign_assets">Campaign Copy / Brief</option>
+                  <option value="brand_profiles">Brand Kit</option>
+                  <option value="generated_images">AI Generated Image</option>
+                  <option value="storyboards">Storyboard</option>
+                </select>
+              </div>
+
+              <div className="pt-2 border-t border-[#27272A] flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowRegisterModal(false)}
+                  className="px-3 py-1.5 rounded-lg bg-[#18181B] hover:bg-[#27272A] text-xs text-[#A1A1AA]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={registering}
+                  className="px-4 py-1.5 rounded-lg bg-[#FFD43B] hover:bg-[#FFE066] text-black font-semibold text-xs transition disabled:opacity-50"
+                >
+                  {registering ? 'Adding...' : 'Add to Catalog'}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
