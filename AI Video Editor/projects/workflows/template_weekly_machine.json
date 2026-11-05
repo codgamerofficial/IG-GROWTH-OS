@@ -1,0 +1,64 @@
+{
+  "id": "template_weekly_machine",
+  "name": "Weekly Content Machine",
+  "description": "Trend Scan ➔ 5 Viral Scripts ➔ Multi-Platform Copy ➔ Approval Queue",
+  "trigger": "schedule",
+  "nodes": [
+    {
+      "id": "w1",
+      "type": "trigger",
+      "subType": "schedule_trigger",
+      "label": "Weekly Schedule (Monday 9AM)",
+      "x": 80,
+      "y": 140,
+      "config": {}
+    },
+    {
+      "id": "w2",
+      "type": "ai_action",
+      "subType": "extract_brand",
+      "label": "Inject Brand DNA",
+      "x": 320,
+      "y": 140,
+      "config": {}
+    },
+    {
+      "id": "w3",
+      "type": "ai_action",
+      "subType": "generate_campaign",
+      "label": "Omnichannel Campaign",
+      "x": 560,
+      "y": 140,
+      "config": {}
+    },
+    {
+      "id": "w4",
+      "type": "human_approval",
+      "subType": "approval_checkpoint",
+      "label": "Creator Approval Gate",
+      "x": 800,
+      "y": 140,
+      "config": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "we1",
+      "sourceNodeId": "w1",
+      "targetNodeId": "w2"
+    },
+    {
+      "id": "we2",
+      "sourceNodeId": "w2",
+      "targetNodeId": "w3"
+    },
+    {
+      "id": "we3",
+      "sourceNodeId": "w3",
+      "targetNodeId": "w4"
+    }
+  ],
+  "isTemplate": true,
+  "createdAt": "2026-11-05T06:27:53.641Z",
+  "updatedAt": "2026-11-05T06:27:53.793Z"
+}

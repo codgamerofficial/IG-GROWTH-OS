@@ -38,6 +38,7 @@ import {
   Search,
   Megaphone,
   ShoppingBag,
+  GitBranch,
 } from 'lucide-react';
 
 interface CreatorStudioNavProps {
@@ -88,6 +89,7 @@ export function CreatorStudioNav({
     { id: 'campaign_studio', label: 'Campaign Studio', icon: Megaphone, badge: 'Phase 3' },
     { id: 'creative_canvas', label: 'Creative Canvas', icon: Layers, badge: 'Phase 4' },
     { id: 'product_studio', label: 'Product Studio', icon: ShoppingBag, badge: 'Phase 5' },
+    { id: 'workflow_builder', label: 'Workflow Builder', icon: GitBranch, badge: 'Phase 6' },
   ];
 
   const getStatusBadge = (status: ProjectLifecycleStatus) => {

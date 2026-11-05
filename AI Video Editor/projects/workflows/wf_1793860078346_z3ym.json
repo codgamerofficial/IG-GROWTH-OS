@@ -1,0 +1,85 @@
+{
+  "id": "wf_1793860078346_z3ym",
+  "name": "Custom Autonomous Creative Flow",
+  "description": "Automatically generate 3 viral reel hooks from product upload, but wait for my human approval before rendering to video.",
+  "trigger": "manual",
+  "nodes": [
+    {
+      "id": "fn_1",
+      "type": "trigger",
+      "subType": "manual_trigger",
+      "label": "Manual Goal Trigger",
+      "x": 80,
+      "y": 140,
+      "config": {},
+      "status": "idle"
+    },
+    {
+      "id": "fn_2",
+      "type": "ai_action",
+      "subType": "extract_brand",
+      "label": "Brand DNA Guardrails",
+      "x": 320,
+      "y": 140,
+      "config": {},
+      "status": "idle"
+    },
+    {
+      "id": "fn_3",
+      "type": "ai_action",
+      "subType": "generate_campaign",
+      "label": "Multi-Channel Creative Engine",
+      "x": 560,
+      "y": 140,
+      "config": {},
+      "status": "idle"
+    },
+    {
+      "id": "fn_4",
+      "type": "human_approval",
+      "subType": "approval_checkpoint",
+      "label": "Human Approval Checkpoint",
+      "x": 800,
+      "y": 140,
+      "config": {},
+      "status": "idle"
+    },
+    {
+      "id": "fn_5",
+      "type": "integration",
+      "subType": "export_to_video",
+      "label": "Push to Video Storyboard",
+      "x": 1040,
+      "y": 140,
+      "config": {},
+      "status": "idle"
+    }
+  ],
+  "edges": [
+    {
+      "id": "fe_1",
+      "sourceNodeId": "fn_1",
+      "targetNodeId": "fn_2"
+    },
+    {
+      "id": "fe_2",
+      "sourceNodeId": "fn_2",
+      "targetNodeId": "fn_3"
+    },
+    {
+      "id": "fe_3",
+      "sourceNodeId": "fn_3",
+      "targetNodeId": "fn_4",
+      "label": "Requires Sign-off"
+    },
+    {
+      "id": "fe_4",
+      "sourceNodeId": "fn_4",
+      "targetNodeId": "fn_5",
+      "label": "Unlocked on Approval"
+    }
+  ],
+  "isTemplate": false,
+  "createdAt": "2026-11-05T06:27:58.346Z",
+  "updatedAt": "2026-11-05T06:28:04.977Z"
+}

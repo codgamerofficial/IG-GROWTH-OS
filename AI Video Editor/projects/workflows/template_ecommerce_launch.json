@@ -1,0 +1,86 @@
+{
+  "id": "template_ecommerce_launch",
+  "name": "E-Commerce Commercial Launch",
+  "description": "Product photo ➔ Background removal ➔ Scene generation ➔ 9:16 Video Reel ➔ Approval Checkpoint",
+  "trigger": "new_asset",
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "trigger",
+      "subType": "new_product_trigger",
+      "label": "New Product Upload",
+      "x": 80,
+      "y": 140,
+      "config": {}
+    },
+    {
+      "id": "n2",
+      "type": "ai_action",
+      "subType": "generate_scene",
+      "label": "AI Commercial Scene",
+      "x": 320,
+      "y": 140,
+      "config": {
+        "environment": "luxury_pedestal"
+      }
+    },
+    {
+      "id": "n3",
+      "type": "ai_action",
+      "subType": "generate_campaign",
+      "label": "Viral Reel Script",
+      "x": 560,
+      "y": 140,
+      "config": {
+        "format": "9:16"
+      }
+    },
+    {
+      "id": "n4",
+      "type": "human_approval",
+      "subType": "approval_checkpoint",
+      "label": "Human Review Checkpoint",
+      "x": 800,
+      "y": 140,
+      "config": {}
+    },
+    {
+      "id": "n5",
+      "type": "integration",
+      "subType": "export_to_video",
+      "label": "AI Video Editor Render",
+      "x": 1040,
+      "y": 140,
+      "config": {}
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "sourceNodeId": "n1",
+      "targetNodeId": "n2",
+      "label": "Extract Features"
+    },
+    {
+      "id": "e2",
+      "sourceNodeId": "n2",
+      "targetNodeId": "n3",
+      "label": "Visual Context"
+    },
+    {
+      "id": "e3",
+      "sourceNodeId": "n3",
+      "targetNodeId": "n4",
+      "label": "Submit for Review"
+    },
+    {
+      "id": "e4",
+      "sourceNodeId": "n4",
+      "targetNodeId": "n5",
+      "label": "Approved ➔ Render"
+    }
+  ],
+  "isTemplate": true,
+  "createdAt": "2026-11-05T06:27:53.641Z",
+  "updatedAt": "2026-11-05T06:27:53.642Z"
+}
