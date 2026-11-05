@@ -119,3 +119,4 @@ CREATE POLICY "Users view own gift card orders" ON public.gift_card_orders
 -- Users can read their own cashback ledger
 CREATE POLICY "Users view own cashback ledger" ON public.cashback_ledger
     FOR SELECT USING (auth.uid() = user_id);
+

@@ -273,4 +273,153 @@ export interface PriceWatchlistRecord {
   createdAt: string;
 }
 
+// =============================================================================
+// PHASE 5: DROPSHIPPING OPERATIONS & SUPPLIER LOGISTICS TYPES
+// =============================================================================
+
+export type DropshippingOrderStatus =
+  | 'pending_payment'
+  | 'paid'
+  | 'supplier_confirmed'
+  | 'packed'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled'
+  | 'return_requested'
+  | 'returned'
+  | 'refunded';
+
+export type CourierMilestone =
+  | 'order_placed'
+  | 'payment_confirmed'
+  | 'supplier_accepted'
+  | 'manifest_generated'
+  | 'dispatched'
+  | 'in_transit'
+  | 'out_for_delivery'
+  | 'delivered'
+  | 'rto_initiated'
+  | 'return_pickup'
+  | 'returned';
+
+export interface ContributionMarginBreakdown {
+  sellingPrice: number;
+  cogs: number;
+  shippingCost: number;
+  gatewayFee: number;
+  gstAmount: number;
+  returnReserve: number;
+  grossProfit: number;
+  grossMarginPct: number;
+  netContributionMargin: number;
+  netContributionMarginPct: number;
+}
+
+export interface DropshippingOrderItem {
+  id: string;
+  orderId: string;
+  productId: string;
+  variantId?: string;
+  productTitle: string;
+  sku: string;
+  quantity: number;
+  unitSupplierCost: number;
+  unitSellingPrice: number;
+  unitMargin: number;
+  totalPrice: number;
+}
+
+export interface OrderTrackingEvent {
+  id: string;
+  orderId: string;
+  milestone: CourierMilestone;
+  title: string;
+  description: string;
+  location: string;
+  courier: string;
+  occurredAt: string;
+}
+
+export interface DropshippingOrder {
+  id: string;
+  customerId: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  shippingAddress: {
+    street: string;
+    city: string;
+    state: string;
+    pincode: string;
+    country: string;
+  };
+  status: DropshippingOrderStatus;
+  supplierId: string;
+  supplierName: string;
+  supplierOrderId?: string;
+  courierPartner: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  estimatedDeliveryDate?: string;
+  items: DropshippingOrderItem[];
+  subtotal: number;
+  shippingFee: number;
+  gstAmount: number;
+  totalAmount: number;
+  paymentMethod: string;
+  paymentId?: string;
+  idempotencyKey?: string;
+  financialBreakdown: ContributionMarginBreakdown;
+  trackingEvents: OrderTrackingEvent[];
+  cancellationReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SupplierInventoryItem {
+  id: string;
+  supplierId: string;
+  productId: string;
+  productTitle: string;
+  sku: string;
+  availableStock: number;
+  reservedStock: number;
+  effectiveStock: number;
+  lowStockThreshold: number;
+  syncStatus: 'in_sync' | 'syncing' | 'low_stock' | 'out_of_stock' | 'failed';
+  lastSyncedAt: string;
+}
+
+export type ReturnRefundReason =
+  | 'defective_or_damaged'
+  | 'wrong_item_delivered'
+  | 'quality_not_as_expected'
+  | 'arrived_too_late'
+  | 'size_fit_issue'
+  | 'buyer_cancelled';
+
+export type ReturnQCStatus =
+  | 'pending_inspection'
+  | 'pickup_scheduled'
+  | 'in_transit_to_hub'
+  | 'qc_passed'
+  | 'qc_rejected';
+
+export interface ReturnRefundRecord {
+  id: string;
+  orderId: string;
+  customerId: string;
+  reason: ReturnRefundReason;
+  reasonDetails?: string;
+  evidenceUrls?: string[];
+  qcStatus: ReturnQCStatus;
+  refundAmount: number;
+  refundStatus: 'pending' | 'processed' | 'failed';
+  refundGatewayTxId?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+
 

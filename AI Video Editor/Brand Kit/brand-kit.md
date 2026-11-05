@@ -5,11 +5,12 @@
 - **Tone 1**: `#000000`
 - **Tone 2**: `#FFFFFF`
 - **Tone 3**: `#FF0000`
-- **Tone 4**: `#00FF00`
-- **Tone 5**: `#0000FF`
-- **Tone 6**: `#FFFF00`
-- **Tone 7**: `#FF00FF`
-- **Tone 8**: `#00FFFF`
+- **Tone 4**: `#00FFFF`
+- **Tone 5**: `#FF00FF`
+- **Tone 6**: `#0000FF`
+- **Tone 7**: `#FFFF00`
+- **Tone 8**: `#00FF00`
+- **Tone 9**: `#FF6600`
 
 ## 2. Typography & Font Matching
 - **Primary Display / Headlines**: `Montserrat ExtraBold or closest match` (Weight: 800 ExtraBold)
@@ -19,7 +20,7 @@
 ## 3. Caption Style & Animation
 - **Format**: Dynamic word-by-word karaoke pop (pop_bounce karaoke word-by-word)
 - **Position**: Center lower third (70-75% Y)
-- **Highlight Accent**: `#FFD43B` with 1.15x spring bounce
+- **Highlight Accent**: `#FFFF00` with 1.15x spring bounce
 - **Background**: Translucent rounded pill (`rgba(12, 12, 14, 0.75)`)
 
 ## 4. Camera Movement & Framing

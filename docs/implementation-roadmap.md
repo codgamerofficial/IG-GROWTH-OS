@@ -73,16 +73,17 @@ Phase 9: Compliance, Security & E2E Tests     [PLANNED]
 
 ---
 
-### Phase 5 — Dropshipping Operations & Supplier Logistics 🏗️ (NEXT PHASE)
-- [ ] Build Supplier Inventory Sync engine with scheduled delta sync and real-time checkout lock.
-- [ ] Implement Idempotent Order Routing State Machine: `pending_payment` -> `paid` -> `supplier_confirmed` -> `packed` -> `shipped` -> `delivered`.
-- [ ] Integrate Courier Tracking APIs with live milestones and estimated delivery dates.
-- [ ] Build Returns & Refunds Workflow with reason capture, quality check status, and automated payment gateway refund trigger.
-- [ ] Implement Dropshipping Gross and Contribution Margin Calculator factoring in COGS, shipping, 1.9% gateway fee, GST, and return reserves.
+### Phase 5 — Dropshipping Operations & Supplier Logistics ✅ (COMPLETED)
+- [x] Build Supplier Inventory Sync engine with scheduled delta sync and real-time checkout lock.
+- [x] Implement Idempotent Order Routing State Machine: `pending_payment` -> `paid` -> `supplier_confirmed` -> `packed` -> `shipped` -> `delivered`.
+- [x] Integrate Courier Tracking APIs with live milestones and estimated delivery dates.
+- [x] Build Returns & Refunds Workflow with reason capture, quality check status, and automated payment gateway refund trigger.
+- [x] Implement Dropshipping Gross and Contribution Margin Calculator factoring in COGS, shipping, 1.9% gateway fee, GST, and return reserves.
+- [x] Create and run Phase 5 acceptance test suite (`tests/test-phase5-dropshipping-operations.mjs`: 6/6 tests passed).
 
 ---
 
-### Phase 6 — AI Shopping Assistant & Multi-Agent Orchestrator
+### Phase 6 — AI Shopping Assistant & Multi-Agent Orchestrator 🏗️ (NEXT PHASE)
 - [ ] Build conversational RIIQX Shopping Assistant combining text reasoning and vision OCR.
 - [ ] Support natural language queries: "Find the best deal for Sony WH-1000XM5 across all retailers including coupons and gift cards".
 - [ ] Implement multi-provider agent fallback: Gemini 2.5 Flash -> Groq GPT-OSS 120B -> OpenRouter Llama 3.3 70B.

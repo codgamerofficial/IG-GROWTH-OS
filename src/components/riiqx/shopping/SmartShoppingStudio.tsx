@@ -41,6 +41,12 @@ import {
   Bell,
   TrendingUp,
   Clock,
+  Package,
+  Box,
+  RotateCcw,
+  ChevronRight,
+  Layers,
+  Calculator,
 } from 'lucide-react';
 import {
   ExtractedProductInfo,
@@ -54,6 +60,11 @@ import {
   GiftCardBrandItem,
   DeterministicSavingsWaterfall,
   CashbackLedgerEntry,
+  DropshippingOrder,
+  DropshippingOrderStatus,
+  SupplierInventoryItem,
+  ContributionMarginBreakdown,
+  ReturnRefundReason,
 } from '@/services/shopping/types';
 import { GiftCardArbitrageService } from '@/services/shopping/giftcard-arbitrage';
 import { DROPSHIPPING_CATALOG } from '@/services/shopping/catalog';
@@ -131,6 +142,31 @@ export function SmartShoppingStudio() {
   const [selectedBrandForPurchase, setSelectedBrandForPurchase] = useState<GiftCardBrandItem | null>(null);
   const [selectedDenomination, setSelectedDenomination] = useState<number>(1000);
   const [buyingFromWallet, setBuyingFromWallet] = useState(false);
+
+  // Phase 5: Dropshipping Operations States
+  const [dropshippingOrders, setDropshippingOrders] = useState<DropshippingOrder[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<SupplierInventoryItem[]>([]);
+  const [inventoryHealth, setInventoryHealth] = useState<{
+    totalSkus: number;
+    inSync: number;
+    lowStock: number;
+    outOfStock: number;
+  } | null>(null);
+  const [selectedOrderForTracking, setSelectedOrderForTracking] = useState<DropshippingOrder | null>(null);
+  const [selectedOrderForReturn, setSelectedOrderForReturn] = useState<DropshippingOrder | null>(null);
+  const [returnReason, setReturnReason] = useState<ReturnRefundReason>('defective_or_damaged');
+  const [returnReasonDetails, setReturnReasonDetails] = useState('');
+  const [processingReturn, setProcessingReturn] = useState(false);
+  const [returnSuccessMsg, setReturnSuccessMsg] = useState<string | null>(null);
+  const [returnErrorMsg, setReturnErrorMsg] = useState<string | null>(null);
+  const [transitioningOrderId, setTransitioningOrderId] = useState<string | null>(null);
+  const [syncingInventory, setSyncingInventory] = useState(false);
+  const [creatingDemoOrder, setCreatingDemoOrder] = useState(false);
+  const [demoOrderSuccessMsg, setDemoOrderSuccessMsg] = useState<string | null>(null);
+  const [marginCalcSellingPrice, setMarginCalcSellingPrice] = useState(2499);
+  const [marginCalcCogs, setMarginCalcCogs] = useState(1100);
+  const [marginCalcShipping, setMarginCalcShipping] = useState(60);
+  const [calculatedMargin, setCalculatedMargin] = useState<ContributionMarginBreakdown | null>(null);
 
   // Initial Load of Marketplace Products
   useEffect(() => {
@@ -412,6 +448,178 @@ export function SmartShoppingStudio() {
       setSupplierErrors([err.message || 'Network error']);
     } finally {
       setSubmittingSupplier(false);
+    }
+  };
+
+  // Phase 5: Fetch Dropshipping Operations Data
+  useEffect(() => {
+    if (activeTab === 'dropshipping') {
+      fetchDropshippingData();
+      recalculateMargin(marginCalcSellingPrice, marginCalcCogs, marginCalcShipping);
+    }
+  }, [activeTab]);
+
+  const fetchDropshippingData = async () => {
+    try {
+      const [ordersRes, invRes] = await Promise.all([
+        fetch('/api/shopping/dropshipping/orders'),
+        fetch('/api/shopping/dropshipping/inventory'),
+      ]);
+
+      if (ordersRes.ok) {
+        const oData = await ordersRes.json();
+        if (oData.success && Array.isArray(oData.orders)) {
+          setDropshippingOrders(oData.orders);
+        }
+      }
+
+      if (invRes.ok) {
+        const iData = await invRes.json();
+        if (iData.success && Array.isArray(iData.inventory)) {
+          setInventoryItems(iData.inventory);
+          if (iData.health) setInventoryHealth(iData.health);
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to load dropshipping operations data:', err);
+    }
+  };
+
+  const handleSyncInventory = async () => {
+    setSyncingInventory(true);
+    try {
+      const res = await fetch('/api/shopping/dropshipping/inventory', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        await fetchDropshippingData();
+      }
+    } catch (err) {
+      console.error('Failed to sync inventory:', err);
+    } finally {
+      setSyncingInventory(false);
+    }
+  };
+
+  const handleTransitionOrderStatus = async (orderId: string, nextStatus: DropshippingOrderStatus) => {
+    setTransitioningOrderId(orderId);
+    try {
+      const res = await fetch(`/api/shopping/dropshipping/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: nextStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        await fetchDropshippingData();
+        if (selectedOrderForTracking?.id === orderId) {
+          setSelectedOrderForTracking(data.order);
+        }
+      } else {
+        alert(`State transition error: ${data.error}`);
+      }
+    } catch (err: any) {
+      alert(`Network error: ${err.message}`);
+    } finally {
+      setTransitioningOrderId(null);
+    }
+  };
+
+  const handleCreateDemoOrder = async (productId?: string) => {
+    setCreatingDemoOrder(true);
+    setDemoOrderSuccessMsg(null);
+    try {
+      const targetProd = products.find((p) => p.id === productId) || products[0] || {
+        id: 'prod_lumina_aura_01',
+        title: 'Lumina RGB Aura Kinetic Levitating Desk Lamp',
+      };
+
+      const res = await fetch('/api/shopping/dropshipping/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: 'cust_riiqx_demo_01',
+          customerName: 'Aarav Sengupta',
+          customerEmail: 'aarav.sengupta@example.com',
+          customerPhone: '+91 98301 23456',
+          shippingAddress: {
+            street: 'Flat 4B, Silver Oak Heights, Salt Lake Sector V',
+            city: 'Kolkata',
+            state: 'West Bengal',
+            pincode: '700091',
+            country: 'India',
+          },
+          items: [{ productId: targetProd.id, quantity: 1 }],
+          paymentMethod: 'upi_direct',
+          idempotencyKey: `idemp_demo_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          initialStatus: 'paid',
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setDemoOrderSuccessMsg(`Demo Order ${data.order.id} placed & stock locked!`);
+        await fetchDropshippingData();
+        setTimeout(() => setDemoOrderSuccessMsg(null), 4000);
+      } else {
+        alert(`Order creation failed: ${data.error}`);
+      }
+    } catch (err: any) {
+      alert(`Order error: ${err.message}`);
+    } finally {
+      setCreatingDemoOrder(false);
+    }
+  };
+
+  const handleProcessReturn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedOrderForReturn) return;
+
+    setProcessingReturn(true);
+    setReturnErrorMsg(null);
+    setReturnSuccessMsg(null);
+
+    try {
+      const res = await fetch(`/api/shopping/dropshipping/orders/${selectedOrderForReturn.id}/return`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId: selectedOrderForReturn.customerId,
+          reason: returnReason,
+          reasonDetails: returnReasonDetails || 'Automated QC inspection test',
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setReturnSuccessMsg(
+          `Return Approved! Automated QC Passed. Refund TX: ${data.returnRecord?.refundGatewayTxId || 'Processed'}`
+        );
+        await fetchDropshippingData();
+        setTimeout(() => {
+          setSelectedOrderForReturn(null);
+          setReturnSuccessMsg(null);
+        }, 3000);
+      } else {
+        setReturnErrorMsg(data.error || 'Failed to process return');
+      }
+    } catch (err: any) {
+      setReturnErrorMsg(err.message || 'Network error');
+    } finally {
+      setProcessingReturn(false);
+    }
+  };
+
+  const recalculateMargin = async (sp: number, cogs: number, shipping: number) => {
+    try {
+      const res = await fetch(
+        `/api/shopping/dropshipping/margins?sellingPrice=${sp}&cogs=${cogs}&shippingCost=${shipping}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) setCalculatedMargin(data.breakdown);
+      }
+    } catch (err) {
+      console.warn('Failed to calculate margin:', err);
     }
   };
 
@@ -1529,20 +1737,120 @@ export function SmartShoppingStudio() {
           ========================================================================= */}
       {activeTab === 'dropshipping' && (
         <div className="space-y-6">
-          <div className="rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-xl">
+          {/* Header & Quick Action */}
+          <div className="rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-xl flex flex-wrap items-center justify-between gap-4">
             <div className="max-w-3xl space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-amber-400 font-mono">
-                RIIQX Autonomous Commerce Engine
+                RIIQX Autonomous Commerce Engine • Phase 5
               </span>
               <h2 className="text-2xl font-black text-white sm:text-3xl">
-                High-Margin Trending Dropshipping Catalog
+                Dropshipping Operations &amp; Supplier Logistics
               </h2>
               <p className="text-xs text-zinc-400 leading-relaxed">
-                Pre-negotiated supplier products with 70%+ gross profit margins. Launch viral video ad campaigns in Creator Studio with 1-click and sync orders directly with Shenzhen &amp; domestic Indian warehouses.
+                Pre-negotiated verified suppliers with 70%+ gross profit margins. Real-time checkout inventory locks, idempotent order state machine routing, live courier milestones, and automated QC returns.
               </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                onClick={() => handleCreateDemoOrder()}
+                disabled={creatingDemoOrder}
+                className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs transition flex items-center gap-1.5 shadow-lg shadow-amber-400/20 disabled:opacity-50"
+              >
+                {creatingDemoOrder ? (
+                  <>
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                    <span>Locking Stock &amp; Routing...</span>
+                  </>
+                ) : (
+                  <>
+                    <Package className="h-3.5 w-3.5" />
+                    <span>Test Checkout &amp; Lock Stock</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
 
+          {demoOrderSuccessMsg && (
+            <div className="p-3.5 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center justify-between gap-2 animate-fadeIn">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                <span>{demoOrderSuccessMsg}</span>
+              </div>
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                Escrow Locked
+              </span>
+            </div>
+          )}
+
+          {/* Supplier Inventory Health & Delta Sync Bar */}
+          <div className="rounded-3xl border border-zinc-800 bg-[#121215] p-5 shadow-xl space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Box className="h-4 w-4 text-cyan-400" />
+                <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                  Supplier Real-Time Inventory &amp; Delta Sync
+                </h3>
+              </div>
+
+              <button
+                onClick={handleSyncInventory}
+                disabled={syncingInventory}
+                className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30 transition disabled:opacity-50"
+              >
+                <RefreshCw className={`h-3 w-3 ${syncingInventory ? 'animate-spin' : ''}`} />
+                <span>{syncingInventory ? 'Syncing Feeds...' : 'Sync Supplier Delta'}</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center font-mono">
+              <div className="p-2.5 rounded-2xl bg-zinc-900/60 border border-zinc-800">
+                <span className="text-[10px] text-zinc-500 uppercase block">Monitored SKUs</span>
+                <span className="text-base font-bold text-white">{inventoryHealth?.totalSkus || inventoryItems.length || 7}</span>
+              </div>
+              <div className="p-2.5 rounded-2xl bg-zinc-900/60 border border-zinc-800">
+                <span className="text-[10px] text-zinc-500 uppercase block">In-Sync Status</span>
+                <span className="text-base font-bold text-emerald-400">{inventoryHealth?.inSync ?? inventoryItems.length} Healthy</span>
+              </div>
+              <div className="p-2.5 rounded-2xl bg-zinc-900/60 border border-zinc-800">
+                <span className="text-[10px] text-zinc-500 uppercase block">Low Stock Alerts</span>
+                <span className="text-base font-bold text-amber-400">{inventoryHealth?.lowStock ?? 0} SKUs</span>
+              </div>
+              <div className="p-2.5 rounded-2xl bg-zinc-900/60 border border-zinc-800">
+                <span className="text-[10px] text-zinc-500 uppercase block">Stock Outages</span>
+                <span className="text-base font-bold text-zinc-400">{inventoryHealth?.outOfStock ?? 0} SKUs</span>
+              </div>
+            </div>
+
+            {/* Inventory Items Mini Table */}
+            {inventoryItems.length > 0 && (
+              <div className="pt-2">
+                <div className="max-h-40 overflow-y-auto rounded-xl border border-zinc-800/80 bg-zinc-950/40 divide-y divide-zinc-800/60 text-xs">
+                  {inventoryItems.map((inv) => (
+                    <div key={inv.sku} className="p-2.5 flex items-center justify-between gap-3">
+                      <div className="truncate max-w-[280px]">
+                        <span className="text-white font-medium block truncate">{inv.productTitle}</span>
+                        <span className="text-[10px] font-mono text-zinc-500">SKU: {inv.sku}</span>
+                      </div>
+                      <div className="flex items-center gap-3 font-mono text-[11px]">
+                        <span className="text-zinc-400">Avail: <strong className="text-white">{inv.availableStock}</strong></span>
+                        <span className="text-zinc-500">Locked: <strong className="text-amber-400">{inv.reservedStock}</strong></span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                          inv.syncStatus === 'in_sync' ? 'bg-emerald-500/10 text-emerald-400' :
+                          inv.syncStatus === 'low_stock' ? 'bg-amber-400/10 text-amber-400' : 'bg-rose-500/10 text-rose-400'
+                        }`}>
+                          {inv.syncStatus}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Catalog Grid */}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {DROPSHIPPING_CATALOG.map((item) => (
               <div
@@ -1597,9 +1905,255 @@ export function SmartShoppingStudio() {
                       </>
                     )}
                   </button>
+
+                  <button
+                    onClick={() => handleCreateDemoOrder(item.id)}
+                    disabled={creatingDemoOrder}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-zinc-900 border border-zinc-800 py-2 text-xs font-bold text-zinc-300 hover:text-white hover:bg-zinc-800 transition"
+                  >
+                    <Package className="h-3 w-3 text-amber-400" />
+                    <span>Place Test Order</span>
+                  </button>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Live Order Management & Fulfillment Pipeline */}
+          <div className="rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-xl space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Package className="h-4 w-4 text-amber-400" />
+                  <span>Dropshipping Fulfillment Pipeline &amp; State Machine</span>
+                </h3>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Idempotent state routing: Paid ➔ Supplier Confirmed ➔ Packed ➔ Shipped ➔ Delivered ➔ Automated QC Return.
+                </p>
+              </div>
+
+              <span className="text-[10px] font-mono text-zinc-500 bg-zinc-900 border border-zinc-800 px-2.5 py-1 rounded-xl">
+                {dropshippingOrders.length} Active Orders
+              </span>
+            </div>
+
+            {dropshippingOrders.length === 0 ? (
+              <div className="text-center py-8 text-zinc-500 text-xs">
+                No dropshipping orders found. Click &quot;Test Checkout &amp; Lock Stock&quot; above to simulate an authentic order lifecycle.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {dropshippingOrders.map((ord) => (
+                  <div
+                    key={ord.id}
+                    className="p-4 rounded-2xl border border-zinc-800 bg-zinc-900/40 hover:border-zinc-700 transition space-y-3"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs font-bold text-white">{ord.id}</span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase font-mono ${
+                          ord.status === 'paid' ? 'bg-amber-400/10 text-amber-300 border border-amber-400/20' :
+                          ord.status === 'supplier_confirmed' ? 'bg-blue-500/10 text-blue-300 border border-blue-500/20' :
+                          ord.status === 'packed' ? 'bg-indigo-500/10 text-indigo-300 border border-indigo-500/20' :
+                          ord.status === 'shipped' ? 'bg-purple-500/10 text-purple-300 border border-purple-500/20' :
+                          ord.status === 'delivered' ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20' :
+                          ord.status === 'refunded' ? 'bg-rose-500/10 text-rose-300 border border-rose-500/20' :
+                          'bg-zinc-800 text-zinc-400'
+                        }`}>
+                          {ord.status.replace(/_/g, ' ')}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-3 font-mono text-xs">
+                        <span className="text-zinc-400">Total: <strong className="text-white">₹{ord.totalAmount.toLocaleString('en-IN')}</strong></span>
+                        <span className="text-emerald-400 font-bold">Margin: +₹{ord.financialBreakdown.netContributionMargin} ({ord.financialBreakdown.netContributionMarginPct}%)</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between text-[11px] text-zinc-400 gap-2 border-t border-zinc-800/60 pt-2">
+                      <div>
+                        <span className="text-zinc-500">Customer:</span> {ord.customerName} ({ord.shippingAddress.city}, {ord.shippingAddress.state})
+                      </div>
+                      <div className="font-mono">
+                        <span className="text-zinc-500">Courier:</span> {ord.courierPartner} ({ord.trackingNumber || 'Pending AWB'})
+                      </div>
+                    </div>
+
+                    {/* State Machine Transition Buttons */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-zinc-800/60">
+                      <button
+                        onClick={() => setSelectedOrderForTracking(ord)}
+                        className="px-3 py-1 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30 transition flex items-center gap-1"
+                      >
+                        <Clock className="h-3 w-3" />
+                        <span>View Tracking Milestones ({ord.trackingEvents.length})</span>
+                      </button>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        {ord.status === 'paid' && (
+                          <button
+                            onClick={() => handleTransitionOrderStatus(ord.id, 'supplier_confirmed')}
+                            disabled={transitioningOrderId === ord.id}
+                            className="px-3 py-1 rounded-xl bg-blue-500 hover:bg-blue-600 text-white text-xs font-bold transition flex items-center gap-1"
+                          >
+                            <span>Confirm Supplier PO</span>
+                            <ArrowRight className="h-3 w-3" />
+                          </button>
+                        )}
+
+                        {ord.status === 'supplier_confirmed' && (
+                          <button
+                            onClick={() => handleTransitionOrderStatus(ord.id, 'packed')}
+                            disabled={transitioningOrderId === ord.id}
+                            className="px-3 py-1 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold transition flex items-center gap-1"
+                          >
+                            <span>Pack &amp; Generate AWB</span>
+                            <ArrowRight className="h-3 w-3" />
+                          </button>
+                        )}
+
+                        {ord.status === 'packed' && (
+                          <button
+                            onClick={() => handleTransitionOrderStatus(ord.id, 'shipped')}
+                            disabled={transitioningOrderId === ord.id}
+                            className="px-3 py-1 rounded-xl bg-purple-500 hover:bg-purple-600 text-white text-xs font-bold transition flex items-center gap-1"
+                          >
+                            <span>Dispatch via Courier</span>
+                            <Truck className="h-3 w-3" />
+                          </button>
+                        )}
+
+                        {ord.status === 'shipped' && (
+                          <button
+                            onClick={() => handleTransitionOrderStatus(ord.id, 'delivered')}
+                            disabled={transitioningOrderId === ord.id}
+                            className="px-3 py-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition flex items-center gap-1"
+                          >
+                            <span>Mark Delivered</span>
+                            <Check className="h-3 w-3" />
+                          </button>
+                        )}
+
+                        {ord.status === 'delivered' && (
+                          <button
+                            onClick={() => {
+                              setSelectedOrderForReturn(ord);
+                              setReturnSuccessMsg(null);
+                              setReturnErrorMsg(null);
+                            }}
+                            className="px-3 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-bold transition flex items-center gap-1"
+                          >
+                            <RotateCcw className="h-3 w-3" />
+                            <span>Initiate 7-Day Return</span>
+                          </button>
+                        )}
+
+                        {ord.status === 'refunded' && (
+                          <span className="text-[10px] font-mono text-zinc-500 italic">
+                            Full Refund Processed
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Interactive Contribution Margin Calculator Panel */}
+          <div className="rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-xl space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <Calculator className="h-4 w-4 text-emerald-400" />
+                <h3 className="text-sm font-bold text-white">
+                  Real-Time Contribution Margin Simulator (India GST &amp; Gateway Fees)
+                </h3>
+              </div>
+              <span className="text-[10px] font-mono text-zinc-500">
+                1.9% Gateway + 18% GST + 5% RTO Reserve
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="text-[10px] uppercase font-mono text-zinc-400 block mb-1">
+                  Customer Selling Price (₹)
+                </label>
+                <input
+                  type="number"
+                  value={marginCalcSellingPrice}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setMarginCalcSellingPrice(val);
+                    recalculateMargin(val, marginCalcCogs, marginCalcShipping);
+                  }}
+                  className="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3 py-2 text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-mono text-zinc-400 block mb-1">
+                  Supplier Wholesale COGS (₹)
+                </label>
+                <input
+                  type="number"
+                  value={marginCalcCogs}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setMarginCalcCogs(val);
+                    recalculateMargin(marginCalcSellingPrice, val, marginCalcShipping);
+                  }}
+                  className="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3 py-2 text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-mono text-zinc-400 block mb-1">
+                  Carrier Shipping Fee (₹)
+                </label>
+                <input
+                  type="number"
+                  value={marginCalcShipping}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setMarginCalcShipping(val);
+                    recalculateMargin(marginCalcSellingPrice, marginCalcCogs, val);
+                  }}
+                  className="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3 py-2 text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {calculatedMargin && (
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-2 text-center font-mono">
+                <div className="p-3 rounded-2xl bg-zinc-900/60 border border-zinc-800">
+                  <span className="text-[10px] text-zinc-500 uppercase block">Gross Margin</span>
+                  <span className="text-sm font-bold text-white">₹{calculatedMargin.grossProfit}</span>
+                  <span className="text-[9px] text-zinc-500 block">({calculatedMargin.grossMarginPct}%)</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-zinc-900/60 border border-zinc-800">
+                  <span className="text-[10px] text-zinc-500 uppercase block">Gateway Fee (1.9%)</span>
+                  <span className="text-sm font-bold text-amber-400">-₹{calculatedMargin.gatewayFee}</span>
+                  <span className="text-[9px] text-zinc-500 block">incl. 18% GST</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-zinc-900/60 border border-zinc-800">
+                  <span className="text-[10px] text-zinc-500 uppercase block">GST Provision</span>
+                  <span className="text-sm font-bold text-zinc-300">-₹{calculatedMargin.gstAmount}</span>
+                  <span className="text-[9px] text-zinc-500 block">Value Addition</span>
+                </div>
+                <div className="p-3 rounded-2xl bg-zinc-900/60 border border-zinc-800">
+                  <span className="text-[10px] text-zinc-500 uppercase block">RTO / Return (5%)</span>
+                  <span className="text-sm font-bold text-rose-400">-₹{calculatedMargin.returnReserve}</span>
+                  <span className="text-[9px] text-zinc-500 block">Reserve Fund</span>
+                </div>
+                <div className="col-span-2 sm:col-span-1 p-3 rounded-2xl bg-emerald-950/30 border border-emerald-500/40">
+                  <span className="text-[10px] text-emerald-400 uppercase block font-bold">Net Contribution</span>
+                  <span className="text-base font-black text-emerald-300">+₹{calculatedMargin.netContributionMargin}</span>
+                  <span className="text-[10px] text-emerald-400 block font-bold">({calculatedMargin.netContributionMarginPct}%)</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -1980,6 +2534,205 @@ export function SmartShoppingStudio() {
                   className="px-4 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs transition disabled:opacity-50"
                 >
                   {savingWatchlist ? 'Activating Alert...' : 'Activate Price Drop Alert'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Dropshipping Order Tracking Modal */}
+      {selectedOrderForTracking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="relative w-full max-w-lg rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Truck className="h-4 w-4 text-cyan-400" />
+                  <h3 className="text-sm font-bold text-white">Live Courier Tracking Milestones</h3>
+                </div>
+                <span className="text-[10px] font-mono text-zinc-400">
+                  AWB: {selectedOrderForTracking.trackingNumber} • {selectedOrderForTracking.courierPartner}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedOrderForTracking(null)}
+                className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Order Brief */}
+            <div className="p-3.5 rounded-2xl bg-zinc-900/60 border border-zinc-800 flex justify-between items-center text-xs font-mono">
+              <div>
+                <span className="text-zinc-500 text-[10px] uppercase block">Destination</span>
+                <span className="text-white font-semibold">
+                  {selectedOrderForTracking.shippingAddress.city}, {selectedOrderForTracking.shippingAddress.state} ({selectedOrderForTracking.shippingAddress.pincode})
+                </span>
+              </div>
+              <div className="text-right">
+                <span className="text-zinc-500 text-[10px] uppercase block">Est. Delivery</span>
+                <span className="text-emerald-400 font-bold">
+                  {selectedOrderForTracking.estimatedDeliveryDate
+                    ? new Date(selectedOrderForTracking.estimatedDeliveryDate).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })
+                    : '1-3 Days'}
+                </span>
+              </div>
+            </div>
+
+            {/* Milestones Vertical Timeline */}
+            <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+              {selectedOrderForTracking.trackingEvents.map((evt, idx) => (
+                <div key={evt.id || idx} className="flex items-start gap-3 relative">
+                  {idx !== selectedOrderForTracking.trackingEvents.length - 1 && (
+                    <div className="absolute left-2.5 top-5 bottom-0 w-0.5 bg-zinc-800 -mb-3" />
+                  )}
+                  <div className="h-5 w-5 rounded-full bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center shrink-0 z-10">
+                    <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+                  </div>
+                  <div className="space-y-0.5 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-white">{evt.title}</span>
+                      <span className="text-[10px] font-mono text-zinc-500">
+                        {new Date(evt.occurredAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-zinc-400">{evt.description}</p>
+                    <span className="text-[10px] font-mono text-zinc-500 block">📍 {evt.location}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2 border-t border-zinc-800 flex items-center justify-between">
+              {selectedOrderForTracking.trackingUrl && (
+                <a
+                  href={selectedOrderForTracking.trackingUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-mono"
+                >
+                  <span>Carrier Official Portal</span>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+              <button
+                onClick={() => setSelectedOrderForTracking(null)}
+                className="px-4 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold ml-auto"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dropshipping 7-Day Return & QC Inspection Modal */}
+      {selectedOrderForReturn && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="relative w-full max-w-md rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <RotateCcw className="h-4 w-4 text-rose-400" />
+                <div>
+                  <h3 className="text-sm font-bold text-white">Initiate 7-Day Customer Return</h3>
+                  <span className="text-[10px] font-mono text-zinc-400">Order {selectedOrderForReturn.id}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setSelectedOrderForReturn(null)}
+                className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-1 text-xs">
+              <div className="flex justify-between text-zinc-400 font-mono">
+                <span>Eligible Refund Amount:</span>
+                <span className="text-emerald-400 font-bold">₹{selectedOrderForReturn.totalAmount.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex justify-between text-zinc-500 text-[11px]">
+                <span>Original Payment Method:</span>
+                <span className="capitalize">{selectedOrderForReturn.paymentMethod}</span>
+              </div>
+            </div>
+
+            {returnErrorMsg && (
+              <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                <span>{returnErrorMsg}</span>
+              </div>
+            )}
+
+            {returnSuccessMsg && (
+              <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                <span>{returnSuccessMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleProcessReturn} className="space-y-3">
+              <div>
+                <label className="text-[10px] uppercase font-mono text-zinc-400 block mb-1">
+                  Return Reason
+                </label>
+                <select
+                  value={returnReason}
+                  onChange={(e) => setReturnReason(e.target.value as ReturnRefundReason)}
+                  className="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-400"
+                >
+                  <option value="defective_or_damaged">Defective or Damaged in Transit</option>
+                  <option value="wrong_item_delivered">Wrong Item Delivered</option>
+                  <option value="quality_not_as_expected">Quality Not as Expected</option>
+                  <option value="size_fit_issue">Size or Fit Issue</option>
+                  <option value="arrived_too_late">Arrived Too Late</option>
+                  <option value="buyer_cancelled">Buyer Remorse / Cancellation</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-mono text-zinc-400 block mb-1">
+                  Additional Details &amp; Notes
+                </label>
+                <textarea
+                  value={returnReasonDetails}
+                  onChange={(e) => setReturnReasonDetails(e.target.value)}
+                  placeholder="Provide inspection details or unboxing feedback..."
+                  rows={2}
+                  className="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3 py-2 text-xs text-white focus:outline-none focus:border-rose-400 resize-none"
+                />
+              </div>
+
+              <div className="pt-2 border-t border-zinc-800 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrderForReturn(null)}
+                  className="px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={processingReturn}
+                  className="px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs transition disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {processingReturn ? (
+                    <>
+                      <RefreshCw className="h-3 w-3 animate-spin" />
+                      <span>Inspecting QC &amp; Refunding...</span>
+                    </>
+                  ) : (
+                    <>
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      <span>Submit Return &amp; Trigger Refund</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
