@@ -30,10 +30,16 @@ import {
   ZoomIn,
   ZoomOut,
   Maximize2,
+  Film,
+  LayoutGrid,
 } from 'lucide-react';
+import { StoryboardDashboard } from './video/StoryboardDashboard';
 
 export function RiiqxVideoEditor() {
   const { setActiveTab } = useRiiqx();
+
+  // Mode: timeline vs storyboard
+  const [editorMode, setEditorMode] = useState<'timeline' | 'storyboard'>('timeline');
 
   // Playback & Timeline State
   const [isPlaying, setIsPlaying] = useState(false);
@@ -147,6 +153,32 @@ export function RiiqxVideoEditor() {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Mode Switcher */}
+          <div className="flex items-center rounded-xl bg-black/5 dark:bg-white/5 p-1 border border-black/5 dark:border-white/10">
+            <button
+              onClick={() => setEditorMode('timeline')}
+              className={`flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg transition ${
+                editorMode === 'timeline'
+                  ? 'bg-[#FFD43B] text-black shadow-xs'
+                  : 'text-zinc-500 hover:text-white'
+              }`}
+            >
+              <Film className="w-3.5 h-3.5" />
+              <span>Timeline</span>
+            </button>
+            <button
+              onClick={() => setEditorMode('storyboard')}
+              className={`flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-lg transition ${
+                editorMode === 'storyboard'
+                  ? 'bg-[#FFD43B] text-black shadow-xs'
+                  : 'text-zinc-500 hover:text-white'
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span>Storyboard Dashboard</span>
+            </button>
+          </div>
+
           <button
             onClick={() => setActiveTab('creator')}
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-[#737373] dark:text-[#A1A1AA] hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
@@ -165,8 +197,14 @@ export function RiiqxVideoEditor() {
         </div>
       </div>
 
-      {/* Main Workspace (Left Toolbar + Center Video Preview) */}
-      <div className="flex-1 flex overflow-hidden">
+      {editorMode === 'storyboard' ? (
+        <div className="flex-1 overflow-y-auto p-6 bg-[#0C0C0E]">
+          <StoryboardDashboard />
+        </div>
+      ) : (
+        <>
+          {/* Main Workspace (Left Toolbar + Center Video Preview) */}
+          <div className="flex-1 flex overflow-hidden">
         {/* Left Vertical Tool Ribbon */}
         <div className="w-16 border-r border-[#EAE7E1] dark:border-white/[0.08] bg-white/80 dark:bg-[#141418]/80 backdrop-blur-md flex flex-col items-center py-4 gap-3 shrink-0">
           {[
@@ -377,6 +415,8 @@ export function RiiqxVideoEditor() {
           </div>
         </div>
       </div>
+    </>
+  )}
 
       {/* Export Complete Notification Toast */}
       {exportComplete && (

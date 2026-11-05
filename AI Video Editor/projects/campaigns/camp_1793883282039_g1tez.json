@@ -1,0 +1,146 @@
+{
+  "id": "camp_1793883282039_g1tez",
+  "userId": "riiqx_user_creator",
+  "brandProfileId": "brand_1793883195111_45lxn",
+  "brandName": "GlowFit AI",
+  "name": "Autonomous Workflow Campaign",
+  "objective": "product_launch",
+  "targetPlatforms": [
+    "instagram",
+    "youtube",
+    "tiktok"
+  ],
+  "durationDays": 14,
+  "language": "English",
+  "tone": "Encouraging, clear, direct, and knowledgeable, with a focus on simplicity and actionable advice.",
+  "callToAction": "Deploy your first agent today",
+  "strategyOverview": "A comprehensive 14-day multi-channel campaign designed for product_launch focusing on audience retention and high conversion velocity across instagram, youtube, tiktok.",
+  "keyPerformanceIndicators": [
+    "Total Audience Engagement Rate",
+    "Video Hook Retention Rate (>3.2s)",
+    "Click-through rate to landing page"
+  ],
+  "contentPillars": [
+    {
+      "id": "pillar_1",
+      "name": "The Productivity Dilemma",
+      "description": "Contrasting outdated manual work with modern AI leverage",
+      "targetEmotion": "Empathy & Realization",
+      "recommendedFormats": [
+        "Reels",
+        "Shorts"
+      ]
+    },
+    {
+      "id": "pillar_2",
+      "name": "Autonomous Architecture",
+      "description": "Showcasing the unified platform capabilities",
+      "targetEmotion": "Awe & Clarity",
+      "recommendedFormats": [
+        "Demo Video",
+        "Carousel"
+      ]
+    },
+    {
+      "id": "pillar_3",
+      "name": "Authority & Performance",
+      "description": "Data-driven metrics and proof points",
+      "targetEmotion": "Trust & Confidence",
+      "recommendedFormats": [
+        "Thought Leadership",
+        "Case Study"
+      ]
+    },
+    {
+      "id": "pillar_4",
+      "name": "The Immediate Action",
+      "description": "Irresistible early-access activation offer",
+      "targetEmotion": "Urgency & Anticipation",
+      "recommendedFormats": [
+        "Direct Ad",
+        "Story"
+      ]
+    }
+  ],
+  "assets": [
+    {
+      "id": "asset_camp_1793883282039_g1tez_1",
+      "campaignId": "camp_1793883282039_g1tez",
+      "platform": "instagram",
+      "assetType": "reel_script",
+      "title": "GlowFit AI High-Conversion Reel Hook",
+      "headline": "Stop Burning Out on Manual Content Creation",
+      "hookText": "Most creators spend 80% of their time on tedious edits instead of strategy.",
+      "contentBody": "Here is the truth: scaling a brand in 2026 requires automated distribution, not more hours behind a screen. With GlowFit AI, your content pipeline runs continuously from script to rendered 9:16 vertical video.",
+      "visualDirections": "Dynamic 9:16 shot with kinetic typography popping on key pain points.",
+      "bRollSuggestions": "Fast split screen showing slow timeline editing vs instantaneous AI generation.",
+      "callToAction": "Deploy your first agent today",
+      "hashtags": [
+        "#CreatorEconomy",
+        "#AIAutomation",
+        "#VideoEditing",
+        "#ContentStrategy"
+      ],
+      "adCopyVariants": [
+        "How I automated my entire video production in one afternoon.",
+        "The exact AI workflow top creators use to 10x their reach."
+      ],
+      "approvalStatus": "draft",
+      "createdAt": "2026-11-05T12:54:50.630Z",
+      "updatedAt": "2026-11-05T12:54:50.630Z"
+    },
+    {
+      "id": "asset_camp_1793883282039_g1tez_2",
+      "campaignId": "camp_1793883282039_g1tez",
+      "platform": "youtube",
+      "assetType": "shorts_script",
+      "title": "GlowFit AI YouTube Shorts Retention Script",
+      "headline": "The Only Video AI Stack You Need This Year",
+      "hookText": "If you are still editing vertical videos manually in 2026, you are losing.",
+      "contentBody": "Watch this 15-second breakdown of how autonomous video generation works: 1. Input brand guidelines. 2. AI generates storyboard beats. 3. Canvas renders with synced voiceover in seconds.",
+      "visualDirections": "Fast-paced jump cuts with neon telemetry overlays highlighting stats.",
+      "bRollSuggestions": "Screen capture of RIIQX Social Intelligence and Video Editor HUD.",
+      "callToAction": "Deploy your first agent today",
+      "hashtags": [
+        "#YouTubeShorts",
+        "#CreatorTools",
+        "#VideoMarketing"
+      ],
+      "adCopyVariants": [
+        "Stop wasting hours editing. Start scaling."
+      ],
+      "approvalStatus": "draft",
+      "createdAt": "2026-11-05T12:54:50.630Z",
+      "updatedAt": "2026-11-05T12:54:50.630Z"
+    },
+    {
+      "id": "asset_camp_1793883282039_g1tez_3",
+      "campaignId": "camp_1793883282039_g1tez",
+      "platform": "tiktok",
+      "assetType": "reel_script",
+      "title": "GlowFit AI High-Conversion Reel Hook",
+      "headline": "Stop Burning Out on Manual Content Creation",
+      "hookText": "Most creators spend 80% of their time on tedious edits instead of strategy.",
+      "contentBody": "Here is the truth: scaling a brand in 2026 requires automated distribution, not more hours behind a screen. With GlowFit AI, your content pipeline runs continuously from script to rendered 9:16 vertical video.",
+      "visualDirections": "Dynamic 9:16 shot with kinetic typography popping on key pain points.",
+      "bRollSuggestions": "Fast split screen showing slow timeline editing vs instantaneous AI generation.",
+      "callToAction": "Deploy your first agent today",
+      "hashtags": [
+        "#CreatorEconomy",
+        "#AIAutomation",
+        "#VideoEditing",
+        "#ContentStrategy"
+      ],
+      "adCopyVariants": [
+        "How I automated my entire video production in one afternoon.",
+        "The exact AI workflow top creators use to 10x their reach."
+      ],
+      "approvalStatus": "draft",
+      "createdAt": "2026-11-05T12:54:50.630Z",
+      "updatedAt": "2026-11-05T12:54:50.630Z"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-11-05T12:54:50.630Z",
+  "updatedAt": "2026-11-05T12:54:50.630Z"
+}

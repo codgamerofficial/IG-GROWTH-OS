@@ -218,6 +218,7 @@ export class AIServiceManager {
   ): Promise<AIExecutionResult<string>> {
     return this.executeText(prompt, {
       ...options,
+      imageSource,
       taskType: 'vision',
       requiredCapabilities: [AICapability.TEXT_GENERATION, AICapability.VISION],
       preferredProvider: 'google',
@@ -241,6 +242,20 @@ export class AIServiceManager {
 
     if (spec.provider === 'google' && geminiKey) {
       const isStructured = options.requiredCapabilities?.includes(AICapability.STRUCTURED_OUTPUT);
+      const parts: any[] = [{ text: prompt }];
+
+      if (options.imageSource) {
+        if (typeof options.imageSource === 'object' && options.imageSource.base64Data) {
+          const rawBase64 = options.imageSource.base64Data.replace(/^data:[^;]+;base64,/, '');
+          parts.push({
+            inlineData: {
+              mimeType: options.imageSource.mimeType || 'image/jpeg',
+              data: rawBase64,
+            },
+          });
+        }
+      }
+
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${spec.modelId}:generateContent?key=${geminiKey}`,
         {
@@ -250,7 +265,7 @@ export class AIServiceManager {
             ...(options.systemPrompt
               ? { systemInstruction: { parts: [{ text: options.systemPrompt }] } }
               : {}),
-            contents: [{ parts: [{ text: prompt }] }],
+            contents: [{ parts }],
             generationConfig: {
               temperature: options.temperature ?? 0.7,
               maxOutputTokens: options.maxTokens ?? 4096,

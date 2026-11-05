@@ -1,7 +1,7 @@
 # GlowFit AI — Brand DNA & Guidelines Specification
 > **Version**: 1.0 | **Generated**: 5/11/2026
 > **Tagline**: *Personalized Meal & Workout Plans*
-> **Confidence Score**: 98% (13 observed facts · 12 AI recommendations)
+> **Confidence Score**: 98% (13 observed facts · 11 AI recommendations)
 
 ---
 
@@ -9,25 +9,24 @@
 - **Mission**: To empower individuals to achieve their health and fitness goals through instantly generated, personalized meal and workout plans powered by AI.
 - **Industry**: Health & Fitness Technology
 - **Description**: High-impact creative operations.
-- **Target Audience**: Individuals seeking convenient, personalized, and effective solutions for weight loss, muscle building, and overall fitness improvement.
+- **Target Audience**: Individuals seeking convenient, customized, and effective solutions for weight loss, muscle building, and overall fitness improvement.
 
 ### Customer Personas:
-- The Busy Professional: Needs quick, efficient, and tailored health plans that fit into a demanding schedule.
-- The Fitness Beginner: Requires guidance and structure to start their fitness journey, seeking clear, actionable plans.
-- The Health-Conscious Individual: Wants to optimize their diet and exercise for specific goals (weight loss, muscle gain) with data-driven recommendations.
-- The Frustrated Dieter: Has tried multiple generic plans without success and is looking for a personalized approach that is sustainable.
+- The Busy Professional: Lacks time for extensive research or gym visits, needs quick, actionable health advice.
+- The Fitness Newbie: Overwhelmed by fitness information, needs a clear, guided plan to start their journey.
+- The Goal-Oriented Individual: Has specific fitness objectives (e.g., weight loss, muscle gain) and seeks a tailored approach to achieve them efficiently.
 
 ---
 
 ## 2. Voice, Tone & Personality
-- **Tone of Voice**: Encouraging, direct, knowledgeable, and supportive, with a focus on simplicity and results.
-- **Personality Pillars**: Innovative • Personalized • Efficient • Empowering • Accessible • Data-Driven
+- **Tone of Voice**: Encouraging, clear, direct, and knowledgeable, with a focus on simplicity and actionable advice.
+- **Personality Pillars**: Empowering • Intelligent • Personalized • Efficient • Motivating
 
 ### Core Messaging:
-- "Your personalized health plan in 60 seconds."
-- "Stop generic plans, start your custom journey with AI."
-- "Achieve your fitness goals with tailored nutrition and workouts."
-- "Simple questions, powerful results."
+- "Your personalized health plan, created in 60 seconds."
+- "Stop guessing, start achieving with AI-powered fitness."
+- "Customized nutrition and workouts tailored to your unique goals."
+- "Achieve your fitness goals without the guesswork."
 
 ---
 
@@ -52,10 +51,10 @@
 ## 4. Visual Execution & Content Rules
 
 ### Mandatory Visual Rules:
-- [x] Use vibrant and energetic imagery that reflects health and activity.
+- [x] Use vibrant, energetic colors that evoke health and progress.
 - [x] Incorporate clean, modern design elements.
-- [x] Highlight user success stories and testimonials.
-- [x] Visually represent the simplicity and speed of the AI plan generation process.
+- [x] Feature imagery of diverse individuals actively engaged in fitness or enjoying healthy meals.
+- [x] Emphasize clarity and ease of use in all visual communication.
 
 ### Content Guidelines:
 - Hook within 3 seconds
@@ -67,10 +66,10 @@
 ---
 
 ## 5. Strict Do-Not-Use Rules (Brand Safety)
-> ❌ **FORBIDDEN**: Avoid overly complex or technical jargon.
-> ❌ **FORBIDDEN**: Do not use imagery that promotes unhealthy or extreme body types.
-> ❌ **FORBIDDEN**: Refrain from using outdated or cluttered design aesthetics.
-> ❌ **FORBIDDEN**: Do not make unrealistic or unsubstantiated health claims.
+> ❌ **FORBIDDEN**: Avoid overly complex or cluttered designs.
+> ❌ **FORBIDDEN**: Do not use generic stock photos that lack authenticity.
+> ❌ **FORBIDDEN**: Refrain from using overly technical jargon that might alienate users.
+> ❌ **FORBIDDEN**: Avoid imagery that promotes unhealthy or extreme fitness standards.
 
 ---
 *Exported automatically by RIIQX AI Brand Intelligence System.*

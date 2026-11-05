@@ -21,6 +21,7 @@ import {
 
 export type RiiqxViewTab =
   | 'home'
+  | 'shopping'
   | 'chat'
   | 'creator'
   | 'editor'

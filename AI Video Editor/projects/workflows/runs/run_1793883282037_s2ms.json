@@ -1,0 +1,332 @@
+{
+  "id": "run_1793883282037_s2ms",
+  "workflowId": "wf_1793883271640_1mb9",
+  "status": "completed",
+  "nodeStates": {
+    "fn_1": {
+      "status": "completed",
+      "output": {
+        "executed": true,
+        "node": "fn_1",
+        "timestamp": "2026-11-05T12:54:42.038Z"
+      }
+    },
+    "fn_2": {
+      "status": "completed",
+      "output": {
+        "id": "brand_1793883195111_45lxn",
+        "brandName": "GlowFit AI",
+        "websiteUrl": "https://glowfit.ai/",
+        "tagline": "Personalized Meal & Workout Plans",
+        "mission": "To empower individuals to achieve their health and fitness goals through instantly generated, personalized meal and workout plans powered by AI.",
+        "description": "High-impact creative operations.",
+        "industry": "Health & Fitness Technology",
+        "targetAudience": "Individuals seeking convenient, customized, and effective solutions for weight loss, muscle building, and overall fitness improvement.",
+        "customerPersonas": [
+          "The Busy Professional: Lacks time for extensive research or gym visits, needs quick, actionable health advice.",
+          "The Fitness Newbie: Overwhelmed by fitness information, needs a clear, guided plan to start their journey.",
+          "The Goal-Oriented Individual: Has specific fitness objectives (e.g., weight loss, muscle gain) and seeks a tailored approach to achieve them efficiently."
+        ],
+        "brandPersonality": [
+          "Empowering",
+          "Intelligent",
+          "Personalized",
+          "Efficient",
+          "Motivating"
+        ],
+        "toneOfVoice": "Encouraging, clear, direct, and knowledgeable, with a focus on simplicity and actionable advice.",
+        "coreMessages": [
+          "Your personalized health plan, created in 60 seconds.",
+          "Stop guessing, start achieving with AI-powered fitness.",
+          "Customized nutrition and workouts tailored to your unique goals.",
+          "Achieve your fitness goals without the guesswork."
+        ],
+        "colorPalette": {
+          "primary": "#FF7A00",
+          "secondary": "#575ECF",
+          "accent": "#FCFBF8",
+          "background": "#FCFBF8",
+          "neutral": "#1B1B1B",
+          "additional": []
+        },
+        "typography": {
+          "heading": "system-ui",
+          "body": "system-ui, sans-serif",
+          "code": "monospace"
+        },
+        "logoVariants": {
+          "primaryUrl": "https://glowfit.ai/favicon.png",
+          "iconOnlyUrl": "https://glowfit.ai/apple-touch-icon.png"
+        },
+        "visualRules": [
+          "Use vibrant, energetic colors that evoke health and progress.",
+          "Incorporate clean, modern design elements.",
+          "Feature imagery of diverse individuals actively engaged in fitness or enjoying healthy meals.",
+          "Emphasize clarity and ease of use in all visual communication."
+        ],
+        "contentGuidelines": [
+          "Hook within 3 seconds",
+          "Clear actionable CTA"
+        ],
+        "ctaStyles": [
+          "Get started today"
+        ],
+        "doNotUseRules": [
+          "Avoid overly complex or cluttered designs.",
+          "Do not use generic stock photos that lack authenticity.",
+          "Refrain from using overly technical jargon that might alienate users.",
+          "Avoid imagery that promotes unhealthy or extreme fitness standards."
+        ],
+        "confidence": {
+          "overallScore": 98,
+          "extractedFactsCount": 13,
+          "aiRecommendationsCount": 11
+        },
+        "version": 1,
+        "createdAt": "2026-11-05T12:53:15.111Z",
+        "updatedAt": "2026-11-05T12:53:15.111Z"
+      }
+    },
+    "fn_3": {
+      "status": "completed",
+      "output": {
+        "id": "camp_1793883282039_g1tez",
+        "userId": "riiqx_user_creator",
+        "brandProfileId": "brand_1793883195111_45lxn",
+        "brandName": "GlowFit AI",
+        "name": "Autonomous Workflow Campaign",
+        "objective": "product_launch",
+        "targetPlatforms": [
+          "instagram",
+          "youtube",
+          "tiktok"
+        ],
+        "durationDays": 14,
+        "language": "English",
+        "tone": "Encouraging, clear, direct, and knowledgeable, with a focus on simplicity and actionable advice.",
+        "callToAction": "Deploy your first agent today",
+        "strategyOverview": "A comprehensive 14-day multi-channel campaign designed for product_launch focusing on audience retention and high conversion velocity across instagram, youtube, tiktok.",
+        "keyPerformanceIndicators": [
+          "Total Audience Engagement Rate",
+          "Video Hook Retention Rate (>3.2s)",
+          "Click-through rate to landing page"
+        ],
+        "contentPillars": [
+          {
+            "id": "pillar_1",
+            "name": "The Productivity Dilemma",
+            "description": "Contrasting outdated manual work with modern AI leverage",
+            "targetEmotion": "Empathy & Realization",
+            "recommendedFormats": [
+              "Reels",
+              "Shorts"
+            ]
+          },
+          {
+            "id": "pillar_2",
+            "name": "Autonomous Architecture",
+            "description": "Showcasing the unified platform capabilities",
+            "targetEmotion": "Awe & Clarity",
+            "recommendedFormats": [
+              "Demo Video",
+              "Carousel"
+            ]
+          },
+          {
+            "id": "pillar_3",
+            "name": "Authority & Performance",
+            "description": "Data-driven metrics and proof points",
+            "targetEmotion": "Trust & Confidence",
+            "recommendedFormats": [
+              "Thought Leadership",
+              "Case Study"
+            ]
+          },
+          {
+            "id": "pillar_4",
+            "name": "The Immediate Action",
+            "description": "Irresistible early-access activation offer",
+            "targetEmotion": "Urgency & Anticipation",
+            "recommendedFormats": [
+              "Direct Ad",
+              "Story"
+            ]
+          }
+        ],
+        "assets": [
+          {
+            "id": "asset_camp_1793883282039_g1tez_1",
+            "campaignId": "camp_1793883282039_g1tez",
+            "platform": "instagram",
+            "assetType": "reel_script",
+            "title": "GlowFit AI High-Conversion Reel Hook",
+            "headline": "Stop Burning Out on Manual Content Creation",
+            "hookText": "Most creators spend 80% of their time on tedious edits instead of strategy.",
+            "contentBody": "Here is the truth: scaling a brand in 2026 requires automated distribution, not more hours behind a screen. With GlowFit AI, your content pipeline runs continuously from script to rendered 9:16 vertical video.",
+            "visualDirections": "Dynamic 9:16 shot with kinetic typography popping on key pain points.",
+            "bRollSuggestions": "Fast split screen showing slow timeline editing vs instantaneous AI generation.",
+            "callToAction": "Deploy your first agent today",
+            "hashtags": [
+              "#CreatorEconomy",
+              "#AIAutomation",
+              "#VideoEditing",
+              "#ContentStrategy"
+            ],
+            "adCopyVariants": [
+              "How I automated my entire video production in one afternoon.",
+              "The exact AI workflow top creators use to 10x their reach."
+            ],
+            "approvalStatus": "draft",
+            "createdAt": "2026-11-05T12:54:50.630Z",
+            "updatedAt": "2026-11-05T12:54:50.630Z"
+          },
+          {
+            "id": "asset_camp_1793883282039_g1tez_2",
+            "campaignId": "camp_1793883282039_g1tez",
+            "platform": "youtube",
+            "assetType": "shorts_script",
+            "title": "GlowFit AI YouTube Shorts Retention Script",
+            "headline": "The Only Video AI Stack You Need This Year",
+            "hookText": "If you are still editing vertical videos manually in 2026, you are losing.",
+            "contentBody": "Watch this 15-second breakdown of how autonomous video generation works: 1. Input brand guidelines. 2. AI generates storyboard beats. 3. Canvas renders with synced voiceover in seconds.",
+            "visualDirections": "Fast-paced jump cuts with neon telemetry overlays highlighting stats.",
+            "bRollSuggestions": "Screen capture of RIIQX Social Intelligence and Video Editor HUD.",
+            "callToAction": "Deploy your first agent today",
+            "hashtags": [
+              "#YouTubeShorts",
+              "#CreatorTools",
+              "#VideoMarketing"
+            ],
+            "adCopyVariants": [
+              "Stop wasting hours editing. Start scaling."
+            ],
+            "approvalStatus": "draft",
+            "createdAt": "2026-11-05T12:54:50.630Z",
+            "updatedAt": "2026-11-05T12:54:50.630Z"
+          },
+          {
+            "id": "asset_camp_1793883282039_g1tez_3",
+            "campaignId": "camp_1793883282039_g1tez",
+            "platform": "tiktok",
+            "assetType": "reel_script",
+            "title": "GlowFit AI High-Conversion Reel Hook",
+            "headline": "Stop Burning Out on Manual Content Creation",
+            "hookText": "Most creators spend 80% of their time on tedious edits instead of strategy.",
+            "contentBody": "Here is the truth: scaling a brand in 2026 requires automated distribution, not more hours behind a screen. With GlowFit AI, your content pipeline runs continuously from script to rendered 9:16 vertical video.",
+            "visualDirections": "Dynamic 9:16 shot with kinetic typography popping on key pain points.",
+            "bRollSuggestions": "Fast split screen showing slow timeline editing vs instantaneous AI generation.",
+            "callToAction": "Deploy your first agent today",
+            "hashtags": [
+              "#CreatorEconomy",
+              "#AIAutomation",
+              "#VideoEditing",
+              "#ContentStrategy"
+            ],
+            "adCopyVariants": [
+              "How I automated my entire video production in one afternoon.",
+              "The exact AI workflow top creators use to 10x their reach."
+            ],
+            "approvalStatus": "draft",
+            "createdAt": "2026-11-05T12:54:50.630Z",
+            "updatedAt": "2026-11-05T12:54:50.630Z"
+          }
+        ],
+        "status": "draft",
+        "createdAt": "2026-11-05T12:54:50.630Z",
+        "updatedAt": "2026-11-05T12:54:50.630Z"
+      }
+    },
+    "fn_4": {
+      "status": "completed",
+      "output": {
+        "approved": true,
+        "approvedAt": "2026-11-05T12:54:55.904Z"
+      }
+    },
+    "fn_5": {
+      "status": "completed",
+      "output": {
+        "storyboardId": "sb_wf_1793883295905",
+        "status": "ready_to_render",
+        "aspectRatio": "9:16"
+      }
+    }
+  },
+  "logs": [
+    {
+      "timestamp": "2026-11-05T12:54:42.037Z",
+      "nodeId": "fn_1",
+      "message": "Workflow execution started for \"Custom Autonomous Creative Flow\".",
+      "level": "info"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:42.037Z",
+      "nodeId": "fn_1",
+      "message": "Executing [Manual Goal Trigger] (manual_trigger)...",
+      "level": "info"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:42.038Z",
+      "nodeId": "fn_1",
+      "message": "Completed [Manual Goal Trigger] successfully.",
+      "level": "info"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:42.038Z",
+      "nodeId": "fn_2",
+      "message": "Executing [Brand DNA Guardrails] (extract_brand)...",
+      "level": "info"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:42.038Z",
+      "nodeId": "fn_2",
+      "message": "Completed [Brand DNA Guardrails] successfully.",
+      "level": "info"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:42.038Z",
+      "nodeId": "fn_3",
+      "message": "Executing [Multi-Channel Creative Engine] (generate_campaign)...",
+      "level": "info"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:50.637Z",
+      "nodeId": "fn_3",
+      "message": "Completed [Multi-Channel Creative Engine] successfully.",
+      "level": "info"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:50.637Z",
+      "nodeId": "fn_4",
+      "message": "Executing [Human Approval Checkpoint] (approval_checkpoint)...",
+      "level": "info"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:50.637Z",
+      "nodeId": "fn_4",
+      "message": "PAUSED AT HUMAN APPROVAL GATE: Review generated output before proceeding.",
+      "level": "warn"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:55.904Z",
+      "nodeId": "fn_4",
+      "message": "Human approval granted. Resuming downstream nodes...",
+      "level": "info"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:55.905Z",
+      "nodeId": "fn_5",
+      "message": "Completed downstream [Push to Video Storyboard] successfully.",
+      "level": "info"
+    },
+    {
+      "timestamp": "2026-11-05T12:54:55.905Z",
+      "nodeId": "end",
+      "message": "Workflow completed after approval checkpoint.",
+      "level": "info"
+    }
+  ],
+  "startedAt": "2026-11-05T12:54:42.037Z",
+  "currentNodeId": "fn_5",
+  "completedAt": "2026-11-05T12:54:55.905Z"
+}

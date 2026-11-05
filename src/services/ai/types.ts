@@ -69,6 +69,7 @@ export interface AIExecutionOptions {
   brandContext?: Record<string, any>;
   timeoutMs?: number;
   bypassCache?: boolean;
+  imageSource?: { mimeType: string; base64Data: string } | string;
 }
 
 export interface AIExecutionResult<T = string> {

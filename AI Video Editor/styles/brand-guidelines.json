@@ -1,32 +1,30 @@
 {
-  "id": "brand_1793868446214_rf9re",
+  "id": "brand_1793883195111_45lxn",
   "brandName": "GlowFit AI",
   "websiteUrl": "https://glowfit.ai/",
   "tagline": "Personalized Meal & Workout Plans",
   "mission": "To empower individuals to achieve their health and fitness goals through instantly generated, personalized meal and workout plans powered by AI.",
   "description": "High-impact creative operations.",
   "industry": "Health & Fitness Technology",
-  "targetAudience": "Individuals seeking convenient, personalized, and effective solutions for weight loss, muscle building, and overall fitness improvement.",
+  "targetAudience": "Individuals seeking convenient, customized, and effective solutions for weight loss, muscle building, and overall fitness improvement.",
   "customerPersonas": [
-    "The Busy Professional: Needs quick, efficient, and tailored health plans that fit into a demanding schedule.",
-    "The Fitness Beginner: Requires guidance and structure to start their fitness journey, seeking clear, actionable plans.",
-    "The Health-Conscious Individual: Wants to optimize their diet and exercise for specific goals (weight loss, muscle gain) with data-driven recommendations.",
-    "The Frustrated Dieter: Has tried multiple generic plans without success and is looking for a personalized approach that is sustainable."
+    "The Busy Professional: Lacks time for extensive research or gym visits, needs quick, actionable health advice.",
+    "The Fitness Newbie: Overwhelmed by fitness information, needs a clear, guided plan to start their journey.",
+    "The Goal-Oriented Individual: Has specific fitness objectives (e.g., weight loss, muscle gain) and seeks a tailored approach to achieve them efficiently."
   ],
   "brandPersonality": [
-    "Innovative",
+    "Empowering",
+    "Intelligent",
     "Personalized",
     "Efficient",
-    "Empowering",
-    "Accessible",
-    "Data-Driven"
+    "Motivating"
   ],
-  "toneOfVoice": "Encouraging, direct, knowledgeable, and supportive, with a focus on simplicity and results.",
+  "toneOfVoice": "Encouraging, clear, direct, and knowledgeable, with a focus on simplicity and actionable advice.",
   "coreMessages": [
-    "Your personalized health plan in 60 seconds.",
-    "Stop generic plans, start your custom journey with AI.",
-    "Achieve your fitness goals with tailored nutrition and workouts.",
-    "Simple questions, powerful results."
+    "Your personalized health plan, created in 60 seconds.",
+    "Stop guessing, start achieving with AI-powered fitness.",
+    "Customized nutrition and workouts tailored to your unique goals.",
+    "Achieve your fitness goals without the guesswork."
   ],
   "colorPalette": {
     "primary": "#FF7A00",
@@ -46,10 +44,10 @@
     "iconOnlyUrl": "https://glowfit.ai/apple-touch-icon.png"
   },
   "visualRules": [
-    "Use vibrant and energetic imagery that reflects health and activity.",
+    "Use vibrant, energetic colors that evoke health and progress.",
     "Incorporate clean, modern design elements.",
-    "Highlight user success stories and testimonials.",
-    "Visually represent the simplicity and speed of the AI plan generation process."
+    "Feature imagery of diverse individuals actively engaged in fitness or enjoying healthy meals.",
+    "Emphasize clarity and ease of use in all visual communication."
   ],
   "contentGuidelines": [
     "Hook within 3 seconds",
@@ -59,17 +57,17 @@
     "Get started today"
   ],
   "doNotUseRules": [
-    "Avoid overly complex or technical jargon.",
-    "Do not use imagery that promotes unhealthy or extreme body types.",
-    "Refrain from using outdated or cluttered design aesthetics.",
-    "Do not make unrealistic or unsubstantiated health claims."
+    "Avoid overly complex or cluttered designs.",
+    "Do not use generic stock photos that lack authenticity.",
+    "Refrain from using overly technical jargon that might alienate users.",
+    "Avoid imagery that promotes unhealthy or extreme fitness standards."
   ],
   "confidence": {
     "overallScore": 98,
     "extractedFactsCount": 13,
-    "aiRecommendationsCount": 12
+    "aiRecommendationsCount": 11
   },
   "version": 1,
-  "createdAt": "2026-11-05T08:47:26.214Z",
-  "updatedAt": "2026-11-05T08:47:26.215Z"
+  "createdAt": "2026-11-05T12:53:15.111Z",
+  "updatedAt": "2026-11-05T12:53:15.111Z"
 }

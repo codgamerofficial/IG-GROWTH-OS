@@ -456,5 +456,6 @@ export interface CreatorProject {
     downloadName: string;
   }>;
   brandKit?: BrandKit;
+  assets?: UploadedAsset[];
   notes?: string;
 }

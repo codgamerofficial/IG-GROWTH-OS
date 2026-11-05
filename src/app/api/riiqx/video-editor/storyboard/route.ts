@@ -1,93 +1,65 @@
 // =============================================================================
-// RIIQX — Storyboard Approval Checkpoint API
-// Section 6: Mandatory Approval Gate • Beat Editing • Persistent Approval State
-// Rendering is strictly locked until explicit user approval
+// RIIQX / GlowFit AI — Storyboard Notes & Brand Kit Sync API
+// Route: GET & POST /api/riiqx/video-editor/storyboard
 // =============================================================================
 
-import { NextResponse } from 'next/server';
-import fs from 'node:fs';
-import path from 'node:path';
+import { NextRequest, NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
 
-const storyboardsDir = path.join(process.cwd(), 'AI Video Editor', 'metadata', 'storyboards');
+const RAW_DIR = path.join(process.cwd(), 'AI Video Editor', 'Raw');
+const BRAND_KIT_PATH = path.join(process.cwd(), 'AI Video Editor', 'Brand Kit', 'brand-kit.md');
 
-function getLatestStoryboard(): { filePath: string; data: any } | null {
-  if (!fs.existsSync(storyboardsDir)) return null;
-  const files = fs.readdirSync(storyboardsDir).filter((f) => f.endsWith('.json'));
-  if (files.length === 0) return null;
-  files.sort().reverse();
-  const filePath = path.join(storyboardsDir, files[0]);
+export async function GET(req: NextRequest) {
   try {
-    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-    return { filePath, data };
-  } catch {
-    return null;
+    const { searchParams } = new URL(req.url);
+    const projectName = searchParams.get('project') || 'Product Showcase Launch';
+    const projectDir = path.join(RAW_DIR, projectName);
+    const notesPath = path.join(projectDir, 'notes.json');
+
+    if (!fs.existsSync(notesPath)) {
+      return NextResponse.json(
+        { success: false, error: `notes.json not found for project: ${projectName}` },
+        { status: 404 }
+      );
+    }
+
+    const data = JSON.parse(fs.readFileSync(notesPath, 'utf8'));
+    return NextResponse.json({ success: true, notes: data, projectName });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
-export async function GET() {
-  const latest = getLatestStoryboard();
-  if (!latest) {
-    return NextResponse.json({
-      success: true,
-      hasStoryboard: false,
-      message: 'No storyboard found. Run Footage Analysis to generate a storyboard.',
-    });
-  }
-
-  return NextResponse.json({
-    success: true,
-    hasStoryboard: true,
-    storyboard: latest.data,
-  });
-}
-
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { action, storyboardId, updatedBeats, changeNotes } = body;
+    const { projectName = 'Product Showcase Launch', notes, brandKitUpdates } = body;
 
-    const latest = getLatestStoryboard();
-    if (!latest) {
-      return NextResponse.json({ success: false, error: 'No active storyboard to update.' }, { status: 404 });
+    const projectDir = path.join(RAW_DIR, projectName);
+    if (!fs.existsSync(projectDir)) {
+      fs.mkdirSync(projectDir, { recursive: true });
     }
 
-    const currentData = latest.data;
+    const notesPath = path.join(projectDir, 'notes.json');
+    notes.updatedAt = new Date().toISOString();
+    fs.writeFileSync(notesPath, JSON.stringify(notes, null, 2), 'utf8');
 
-    if (action === 'approve') {
-      currentData.isApproved = true;
-      currentData.approvalStatus = 'approved';
-      currentData.approvedAt = new Date().toISOString();
-      currentData.gateUnlocked = true;
-    } else if (action === 'request_changes') {
-      currentData.isApproved = false;
-      currentData.approvalStatus = 'changes_requested';
-      currentData.changeNotes = changeNotes || 'User requested beat pacing changes.';
-      currentData.gateUnlocked = false;
-    } else if (action === 'update_beats') {
-      if (Array.isArray(updatedBeats)) {
-        currentData.beats = updatedBeats;
-        // Re-evaluating duration
-        currentData.totalDurationSeconds = updatedBeats.reduce(
-          (sum: number, b: any) => sum + (b.durationSeconds || b.outSec - b.inSec),
-          0
-        );
-      }
+    // If Brand Kit updates were submitted from creator feedback
+    if (brandKitUpdates && typeof brandKitUpdates === 'string') {
+      fs.appendFileSync(
+        BRAND_KIT_PATH,
+        `\n\n<!-- Update from ${projectName} on ${new Date().toLocaleDateString()} -->\n${brandKitUpdates}\n`,
+        'utf8'
+      );
     }
-
-    // Persist updated state
-    fs.writeFileSync(latest.filePath, JSON.stringify(currentData, null, 2), 'utf-8');
 
     return NextResponse.json({
       success: true,
-      actionApplied: action,
-      storyboard: currentData,
-      isApproved: currentData.isApproved,
-      message: currentData.isApproved
-        ? 'Storyboard approved! Rendering pipeline is now unlocked.'
-        : 'Storyboard updated. Approval required before rendering.',
+      message: 'notes.json and Brand Kit updated successfully.',
+      notes,
     });
-  } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
-

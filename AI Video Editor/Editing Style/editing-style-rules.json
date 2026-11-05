@@ -1,0 +1,29 @@
+{
+  "styleVersion": "2.0.0",
+  "pacing": {
+    "hookDurationSeconds": 1.8,
+    "averageShotLengthSeconds": 2.2,
+    "maxShotLengthSeconds": 3.5,
+    "minShotLengthSeconds": 1.0,
+    "cutsPerMinute": 27.5
+  },
+  "transitions": {
+    "defaultTransition": "hard_cut",
+    "sectionChange": "whip_pan_left",
+    "emphasis": "digital_punch_in_1.1x",
+    "bRollBlend": "smooth_crossfade_0.2s"
+  },
+  "audioRules": {
+    "dialogueTargetLUFS": -14.0,
+    "musicDuckingReductionDb": -18.0,
+    "sfxVolumeGainDb": -3.5,
+    "musicSidechainAttackMs": 40,
+    "musicSidechainReleaseMs": 280
+  },
+  "captions": {
+    "wordsPerGroup": 3,
+    "animation": "pop_bounce",
+    "highlightColor": "#FFD43B",
+    "accentColor": "#06B6D4"
+  }
+}

@@ -22,6 +22,7 @@ import {
   Settings,
   Sparkles,
   ChevronRight,
+  ShoppingBag,
 } from 'lucide-react';
 
 export function RiiqxSidebar() {
@@ -29,6 +30,7 @@ export function RiiqxSidebar() {
 
   const navItems: { tab: RiiqxViewTab; label: string; icon: React.ElementType }[] = [
     { tab: 'home', label: 'Dashboard', icon: LayoutDashboard },
+    { tab: 'shopping', label: 'Smart Shopping & Dropship', icon: ShoppingBag },
     { tab: 'chat', label: 'AI Agent Chat', icon: MessageSquare },
     { tab: 'creator', label: 'Creator Studio', icon: Video },
     { tab: 'autopilot', label: 'Autopilot Center', icon: Rocket },

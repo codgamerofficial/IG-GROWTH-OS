@@ -1,0 +1,93 @@
+{
+  "projectId": "proj_showcase_001",
+  "title": "GlowFit Viral Dropshipping Smart Arbitrage Launch",
+  "targetPlatform": "Instagram Reels / YouTube Shorts",
+  "aspectRatio": "9:16",
+  "resolution": {
+    "width": 1080,
+    "height": 1920
+  },
+  "fps": 30,
+  "status": "approved",
+  "brandKitRef": "Brand Kit/brand-kit.md",
+  "beats": [
+    {
+      "beatNumber": 1,
+      "timecode": "00:00 - 00:02.1",
+      "durationSeconds": 2.1,
+      "speechTranscript": "Never pay full price on Amazon or Flipkart again!",
+      "visualDirection": "Fast punch-in 1.1x on speaker, split screen showing Amazon price ₹2,499 vs GlowFit Arbitrage ₹1,749 with electric red to emerald green price slash.",
+      "captions": "NEVER pay full price again!",
+      "captionStyle": {
+        "highlightColor": "#FFD43B",
+        "animation": "pop_bounce"
+      },
+      "bRoll": "amazon_vs_flipkart_split.mp4",
+      "assets": [
+        "neon_slash.png",
+        "sound_swoosh.wav"
+      ],
+      "approval": "approved",
+      "feedback": "Hook pacing is perfect, bold impact."
+    },
+    {
+      "beatNumber": 2,
+      "timecode": "00:02.1 - 00:05.4",
+      "durationSeconds": 3.3,
+      "speechTranscript": "Just drop a screenshot of any product, and our AI instantly scans 6 platforms for the cheapest price.",
+      "visualDirection": "UI screencast showing user dropping mobile screenshot into GlowFit scanner, instant OCR detection animation highlighting ₹750 cheaper on Myntra.",
+      "captions": "Drop a screenshot — AI finds the CHEAPEST deal instantly.",
+      "captionStyle": {
+        "highlightColor": "#06B6D4",
+        "animation": "word_fade"
+      },
+      "bRoll": "screencast_ocr_scan.mp4",
+      "assets": [
+        "radar_ping.png",
+        "digital_beep.wav"
+      ],
+      "approval": "approved",
+      "feedback": "Clean visual demonstration."
+    },
+    {
+      "beatNumber": 3,
+      "timecode": "00:05.4 - 00:09.2",
+      "durationSeconds": 3.8,
+      "speechTranscript": "Plus it stacks bank offers with instant gift card cashbacks directly credited to your shopping wallet.",
+      "visualDirection": "Animated stack card showing Coupon ₹200 OFF + Gift Card Cashback ₹150 = Total Saved ₹750, ending with 1-click 'Auto-Add to Wallet' button pulse.",
+      "captions": "Stack coupons + Gift Card Cashback automatically!",
+      "captionStyle": {
+        "highlightColor": "#10B981",
+        "animation": "pop_bounce"
+      },
+      "bRoll": "wallet_credit_animation.mp4",
+      "assets": [
+        "giftcard_glow.png",
+        "coins_sfx.wav"
+      ],
+      "approval": "pending",
+      "feedback": "Can we make the ₹750 font larger?"
+    },
+    {
+      "beatNumber": 4,
+      "timecode": "00:09.2 - 00:12.0",
+      "durationSeconds": 2.8,
+      "speechTranscript": "Tap the link in bio to start saving and scaling your dropshipping profits today!",
+      "visualDirection": "Cinematic logo reveal of GlowFit AI with animated arrow pointing down to link in bio, audio braam crescendo.",
+      "captions": "Tap link in bio to start saving!",
+      "captionStyle": {
+        "highlightColor": "#FFD43B",
+        "animation": "pulse"
+      },
+      "bRoll": "glowfit_cinematic_outro.mp4",
+      "assets": [
+        "glowfit_logo.svg",
+        "cinematic_braam.wav"
+      ],
+      "approval": "approved",
+      "feedback": "Strong call to action."
+    }
+  ],
+  "creatorFeedbackNotes": "Storyboard approved. Keep transition speed at 180ms whip pan.",
+  "updatedAt": "2026-11-05T12:52:42.433Z"
+}

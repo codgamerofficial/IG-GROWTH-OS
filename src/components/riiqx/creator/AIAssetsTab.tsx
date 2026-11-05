@@ -118,8 +118,8 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
       return;
     }
 
-    const currentAssets = project.assets || [];
-    const exists = currentAssets.some((a) => a.url === asset.publicUrl || a.id === asset.id);
+    const currentAssets: UploadedAsset[] = project.assets || [];
+    const exists = currentAssets.some((a: UploadedAsset) => a.url === asset.publicUrl || a.id === asset.id);
     if (exists) {
       setAttachFeedback('Asset already attached to project');
       setTimeout(() => setAttachFeedback(null), 2500);
