@@ -34,7 +34,7 @@ import {
   GiftCardPurchaseResult,
   DropshippingProductItem,
 } from '@/services/shopping/types';
-import { DROPSHIPPING_CATALOG } from '@/app/api/shopping/dropshipping/products/route';
+import { DROPSHIPPING_CATALOG } from '@/services/shopping/catalog';
 
 import { useRiiqx } from '@/context/RiiqxContext';
 

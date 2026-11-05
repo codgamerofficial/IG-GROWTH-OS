@@ -3,6 +3,7 @@
 // =============================================================================
 // RIIQX — Universal Creative Asset Catalog & Media Hub
 // Cross-Module Asset Browser • Multi-Category Filtering • Modal Preview • Timeline Bridge
+// Drag & Drop / File Upload • Audio / Video / Image Previews • Inter-Module Linking
 // =============================================================================
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -27,6 +28,10 @@ import {
   X,
   Plus,
   Play,
+  Volume2,
+  Music,
+  ArrowRight,
+  Sliders,
 } from 'lucide-react';
 import { CreatorProject, CreatorStudioTab, UploadedAsset } from '@/lib/riiqx/creator-types';
 import { CreativeAssetItem, CreativeAssetCategory } from '@/services/assets/asset-service';
@@ -47,12 +52,17 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [attachFeedback, setAttachFeedback] = useState<string | null>(null);
 
-  // Quick Register Asset State
+  // Quick Register / Upload Asset State
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [registerMode, setRegisterMode] = useState<'upload' | 'url'>('upload');
   const [newAssetName, setNewAssetName] = useState('');
   const [newAssetUrl, setNewAssetUrl] = useState('');
   const [newAssetCategory, setNewAssetCategory] = useState<CreativeAssetCategory>('generated_images');
+  const [newAssetMime, setNewAssetMime] = useState<string>('image/png');
+  const [newAssetSize, setNewAssetSize] = useState<number>(1024 * 50);
   const [registering, setRegistering] = useState(false);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchCatalogAssets();
@@ -152,15 +162,65 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
     setTimeout(() => setAttachFeedback(null), 2500);
   };
 
+  const handleProcessFile = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      setNewAssetUrl(result);
+      setNewAssetSize(file.size);
+      setNewAssetMime(file.type || 'application/octet-stream');
+
+      // Auto deduce asset name if not set
+      if (!newAssetName.trim()) {
+        const cleanName = file.name.replace(/\.[^/.]+$/, '');
+        setNewAssetName(cleanName);
+      }
+
+      // Auto deduce category
+      if (file.type.startsWith('video/')) {
+        setNewAssetCategory('videos');
+      } else if (file.type.startsWith('audio/')) {
+        setNewAssetCategory('campaign_assets');
+      } else if (file.type.startsWith('image/')) {
+        setNewAssetCategory('generated_images');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleProcessFile(file);
+    }
+  };
+
+  const handleDropFile = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingFile(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handleProcessFile(file);
+    }
+  };
+
   const handleRegisterAsset = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAssetName.trim() || !newAssetUrl.trim()) return;
 
     setRegistering(true);
     try {
-      const isVideo = newAssetUrl.endsWith('.mp4') || newAssetCategory === 'videos';
-      const isSvg = newAssetUrl.endsWith('.svg');
-      const mimeType = isVideo ? 'video/mp4' : isSvg ? 'image/svg+xml' : 'image/png';
+      const isVideo = newAssetUrl.endsWith('.mp4') || newAssetCategory === 'videos' || newAssetMime.includes('video');
+      const isSvg = newAssetUrl.endsWith('.svg') || newAssetUrl.includes('image/svg+xml');
+      const isAudio = newAssetMime.includes('audio') || newAssetUrl.endsWith('.mp3') || newAssetUrl.endsWith('.wav');
+      
+      const mimeType = isVideo 
+        ? 'video/mp4' 
+        : isAudio 
+        ? 'audio/mpeg' 
+        : isSvg 
+        ? 'image/svg+xml' 
+        : (newAssetMime || 'image/png');
 
       const res = await fetch('/api/riiqx/assets', {
         method: 'POST',
@@ -170,8 +230,8 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
           category: newAssetCategory,
           publicUrl: newAssetUrl.trim(),
           mimeType,
-          fileSizeBytes: 1024 * 150,
-          tags: ['custom', newAssetCategory],
+          fileSizeBytes: newAssetSize,
+          tags: ['custom', newAssetCategory, isVideo ? 'video' : isAudio ? 'audio' : 'visual'],
         }),
       });
 
@@ -181,6 +241,8 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
         setShowRegisterModal(false);
         setNewAssetName('');
         setNewAssetUrl('');
+        setNewAssetMime('image/png');
+        setNewAssetSize(1024 * 50);
       } else {
         alert(data.error || 'Failed to register asset');
       }
@@ -229,7 +291,7 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
               </span>
             </div>
             <p className="text-xs text-[#9E9EA4] mt-0.5">
-              Unified cross-module repository indexing videos, storyboards, product scenes, and brand profiles.
+              Unified cross-module repository indexing videos, storyboards, product scenes, audio, and brand profiles.
             </p>
           </div>
         </div>
@@ -246,7 +308,7 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#FFD43B] hover:bg-[#FFE066] text-black font-semibold text-xs transition shadow-md shadow-[#FFD43B]/10"
           >
             <Plus className="h-3.5 w-3.5" />
-            <span>Add Asset URL</span>
+            <span>Add / Upload Asset</span>
           </button>
 
           <button
@@ -254,7 +316,7 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
             title="Refresh Catalog"
             className="p-2 rounded-lg bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-[#A1A1AA] hover:text-white transition"
           >
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin text-[#FFD43B]' : ''}`} />
           </button>
         </div>
       </div>
@@ -293,6 +355,14 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
             placeholder="Search assets by tag, name..."
             className="w-full rounded-lg bg-[#18181B] border border-[#27272A] pl-8 pr-3 py-1.5 text-xs text-white placeholder-[#71717A] focus:outline-none focus:border-[#FFD43B]"
           />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2.5 top-2.5 text-[#71717A] hover:text-white"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -306,6 +376,7 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredAssets.map((asset) => {
             const isVideo = asset.category === 'videos' || asset.mimeType?.includes('video');
+            const isAudio = asset.mimeType?.includes('audio');
             const isImage =
               asset.category === 'product_images' ||
               asset.mimeType?.includes('image') ||
@@ -324,13 +395,23 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
                     <img
                       src={asset.publicUrl}
                       alt={asset.name}
+                      onError={(e) => {
+                        (e.currentTarget as HTMLElement).style.display = 'none';
+                      }}
                       className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform"
                     />
                   ) : isVideo ? (
                     <div className="flex flex-col items-center gap-2 text-purple-400 group-hover:scale-105 transition-transform">
                       <Film className="h-8 w-8 opacity-80" />
                       <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/70 text-white">
-                        MP4 9:16 HD
+                        VIDEO MP4
+                      </span>
+                    </div>
+                  ) : isAudio ? (
+                    <div className="flex flex-col items-center gap-2 text-cyan-400 group-hover:scale-105 transition-transform">
+                      <Volume2 className="h-8 w-8 opacity-80" />
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/70 text-white">
+                        AUDIO TRACK
                       </span>
                     </div>
                   ) : (
@@ -441,18 +522,34 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
         <div className="p-12 text-center rounded-xl border border-dashed border-[#27272A] bg-[#121215] space-y-3">
           <FolderOpen className="h-8 w-8 text-[#71717A] mx-auto" />
           <h3 className="text-sm font-bold text-white">No Assets Found</h3>
-          <p className="text-xs text-[#71717A]">
-            Generate creative copy in Campaign Studio, commercial scenes in Product Studio, or render vertical videos to populate your universal catalog.
+          <p className="text-xs text-[#71717A] max-w-md mx-auto">
+            {searchQuery
+              ? `No assets matching "${searchQuery}". Try a different keyword or category.`
+              : 'Generate creative copy in Campaign Studio, commercial scenes in Product Studio, or render vertical videos to populate your universal catalog.'}
           </p>
+          {searchQuery && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSelectedCategory('all');
+              }}
+              className="px-3 py-1.5 rounded-lg bg-[#27272A] text-xs text-[#FFD43B] hover:bg-[#3F3F46]"
+            >
+              Reset Filters
+            </button>
+          )}
         </div>
       )}
 
-      {/* Register Asset Modal */}
+      {/* Register / Upload Asset Modal */}
       {showRegisterModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm animate-fadeIn">
-          <div className="w-full max-w-md rounded-2xl border border-[#27272A] bg-[#121215] p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-lg rounded-2xl border border-[#27272A] bg-[#121215] p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-[#27272A] pb-3">
-              <h3 className="text-sm font-bold text-white">Add Asset to Catalog</h3>
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <UploadCloud className="h-4 w-4 text-[#FFD43B]" />
+                <span>Add Asset to Universal Catalog</span>
+              </h3>
               <button
                 onClick={() => setShowRegisterModal(false)}
                 className="text-[#71717A] hover:text-white p-1 text-sm font-bold"
@@ -461,7 +558,90 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
               </button>
             </div>
 
-            <form onSubmit={handleRegisterAsset} className="space-y-3">
+            {/* Mode Switcher: File Upload vs URL Input */}
+            <div className="flex items-center gap-2 p-1 rounded-lg bg-[#18181B] border border-[#27272A]">
+              <button
+                type="button"
+                onClick={() => setRegisterMode('upload')}
+                className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition ${
+                  registerMode === 'upload'
+                    ? 'bg-[#FFD43B] text-black shadow-sm'
+                    : 'text-[#A1A1AA] hover:text-white'
+                }`}
+              >
+                Upload Local File
+              </button>
+              <button
+                type="button"
+                onClick={() => setRegisterMode('url')}
+                className={`flex-1 py-1.5 rounded-md text-xs font-semibold transition ${
+                  registerMode === 'url'
+                    ? 'bg-[#FFD43B] text-black shadow-sm'
+                    : 'text-[#A1A1AA] hover:text-white'
+                }`}
+              >
+                Enter Public URL
+              </button>
+            </div>
+
+            <form onSubmit={handleRegisterAsset} className="space-y-3.5">
+              {registerMode === 'upload' ? (
+                <div>
+                  <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
+                    Select File (Image, Video, Audio, SVG)
+                  </label>
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setIsDraggingFile(true);
+                    }}
+                    onDragLeave={() => setIsDraggingFile(false)}
+                    onDrop={handleDropFile}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition ${
+                      isDraggingFile
+                        ? 'border-[#FFD43B] bg-[#FFD43B]/5'
+                        : 'border-[#27272A] hover:border-[#3F3F46] bg-[#18181B]'
+                    }`}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,video/*,audio/*,.svg"
+                      className="hidden"
+                      onChange={handleFileInputChange}
+                    />
+                    <UploadCloud className="h-8 w-8 text-[#FFD43B] mx-auto mb-2 opacity-80" />
+                    <p className="text-xs text-white font-medium">
+                      Drag &amp; drop file here, or <span className="text-[#FFD43B]">browse</span>
+                    </p>
+                    <p className="text-[10px] text-[#71717A] mt-1">
+                      Supports PNG, JPG, WebP, SVG, MP4, MP3, WAV
+                    </p>
+                    {newAssetUrl && (
+                      <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#27272A] text-[11px] text-emerald-400 font-mono">
+                        <Check className="h-3 w-3" />
+                        <span>File Loaded ({(newAssetSize / 1024).toFixed(1)} KB)</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
+                    Public URL or Relative Path
+                  </label>
+                  <input
+                    type="text"
+                    value={newAssetUrl}
+                    onChange={(e) => setNewAssetUrl(e.target.value)}
+                    placeholder="e.g. /uploads/products/scene.svg or https://..."
+                    required
+                    className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FFD43B]"
+                  />
+                </div>
+              )}
+
               <div>
                 <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
                   Asset Name
@@ -478,20 +658,6 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
 
               <div>
                 <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
-                  Public URL or Relative Path
-                </label>
-                <input
-                  type="text"
-                  value={newAssetUrl}
-                  onChange={(e) => setNewAssetUrl(e.target.value)}
-                  placeholder="e.g. /uploads/products/scene.svg or https://..."
-                  required
-                  className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FFD43B]"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
                   Category
                 </label>
                 <select
@@ -501,7 +667,7 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
                 >
                   <option value="product_images">Product Scene / Image</option>
                   <option value="videos">Video / Short</option>
-                  <option value="campaign_assets">Campaign Copy / Brief</option>
+                  <option value="campaign_assets">Campaign Copy / Audio</option>
                   <option value="brand_profiles">Brand Kit</option>
                   <option value="generated_images">AI Generated Image</option>
                   <option value="storyboards">Storyboard</option>
@@ -518,7 +684,7 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
                 </button>
                 <button
                   type="submit"
-                  disabled={registering}
+                  disabled={registering || !newAssetUrl.trim()}
                   className="px-4 py-1.5 rounded-lg bg-[#FFD43B] hover:bg-[#FFE066] text-black font-semibold text-xs transition disabled:opacity-50"
                 >
                   {registering ? 'Adding...' : 'Add to Catalog'}
@@ -559,6 +725,17 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
                   autoPlay
                   className="w-full h-full object-contain"
                 />
+              ) : previewAsset.mimeType?.includes('audio') ? (
+                <div className="flex flex-col items-center justify-center gap-4 p-8 w-full bg-[#151518]">
+                  <Music className="h-12 w-12 text-[#FFD43B] animate-pulse" />
+                  <p className="text-sm text-white font-medium">{previewAsset.name}</p>
+                  <audio
+                    src={previewAsset.publicUrl}
+                    controls
+                    autoPlay
+                    className="w-full max-w-md mt-2"
+                  />
+                </div>
               ) : previewAsset.publicUrl?.endsWith('.svg') || previewAsset.mimeType?.includes('image') ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
@@ -603,6 +780,19 @@ export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsT
               </div>
 
               <div className="flex items-center gap-2">
+                {onTabChange && previewAsset.category === 'product_images' && (
+                  <button
+                    onClick={() => {
+                      onTabChange('product_studio');
+                      setPreviewAsset(null);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#06B6D4]/10 hover:bg-[#06B6D4]/20 border border-[#06B6D4]/30 text-xs text-[#06B6D4] font-medium transition"
+                  >
+                    <ShoppingBag className="h-3.5 w-3.5" />
+                    <span>Product Studio</span>
+                  </button>
+                )}
+
                 {project && onUpdateProject && (
                   <button
                     onClick={() => {

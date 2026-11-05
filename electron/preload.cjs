@@ -10,3 +10,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   isElectron: true,
   openExternal: (url) => ipcRenderer.send('open-external', url),
 });
+

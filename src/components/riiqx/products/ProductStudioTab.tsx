@@ -3,6 +3,7 @@
 // =============================================================================
 // RIIQX — Master AI Product Studio UI Component
 // Feature Extraction • Commercial Scene Generation • Side-by-Side Comparison Slider
+// 1-Click Video Ad Bridge • Universal Asset Registration • Local File Upload
 // =============================================================================
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -26,6 +27,10 @@ import {
   ShieldCheck,
   Copy,
   Trash2,
+  Video,
+  UploadCloud,
+  ArrowRight,
+  Film,
 } from 'lucide-react';
 import {
   ProductItem,
@@ -37,13 +42,21 @@ import {
   ProductSceneGeneration,
 } from '@/services/products/types';
 import { BrandDNA } from '@/services/brand/types';
+import { CreatorStudioTab } from '@/lib/riiqx/creator-types';
 
-export function ProductStudioTab() {
+interface ProductStudioTabProps {
+  onTabChange?: (tab: CreatorStudioTab) => void;
+  onNavigate?: (tab: string) => void;
+}
+
+export function ProductStudioTab({ onTabChange, onNavigate }: ProductStudioTabProps) {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [activeProduct, setActiveProduct] = useState<ProductItem | null>(null);
   const [brandDNA, setBrandDNA] = useState<BrandDNA | null>(null);
   const [loading, setLoading] = useState(true);
   const [generatingScene, setGeneratingScene] = useState(false);
+  const [creatingVideoAd, setCreatingVideoAd] = useState(false);
+  const [videoAdSuccess, setVideoAdSuccess] = useState<string | null>(null);
 
   // Scene Generation Controls
   const [environment, setEnvironment] = useState<EnvironmentPreset>('luxury_pedestal');
@@ -70,6 +83,8 @@ export function ProductStudioTab() {
   const [newProductPrice, setNewProductPrice] = useState('$299.00');
   const [newProductImageUrl, setNewProductImageUrl] = useState('');
   const [creatingProduct, setCreatingProduct] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'upload' | 'url'>('url');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchInitialData();
@@ -183,6 +198,17 @@ export function ProductStudioTab() {
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setNewProductImageUrl(event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Delete Product handler
   const handleDeleteProduct = async (productId: string) => {
     if (!confirm('Are you sure you want to delete this product and its generated scenes?')) return;
@@ -243,6 +269,41 @@ export function ProductStudioTab() {
     }
   };
 
+  // 1-Click Bridge to Video Ad Storyboard
+  const handleCreateVideoAd = async () => {
+    if (!activeProduct) return;
+
+    setCreatingVideoAd(true);
+    try {
+      const res = await fetch('/api/shopping/dropshipping/create-video-ad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productName: activeProduct.name,
+          category: activeProduct.category,
+          price: activeProduct.price || '$149.00',
+          imageUrl: activeScene?.imageUrl || activeProduct.originalImages?.[0] || '/icons/icon-512x512.png',
+          features: activeProduct.features.materials || ['Precision-Engineered Body', 'Ultra-Durable Finish'],
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setVideoAdSuccess(`Video Ad Created in Raw/${data.projectTitle}!`);
+        setTimeout(() => setVideoAdSuccess(null), 4000);
+        if (onTabChange) {
+          onTabChange('editor');
+        }
+      } else {
+        alert(data.error || 'Failed to create video ad project');
+      }
+    } catch (err: any) {
+      alert('Video Ad creation error: ' + err.message);
+    } finally {
+      setCreatingVideoAd(false);
+    }
+  };
+
   // Interactive slider position calculator
   const updateSliderFromClientX = (clientX: number) => {
     if (!sliderContainerRef.current) return;
@@ -287,12 +348,18 @@ export function ProductStudioTab() {
               </span>
             </div>
             <p className="text-xs text-[#9E9EA4] mt-0.5">
-              Multi-angle feature extraction, preset studio environments, and commercial scene synthesis.
+              Multi-angle feature extraction, preset studio environments, commercial scene synthesis, and 1-click video ad bridging.
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
+          {videoAdSuccess && (
+            <span className="px-3 py-1.5 rounded-lg text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 animate-fadeIn">
+              ✓ {videoAdSuccess}
+            </span>
+          )}
+
           <button
             onClick={() => setShowNewModal(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#FFD43B] hover:bg-[#FFE066] text-black font-semibold text-xs transition shadow-md shadow-[#FFD43B]/10"
@@ -372,7 +439,7 @@ export function ProductStudioTab() {
                   <span className="text-[10px] font-mono text-[#71717A] uppercase block mb-1">
                     Observed Color Palette:
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {activeProduct.features.colors?.map((col, idx) => (
                       <div
                         key={idx}
@@ -416,9 +483,25 @@ export function ProductStudioTab() {
                 </div>
 
                 {/* Preservation Check */}
-                <div className="pt-2 border-t border-[#1E1E22] flex items-center gap-2 text-emerald-400 text-[11px]">
-                  <ShieldCheck className="h-4 w-4" />
-                  <span>Feature &amp; Silhouette Integrity Protected (100%)</span>
+                <div className="pt-2 border-t border-[#1E1E22] flex items-center justify-between text-[11px]">
+                  <div className="flex items-center gap-1.5 text-emerald-400">
+                    <ShieldCheck className="h-4 w-4" />
+                    <span>Silhouette Integrity 100%</span>
+                  </div>
+
+                  {/* 1-Click Video Ad Bridge */}
+                  <button
+                    onClick={handleCreateVideoAd}
+                    disabled={creatingVideoAd}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#FFD43B]/10 hover:bg-[#FFD43B]/20 text-[#FFD43B] font-semibold text-[11px] border border-[#FFD43B]/30 transition"
+                  >
+                    {creatingVideoAd ? (
+                      <RefreshCw className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Film className="h-3 w-3" />
+                    )}
+                    <span>Create Video Ad</span>
+                  </button>
                 </div>
               </div>
             </div>
@@ -488,6 +571,20 @@ export function ProductStudioTab() {
                 </div>
               </div>
 
+              {/* Custom Direction Prompt */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-semibold text-[#A1A1AA] uppercase tracking-wider block">
+                  Custom Scene Prompt (Optional)
+                </label>
+                <textarea
+                  value={customPrompt}
+                  onChange={(e) => setCustomPrompt(e.target.value)}
+                  placeholder="e.g. Floating in zero gravity with neon laser highlights and water splashes..."
+                  rows={2}
+                  className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-1.5 text-xs text-white placeholder-[#71717A] focus:outline-none focus:border-[#FFD43B] resize-none"
+                />
+              </div>
+
               {/* Aspect Ratio */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-semibold text-[#A1A1AA] uppercase tracking-wider block">
@@ -539,12 +636,43 @@ export function ProductStudioTab() {
                 <div className="flex items-center gap-2">
                   <Split className="h-4 w-4 text-[#FFD43B]" />
                   <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-                    Interactive Comparison Slider (Original vs AI Render)
+                    Interactive Comparison (Original vs AI Render)
                   </h3>
                 </div>
-                <span className="text-[10px] font-mono text-[#71717A]">
-                  Click or drag horizontally
-                </span>
+
+                {/* Quick Slider Ratio Preset Buttons */}
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setSliderPosition(100)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono transition ${
+                      sliderPosition === 100
+                        ? 'bg-[#FFD43B] text-black font-bold'
+                        : 'bg-[#18181B] text-[#A1A1AA] hover:text-white'
+                    }`}
+                  >
+                    Original
+                  </button>
+                  <button
+                    onClick={() => setSliderPosition(50)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono transition ${
+                      sliderPosition === 50
+                        ? 'bg-[#FFD43B] text-black font-bold'
+                        : 'bg-[#18181B] text-[#A1A1AA] hover:text-white'
+                    }`}
+                  >
+                    50/50 Split
+                  </button>
+                  <button
+                    onClick={() => setSliderPosition(0)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-mono transition ${
+                      sliderPosition === 0
+                        ? 'bg-[#FFD43B] text-black font-bold'
+                        : 'bg-[#18181B] text-[#A1A1AA] hover:text-white'
+                    }`}
+                  >
+                    AI Render
+                  </button>
+                </div>
               </div>
 
               {/* Interactive Comparison Viewport */}
@@ -558,7 +686,7 @@ export function ProductStudioTab() {
                 onTouchStart={() => setIsDraggingSlider(true)}
                 onTouchEnd={() => setIsDraggingSlider(false)}
                 onTouchMove={handleTouchMove}
-                className="relative aspect-square max-h-[460px] w-full rounded-xl overflow-hidden cursor-ew-resize border border-[#27272A] bg-black shadow-2xl mx-auto"
+                className="relative aspect-square max-h-[460px] w-full rounded-xl overflow-hidden cursor-ew-resize border border-[#27272A] bg-black shadow-2xl mx-auto select-none"
               >
                 {/* Layer 1: AI Generated Scene (Full Background) */}
                 <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0C0C0E]">
@@ -583,12 +711,16 @@ export function ProductStudioTab() {
                   style={{ width: `${sliderPosition}%` }}
                 >
                   <div className="relative w-full h-full flex items-center justify-center bg-[#151518]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={activeProduct.originalImages?.[0] || '/icons/icon-512x512.png'}
-                      alt="Original Product"
-                      className="w-full h-full object-contain p-8 pointer-events-none"
-                    />
+                    {/* eslint-disable-next-line @next/next/no-img-element */
+                    activeProduct.originalImages?.[0] ? (
+                      <img
+                        src={activeProduct.originalImages[0]}
+                        alt="Original Product"
+                        className="w-full h-full object-contain p-8 pointer-events-none"
+                      />
+                    ) : (
+                      <ShoppingBag className="h-16 w-16 text-[#71717A] opacity-40" />
+                    )}
                     <span className="absolute bottom-3 left-3 text-[10px] font-mono px-2 py-0.5 rounded bg-black/80 text-white border border-white/20">
                       Original Product
                     </span>
@@ -615,7 +747,7 @@ export function ProductStudioTab() {
                       CTA: &quot;{activeScene.callToAction}&quot;
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <button
                       onClick={handleCopySceneUrl}
                       className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#27272A] hover:bg-[#3F3F46] text-white text-xs font-medium transition"
@@ -635,6 +767,15 @@ export function ProductStudioTab() {
                       <Download className="h-3.5 w-3.5" />
                       <span>Download SVG</span>
                     </a>
+                    {onTabChange && (
+                      <button
+                        onClick={() => onTabChange('assets')}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#06B6D4]/10 hover:bg-[#06B6D4]/20 border border-[#06B6D4]/30 text-[#06B6D4] text-xs font-medium transition"
+                      >
+                        <Layers className="h-3.5 w-3.5" />
+                        <span>View in Assets</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -760,17 +901,58 @@ export function ProductStudioTab() {
                 </div>
               </div>
 
+              {/* Photo Input (Upload or URL) */}
               <div>
-                <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider block mb-1">
-                  Image URL / Photo Path (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={newProductImageUrl}
-                  onChange={(e) => setNewProductImageUrl(e.target.value)}
-                  placeholder="e.g. /icons/icon-512x512.png or https://..."
-                  className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FFD43B]"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-semibold text-[#A1A1AA] uppercase tracking-wider">
+                    Product Image (Optional)
+                  </label>
+                  <div className="flex items-center gap-2 text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => setUploadMode('url')}
+                      className={`hover:text-white ${uploadMode === 'url' ? 'text-[#FFD43B] font-bold' : 'text-[#71717A]'}`}
+                    >
+                      URL
+                    </button>
+                    <span className="text-[#71717A]">|</span>
+                    <button
+                      type="button"
+                      onClick={() => setUploadMode('upload')}
+                      className={`hover:text-white ${uploadMode === 'upload' ? 'text-[#FFD43B] font-bold' : 'text-[#71717A]'}`}
+                    >
+                      Upload File
+                    </button>
+                  </div>
+                </div>
+
+                {uploadMode === 'url' ? (
+                  <input
+                    type="text"
+                    value={newProductImageUrl}
+                    onChange={(e) => setNewProductImageUrl(e.target.value)}
+                    placeholder="e.g. /icons/icon-512x512.png or https://..."
+                    className="w-full rounded-lg bg-[#18181B] border border-[#27272A] px-3 py-2 text-xs text-white focus:outline-none focus:border-[#FFD43B]"
+                  />
+                ) : (
+                  <div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*,.svg"
+                      className="hidden"
+                      onChange={handleFileUpload}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-full py-3 rounded-lg border border-dashed border-[#27272A] bg-[#18181B] hover:border-[#FFD43B] text-xs text-[#A1A1AA] flex items-center justify-center gap-2"
+                    >
+                      <UploadCloud className="h-4 w-4 text-[#FFD43B]" />
+                      <span>{newProductImageUrl ? 'Image Selected (Click to change)' : 'Choose Local Image'}</span>
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div>

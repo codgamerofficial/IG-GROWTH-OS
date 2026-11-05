@@ -6,7 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-import { DROPSHIPPING_CATALOG } from '@/app/api/shopping/dropshipping/products/route';
+import { DROPSHIPPING_CATALOG } from '@/services/shopping/catalog';
 
 const RAW_DIR = path.join(process.cwd(), 'AI Video Editor', 'Raw');
 
@@ -113,3 +113,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
+

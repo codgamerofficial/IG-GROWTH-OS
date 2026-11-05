@@ -381,7 +381,9 @@ export function RiiqxCreatorStudio() {
         {activeSubTab === 'brand_kit' && <BrandKitTab />}
         {activeSubTab === 'campaign_studio' && <CampaignStudioTab />}
         {activeSubTab === 'creative_canvas' && <CreativeCanvasTab />}
-        {activeSubTab === 'product_studio' && <ProductStudioTab />}
+        {activeSubTab === 'product_studio' && (
+          <ProductStudioTab onTabChange={setActiveSubTab} />
+        )}
         {activeSubTab === 'workflow_builder' && <WorkflowBuilderTab />}
       </main>
     </div>
