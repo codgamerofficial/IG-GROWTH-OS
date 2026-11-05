@@ -38,6 +38,9 @@ import {
   X,
   AlertCircle,
   Plus,
+  Bell,
+  TrendingUp,
+  Clock,
 } from 'lucide-react';
 import {
   ExtractedProductInfo,
@@ -45,6 +48,9 @@ import {
   ArbitrageOptimizationPlan,
   GiftCardPurchaseResult,
   DropshippingProductItem,
+  ProductMatchResult,
+  RetailerCoverageReport,
+  PriceHistoryData,
 } from '@/services/shopping/types';
 import { DROPSHIPPING_CATALOG } from '@/services/shopping/catalog';
 import {
@@ -98,6 +104,16 @@ export function SmartShoppingStudio() {
   const [extractedProduct, setExtractedProduct] = useState<ExtractedProductInfo | null>(null);
   const [comparisons, setComparisons] = useState<PlatformPriceDetail[]>([]);
   const [optimalPlan, setOptimalPlan] = useState<ArbitrageOptimizationPlan | null>(null);
+  const [matchResult, setMatchResult] = useState<ProductMatchResult | null>(null);
+  const [coverageReport, setCoverageReport] = useState<RetailerCoverageReport[]>([]);
+  const [priceHistory, setPriceHistory] = useState<PriceHistoryData | null>(null);
+
+  // Watchlist States
+  const [showWatchlistModal, setShowWatchlistModal] = useState(false);
+  const [targetPriceInput, setTargetPriceInput] = useState('');
+  const [savingWatchlist, setSavingWatchlist] = useState(false);
+  const [watchlistSuccess, setWatchlistSuccess] = useState<string | null>(null);
+  const [watchlistError, setWatchlistError] = useState<string | null>(null);
 
   // Gift Card Purchase States
   const [buyingGiftCard, setBuyingGiftCard] = useState(false);
@@ -154,6 +170,9 @@ export function SmartShoppingStudio() {
       setExtractedProduct(null);
       setComparisons([]);
       setOptimalPlan(null);
+      setMatchResult(null);
+      setCoverageReport([]);
+      setPriceHistory(null);
 
       const res = await fetch('/api/shopping/analyze', {
         method: 'POST',
@@ -170,11 +189,60 @@ export function SmartShoppingStudio() {
         setExtractedProduct(data.extractedProduct);
         setComparisons(data.platformComparisons);
         setOptimalPlan(data.optimalPlan);
+        if (data.matchResult) setMatchResult(data.matchResult);
+        if (data.coverageReport) setCoverageReport(data.coverageReport);
+        if (data.priceHistory) setPriceHistory(data.priceHistory);
+
+        // Pre-fill target price alert with 5% below lowest effective price
+        const lowestEffective = data.optimalPlan?.finalLowestEffectivePrice || data.extractedProduct?.detectedPrice || 1000;
+        setTargetPriceInput(String(Math.round(lowestEffective * 0.95)));
       }
     } catch (err) {
       console.error('Failed to analyze product:', err);
     } finally {
       setAnalyzing(false);
+    }
+  };
+
+  // Create Target Price Drop Alert
+  const handleCreateWatchlist = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!extractedProduct || !targetPriceInput) return;
+    setSavingWatchlist(true);
+    setWatchlistError(null);
+    setWatchlistSuccess(null);
+
+    try {
+      const initial = optimalPlan?.finalLowestEffectivePrice || extractedProduct.detectedPrice;
+      const target = Number(targetPriceInput);
+
+      const res = await fetch('/api/shopping/watchlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: 'default_user',
+          productTitle: extractedProduct.title,
+          productIdentifier: extractedProduct.title.toLowerCase().replace(/[^a-z0-9]/g, '_').slice(0, 32),
+          targetPrice: target,
+          initialPrice: initial,
+          preferredPlatform: optimalPlan?.recommendedPlatform || 'any',
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setWatchlistSuccess(`Price Drop Alert activated for ₹${target.toLocaleString('en-IN')}!`);
+        setTimeout(() => {
+          setShowWatchlistModal(false);
+          setWatchlistSuccess(null);
+        }, 2500);
+      } else {
+        setWatchlistError(data.error || 'Failed to create watchlist alert');
+      }
+    } catch (err: any) {
+      setWatchlistError(err.message || 'Network error');
+    } finally {
+      setSavingWatchlist(false);
     }
   };
 
@@ -1188,8 +1256,127 @@ export function SmartShoppingStudio() {
                 )}
               </div>
 
-              {/* Right Column: Multi-Platform Comparison Table (7 Cols) */}
+              {/* Right Column: Multi-Platform Comparison Table, Spec Guard & Price History (7 Cols) */}
               <div className="space-y-4 lg:col-span-7">
+                {/* Product Identity & Anti-Mismatched Specs Guard */}
+                {matchResult && extractedProduct && (
+                  <div className="rounded-2xl border border-zinc-800 bg-[#121215] p-4 shadow-xl">
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800/80 pb-2.5">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-white truncate max-w-xs" title={extractedProduct.title}>
+                          {extractedProduct.title}
+                        </span>
+                        {extractedProduct.modelOrVariant && (
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300">
+                            {extractedProduct.modelOrVariant}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {matchResult.matchType === 'exact_match' ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[10px] font-bold text-emerald-400">
+                          <ShieldCheck className="h-3 w-3" />
+                          Exact Spec Match Confirmed ({(matchResult.confidenceScore * 100).toFixed(0)}%)
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-[10px] font-bold text-amber-400">
+                          <AlertCircle className="h-3 w-3" />
+                          Variant Difference Detected ({matchResult.mismatchedAttributes?.join(', ') || 'Specs Differ'})
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-2.5 flex flex-wrap items-center justify-between text-[11px] text-zinc-400">
+                      <span className="flex items-center gap-1">
+                        <span className="text-zinc-500">Brand:</span>
+                        <span className="text-white font-semibold">{extractedProduct.brand}</span>
+                        <span className="text-zinc-500 ml-2">Category:</span>
+                        <span className="text-white font-semibold capitalize">{extractedProduct.category}</span>
+                      </span>
+
+                      <span className={`font-mono text-[10px] font-semibold ${matchResult.isPurchaseSafe ? 'text-emerald-400' : 'text-amber-400'}`}>
+                        {matchResult.isPurchaseSafe ? '✓ Verified Safe to Arbitrage' : '⚠️ Verify Storage / Model Generation Before Checkout'}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* 30-Day Historical Price Observations & Target Price Drop Alert */}
+                {priceHistory && (
+                  <div className="rounded-2xl border border-zinc-800 bg-gradient-to-r from-[#121215] to-[#16161a] p-4 shadow-xl space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-cyan-400" />
+                        <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                          30-Day Historical Price Observations
+                        </h4>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold font-mono ${
+                          priceHistory.priceTrendDirection === 'dropping'
+                            ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
+                            : priceHistory.priceTrendDirection === 'increasing'
+                            ? 'bg-rose-500/15 text-rose-400 border border-rose-500/30'
+                            : 'bg-zinc-800 text-zinc-400'
+                        }`}>
+                          {priceHistory.priceTrendDirection === 'dropping' && <TrendingDown className="h-3 w-3" />}
+                          {priceHistory.priceTrendDirection === 'increasing' && <TrendingUp className="h-3 w-3" />}
+                          <span className="capitalize">{priceHistory.priceTrendDirection} Trend</span>
+                        </span>
+
+                        <button
+                          onClick={() => setShowWatchlistModal(true)}
+                          className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-400/10 hover:bg-amber-400/20 border border-amber-400/30 text-amber-300 text-xs font-bold transition"
+                        >
+                          <Bell className="h-3 w-3 text-amber-400" />
+                          <span>Set Price Drop Alert</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 text-center pt-1 border-t border-zinc-800/60">
+                      <div className="p-2 rounded-xl bg-black/40 border border-zinc-800/80">
+                        <span className="text-[10px] text-zinc-500 uppercase font-mono block">Lowest Recorded</span>
+                        <span className="text-sm font-black text-emerald-400 font-mono">
+                          ₹{priceHistory.lowestObserved.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-black/40 border border-zinc-800/80">
+                        <span className="text-[10px] text-zinc-500 uppercase font-mono block">30-Day Average</span>
+                        <span className="text-sm font-black text-white font-mono">
+                          ₹{priceHistory.averageObserved.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                      <div className="p-2 rounded-xl bg-black/40 border border-zinc-800/80">
+                        <span className="text-[10px] text-zinc-500 uppercase font-mono block">Peak MRP</span>
+                        <span className="text-sm font-black text-zinc-400 font-mono line-through">
+                          ₹{priceHistory.highestObserved.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Retailer Real-Time Coverage Strip */}
+                {coverageReport.length > 0 && (
+                  <div className="rounded-2xl border border-zinc-800/80 bg-[#0e0e11] px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono">
+                    <span className="text-zinc-500 uppercase font-semibold">Coverage Status:</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {coverageReport.map((cov, cIdx) => (
+                        <span
+                          key={cIdx}
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300"
+                        >
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                          <span className="font-semibold text-white">{cov.displayName}</span>
+                          <span className="text-zinc-500">({cov.latencyMs}ms)</span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-xl">
                   <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
                     <h3 className="text-sm font-bold text-white">Live Retailer Price Comparison</h3>
@@ -1402,6 +1589,114 @@ export function SmartShoppingStudio() {
                 </a>
               </div>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Target Price Drop Watchlist Alert Modal */}
+      {showWatchlistModal && extractedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="relative w-full max-w-md rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-xl bg-amber-400/10 border border-amber-400/20 flex items-center justify-center text-amber-400">
+                  <Bell className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Set Target Price Drop Alert</h3>
+                  <span className="text-[10px] font-mono text-zinc-400">Instant Email &amp; Web Push Notification</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowWatchlistModal(false)}
+                className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-1">
+              <span className="text-[10px] uppercase font-mono text-zinc-500 block">Product</span>
+              <p className="text-xs font-semibold text-white truncate">{extractedProduct.title}</p>
+              <div className="flex items-baseline gap-2 pt-1">
+                <span className="text-[10px] text-zinc-400">Current Best Price:</span>
+                <span className="text-xs font-bold text-white font-mono">
+                  ₹{(optimalPlan?.finalLowestEffectivePrice || extractedProduct.detectedPrice).toLocaleString('en-IN')}
+                </span>
+              </div>
+            </div>
+
+            {watchlistError && (
+              <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                <span>{watchlistError}</span>
+              </div>
+            )}
+
+            {watchlistSuccess && (
+              <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                <span>{watchlistSuccess}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleCreateWatchlist} className="space-y-4">
+              <div>
+                <label className="text-[10px] font-mono uppercase text-zinc-400 block mb-1">
+                  Alert Me When Price Drops To Or Below:
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-2.5 text-zinc-500 font-mono text-xs font-bold">₹</span>
+                  <input
+                    type="number"
+                    value={targetPriceInput}
+                    onChange={(e) => setTargetPriceInput(e.target.value)}
+                    placeholder="Enter target price..."
+                    required
+                    className="w-full rounded-xl bg-zinc-900 border border-zinc-800 pl-8 pr-4 py-2 text-sm text-white font-mono font-bold focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
+              {/* Quick Target Percentage Selector */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-mono uppercase text-zinc-500 block">Quick Target Discounts:</span>
+                <div className="grid grid-cols-3 gap-2">
+                  {[5, 10, 15].map((pct) => {
+                    const current = optimalPlan?.finalLowestEffectivePrice || extractedProduct.detectedPrice;
+                    const val = Math.round(current * (1 - pct / 100));
+                    return (
+                      <button
+                        key={pct}
+                        type="button"
+                        onClick={() => setTargetPriceInput(String(val))}
+                        className="py-1.5 rounded-xl border border-zinc-800 bg-zinc-900/80 hover:border-amber-400/40 text-center text-xs font-mono transition"
+                      >
+                        <span className="text-amber-400 font-bold block">-{pct}%</span>
+                        <span className="text-[10px] text-zinc-400">₹{val.toLocaleString('en-IN')}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-zinc-800 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowWatchlistModal(false)}
+                  className="px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingWatchlist}
+                  className="px-4 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-black font-bold text-xs transition disabled:opacity-50"
+                >
+                  {savingWatchlist ? 'Activating Alert...' : 'Activate Price Drop Alert'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

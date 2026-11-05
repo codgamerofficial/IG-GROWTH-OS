@@ -144,3 +144,4 @@ CREATE POLICY "Public can view product reviews" ON public.product_reviews FOR SE
 
 DROP POLICY IF EXISTS "Authenticated users can post reviews" ON public.product_reviews;
 CREATE POLICY "Authenticated users can post reviews" ON public.product_reviews FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+

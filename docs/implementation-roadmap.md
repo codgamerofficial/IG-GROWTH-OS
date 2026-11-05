@@ -39,26 +39,30 @@ Phase 9: Compliance, Security & E2E Tests     [PLANNED]
 
 ---
 
-### Phase 2 — Shopping Marketplace & Product Discovery 🏗️ (NEXT PHASE)
-- [ ] Implement extended Commerce Database Schema in Supabase (`products`, `product_variants`, `product_categories`, `sellers`, `suppliers`, `reviews`).
-- [ ] Connect high-margin curated dropshipping catalog with full specifications, images, variants, and country of origin.
-- [ ] Build Full-Text Search, Category Filtering, and Multi-Signal Sorting (Price, Verified Discount, Popularity).
-- [ ] Create Cinematic Product Detail View with 3D/Zoom gallery, verified MRP, shipping estimates, and seller disclosure.
-- [ ] Implement Supplier Registration & Onboarding Flow with GSTIN and warehouse location validation.
-- [ ] Verify zero fake listings or simulated reviews.
+### Phase 2 — Shopping Marketplace & Product Discovery ✅ (COMPLETED)
+- [x] Implement extended Commerce Database Schema in Supabase (`products`, `product_variants`, `product_categories`, `sellers`, `suppliers`, `reviews`).
+- [x] Connect high-margin curated dropshipping catalog with full specifications, images, variants, and country of origin.
+- [x] Build Full-Text Search, Category Filtering, and Multi-Signal Sorting (Price, Verified Discount, Popularity).
+- [x] Create Cinematic Product Detail View with 3D/Zoom gallery, verified MRP, shipping estimates, and seller disclosure.
+- [x] Implement Supplier Registration & Onboarding Flow with GSTIN and warehouse location validation.
+- [x] Verify zero fake listings or simulated reviews.
 
 ---
 
-### Phase 3 — Smart Price Intelligence & Screenshot Analysis
-- [ ] Refine Multimodal Gemini Vision OCR pipeline for screenshots from Amazon, Flipkart, Myntra, Meesho, Ajio, Tata CLiQ.
-- [ ] Build Canonical Product URL Resolver for supported retail platforms respecting platform terms and robots.txt.
-- [ ] Implement Exact Product Identity Matcher using GTIN/EAN, exact model numbers, and Cohere Embed v3 cosine similarity (>= 0.92 threshold).
-- [ ] Implement real-time multi-platform price comparison table showing exact variant, delivery charges, seller rating, and timestamp.
-- [ ] Add historical price tracking and target price drop alerts with notification preferences.
+### Phase 3 — Smart Price Intelligence & Screenshot Analysis ✅ (COMPLETED)
+- [x] Create Price Intelligence Database Schema (`product_price_observations`, `price_watchlists`).
+- [x] Refine Multimodal Gemini Vision OCR prompt for screenshots (Amazon, Flipkart, Myntra, Meesho, Ajio, Tata CLiQ).
+- [x] Build Canonical Product URL Resolver stripping tracking tags and extracting ASIN / FSN / Style IDs.
+- [x] Implement Exact Product Identity Matcher & Spec Guard preventing spec mismatches (e.g. 128GB vs 256GB).
+- [x] Implement multi-platform live coverage report with verified timestamps and retailer latency.
+- [x] Connect Historical Price API (30-day observations, average, lowest ever, trend direction).
+- [x] Connect Target Price Drop Watchlist API & User Notification alerts.
+- [x] Update Frontend UI (Arbitrage Scanner with Spec Match Badge, Retailer Coverage, and Watchlist Modal).
+- [x] Create and run Phase 3 acceptance test suite (`tests/test-phase3-price-intelligence.mjs`: 6/6 tests passed).
 
 ---
 
-### Phase 4 — Savings Engine & Gift Card Optimization
+### Phase 4 — Savings Engine & Gift Card Optimization 🏗️ (NEXT PHASE)
 - [ ] Build deterministic discount evaluation engine: Base Price -> Instant Coupon -> Bank Card Offer -> Gift Card Savings -> Delivery -> Cashback.
 - [ ] Implement Rule-Based Coupon & Offer Eligibility Engine (checking minimum spend, category exclusions, and payment method).
 - [ ] Integrate Authorized Branded Gift Card Marketplace (Amazon, Flipkart, Myntra, etc.) with provider API connectivity.

@@ -141,3 +141,66 @@ export interface DropshippingProductItem {
   creatorStudioProjectId?: string;
 }
 
+export type ProductMatchType = 'exact_match' | 'variant_match' | 'similar_product' | 'unverified_match';
+
+export interface ProductMatchResult {
+  matchType: ProductMatchType;
+  confidenceScore: number;
+  matchExplanation: string;
+  matchedAttributes: Record<string, string>;
+  differentiatingAttributes?: Record<string, string>;
+  mismatchedAttributes?: string[];
+  isPurchaseSafe: boolean;
+}
+
+export interface CanonicalUrlResult {
+  originalUrl: string;
+  canonicalUrl: string;
+  platform: ShoppingPlatform | 'unknown';
+  canonicalIdentifier: string;
+}
+
+export interface PriceHistoryObservation {
+  platform: ShoppingPlatform;
+  displayName: string;
+  price: number;
+  mrp: number;
+  timestamp: string;
+  inStock: boolean;
+  sellerName?: string;
+}
+
+export interface PriceHistoryData {
+  productIdentifier: string;
+  productTitle: string;
+  lowestObserved: number;
+  highestObserved: number;
+  averageObserved: number;
+  observations: PriceHistoryObservation[];
+  priceTrendDirection: 'dropping' | 'stable' | 'increasing';
+  lastUpdated: string;
+}
+
+export interface RetailerCoverageReport {
+  platform: ShoppingPlatform;
+  displayName: string;
+  status: 'live_verified' | 'cached_verified' | 'unavailable';
+  verifiedAt: string;
+  latencyMs: number;
+  reasonIfUnavailable?: string;
+}
+
+export interface PriceWatchlistRecord {
+  id: string;
+  userId: string;
+  productTitle: string;
+  productIdentifier: string;
+  targetPrice: number;
+  initialPrice: number;
+  lowestRecordedPrice: number;
+  preferredPlatform: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+

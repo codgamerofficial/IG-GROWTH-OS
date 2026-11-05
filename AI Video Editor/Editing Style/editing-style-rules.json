@@ -17,14 +17,10 @@
     "placement": "Center lower third (70-75% Y)"
   },
   "colors": [
-    "#000000",
-    "#FFFFFF",
-    "#FF0000",
-    "#00FF00",
-    "#0000FF",
-    "#FFFF00",
-    "#FF00FF",
-    "#00FFFF"
+    "#0C0C0E",
+    "#FFD43B",
+    "#06B6D4",
+    "#FFFFFF"
   ],
-  "updatedAt": "2026-11-05T15:14:27.085Z"
+  "updatedAt": "2026-11-05T16:11:00.628Z"
 }

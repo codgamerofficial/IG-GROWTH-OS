@@ -20,7 +20,13 @@ export async function POST(req: NextRequest) {
     }
 
     // 1. Analyze and extract product data (multimodal vision or URL parsing)
-    const { extractedProduct, platformComparisons } = await PriceComparatorService.analyzeProduct({
+    const {
+      extractedProduct,
+      platformComparisons,
+      matchResult,
+      coverageReport,
+      priceHistory,
+    } = await PriceComparatorService.analyzeProduct({
       url,
       screenshotBase64,
       screenshotMimeType,
@@ -38,6 +44,9 @@ export async function POST(req: NextRequest) {
       extractedProduct,
       platformComparisons,
       optimalPlan,
+      matchResult,
+      coverageReport,
+      priceHistory,
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {

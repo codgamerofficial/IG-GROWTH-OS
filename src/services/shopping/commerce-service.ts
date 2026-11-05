@@ -809,3 +809,4 @@ export class CommerceService {
     return Array.from(this.registeredSuppliers.values());
   }
 }
+
