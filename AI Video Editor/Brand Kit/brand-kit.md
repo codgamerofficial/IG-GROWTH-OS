@@ -31,4 +31,4 @@
 - **Average Cut Interval**: Every `2.1s` (approx 29 cuts per minute)
 - **Hook Window**: Visual punch within 0.0s - 1.8s
 - **B-Roll Layering**: Maximum 3.0s continuous A-roll before inserting product b-roll or screencast
-<!-- Video Ad Generated: Lumina RGB Aura Kinetic Levitating Desk Lamp on 2026-11-05T19:15:33.501Z -->
+<!-- Video Ad Generated: Lumina RGB Aura Kinetic Levitating Desk Lamp on 2026-11-05T19:41:20.640Z -->

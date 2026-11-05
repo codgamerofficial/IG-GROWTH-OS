@@ -610,6 +610,47 @@ export const api: RiiqxApiClient = {
     if (!res.ok) throw new Error(`Failed to fetch render job status: HTTP ${res.status}`);
     return await res.json();
   },
+
+  // 16. Smart Price Arbitrage & Screenshot Link Analysis
+  async analyzeProduct(params: { url?: string; screenshotBase64?: string; screenshotMimeType?: string }): Promise<any> {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${getApiBaseUrl()}/shopping/analyze`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new Error(`Product analysis failed: HTTP ${res.status}`);
+    return await res.json();
+  },
+
+  // 17. Gift Card Purchase & Arbitrage
+  async purchaseGiftCard(params: { platform: string; faceValue: number; paymentMethod?: string; autoCreditToShoppingWallet?: boolean }): Promise<any> {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${getApiBaseUrl()}/shopping/giftcards/purchase`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(params),
+    });
+    if (!res.ok) throw new Error(`Gift card purchase failed: HTTP ${res.status}`);
+    return await res.json();
+  },
+
+  // 18. Dropshipping Live Order Tracking
+  async trackDropshippingOrder(orderId: string): Promise<any> {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${getApiBaseUrl()}/shopping/dropshipping/orders/${orderId}`, { headers });
+    if (!res.ok) throw new Error(`Order tracking failed: HTTP ${res.status}`);
+    return await res.json();
+  },
+
+  // 19. Marketplace Products Discovery
+  async getMarketplaceProducts(params?: { category?: string; query?: string; sortBy?: string }): Promise<any> {
+    const headers = await getAuthHeaders();
+    const qs = new URLSearchParams(params as any).toString();
+    const res = await fetch(`${getApiBaseUrl()}/shopping/marketplace/products${qs ? `?${qs}` : ''}`, { headers });
+    if (!res.ok) throw new Error(`Failed to fetch marketplace products: HTTP ${res.status}`);
+    return await res.json();
+  },
 };
 
 export async function executeResearch(query: string): Promise<ResearchResult> {

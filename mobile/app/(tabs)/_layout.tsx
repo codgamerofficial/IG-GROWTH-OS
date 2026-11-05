@@ -106,6 +106,7 @@ export default function TabLayout() {
       />
 
       {/* Registered Sub-Screens (Accessible via Navigation / Hub) */}
+      <Tabs.Screen name="shopping" options={{ href: null }} />
       <Tabs.Screen name="tasks" options={{ href: null }} />
       <Tabs.Screen name="research" options={{ href: null }} />
       <Tabs.Screen name="code" options={{ href: null }} />

@@ -1,6 +1,6 @@
 {
-  "appId": "com.glowfit.ai",
-  "appName": "GlowFit AI",
+  "appId": "com.riiqx.app",
+  "appName": "RIIQX",
   "webDir": "public",
   "bundledWebRuntime": false,
   "server": {
@@ -21,7 +21,10 @@
     },
     "Camera": {
       "permissions": ["camera", "photos"]
+    },
+    "BiometricAuth": {
+      "allowDeviceCredential": true,
+      "maxAttempts": 3
     }
   }
 }
-

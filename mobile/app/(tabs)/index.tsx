@@ -56,6 +56,7 @@ export default function MobileHomeScreen() {
 
   const sidebarNavItems = [
     { title: 'Dashboard', icon: 'grid', route: '/(tabs)', active: true },
+    { title: 'Smart Shopping & Scanner', icon: 'cart-outline', route: '/(tabs)/shopping' },
     { title: 'AI Agent Chat', icon: 'chatbubbles-outline', route: '/(tabs)/chat' },
     { title: 'Creator Studio', icon: 'videocam-outline', route: '/(tabs)/creator' },
     { title: 'AI Video Editor', icon: 'color-wand-outline', route: '/(tabs)/studio' },
