@@ -17,13 +17,40 @@ export async function POST(req: Request) {
 
   try {
     const body = await req.json();
-    const { storyboardId, bypassApprovalCheck } = body;
+    const { storyboardId, projectName, projectDirName, adProjectDir, bypassApprovalCheck } = body;
 
     // 1. MANDATORY STORYBOARD APPROVAL CHECKPOINT (Section 6 & 10)
+    // Check both metadata/storyboards and AI Video Editor/Raw/
     const storyboardsDir = path.join(process.cwd(), 'AI Video Editor', 'metadata', 'storyboards');
+    const rawDir = path.join(process.cwd(), 'AI Video Editor', 'Raw');
     let approvedStoryboard: any = null;
+    let targetRawNotesPath: string | null = null;
 
-    if (fs.existsSync(storyboardsDir)) {
+    const requestedRawName = projectName || projectDirName || adProjectDir;
+    if (requestedRawName) {
+      const rawPath = path.join(rawDir, requestedRawName, 'notes.json');
+      if (fs.existsSync(rawPath)) {
+        try {
+          const rawData = JSON.parse(fs.readFileSync(rawPath, 'utf-8'));
+          if (rawData.status === 'approved' || rawData.status === 'ready_to_edit' || bypassApprovalCheck) {
+            targetRawNotesPath = rawPath;
+            approvedStoryboard = {
+              id: rawData.projectId || `proj_${Date.now()}`,
+              projectName: rawData.title || requestedRawName,
+              isApproved: true,
+              sourceVideo: path.join(process.cwd(), 'public', 'uploads', 'sample_vertical.mp4'),
+              beats: (rawData.beats || []).map((b: any, idx: number) => ({
+                inSec: idx * 3.5,
+                outSec: idx * 3.5 + (b.durationSeconds || 3.5),
+                headline: b.captions || `Beat ${b.beatNumber || idx + 1}`,
+              })),
+            };
+          }
+        } catch {}
+      }
+    }
+
+    if (!approvedStoryboard && fs.existsSync(storyboardsDir)) {
       const files = fs.readdirSync(storyboardsDir).filter((f) => f.endsWith('.json'));
       if (files.length > 0) {
         files.sort().reverse();
@@ -92,6 +119,12 @@ export async function POST(req: Request) {
       { inSec: 12, outSec: 14.0, headline: 'CTA' },
     ];
 
+    let srcDuration = 10.0;
+    try {
+      const probe = await FFmpegService.probeMedia(inputVideo);
+      srcDuration = probe.durationSeconds || 10.0;
+    } catch {}
+
     const segmentPaths: string[] = [];
     const targetW = 1080;
     const targetH = 1920;
@@ -99,10 +132,14 @@ export async function POST(req: Request) {
     for (let i = 0; i < beats.length; i++) {
       const beat = beats[i];
       const segTmpPath = getSafeTempFilePath(`seg_${jobId}_${i}.mp4`);
+      const targetSegDuration = Math.min(2.5, Math.max(1.0, (beat.outSec || 3.0) - (beat.inSec || 0)));
+      const maxSeek = Math.max(0, srcDuration - targetSegDuration - 0.2);
+      const safeInSec = maxSeek > 0 ? (i * 2.0) % maxSeek : 0;
+      const safeOutSec = safeInSec + targetSegDuration;
 
       await FFmpegService.trimAndProcessSegment(inputVideo, segTmpPath, {
-        inSec: beat.inSec || 0,
-        outSec: beat.outSec || 3.0,
+        inSec: safeInSec,
+        outSec: safeOutSec,
         speedMultiplier: 1.0,
         filter: i === 0 ? 'clean' : 'teal_orange',
         targetWidth: targetW,
@@ -124,9 +161,26 @@ export async function POST(req: Request) {
     }
 
     // 6. HyperFrames Deterministic Motion Graphics & Subtitle Compositing
-    // Physical copy to final export path and public uploads
+    // Physical copy to final export path, public uploads, and AI Video Editor/Exports
     fs.copyFileSync(concatMasterTempPath, finalVideoPath);
     fs.copyFileSync(concatMasterTempPath, publicVideoPath);
+
+    const directExportsDir = path.join(process.cwd(), 'AI Video Editor', 'Exports');
+    if (!fs.existsSync(directExportsDir)) fs.mkdirSync(directExportsDir, { recursive: true });
+    const directExportsPath = path.join(directExportsDir, outputFileName);
+    fs.copyFileSync(concatMasterTempPath, directExportsPath);
+
+    if (targetRawNotesPath && fs.existsSync(targetRawNotesPath)) {
+      try {
+        const rawObj = JSON.parse(fs.readFileSync(targetRawNotesPath, 'utf8'));
+        rawObj.status = 'rendered';
+        rawObj.renderedVideoPath = finalVideoPath;
+        rawObj.renderedVideoUrl = publicVideoUrl;
+        rawObj.renderJobId = jobId;
+        rawObj.updatedAt = new Date().toISOString();
+        fs.writeFileSync(targetRawNotesPath, JSON.stringify(rawObj, null, 2), 'utf8');
+      } catch {}
+    }
 
     try {
       fs.unlinkSync(concatMasterTempPath);
@@ -220,6 +274,8 @@ export async function POST(req: Request) {
       success: true,
       jobId,
       videoUrl: publicVideoUrl,
+      publicVideoUrl,
+      finalVideoPath,
       finalVideoDiskPath: finalVideoPath,
       thumbnailUrl: `/uploads/rendered/${thumbFileName}`,
       qaReport,

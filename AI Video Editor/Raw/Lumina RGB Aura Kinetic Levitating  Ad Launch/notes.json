@@ -1,5 +1,5 @@
 {
-  "projectId": "proj_ad_1793901940554",
+  "projectId": "proj_ad_1793906133498",
   "title": "Lumina RGB Aura Kinetic Levitating Desk Lamp — Viral Dropshipping Ad",
   "targetPlatform": "Instagram Reels / TikTok / YouTube Shorts",
   "aspectRatio": "9:16",
@@ -14,16 +14,23 @@
     "id": "drop_lumina_01",
     "supplierPrice": 850,
     "sellingPrice": 2899,
-    "profitMarginPct": 70.6
+    "profitMarginPct": 70.6,
+    "imageUrl": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop",
+    "category": "Home & Gadgets"
+  },
+  "affiliate": {
+    "referralCode": "ref_creatorstudio01_ina_01_e7ei",
+    "canonicalReferralUrl": "https://riiqx.com/p/drop_lumina_01?ref=ref_creatorstudio01_ina_01_e7ei&camp=vid_ad_lumina_rgb_aura_kinetic_levitating_&utm_source=riiqx_creator_ad",
+    "commissionRatePct": 8.5
   },
   "beats": [
     {
       "beatNumber": 1,
-      "timecode": "00:00 - 00:02.0",
-      "durationSeconds": 2,
+      "timecode": "00:00 - 00:03.0",
+      "durationSeconds": 3,
       "speechTranscript": "Stop buying boring lamps. This one literally floats in thin air!",
-      "visualDirection": "Extreme 1.1x punch-in on problem scenario, fast cut to Lumina RGB Aura Kinetic Levitating Desk Lamp beauty shot with neon glow.",
-      "captions": "Stop buying boring lamps. This one literally floats in thin air!",
+      "visualDirection": "Extreme 1.1x punch-in on problem scenario, fast cut to Lumina RGB Aura Kinetic Levitating Desk Lamp beauty shot with neon ambient glow.",
+      "captions": "STOP BUYING BORING LAMPS. THIS ONE LITER",
       "captionStyle": {
         "highlightColor": "#FFD43B",
         "animation": "pop_bounce"
@@ -37,11 +44,11 @@
     },
     {
       "beatNumber": 2,
-      "timecode": "00:02.0 - 00:05.5",
-      "durationSeconds": 3.5,
-      "speechTranscript": "Meet the Lumina RGB Aura Kinetic Levitating Desk Lamp. It features Magnetic levitation floating ambient orb with 16 million colors, touch brightness control,...",
-      "visualDirection": "360 rotating 3D product view with glowing feature callout pills.",
-      "captions": "Engineered for MAXIMUM performance.",
+      "timecode": "00:03.0 - 00:07.0",
+      "durationSeconds": 4,
+      "speechTranscript": "Meet the Lumina RGB Aura Kinetic Levitating Desk Lamp. Magnetic levitation floating ambient orb with 16 million colors, touch brightness con...",
+      "visualDirection": "360 rotating 3D turntable perspective with floating cyan feature badges.",
+      "captions": "ENGINEERED FOR MAXIMUM PERFORMANCE",
       "captionStyle": {
         "highlightColor": "#06B6D4",
         "animation": "karaoke_flow"
@@ -55,11 +62,11 @@
     },
     {
       "beatNumber": 3,
-      "timecode": "00:05.5 - 00:08.5",
-      "durationSeconds": 3,
-      "speechTranscript": "Get yours today for just ₹2,899 with instant free shipping and cash on delivery!",
-      "visualDirection": "Price tag reveal with glowing green slash badge from original MRP to ₹2,899.",
-      "captions": "Only ₹2,899 — Limited Stock!",
+      "timecode": "00:07.0 - 00:11.0",
+      "durationSeconds": 4,
+      "speechTranscript": "Regular retail stores charge way more, but you can get it for only ₹2,899 with instant free shipping!",
+      "visualDirection": "Side-by-side price comparison graphic slashing high retail price down to ₹2,899.",
+      "captions": "ONLY ₹2,899 — LIMITED STOCK!",
       "captionStyle": {
         "highlightColor": "#10B981",
         "animation": "pop_bounce"
@@ -73,10 +80,10 @@
     },
     {
       "beatNumber": 4,
-      "timecode": "00:08.5 - 00:11.0",
-      "durationSeconds": 2.5,
-      "speechTranscript": "Tap the link in bio or order now before stock runs out!",
-      "visualDirection": "Animated CTA arrow pointing down to link in bio with pulsing order button.",
+      "timecode": "00:11.0 - 00:15.0",
+      "durationSeconds": 4,
+      "speechTranscript": "Tap the link in bio or use code RIIQX10 to order yours now before it sells out!",
+      "visualDirection": "Animated CTA arrow pointing down to link in bio with pulsing amber order button.",
       "captions": "TAP LINK IN BIO TO ORDER NOW!",
       "captionStyle": {
         "highlightColor": "#FFD43B",
@@ -90,7 +97,7 @@
       "approval": "approved"
     }
   ],
-  "creatorFeedbackNotes": "High-converting dropshipping template pre-loaded with viral pacing rules.",
-  "createdAt": "2026-11-05T18:05:40.554Z",
-  "updatedAt": "2026-11-05T18:05:40.555Z"
+  "creatorFeedbackNotes": "High-converting dropshipping template pre-loaded with viral pacing rules and trackable affiliate link.",
+  "createdAt": "2026-11-05T19:15:33.498Z",
+  "updatedAt": "2026-11-05T19:15:33.498Z"
 }

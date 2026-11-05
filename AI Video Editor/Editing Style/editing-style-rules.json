@@ -13,18 +13,18 @@
   },
   "captions": {
     "animation": "pop_bounce karaoke word-by-word",
-    "highlightColor": "#FFFF00",
+    "highlightColor": "#FFD43B",
     "placement": "Center lower third (70-75% Y)"
   },
   "colors": [
     "#000000",
     "#FFFFFF",
     "#FF0000",
-    "#00FFFF",
-    "#FF00FF",
+    "#00FF00",
     "#0000FF",
     "#FFFF00",
-    "#00FF00"
+    "#FF00FF",
+    "#00FFFF"
   ],
-  "updatedAt": "2026-11-05T18:05:39.741Z"
+  "updatedAt": "2026-11-05T19:15:26.175Z"
 }

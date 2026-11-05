@@ -263,7 +263,8 @@ export class FFmpegService {
         .videoFilters(videoFilters)
         .outputOptions([
           '-c:v libx264',
-          '-preset veryfast',
+          '-preset ultrafast',
+          '-threads 0',
           '-pix_fmt yuv420p',
           '-c:a aac',
           '-b:a 192k',
@@ -317,7 +318,8 @@ export class FFmpegService {
         .inputOptions(['-f concat', '-safe 0'])
         .outputOptions([
           '-c:v libx264',
-          '-preset veryfast',
+          '-preset ultrafast',
+          '-threads 0',
           '-pix_fmt yuv420p',
           '-c:a aac',
           '-b:a 192k',
