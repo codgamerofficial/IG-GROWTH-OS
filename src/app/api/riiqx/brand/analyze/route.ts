@@ -12,12 +12,13 @@ export const dynamic = 'force-dynamic';
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { websiteUrl, brandName, businessDescription, targetAudience, logoUrl } = body;
+    const targetUrl = (body.websiteUrl || body.url || '').trim();
+    const { brandName, businessDescription, targetAudience, logoUrl } = body;
 
     let websiteAnalysis = undefined;
-    if (websiteUrl && websiteUrl.trim()) {
+    if (targetUrl) {
       try {
-        websiteAnalysis = await WebsiteAnalyzer.analyzeWebsite(websiteUrl.trim());
+        websiteAnalysis = await WebsiteAnalyzer.analyzeWebsite(targetUrl);
       } catch (scrapeErr: any) {
         // If SSRF blocked, return clear 400 Bad Request
         if (scrapeErr.message.includes('SSRF Block')) {
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
             { status: 400 }
           );
         }
-        console.warn(`[BrandAnalyzeAPI] Scrape warning for ${websiteUrl}:`, scrapeErr.message);
+        console.warn(`[BrandAnalyzeAPI] Scrape warning for ${targetUrl}:`, scrapeErr.message);
       }
     }
 

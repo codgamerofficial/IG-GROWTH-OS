@@ -99,48 +99,53 @@ export class AIServiceManager {
       console.warn(`[AIServiceManager] Execution failed on ${targetSpec.modelId}: ${err.message}. Invoking fallback chain...`);
       fallbackUsed = true;
 
-      const fallbackSpec = targetSpec.modelId !== 'gemini-2.5-flash'
-        ? CapabilityRegistry.findModelsByCapabilities(requiredCaps, 'google')[0]
-        : CapabilityRegistry.findModelsByCapabilities(requiredCaps, 'groq')[0] ||
-          CapabilityRegistry.findModelsByCapabilities(requiredCaps, 'openrouter')[0];
+      const candidates = CapabilityRegistry.findModelsByCapabilities(requiredCaps)
+        .filter((m) => m.modelId !== targetSpec.modelId);
 
-      if (!fallbackSpec || fallbackSpec.modelId === targetSpec.modelId) {
-        throw err;
+      let lastError = err;
+      for (const fallbackSpec of candidates) {
+        try {
+          console.log(`[AIServiceManager] Trying fallback candidate: ${fallbackSpec.modelId} (${fallbackSpec.provider})`);
+          const fallbackResponse = await this.executeWithTimeout(
+            this.dispatchProviderRequest(fallbackSpec, fullPrompt, options),
+            timeoutMs,
+            fallbackSpec.modelId
+          );
+
+          const latencyMs = Date.now() - startMs;
+          const inputTokens = Math.round(fullPrompt.length / 4);
+          const outputTokens = Math.round(fallbackResponse.length / 4);
+          const cost = fallbackSpec.isFreeTier ? 0 : 0.0001;
+
+          recordInferenceUsage({
+            provider: fallbackSpec.provider,
+            model: fallbackSpec.modelId,
+            taskType: task,
+            latencyMs,
+            inputTokens,
+            outputTokens,
+            success: true,
+          });
+
+          return {
+            success: true,
+            data: fallbackResponse,
+            provider: fallbackSpec.provider,
+            model: fallbackSpec.modelId,
+            isFreeTier: fallbackSpec.isFreeTier,
+            latencyMs,
+            inputTokens,
+            outputTokens,
+            estimatedCostUsd: cost,
+            fallbackUsed: true,
+          };
+        } catch (fbErr: any) {
+          console.warn(`[AIServiceManager] Fallback candidate ${fallbackSpec.modelId} failed: ${fbErr.message}`);
+          lastError = fbErr;
+        }
       }
 
-      const fallbackResponse = await this.executeWithTimeout(
-        this.dispatchProviderRequest(fallbackSpec, fullPrompt, options),
-        timeoutMs,
-        fallbackSpec.modelId
-      );
-
-      const latencyMs = Date.now() - startMs;
-      const inputTokens = Math.round(fullPrompt.length / 4);
-      const outputTokens = Math.round(fallbackResponse.length / 4);
-      const cost = fallbackSpec.isFreeTier ? 0 : 0.0001;
-
-      recordInferenceUsage({
-        provider: fallbackSpec.provider,
-        model: fallbackSpec.modelId,
-        taskType: task,
-        latencyMs,
-        inputTokens,
-        outputTokens,
-        success: true,
-      });
-
-      return {
-        success: true,
-        data: fallbackResponse,
-        provider: fallbackSpec.provider,
-        model: fallbackSpec.modelId,
-        isFreeTier: fallbackSpec.isFreeTier,
-        latencyMs,
-        inputTokens,
-        outputTokens,
-        estimatedCostUsd: cost,
-        fallbackUsed: true,
-      };
+      throw lastError;
     }
   }
 

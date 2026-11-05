@@ -1,52 +1,56 @@
 {
-  "id": "brand_1793857399063_illdd",
-  "brandName": "GlowFit AI Performance",
-  "tagline": "Precision Biometrics for High-Velocity Athletes",
-  "mission": "To empower elite athletes and biohackers with next-generation biometric activewear, transforming human potential through data-driven insights and unparalleled endurance tracking.",
+  "id": "brand_1793861975057_onzku",
+  "brandName": "GlowFit AI",
+  "websiteUrl": "https://glowfit.ai/",
+  "tagline": "Personalized Meal & Workout Plans",
+  "mission": "To empower individuals to achieve their health and fitness goals through AI-driven, personalized meal and workout plans, making healthy living accessible and sustainable.",
   "description": "High-impact creative operations.",
-  "industry": "Sports Technology & Performance Apparel",
-  "targetAudience": "Marathon runners, hybrid athletes, and biohackers",
+  "industry": "Health & Fitness Technology",
+  "targetAudience": "Individuals seeking personalized, convenient, and effective solutions for weight loss, muscle building, and overall fitness improvement.",
   "customerPersonas": [
-    "The Endurance Elite: Marathoners and ultra-runners obsessed with optimizing every stride, seeking real-time biometric feedback to push past perceived limits.",
-    "The Versatile Vanguard: Hybrid athletes who demand multi-sport tracking and adaptive performance insights across diverse training regimens.",
-    "The Biohacker Optimizer: Individuals passionate about self-quantification, leveraging advanced biometrics to fine-tune their physiology and maximize human performance."
+    "Busy professionals looking for efficient ways to manage their health.",
+    "Fitness enthusiasts seeking tailored workout and nutrition guidance.",
+    "Individuals new to fitness and nutrition who need a clear, personalized starting point.",
+    "People who have struggled with generic health plans and are looking for a customized approach."
   ],
   "brandPersonality": [
-    "Innovative",
-    "High-Performance",
-    "Data-Driven",
     "Empowering",
-    "Cutting-Edge",
-    "Precise",
-    "Ambitious"
+    "Intelligent",
+    "Personalized",
+    "Efficient",
+    "Supportive",
+    "Modern"
   ],
-  "toneOfVoice": "Authoritative yet inspiring, technical but accessible, confident, and forward-thinking. We speak with the precision of data and the passion of performance.",
+  "toneOfVoice": "Encouraging, knowledgeable, direct, and results-oriented, with a touch of modern innovation.",
   "coreMessages": [
-    "Unlock unparalleled endurance and optimize every movement with AI-powered biometrics.",
-    "Experience the future of activewear, engineered for extreme performance and precision tracking.",
-    "Transform your training: data-driven insights for peak physical and mental performance.",
-    "GlowFit AI Performance: Where technology meets tenacity."
+    "Your health journey, personalized by AI.",
+    "Achieve your fitness goals faster with custom plans.",
+    "Simple questions, powerful results in minutes.",
+    "Stop generic plans, start your unique GlowFit AI journey."
   ],
   "colorPalette": {
-    "primary": "#007BFF",
-    "secondary": "#2C3E50",
-    "accent": "#28A745",
-    "background": "#F8F9FA",
-    "neutral": "#6C757D",
+    "primary": "#FF7A00",
+    "secondary": "#575ECF",
+    "accent": "#FCFBF8",
+    "background": "#FCFBF8",
+    "neutral": "#1B1B1B",
     "additional": []
   },
   "typography": {
-    "heading": "Montserrat",
-    "body": "Open Sans",
-    "code": "Fira Code"
+    "heading": "system-ui",
+    "body": "system-ui, sans-serif",
+    "code": "system-ui, monospace"
   },
-  "logoVariants": {},
+  "logoVariants": {
+    "primaryUrl": "https://glowfit.ai/favicon.png",
+    "iconOnlyUrl": "https://glowfit.ai/apple-touch-icon.png"
+  },
   "visualRules": [
-    "Emphasize sleek, futuristic designs and clean lines.",
-    "Incorporate dynamic motion graphics and data visualization elements.",
-    "Utilize a high-contrast aesthetic with vibrant accents against dark or light backgrounds.",
-    "Show athletes in peak performance, demonstrating precision and control.",
-    "Focus on the integration of technology and the human form."
+    "Clean and modern interface design.",
+    "Use of vibrant, energetic colors that reflect health and vitality.",
+    "Imagery that showcases diverse individuals achieving fitness goals.",
+    "Clear, concise data visualization for progress tracking.",
+    "Emphasis on the simplicity and speed of the AI plan generation."
   ],
   "contentGuidelines": [
     "Hook within 3 seconds",
@@ -56,18 +60,18 @@
     "Get started today"
   ],
   "doNotUseRules": [
-    "Avoid cluttered or overly busy visual compositions.",
-    "Do not use outdated or generic sports imagery.",
-    "Steer clear of pastel colors or overly soft aesthetics that contradict high-performance.",
-    "Refrain from language or visuals that downplay the seriousness of athletic pursuit or data precision.",
-    "Do not use comic sans or overly decorative fonts."
+    "Overly complex or cluttered design.",
+    "Generic stock photos that lack authenticity.",
+    "Technical jargon that alienates users.",
+    "Promises of unrealistic or unhealthy outcomes.",
+    "Outdated or uninspired visual elements."
   ],
   "confidence": {
-    "overallScore": 85,
-    "extractedFactsCount": 2,
-    "aiRecommendationsCount": 13
+    "overallScore": 98,
+    "extractedFactsCount": 13,
+    "aiRecommendationsCount": 14
   },
-  "version": 2,
-  "createdAt": "2026-11-05T05:43:19.063Z",
-  "updatedAt": "2026-11-05T05:43:19.343Z"
+  "version": 1,
+  "createdAt": "2026-11-05T06:59:35.057Z",
+  "updatedAt": "2026-11-05T06:59:35.057Z"
 }

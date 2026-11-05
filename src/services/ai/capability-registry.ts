@@ -8,6 +8,22 @@ import { AICapability, ModelCapabilitySpec, AIProviderId, TaskType } from './typ
 export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
   // 1. Google Gemini (Primary Vision & Multimodal Reasoning)
   {
+    modelId: 'gemini-2.5-flash-lite',
+    provider: 'google',
+    displayName: 'Gemini 2.5 Flash Lite',
+    contextWindow: 1_048_576,
+    capabilities: [
+      AICapability.TEXT_GENERATION,
+      AICapability.STRUCTURED_OUTPUT,
+      AICapability.VISION,
+      AICapability.TOOL_CALLING,
+    ],
+    isFreeTier: true,
+    tierDescription: 'Free Developer Tier',
+    recommendedTasks: ['brand_dna', 'vision', 'fast', 'reasoning', 'scriptwriting'],
+    pricing: { promptPer1M: 0, completionPer1M: 0 },
+  },
+  {
     modelId: 'gemini-2.5-flash',
     provider: 'google',
     displayName: 'Gemini 2.5 Flash',
@@ -43,9 +59,9 @@ export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
 
   // 2. Groq Cloud (Ultra-Fast Script & Workflow Orchestration)
   {
-    modelId: 'llama-3.3-70b-versatile',
+    modelId: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
     provider: 'groq',
-    displayName: 'Groq Llama 3.3 70B',
+    displayName: 'Groq GPT-OSS 120B',
     contextWindow: 128_000,
     capabilities: [
       AICapability.TEXT_GENERATION,
@@ -58,9 +74,9 @@ export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
     pricing: { promptPer1M: 0, completionPer1M: 0 },
   },
   {
-    modelId: 'qwen-2.5-32b',
+    modelId: 'qwen/qwen3.8-27b',
     provider: 'groq',
-    displayName: 'Groq Qwen 2.5 32B',
+    displayName: 'Groq Qwen 3.8 27B',
     contextWindow: 128_000,
     capabilities: [
       AICapability.TEXT_GENERATION,

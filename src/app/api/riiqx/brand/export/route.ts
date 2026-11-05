@@ -23,6 +23,7 @@ export async function GET() {
   return NextResponse.json({
     success: true,
     export: exportData,
+    markdown: exportData.markdown,
   });
 }
 

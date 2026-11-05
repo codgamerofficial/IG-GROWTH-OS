@@ -1,0 +1,49 @@
+{
+  "id": "canvas_1793862008732_ryze",
+  "name": "GlowFit AI Kinetic Canvas",
+  "description": "",
+  "blocks": [
+    {
+      "id": "cb_hook",
+      "type": "text",
+      "x": 100,
+      "y": 100,
+      "width": 300,
+      "height": 160,
+      "zIndex": 1,
+      "data": {
+        "title": "Viral Hook Concept",
+        "text": "Autonomy is the future of content distribution."
+      }
+    },
+    {
+      "id": "cb_palette",
+      "type": "color_swatch",
+      "x": 440,
+      "y": 100,
+      "width": 260,
+      "height": 160,
+      "zIndex": 1,
+      "data": {
+        "title": "Brand Colors",
+        "hexCode": "#FF7A00"
+      }
+    }
+  ],
+  "connectors": [
+    {
+      "id": "cc_1",
+      "sourceNodeId": "cb_hook",
+      "targetNodeId": "cb_palette"
+    }
+  ],
+  "viewport": {
+    "x": 50,
+    "y": 50,
+    "zoom": 1
+  },
+  "brandProfileId": "brand_1793861975057_onzku",
+  "brandName": "GlowFit AI",
+  "createdAt": "2026-11-05T07:00:08.732Z",
+  "updatedAt": "2026-11-05T07:00:08.732Z"
+}

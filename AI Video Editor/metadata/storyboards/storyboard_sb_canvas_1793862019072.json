@@ -1,0 +1,101 @@
+{
+  "id": "sb_canvas_1793862019072",
+  "sourceCanvasProjectId": "canvas_1793862008732_ryze",
+  "projectName": "GlowFit AI Kinetic Canvas — Canvas Storyboard",
+  "aspectRatio": "9:16",
+  "totalDurationSeconds": 15,
+  "isApproved": true,
+  "approvedAt": "2026-11-05T07:00:19.072Z",
+  "beats": [
+    {
+      "id": "beat_1",
+      "sceneNumber": 1,
+      "title": "Scene 01 — Canvas Hook Beat",
+      "inSec": 0,
+      "outSec": 3.5,
+      "durationSeconds": 3.5,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "Autonomy is the future of content distribution.",
+      "visualComposition": "Dynamic eye-level framing with bold kinetic typography in brand primary.",
+      "captionText": "AUTONOMY IS THE FUTURE OF CONTENT DISTRIBUTION.",
+      "highlightedWords": [
+        "STOP",
+        "MANUAL",
+        "SCALE"
+      ],
+      "motionGraphics": "Kinetic typography bounce",
+      "transition": "Fast whip-pan",
+      "audioSfx": "Clean riser whoosh",
+      "bRollInstruction": "Fast split screen of creative canvas cards"
+    },
+    {
+      "id": "beat_2",
+      "sceneNumber": 2,
+      "title": "Scene 02 — Problem & Value Contrast",
+      "inSec": 3.5,
+      "outSec": 8,
+      "durationSeconds": 4.5,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "With RIIQX Autonomous Studio, your creative pipeline runs 24/7.",
+      "visualComposition": "Medium shot showing canvas moodboard frames animating in 3D perspective.",
+      "captionText": "AUTONOMOUS WORKFLOWS WIN",
+      "highlightedWords": [
+        "AUTONOMOUS",
+        "WIN"
+      ],
+      "motionGraphics": "Card pop with glow badge",
+      "transition": "Zoom-in cut",
+      "audioSfx": "High retention hit",
+      "bRollInstruction": "B-roll of moodboard and palette blocks"
+    },
+    {
+      "id": "beat_3",
+      "sceneNumber": 3,
+      "title": "Scene 03 — Autonomous Solution Proof",
+      "inSec": 8,
+      "outSec": 12.5,
+      "durationSeconds": 4.5,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "GlowFit AI converts creative moodboards directly into finished video storyboards.",
+      "visualComposition": "Direct screen recording of video timeline rendering in real time.",
+      "captionText": "MOODBOARDS DIRECTLY TO 4K VIDEO",
+      "highlightedWords": [
+        "DIRECTLY",
+        "VIDEO",
+        "4K"
+      ],
+      "motionGraphics": "HyperFrames progress bar and telemetry checkmarks",
+      "transition": "Glitch slide",
+      "audioSfx": "Metallic UI chime",
+      "bRollInstruction": "Clean 9:16 vertical render preview"
+    },
+    {
+      "id": "beat_4",
+      "sceneNumber": 4,
+      "title": "Scene 04 — High Conversion Call to Action",
+      "inSec": 12.5,
+      "outSec": 15,
+      "durationSeconds": 2.5,
+      "sourceClip": "sample_vertical.mp4",
+      "spokenText": "Get started today",
+      "visualComposition": "Pulsing CTA button overlay with direct eye contact creator.",
+      "captionText": "GET STARTED TODAY",
+      "highlightedWords": [
+        "TAP",
+        "STARTED",
+        "NOW"
+      ],
+      "motionGraphics": "Pulsing primary yellow hero CTA button",
+      "transition": "Fade to black",
+      "audioSfx": "Deep sub-bass chime",
+      "bRollInstruction": "Profile follow badge and link in bio pointer"
+    }
+  ],
+  "brandGuidelines": {
+    "primaryColor": "#FF7A00",
+    "secondaryColor": "#575ECF",
+    "accentColor": "#FCFBF8",
+    "font": "system-ui"
+  },
+  "createdAt": "2026-11-05T07:00:19.072Z"
+}

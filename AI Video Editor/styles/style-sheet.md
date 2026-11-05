@@ -1,32 +1,33 @@
-# GlowFit AI Performance — Brand DNA & Guidelines Specification
-> **Version**: 2.0 | **Generated**: 5/11/2026
-> **Tagline**: *Precision Biometrics for High-Velocity Athletes*
-> **Confidence Score**: 85% (2 observed facts · 13 AI recommendations)
+# GlowFit AI — Brand DNA & Guidelines Specification
+> **Version**: 1.0 | **Generated**: 5/11/2026
+> **Tagline**: *Personalized Meal & Workout Plans*
+> **Confidence Score**: 98% (13 observed facts · 14 AI recommendations)
 
 ---
 
 ## 1. Brand Identity & Purpose
-- **Mission**: To empower elite athletes and biohackers with next-generation biometric activewear, transforming human potential through data-driven insights and unparalleled endurance tracking.
-- **Industry**: Sports Technology & Performance Apparel
+- **Mission**: To empower individuals to achieve their health and fitness goals through AI-driven, personalized meal and workout plans, making healthy living accessible and sustainable.
+- **Industry**: Health & Fitness Technology
 - **Description**: High-impact creative operations.
-- **Target Audience**: Marathon runners, hybrid athletes, and biohackers
+- **Target Audience**: Individuals seeking personalized, convenient, and effective solutions for weight loss, muscle building, and overall fitness improvement.
 
 ### Customer Personas:
-- The Endurance Elite: Marathoners and ultra-runners obsessed with optimizing every stride, seeking real-time biometric feedback to push past perceived limits.
-- The Versatile Vanguard: Hybrid athletes who demand multi-sport tracking and adaptive performance insights across diverse training regimens.
-- The Biohacker Optimizer: Individuals passionate about self-quantification, leveraging advanced biometrics to fine-tune their physiology and maximize human performance.
+- Busy professionals looking for efficient ways to manage their health.
+- Fitness enthusiasts seeking tailored workout and nutrition guidance.
+- Individuals new to fitness and nutrition who need a clear, personalized starting point.
+- People who have struggled with generic health plans and are looking for a customized approach.
 
 ---
 
 ## 2. Voice, Tone & Personality
-- **Tone of Voice**: Authoritative yet inspiring, technical but accessible, confident, and forward-thinking. We speak with the precision of data and the passion of performance.
-- **Personality Pillars**: Innovative • High-Performance • Data-Driven • Empowering • Cutting-Edge • Precise • Ambitious
+- **Tone of Voice**: Encouraging, knowledgeable, direct, and results-oriented, with a touch of modern innovation.
+- **Personality Pillars**: Empowering • Intelligent • Personalized • Efficient • Supportive • Modern
 
 ### Core Messaging:
-- "Unlock unparalleled endurance and optimize every movement with AI-powered biometrics."
-- "Experience the future of activewear, engineered for extreme performance and precision tracking."
-- "Transform your training: data-driven insights for peak physical and mental performance."
-- "GlowFit AI Performance: Where technology meets tenacity."
+- "Your health journey, personalized by AI."
+- "Achieve your fitness goals faster with custom plans."
+- "Simple questions, powerful results in minutes."
+- "Stop generic plans, start your unique GlowFit AI journey."
 
 ---
 
@@ -35,27 +36,27 @@
 ### Color Palette:
 | Role | Color Swatch | Hex Code | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Primary** | 🟡 | `#007BFF` | Hero accents, primary buttons, brand emblem |
-| **Secondary** | ⚫ | `#2C3E50` | Structural dark containers, header elements |
-| **Accent** | 🔵 | `#28A745` | Kinetic highlights, badges, active glows |
-| **Background** | ⬛ | `#F8F9FA` | Core backdrop canvas |
-| **Neutral** | ⚪ | `#6C757D` | High-contrast readability text |
+| **Primary** | 🟡 | `#FF7A00` | Hero accents, primary buttons, brand emblem |
+| **Secondary** | ⚫ | `#575ECF` | Structural dark containers, header elements |
+| **Accent** | 🔵 | `#FCFBF8` | Kinetic highlights, badges, active glows |
+| **Background** | ⬛ | `#FCFBF8` | Core backdrop canvas |
+| **Neutral** | ⚪ | `#1B1B1B` | High-contrast readability text |
 
 ### Typography:
-- **Heading**: `Montserrat` (Bold, tight tracking)
-- **Body**: `Open Sans` (Clean, accessible line-height)
-- **Code / Metrics**: `Fira Code`
+- **Heading**: `system-ui` (Bold, tight tracking)
+- **Body**: `system-ui, sans-serif` (Clean, accessible line-height)
+- **Code / Metrics**: `system-ui, monospace`
 
 ---
 
 ## 4. Visual Execution & Content Rules
 
 ### Mandatory Visual Rules:
-- [x] Emphasize sleek, futuristic designs and clean lines.
-- [x] Incorporate dynamic motion graphics and data visualization elements.
-- [x] Utilize a high-contrast aesthetic with vibrant accents against dark or light backgrounds.
-- [x] Show athletes in peak performance, demonstrating precision and control.
-- [x] Focus on the integration of technology and the human form.
+- [x] Clean and modern interface design.
+- [x] Use of vibrant, energetic colors that reflect health and vitality.
+- [x] Imagery that showcases diverse individuals achieving fitness goals.
+- [x] Clear, concise data visualization for progress tracking.
+- [x] Emphasis on the simplicity and speed of the AI plan generation.
 
 ### Content Guidelines:
 - Hook within 3 seconds
@@ -67,11 +68,11 @@
 ---
 
 ## 5. Strict Do-Not-Use Rules (Brand Safety)
-> ❌ **FORBIDDEN**: Avoid cluttered or overly busy visual compositions.
-> ❌ **FORBIDDEN**: Do not use outdated or generic sports imagery.
-> ❌ **FORBIDDEN**: Steer clear of pastel colors or overly soft aesthetics that contradict high-performance.
-> ❌ **FORBIDDEN**: Refrain from language or visuals that downplay the seriousness of athletic pursuit or data precision.
-> ❌ **FORBIDDEN**: Do not use comic sans or overly decorative fonts.
+> ❌ **FORBIDDEN**: Overly complex or cluttered design.
+> ❌ **FORBIDDEN**: Generic stock photos that lack authenticity.
+> ❌ **FORBIDDEN**: Technical jargon that alienates users.
+> ❌ **FORBIDDEN**: Promises of unrealistic or unhealthy outcomes.
+> ❌ **FORBIDDEN**: Outdated or uninspired visual elements.
 
 ---
 *Exported automatically by RIIQX AI Brand Intelligence System.*

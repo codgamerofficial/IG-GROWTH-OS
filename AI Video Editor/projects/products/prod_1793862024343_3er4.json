@@ -1,0 +1,42 @@
+{
+  "id": "prod_1793862024343_3er4",
+  "name": "GlowFit AI Biometric Smart Band",
+  "category": "wellness",
+  "description": "Titanium-encased continuous heart-rate and lactic acid sensor with dynamic neon display.",
+  "price": "$249.00",
+  "originalImages": [
+    "/icons/icon-512x512.png"
+  ],
+  "processedImages": [
+    "/icons/icon-512x512.png"
+  ],
+  "features": {
+    "colors": [
+      "neon"
+    ],
+    "materials": [
+      "titanium"
+    ],
+    "shape": "Sleek ergonomic cylinder with rounded corners",
+    "textOnProduct": "RIIQX CORE",
+    "keyDifferentiator": "High-precision autonomous intelligence unit"
+  },
+  "generations": [
+    {
+      "id": "scene_1793862031140_5wk9",
+      "productId": "prod_1793862024343_3er4",
+      "environment": "luxury_pedestal",
+      "lighting": "dramatic_rim",
+      "composition": "center_hero",
+      "aspectRatio": "1:1",
+      "prompt": "luxury_pedestal scene with dramatic_rim lighting in center_hero framing",
+      "imageUrl": "/uploads/products/scene_1793862031140_5wk9.svg",
+      "originalImageUrl": "/icons/icon-512x512.png",
+      "adHeadline": "Engineered for Flawless Performance",
+      "callToAction": "Order Now • Limited Early Batch",
+      "createdAt": "2026-11-05T07:00:31.140Z"
+    }
+  ],
+  "createdAt": "2026-11-05T07:00:24.343Z",
+  "updatedAt": "2026-11-05T07:00:31.140Z"
+}
