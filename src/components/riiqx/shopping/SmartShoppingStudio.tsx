@@ -47,6 +47,9 @@ import {
   ChevronRight,
   Layers,
   Calculator,
+  Bot,
+  Send,
+  MessageSquare,
 } from 'lucide-react';
 import {
   ExtractedProductInfo,
@@ -78,8 +81,51 @@ import { useRiiqx } from '@/context/RiiqxContext';
 
 export function SmartShoppingStudio() {
   const { setActiveTab: setActiveWorkspaceTab } = useRiiqx();
-  const [activeTab, setActiveTab] = useState<'marketplace' | 'scanner' | 'dropshipping' | 'wallet'>('marketplace');
+  const [activeTab, setActiveTab] = useState<'marketplace' | 'scanner' | 'dropshipping' | 'wallet' | 'assistant'>('marketplace');
   const [creatingAdId, setCreatingAdId] = useState<string | null>(null);
+
+  // Phase 6: AI Shopping Assistant States
+  const [assistantMessages, setAssistantMessages] = useState<
+    Array<{
+      id: string;
+      role: 'user' | 'assistant';
+      text: string;
+      provider?: string;
+      model?: string;
+      latencyMs?: number;
+      matchedProduct?: any;
+      savingsPlan?: any;
+      suggestedActions?: any[];
+      time: string;
+    }>
+  >([
+    {
+      id: 'msg_welcome',
+      role: 'assistant',
+      text: `👋 **Welcome to the RIIQX Autonomous AI Shopping Assistant!**
+
+I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and Meesho, analyze coupons, and calculate deterministic gift card arbitrage. Ask me anything or pick a quick suggestion below!`,
+      provider: 'Google Gemini',
+      model: 'gemini-2.5-flash',
+      suggestedActions: [
+        { id: 'q1', label: 'Sony WH-1000XM5 Best Deal', actionType: 'compare_prices' },
+        { id: 'q2', label: 'Compare Noise Colorfit Pro 5', actionType: 'compare_prices' },
+        { id: 'q3', label: 'Flipkart Gift Card Arbitrage Savings', actionType: 'buy_giftcard' },
+        { id: 'q4', label: 'Highest Margin Ambient Desk Lamp', actionType: 'explore_catalog' },
+      ],
+      time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    },
+  ]);
+  const [assistantInput, setAssistantInput] = useState('');
+  const [sendingAssistantMsg, setSendingAssistantMsg] = useState(false);
+  const [assistantProviderInfo, setAssistantProviderInfo] = useState<{
+    provider: string;
+    model: string;
+    latencyMs?: number;
+  }>({
+    provider: 'Google Gemini',
+    model: 'gemini-2.5-flash',
+  });
 
   // Marketplace States
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
@@ -623,6 +669,103 @@ export function SmartShoppingStudio() {
     }
   };
 
+  // Phase 6: Handle Assistant Chat
+  const handleSendAssistantMessage = async (overridePrompt?: string) => {
+    const promptToSend = (overridePrompt || assistantInput).trim();
+    if (!promptToSend || sendingAssistantMsg) return;
+
+    const userMsgId = `msg_user_${Date.now()}`;
+    const userMsg = {
+      id: userMsgId,
+      role: 'user' as const,
+      text: promptToSend,
+      time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setAssistantMessages((prev) => [...prev, userMsg]);
+    setAssistantInput('');
+    setSendingAssistantMsg(true);
+
+    try {
+      const res = await fetch('/api/shopping/assistant/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: promptToSend,
+          conversationHistory: assistantMessages.slice(-6).map((m) => ({
+            role: m.role,
+            content: m.text,
+          })),
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && data.response) {
+        const r = data.response;
+        setAssistantProviderInfo({
+          provider: r.providerUsed,
+          model: r.modelUsed,
+          latencyMs: r.latencyMs,
+        });
+
+        const assistantMsg = {
+          id: `msg_asst_${Date.now()}`,
+          role: 'assistant' as const,
+          text: r.reply,
+          provider: r.providerUsed,
+          model: r.modelUsed,
+          latencyMs: r.latencyMs,
+          matchedProduct: r.matchedProduct,
+          savingsPlan: r.savingsPlan,
+          suggestedActions: r.suggestedActions,
+          time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+        };
+
+        setAssistantMessages((prev) => [...prev, assistantMsg]);
+      } else {
+        const errorMsg = {
+          id: `msg_err_${Date.now()}`,
+          role: 'assistant' as const,
+          text: `⚠️ Error: ${data.error || 'Unable to process query.'}`,
+          time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+        };
+        setAssistantMessages((prev) => [...prev, errorMsg]);
+      }
+    } catch (err: any) {
+      setAssistantMessages((prev) => [
+        ...prev,
+        {
+          id: `msg_err_${Date.now()}`,
+          role: 'assistant' as const,
+          text: `⚠️ Network Error: ${err.message}`,
+          time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+        },
+      ]);
+    } finally {
+      setSendingAssistantMsg(false);
+    }
+  };
+
+  const handleExecuteAssistantAction = (action: any) => {
+    if (action.actionType === 'compare_prices') {
+      if (action.payload?.product) {
+        handleTriggerScannerForProduct(action.payload.product);
+      } else {
+        setUrlInput(action.label.replace('Compare ', '').replace(' Best Deal', ''));
+        setActiveTab('scanner');
+      }
+    } else if (action.actionType === 'buy_giftcard') {
+      setActiveTab('wallet');
+    } else if (action.actionType === 'create_video_ad' && action.payload?.productId) {
+      handleCreateVideoAd(action.payload.productId, action.payload.title);
+    } else if (action.actionType === 'track_order' && action.payload?.orderId) {
+      const ord = dropshippingOrders.find((o) => o.id === action.payload.orderId);
+      if (ord) setSelectedOrderForTracking(ord);
+    } else if (action.actionType === 'explore_catalog') {
+      setActiveTab('dropshipping');
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Navigation Sub-Tabs & Actions Bar */}
@@ -674,6 +817,18 @@ export function SmartShoppingStudio() {
           >
             <Gift className="h-4 w-4" />
             My Wallets &amp; Gift Cards
+          </button>
+
+          <button
+            onClick={() => setActiveTab('assistant')}
+            className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition ${
+              activeTab === 'assistant'
+                ? 'bg-[#FFD43B] text-black shadow-lg shadow-[#FFD43B]/20'
+                : 'bg-zinc-900 text-zinc-400 hover:bg-zinc-800 hover:text-white'
+            }`}
+          >
+            <Bot className="h-4 w-4 text-purple-400" />
+            AI Shopping Assistant
           </button>
         </div>
 
@@ -2340,6 +2495,197 @@ export function SmartShoppingStudio() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* =========================================================================
+          TAB 5: AI SHOPPING ASSISTANT & MULTI-AGENT ORCHESTRATOR (PHASE 6)
+          ========================================================================= */}
+      {activeTab === 'assistant' && (
+        <div className="space-y-6">
+          {/* Header Card with Multi-Provider Status */}
+          <div className="rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-xl flex flex-wrap items-center justify-between gap-4">
+            <div className="max-w-2xl space-y-1.5">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-purple-400 font-mono">
+                  Autonomous Multi-Agent Orchestrator
+                </span>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              </div>
+              <h2 className="text-2xl font-black text-white sm:text-3xl">
+                RIIQX Conversational Shopping Assistant
+              </h2>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Natural language commerce intelligence powered by Gemini 2.5 Flash, Groq LPU, and deterministic 9-step coupon &amp; gift card arbitrage. Ask about any product, compare prices, or plan your purchase.
+              </p>
+            </div>
+
+            <div className="flex flex-col items-end gap-1.5 font-mono text-xs">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300">
+                <Bot className="h-3.5 w-3.5 text-purple-400" />
+                <span className="font-bold">Active Engine:</span>
+                <span className="text-white">{assistantProviderInfo.provider}</span>
+              </div>
+              <span className="text-[10px] text-zinc-500">
+                Model: {assistantProviderInfo.model} {assistantProviderInfo.latencyMs ? `(${assistantProviderInfo.latencyMs}ms)` : ''}
+              </span>
+            </div>
+          </div>
+
+          {/* Chat Window Container */}
+          <div className="rounded-3xl border border-zinc-800 bg-[#101014] flex flex-col h-[580px] shadow-2xl overflow-hidden">
+            {/* Messages Thread */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-5">
+              {assistantMessages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={`flex gap-3 max-w-3xl ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : ''}`}
+                >
+                  {msg.role === 'assistant' ? (
+                    <div className="h-8 w-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 text-purple-400">
+                      <Bot className="h-4 w-4" />
+                    </div>
+                  ) : (
+                    <div className="h-8 w-8 rounded-xl bg-amber-400/20 border border-amber-400/30 flex items-center justify-center shrink-0 text-amber-400 font-bold text-xs font-mono">
+                      YOU
+                    </div>
+                  )}
+
+                  <div className={`space-y-3 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+                    <div
+                      className={`inline-block p-4 rounded-2xl text-xs leading-relaxed ${
+                        msg.role === 'user'
+                          ? 'bg-amber-400/15 border border-amber-400/30 text-white rounded-tr-none'
+                          : 'bg-zinc-900 border border-zinc-800 text-zinc-200 rounded-tl-none whitespace-pre-wrap'
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
+
+                    {/* Matched Product Mini Card */}
+                    {msg.matchedProduct && (
+                      <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-3.5 flex items-center gap-3 max-w-md">
+                        {msg.matchedProduct.imageUrl && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={msg.matchedProduct.imageUrl}
+                            alt={msg.matchedProduct.title}
+                            className="h-14 w-14 rounded-xl object-cover border border-zinc-800"
+                          />
+                        )}
+                        <div className="truncate flex-1 space-y-1 text-xs">
+                          <h4 className="font-bold text-white truncate">{msg.matchedProduct.title}</h4>
+                          <div className="flex items-baseline gap-2 font-mono">
+                            <span className="text-emerald-400 font-bold">
+                              ₹{msg.matchedProduct.price?.toLocaleString('en-IN')}
+                            </span>
+                            <span className="text-zinc-500 text-[10px] line-through">
+                              ₹{msg.matchedProduct.mrp?.toLocaleString('en-IN')}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Savings Summary Banner */}
+                    {msg.savingsPlan && (
+                      <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/30 flex items-center justify-between text-xs font-mono text-emerald-300 max-w-md">
+                        <span>Best Platform: <strong className="text-white">{msg.savingsPlan.bestPlatform}</strong></span>
+                        <span className="font-bold text-emerald-400">Save ₹{msg.savingsPlan.totalSavings?.toLocaleString('en-IN')}</span>
+                      </div>
+                    )}
+
+                    {/* Interactive Action Suggestion Buttons */}
+                    {msg.suggestedActions && msg.suggestedActions.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        {msg.suggestedActions.map((act: any, aIdx: number) => (
+                          <button
+                            key={act.id || aIdx}
+                            onClick={() => {
+                              if (act.actionType === 'compare_prices' && !act.payload) {
+                                handleSendAssistantMessage(act.label);
+                              } else {
+                                handleExecuteAssistantAction(act);
+                              }
+                            }}
+                            className="px-3 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-purple-500/40 text-purple-300 hover:text-white text-xs font-semibold transition flex items-center gap-1.5"
+                          >
+                            <Sparkles className="h-3 w-3 text-purple-400" />
+                            <span>{act.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
+                      <span>{msg.time}</span>
+                      {msg.provider && <span>• {msg.provider}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {sendingAssistantMsg && (
+                <div className="flex gap-3 max-w-lg">
+                  <div className="h-8 w-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center shrink-0 text-purple-400">
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                  </div>
+                  <div className="p-3.5 rounded-2xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-400 flex items-center gap-2 font-mono">
+                    <span className="h-1.5 w-1.5 rounded-full bg-purple-400 animate-ping" />
+                    <span>Analyzing 6 retailers &amp; calculating arbitrage...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Suggestion Pills */}
+            <div className="px-6 py-2 border-t border-zinc-800/80 bg-zinc-950/60 flex items-center gap-2 overflow-x-auto text-xs font-mono">
+              <span className="text-[10px] text-zinc-500 uppercase shrink-0">Try asking:</span>
+              {[
+                'Find best deal for Sony WH-1000XM5',
+                'Compare Noise Colorfit Pro 5 across retailers',
+                'Which ambient desk lamp has highest dropship margin?',
+                'Flipkart Gift Card Arbitrage Savings',
+              ].map((pill, pIdx) => (
+                <button
+                  key={pIdx}
+                  onClick={() => handleSendAssistantMessage(pill)}
+                  className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-300 hover:text-white text-[11px] shrink-0 transition"
+                >
+                  {pill}
+                </button>
+              ))}
+            </div>
+
+            {/* Input Bar */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSendAssistantMessage();
+              }}
+              className="p-4 border-t border-zinc-800 bg-[#121215] flex items-center gap-3"
+            >
+              <input
+                type="text"
+                value={assistantInput}
+                onChange={(e) => setAssistantInput(e.target.value)}
+                placeholder="Ask about products, compare prices, or find arbitrage opportunities..."
+                disabled={sendingAssistantMsg}
+                className="flex-1 rounded-2xl bg-zinc-900 border border-zinc-800 px-4 py-3 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-purple-400 transition"
+              />
+              <button
+                type="submit"
+                disabled={!assistantInput.trim() || sendingAssistantMsg}
+                className="h-10 w-10 rounded-2xl bg-purple-500 hover:bg-purple-600 disabled:opacity-40 text-white flex items-center justify-center transition shrink-0 shadow-lg shadow-purple-500/20"
+              >
+                {sendingAssistantMsg ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </button>
+            </form>
+          </div>
         </div>
       )}
 

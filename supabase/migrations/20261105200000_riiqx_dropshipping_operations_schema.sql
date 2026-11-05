@@ -165,3 +165,4 @@ CREATE POLICY "Allow users to view their own dropshipping orders"
 
 CREATE POLICY "Allow users to view tracking events for their orders"
   ON public.order_tracking_events FOR SELECT USING (true);
+

@@ -10,7 +10,6 @@
 - **Tone 6**: `#0000FF`
 - **Tone 7**: `#FFFF00`
 - **Tone 8**: `#00FF00`
-- **Tone 9**: `#FF6600`
 
 ## 2. Typography & Font Matching
 - **Primary Display / Headlines**: `Montserrat ExtraBold or closest match` (Weight: 800 ExtraBold)
