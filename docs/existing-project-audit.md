@@ -111,3 +111,4 @@ d:\GlowFit AI\
 - **Zero Cleartext Credentials**: All API keys strictly reside in `.env` / `.env.local` and are processed exclusively in Node.js server runtimes.
 - **SSRF Filter**: Protects all outbound HTTP requests against private IP ranges (`10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, `127.0.0.1`, `169.254.169.254`).
 - **Zero Mock Policy**: Codebase strictly prohibits fake discounts, fictitious prices, and mock render states. Real calculations and authentic database records drive all UI metrics.
+

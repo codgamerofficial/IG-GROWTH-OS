@@ -95,3 +95,4 @@ All variables have been cross-referenced against the entire codebase (`src/` dir
 2. **SSRF Guard Protection**: All external API calls (e.g., website scanning, supplier feeds, retailer links) pass through the verified SSRF IP filter preventing loopback (`127.0.0.1`) and cloud metadata (`169.254.169.254`) requests.
 3. **AES-256 Token Vault**: Social access tokens and private supplier credentials are stored encrypted at rest using AES-256-GCM via `src/lib/riiqx/security/token-vault.ts`.
 4. **Zero Mock Policy**: `MOCK_MODE=false` is enforced across all routes. Every price observation, comparison, and dropshipping fulfillment must originate from real records or verified APIs.
+

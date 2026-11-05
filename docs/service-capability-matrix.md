@@ -117,3 +117,4 @@ Offers must be evaluated strictly in order of financial precedence:
 | **Push Alerts** | Web Push / Service Workers | Windows Native Toast Notifications| FCM Native Push Notifications |
 | **Gift Card Delivery** | In-App Reveal & Copy Code | Windows Clipboard & Secure Vault | Mobile Wallet Card & One-Tap Copy |
 | **Supplier Portal** | Web Dropshipping Dashboard | Desktop Bulk CSV / Inventory Sync| Mobile Order Alert & Quick Dispatch|
+

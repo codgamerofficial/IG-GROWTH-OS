@@ -123,3 +123,4 @@ RIIQX is designed in full compliance with current and upcoming Indian e-commerce
    - Data minimization: Only necessary shipping and contact details are collected.
    - User rights: Users can export or delete their profile and history via the settings panel.
    - Explicit consent gates for marketing notifications and location data.
+
