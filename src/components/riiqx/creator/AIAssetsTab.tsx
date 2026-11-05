@@ -1,33 +1,31 @@
 'use client';
 
 // =============================================================================
-// RIIQX Creator Studio 2.0 — AI Assets & Media Hub
-// Multi-Asset Upload • AI Role Tagging (Hook/B-Roll/Proof/Outro) • Media Vault
-// Instant "Insert to Video Editor Timeline" & 1-Click Preview Engine
+// RIIQX — Universal Creative Asset Catalog & Media Hub
+// Cross-Module Asset Browser • Multi-Category Filtering • 1-Click Timeline Bridge
 // =============================================================================
 
-import React, { useState } from 'react';
-import Image from 'next/image';
-import {
-  CreatorProject,
-  UploadedAsset,
-  CreatorStudioTab,
-} from '@/lib/riiqx/creator-types';
+import React, { useState, useEffect } from 'react';
 import {
   FolderOpen,
   UploadCloud,
-  Image as ImageIcon,
   Film,
-  Music,
-  Trash2,
+  Image as ImageIcon,
+  FileText,
+  Palette,
+  Layers,
   Sparkles,
-  CheckCircle2,
-  Eye,
-  Plus,
-  Zap,
-  ArrowRight,
-  Scissors,
+  ShoppingBag,
+  Trash2,
+  Copy,
+  Check,
+  Search,
+  ExternalLink,
+  RefreshCw,
+  Video,
 } from 'lucide-react';
+import { CreatorProject, CreatorStudioTab } from '@/lib/riiqx/creator-types';
+import { CreativeAssetItem, CreativeAssetCategory } from '@/services/assets/asset-service';
 
 interface AIAssetsTabProps {
   project: CreatorProject | null;
@@ -35,223 +33,254 @@ interface AIAssetsTabProps {
   onTabChange?: (tab: CreatorStudioTab) => void;
 }
 
-export function AIAssetsTab({ project, onUpdateProject, onTabChange }: AIAssetsTabProps) {
-  const [assets, setAssets] = useState<UploadedAsset[]>(() => {
-    if (project?.brief.assets && project.brief.assets.length > 0) {
-      return project.brief.assets;
+export function AIAssetsTab({ onTabChange }: AIAssetsTabProps) {
+  const [assets, setAssets] = useState<CreativeAssetItem[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchCatalogAssets();
+  }, [selectedCategory]);
+
+  const fetchCatalogAssets = async () => {
+    setLoading(true);
+    try {
+      const url =
+        selectedCategory === 'all'
+          ? '/api/riiqx/assets'
+          : `/api/riiqx/assets?category=${selectedCategory}`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.assets)) {
+          setAssets(data.assets);
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to fetch asset catalog:', err);
+    } finally {
+      setLoading(false);
     }
-    // Genuine physical sample assets verified on local disk
-    return [
-      {
-        id: 'asset_sample_vertical',
-        name: 'Sample_Vertical_9x16_30fps.mp4',
-        type: 'video',
-        url: '/uploads/sample_vertical.mp4',
-        sizeBytes: 155328,
-        aiSuggestedRole: 'hook_visual',
-        analysisStatus: 'analyzed',
-        visualTags: ['720x1280', 'Vertical', '30fps'],
-      },
-    ];
-  });
+  };
 
-  const [filterType, setFilterType] = useState<'all' | 'video' | 'image' | 'audio'>('all');
+  const handleCopyUrl = (url?: string, id?: string) => {
+    if (!url) return;
+    navigator.clipboard.writeText(url);
+    if (id) {
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    }
+  };
 
-  if (!project) {
+  const filteredAssets = assets.filter((asset) => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
     return (
-      <div className="flex h-96 flex-col items-center justify-center p-8 text-center text-[#737373]">
-        <FolderOpen className="h-10 w-10 text-[#3E3E3E] mb-3" />
-        <h3 className="text-base font-bold text-white">No Project Selected</h3>
-        <p className="text-xs text-[#737373] mt-1">Select or create a project from Overview to manage assets.</p>
-      </div>
+      asset.name.toLowerCase().includes(q) ||
+      asset.category.toLowerCase().includes(q) ||
+      asset.tags.some((t) => t.toLowerCase().includes(q))
     );
-  }
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-
-    const newAssets: UploadedAsset[] = [];
-    const roles: UploadedAsset['aiSuggestedRole'][] = [
-      'hook_visual',
-      'b_roll',
-      'proof',
-      'climax',
-      'outro',
-    ];
-
-    Array.from(files).forEach((file, index) => {
-      const type: 'video' | 'image' | 'audio' = file.type.startsWith('video/')
-        ? 'video'
-        : file.type.startsWith('audio/')
-        ? 'audio'
-        : 'image';
-
-      const url = typeof window !== 'undefined' && window.URL ? window.URL.createObjectURL(file) : '';
-      newAssets.push({
-        id: `user_asset_${Date.now()}_${index}`,
-        name: file.name,
-        type,
-        url,
-        sizeBytes: file.size,
-        aiSuggestedRole: roles[index % roles.length],
-        analysisStatus: 'analyzed',
-        visualTags: ['User Upload', type.toUpperCase()],
-      });
-    });
-
-    const updated = [...assets, ...newAssets];
-    setAssets(updated);
-    onUpdateProject({
-      ...project,
-      brief: {
-        ...project.brief,
-        assets: updated,
-      },
-      updatedAt: new Date().toISOString(),
-    });
-  };
-
-  const handleDeleteAsset = (id: string) => {
-    const updated = assets.filter((a) => a.id !== id);
-    setAssets(updated);
-    onUpdateProject({
-      ...project,
-      brief: {
-        ...project.brief,
-        assets: updated,
-      },
-      updatedAt: new Date().toISOString(),
-    });
-  };
-
-  const filtered = assets.filter((a) => {
-    if (filterType === 'all') return true;
-    return a.type === filterType;
   });
+
+  const categories: Array<{ id: string; label: string; icon: React.ElementType }> = [
+    { id: 'all', label: 'All Assets', icon: FolderOpen },
+    { id: 'videos', label: 'Videos', icon: Film },
+    { id: 'campaign_assets', label: 'Campaign Copy & Storyboards', icon: FileText },
+    { id: 'product_images', label: 'Product Renders', icon: ShoppingBag },
+    { id: 'brand_profiles', label: 'Brand Kits', icon: Palette },
+  ];
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2E2E2E] pb-5">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FFD43B] text-[#151515] font-black">
-              <FolderOpen className="h-4 w-4" />
-            </div>
-            <h1 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
-              AI Assets &amp; Media Vault
-            </h1>
-            <span className="rounded-full bg-[#FFD43B]/10 border border-[#FFD43B]/30 px-2.5 py-0.5 text-[10px] font-bold text-[#FFD43B]">
-              {assets.length} Assets Loaded
-            </span>
+    <div className="p-6 max-w-7xl mx-auto space-y-6 animate-fadeIn select-none">
+      {/* Header Banner */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-xl border border-[#27272A] bg-[#121215] shadow-lg">
+        <div className="flex items-center gap-4">
+          <div className="h-11 w-11 rounded-lg bg-[#FFD43B]/10 border border-[#FFD43B]/30 flex items-center justify-center text-[#FFD43B]">
+            <FolderOpen className="h-5 w-5" />
           </div>
-          <p className="mt-1 text-xs text-[#A3A3A3]">
-            {project.name} • Media vault with AI role tagging (Hook/B-Roll/Proof/Outro) and direct insertion to Video Editor timeline.
-          </p>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-bold tracking-tight text-white">
+                Universal Creative Asset Catalog
+              </h1>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono tracking-wide bg-[#FFD43B]/10 text-[#FFD43B] border border-[#FFD43B]/30">
+                Shared Hub
+              </span>
+            </div>
+            <p className="text-xs text-[#9E9EA4] mt-0.5">
+              Unified cross-module repository indexing videos, storyboards, product scenes, and brand profiles.
+            </p>
+          </div>
         </div>
 
-        {/* Upload Button */}
-        <label className="flex items-center gap-1.5 rounded-xl bg-[#FFD43B] hover:bg-[#FFC928] text-[#151515] px-4 py-2 text-xs font-black cursor-pointer transition-all shadow-sm active:scale-95">
-          <UploadCloud className="h-4 w-4" />
-          <span>Upload Media Files</span>
-          <input
-            type="file"
-            multiple
-            accept="image/*,video/*,audio/*"
-            onChange={handleFileUpload}
-            className="hidden"
-          />
-        </label>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={fetchCatalogAssets}
+            title="Refresh Catalog"
+            className="p-2 rounded-lg bg-[#18181B] hover:bg-[#27272A] border border-[#27272A] text-[#A1A1AA] hover:text-white transition"
+          >
+            <RefreshCw className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2">
-        {(['all', 'video', 'image', 'audio'] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setFilterType(t)}
-            className={`rounded-xl px-3.5 py-1.5 text-xs font-bold capitalize transition-all ${
-              filterType === t
-                ? 'bg-[#FFD43B] text-[#151515] shadow-xs'
-                : 'bg-[#1A1A1A] border border-[#2E2E2E] text-[#A3A3A3] hover:text-white'
-            }`}
-          >
-            {t} ({t === 'all' ? assets.length : assets.filter((a) => a.type === t).length})
-          </button>
-        ))}
+      {/* Filter & Search Bar */}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+        {/* Category Pills */}
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1">
+          {categories.map((cat) => {
+            const Icon = cat.icon;
+            const isSelected = selectedCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap ${
+                  isSelected
+                    ? 'bg-[#FFD43B] text-black font-semibold shadow-md shadow-[#FFD43B]/10'
+                    : 'bg-[#18181B] text-[#A1A1AA] hover:text-white border border-[#27272A]'
+                }`}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                <span>{cat.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Search Input */}
+        <div className="relative w-full sm:w-64">
+          <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[#71717A]" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search assets by tag, name..."
+            className="w-full rounded-lg bg-[#18181B] border border-[#27272A] pl-8 pr-3 py-1.5 text-xs text-white placeholder-[#71717A] focus:outline-none focus:border-[#FFD43B]"
+          />
+        </div>
       </div>
 
       {/* Assets Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {filtered.map((asset) => (
-          <div
-            key={asset.id}
-            className="flex flex-col justify-between rounded-2xl border border-[#2E2E2E] bg-[#1A1A1A] p-4 hover:border-[#FFD43B]/50 transition-all hover:shadow-lg group"
-          >
-            <div className="space-y-3">
-              {/* Asset Preview Thumbnail */}
-              <div className="relative aspect-[16/9] w-full rounded-xl overflow-hidden bg-black/70 border border-[#2E2E2E] flex items-center justify-center">
-                {asset.type === 'image' && asset.url ? (
-                  <Image src={asset.url} alt={asset.name} fill unoptimized className="object-cover" />
-                ) : asset.type === 'video' ? (
-                  <div className="flex flex-col items-center justify-center text-[#FFD43B] gap-1">
-                    <Film className="h-6 w-6" />
-                    <span className="text-[10px] font-mono">9:16 Video</span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-pink-400 gap-1">
-                    <Music className="h-6 w-6" />
-                    <span className="text-[10px] font-mono">Audio Track</span>
-                  </div>
-                )}
+      {loading ? (
+        <div className="p-12 text-center text-xs text-[#71717A] flex items-center justify-center gap-2">
+          <RefreshCw className="h-4 w-4 animate-spin text-[#FFD43B]" />
+          <span>Hydrating Creative Catalog...</span>
+        </div>
+      ) : filteredAssets.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredAssets.map((asset) => {
+            const isVideo = asset.category === 'videos' || asset.mimeType?.includes('video');
+            const isImage = asset.category === 'product_images' || asset.mimeType?.includes('image');
 
-                {/* AI Role Badge */}
-                {asset.aiSuggestedRole && (
-                  <div className="absolute bottom-2 left-2 rounded-md bg-black/80 backdrop-blur-xs px-2 py-0.5 text-[9px] font-bold text-[#FFD43B] uppercase tracking-wider border border-[#FFD43B]/30">
-                    {asset.aiSuggestedRole.replace('_', ' ')}
-                  </div>
-                )}
-              </div>
+            return (
+              <div
+                key={asset.id}
+                className="rounded-xl border border-[#27272A] bg-[#121215] overflow-hidden hover:border-[#3F3F46] transition flex flex-col justify-between shadow-lg"
+              >
+                {/* Visual Thumbnail / Preview Header */}
+                <div className="relative aspect-video bg-[#0C0C0E] border-b border-[#1E1E22] flex items-center justify-center overflow-hidden">
+                  {isImage && asset.publicUrl ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={asset.publicUrl}
+                      alt={asset.name}
+                      className="w-full h-full object-contain p-2"
+                    />
+                  ) : isVideo ? (
+                    <div className="flex flex-col items-center gap-2 text-purple-400">
+                      <Film className="h-8 w-8 opacity-80" />
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/70 text-white">
+                        MP4 9:16 HD
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-[#FFD43B]">
+                      <FileText className="h-8 w-8 opacity-80" />
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-black/70 text-white">
+                        {asset.category.replace('_', ' ')}
+                      </span>
+                    </div>
+                  )}
 
-              {/* Title & Size */}
-              <div>
-                <h4 className="text-xs font-bold text-white truncate">{asset.name}</h4>
-                <div className="flex items-center gap-2 mt-1 text-[10px] text-[#737373] font-mono">
-                  <span>{(asset.sizeBytes / 1024).toFixed(1)} KB</span>
-                  <span>•</span>
-                  <span className="capitalize">{asset.type}</span>
+                  <span className="absolute top-2 left-2 text-[9px] font-mono px-2 py-0.5 rounded bg-black/80 text-[#D4D4D8] border border-white/10 uppercase">
+                    {asset.category.replace('_', ' ')}
+                  </span>
+                </div>
+
+                {/* Card Info */}
+                <div className="p-3.5 space-y-2 flex-1">
+                  <h4 className="text-xs font-semibold text-white truncate" title={asset.name}>
+                    {asset.name}
+                  </h4>
+
+                  <div className="flex items-center justify-between text-[10px] font-mono text-[#71717A]">
+                    <span>{(asset.fileSizeBytes / 1024).toFixed(1)} KB</span>
+                    <span>{new Date(asset.createdAt).toLocaleDateString()}</span>
+                  </div>
+
+                  {asset.tags?.length > 0 && (
+                    <div className="flex flex-wrap gap-1 pt-1">
+                      {asset.tags.slice(0, 3).map((tag, tIdx) => (
+                        <span
+                          key={tIdx}
+                          className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#18181B] border border-[#27272A] text-[#A1A1AA]"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions Footer */}
+                <div className="p-2.5 px-3 border-t border-[#1E1E22] bg-[#151518] flex items-center justify-between gap-2">
+                  {asset.publicUrl ? (
+                    <button
+                      onClick={() => handleCopyUrl(asset.publicUrl, asset.id)}
+                      className="flex items-center gap-1 text-[11px] text-[#A1A1AA] hover:text-white transition"
+                    >
+                      {copiedId === asset.id ? (
+                        <>
+                          <Check className="h-3 w-3 text-emerald-400" />
+                          <span className="text-emerald-400">Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="h-3 w-3" />
+                          <span>Copy URL</span>
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <span className="text-[10px] text-[#71717A] italic">Catalog Indexed</span>
+                  )}
+
+                  {isVideo && onTabChange && (
+                    <button
+                      onClick={() => onTabChange('editor')}
+                      className="flex items-center gap-1 text-[11px] text-purple-300 hover:text-purple-200 transition font-medium"
+                    >
+                      <Video className="h-3 w-3" />
+                      <span>Timeline</span>
+                    </button>
+                  )}
                 </div>
               </div>
-            </div>
-
-            {/* Action Bar */}
-            <div className="mt-3.5 flex items-center justify-between border-t border-[#2E2E2E] pt-3">
-              {onTabChange ? (
-                <button
-                  onClick={() => onTabChange('editor')}
-                  className="text-[11px] font-bold text-[#FFD43B] hover:underline flex items-center gap-1"
-                >
-                  <Scissors className="h-3 w-3" />
-                  <span>Insert to Timeline</span>
-                </button>
-              ) : (
-                <span className="text-[10px] text-emerald-400 flex items-center gap-1 font-semibold">
-                  <CheckCircle2 className="h-3 w-3" />
-                  Verified
-                </span>
-              )}
-              <button
-                onClick={() => handleDeleteAsset(asset.id)}
-                title="Delete asset"
-                className="p-1 rounded-lg text-[#737373] hover:text-red-400 hover:bg-red-500/10 transition-colors"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="p-12 text-center rounded-xl border border-dashed border-[#27272A] bg-[#121215] space-y-3">
+          <FolderOpen className="h-8 w-8 text-[#71717A] mx-auto" />
+          <h3 className="text-sm font-bold text-white">No Assets Found</h3>
+          <p className="text-xs text-[#71717A]">
+            Generate creative copy in Campaign Studio, commercial scenes in Product Studio, or render vertical videos to populate your universal catalog.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

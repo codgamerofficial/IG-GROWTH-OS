@@ -17,6 +17,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     success: true,
     total: assets.length,
+    count: assets.length,
     assets,
   });
 }
