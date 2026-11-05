@@ -94,3 +94,4 @@ export interface AITransformResult {
   }>;
   suggestedNewBlocks?: Array<Omit<CanvasBlock, 'id' | 'zIndex'>>;
 }
+

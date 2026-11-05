@@ -103,3 +103,4 @@ export interface CreateCampaignInput {
   userInstructions?: string;
   productName?: string;
 }
+

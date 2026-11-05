@@ -386,3 +386,4 @@ ${input.customPrompt ? `Creator Prompt: ${input.customPrompt}` : ''}`;
     return `/uploads/products/${fileName}`;
   }
 }
+

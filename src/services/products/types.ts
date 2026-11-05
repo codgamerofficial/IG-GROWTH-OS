@@ -90,3 +90,4 @@ export interface GenerateSceneInput {
   aspectRatio: ProductAspectRatio;
   customPrompt?: string;
 }
+
