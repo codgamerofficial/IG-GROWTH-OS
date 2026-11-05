@@ -51,7 +51,11 @@ import {
   ProductMatchResult,
   RetailerCoverageReport,
   PriceHistoryData,
+  GiftCardBrandItem,
+  DeterministicSavingsWaterfall,
+  CashbackLedgerEntry,
 } from '@/services/shopping/types';
+import { GiftCardArbitrageService } from '@/services/shopping/giftcard-arbitrage';
 import { DROPSHIPPING_CATALOG } from '@/services/shopping/catalog';
 import {
   CommerceService,
@@ -119,6 +123,14 @@ export function SmartShoppingStudio() {
   const [buyingGiftCard, setBuyingGiftCard] = useState(false);
   const [purchasedGiftCard, setPurchasedGiftCard] = useState<GiftCardPurchaseResult | null>(null);
   const [copiedCode, setCopiedCode] = useState(false);
+
+  // Gift Card Marketplace & Ledger States
+  const [giftCardBrands, setGiftCardBrands] = useState<GiftCardBrandItem[]>(GiftCardArbitrageService.AUTHORIZED_BRANDS);
+  const [cashbackLedger, setCashbackLedger] = useState<CashbackLedgerEntry[]>([]);
+  const [userOrders, setUserOrders] = useState<GiftCardPurchaseResult[]>([]);
+  const [selectedBrandForPurchase, setSelectedBrandForPurchase] = useState<GiftCardBrandItem | null>(null);
+  const [selectedDenomination, setSelectedDenomination] = useState<number>(1000);
+  const [buyingFromWallet, setBuyingFromWallet] = useState(false);
 
   // Initial Load of Marketplace Products
   useEffect(() => {
@@ -286,6 +298,67 @@ export function SmartShoppingStudio() {
     navigator.clipboard.writeText(code);
     setCopiedCode(true);
     setTimeout(() => setCopiedCode(false), 2000);
+  };
+
+  // Fetch Wallet Orders & Cashback Ledger
+  useEffect(() => {
+    if (activeTab === 'wallet') {
+      fetchWalletOrdersAndLedger();
+    }
+  }, [activeTab]);
+
+  const fetchWalletOrdersAndLedger = async () => {
+    try {
+      const res = await fetch('/api/shopping/giftcards/orders?userId=default_user');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          if (Array.isArray(data.orders)) setUserOrders(data.orders);
+          if (Array.isArray(data.cashbackLedger)) setCashbackLedger(data.cashbackLedger);
+        }
+      }
+    } catch (err) {
+      console.warn('Failed to fetch wallet orders:', err);
+    }
+  };
+
+  // Buy Gift Card directly from Brand Marketplace
+  const handleBuyBrandGiftCard = async () => {
+    if (!selectedBrandForPurchase) return;
+    try {
+      setBuyingFromWallet(true);
+      const res = await fetch('/api/shopping/giftcards/purchase', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: 'default_user',
+          platform: selectedBrandForPurchase.brandKey.includes('amazon') ? 'amazon'
+            : selectedBrandForPurchase.brandKey.includes('flipkart') ? 'flipkart'
+            : selectedBrandForPurchase.brandKey.includes('myntra') ? 'myntra'
+            : selectedBrandForPurchase.brandKey.includes('ajio') ? 'ajio'
+            : selectedBrandForPurchase.brandKey.includes('tatacliq') ? 'tatacliq'
+            : selectedBrandForPurchase.brandKey.includes('nykaa') ? 'nykaa'
+            : 'meesho',
+          brandKey: selectedBrandForPurchase.brandKey,
+          faceValue: selectedDenomination,
+          paymentMethod: 'upi',
+          autoCreditToShoppingWallet: true,
+          idempotencyKey: `idemp_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success && (data.purchaseResult || data.order)) {
+        const order = data.purchaseResult || data.order;
+        setPurchasedGiftCard(order);
+        setSelectedBrandForPurchase(null);
+        fetchWalletOrdersAndLedger();
+      }
+    } catch (err) {
+      console.error('Failed to buy brand gift card:', err);
+    } finally {
+      setBuyingFromWallet(false);
+    }
   };
 
   // 1-Click Video Ad Generation Bridge
@@ -1589,6 +1662,219 @@ export function SmartShoppingStudio() {
                 </a>
               </div>
             ))}
+          </div>
+
+          {/* Authorized Branded Gift Card Marketplace */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <Gift className="h-4 w-4 text-[#FFD43B]" />
+                  <span>Authorized Branded Gift Card Marketplace</span>
+                </h3>
+                <p className="text-[11px] text-zinc-400 mt-0.5">
+                  Pre-negotiated upfront discounts + guaranteed wallet cashback with official 1-click redemption.
+                </p>
+              </div>
+              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                8 Brands Live
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {giftCardBrands.map((brand) => (
+                <div
+                  key={brand.id}
+                  className="rounded-2xl border border-zinc-800 bg-[#121215] p-4 flex flex-col justify-between space-y-3 hover:border-zinc-700 transition"
+                >
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <h4 className="text-xs font-bold text-white">{brand.brandName}</h4>
+                      <span className="text-[9px] font-mono uppercase px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                        {brand.category}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-[10px] font-mono">
+                      <span className="px-2 py-0.5 rounded bg-amber-400/10 text-amber-300 font-bold border border-amber-400/20">
+                        {brand.currentDiscountPct}% Off Upfront
+                      </span>
+                      <span className="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 font-bold border border-purple-500/20">
+                        +{brand.currentCashbackPct}% Cashback
+                      </span>
+                    </div>
+
+                    <p className="text-[10px] text-zinc-500 line-clamp-2">
+                      {brand.terms}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-zinc-800/80 space-y-2">
+                    <span className="text-[10px] text-zinc-400 block font-mono">
+                      Denominations: ₹{brand.minDenomination} - ₹{brand.maxDenomination}
+                    </span>
+                    <button
+                      onClick={() => {
+                        setSelectedBrandForPurchase(brand);
+                        setSelectedDenomination(brand.supportedDenominations[1] || brand.supportedDenominations[0] || 500);
+                      }}
+                      className="w-full py-2 rounded-xl bg-zinc-800 hover:bg-[#FFD43B] hover:text-black text-white text-xs font-bold transition flex items-center justify-center gap-1.5"
+                    >
+                      <Zap className="h-3 w-3 text-[#FFD43B] group-hover:text-black" />
+                      <span>Buy Gift Card</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Orders & Cashback Ledger */}
+          {(userOrders.length > 0 || cashbackLedger.length > 0) && (
+            <div className="rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-xl space-y-4">
+              <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-emerald-400" />
+                  <span>Recent Purchases &amp; Cashback Audit Ledger</span>
+                </h3>
+                <span className="text-[10px] font-mono text-zinc-500">
+                  Strictly Separated Upfront Outlay vs Future Cashback
+                </span>
+              </div>
+
+              <div className="space-y-3">
+                {userOrders.map((ord, oIdx) => (
+                  <div
+                    key={oIdx}
+                    className="p-3.5 rounded-2xl border border-zinc-800 bg-zinc-900/40 flex flex-wrap items-center justify-between gap-3 text-xs"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-white uppercase">{ord.platform} E-Gift Card</span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">
+                          {ord.autoCreditStatus}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 font-mono text-[11px] text-zinc-400">
+                        <span>Code: <span className="text-amber-400 font-bold">{ord.voucherCode}</span></span>
+                        <span>•</span>
+                        <span>PIN: <span className="text-white">{ord.voucherPin}</span></span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-right">
+                      <div>
+                        <span className="text-[10px] text-zinc-500 font-mono block">Paid Upfront</span>
+                        <span className="font-bold text-white font-mono">₹{ord.amountPaid.toLocaleString('en-IN')}</span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-zinc-500 font-mono block">Cashback Earned</span>
+                        <span className="font-bold text-purple-400 font-mono">+₹{ord.cashbackEarned.toLocaleString('en-IN')}</span>
+                      </div>
+                      <a
+                        href={ord.directWalletUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-3 py-1.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold flex items-center gap-1 transition"
+                      >
+                        <span>Sync Wallet</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Brand Purchase Modal */}
+      {selectedBrandForPurchase && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="relative w-full max-w-md rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-white">{selectedBrandForPurchase.brandName}</h3>
+                <span className="text-[10px] font-mono text-zinc-400">Select Voucher Denomination</span>
+              </div>
+              <button
+                onClick={() => setSelectedBrandForPurchase(null)}
+                className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider block">
+                Choose Denomination:
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {selectedBrandForPurchase.supportedDenominations.map((denom) => (
+                  <button
+                    key={denom}
+                    onClick={() => setSelectedDenomination(denom)}
+                    className={`py-2 rounded-xl border text-xs font-mono font-bold transition ${
+                      selectedDenomination === denom
+                        ? 'border-[#FFD43B] bg-[#FFD43B]/10 text-white'
+                        : 'border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    ₹{denom.toLocaleString('en-IN')}
+                  </button>
+                ))}
+              </div>
+
+              {/* Cost & Cashback Breakdown */}
+              <div className="p-3.5 rounded-2xl bg-zinc-900/80 border border-zinc-800 space-y-2 text-xs font-mono">
+                <div className="flex justify-between text-zinc-400">
+                  <span>Voucher Face Value:</span>
+                  <span className="text-white font-bold">₹{selectedDenomination.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between text-amber-400">
+                  <span>Upfront Discount ({selectedBrandForPurchase.currentDiscountPct}%):</span>
+                  <span>-₹{Math.round(selectedDenomination * (selectedBrandForPurchase.currentDiscountPct / 100))}</span>
+                </div>
+                <div className="flex justify-between text-purple-400">
+                  <span>Guaranteed Wallet Cashback ({selectedBrandForPurchase.currentCashbackPct}%):</span>
+                  <span>+₹{Math.round(selectedDenomination * (selectedBrandForPurchase.currentCashbackPct / 100))}</span>
+                </div>
+                <div className="pt-2 border-t border-zinc-800 flex justify-between text-white font-bold text-sm">
+                  <span>Amount to Pay Now:</span>
+                  <span className="text-emerald-400 font-mono">
+                    ₹{(selectedDenomination - Math.round(selectedDenomination * (selectedBrandForPurchase.currentDiscountPct / 100))).toLocaleString('en-IN')}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-zinc-800 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedBrandForPurchase(null)}
+                  className="px-3.5 py-1.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleBuyBrandGiftCard}
+                  disabled={buyingFromWallet}
+                  className="px-4 py-2 rounded-xl bg-[#FFD43B] hover:bg-[#FFE066] text-black font-bold text-xs transition disabled:opacity-50 flex items-center gap-1.5"
+                >
+                  {buyingFromWallet ? (
+                    <>
+                      <RefreshCw className="h-3 w-3 animate-spin" />
+                      <span>Issuing Voucher...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-3.5 w-3.5" />
+                      <span>Confirm &amp; Generate Voucher</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

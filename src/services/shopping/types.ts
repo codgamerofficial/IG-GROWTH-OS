@@ -95,15 +95,18 @@ export interface ArbitrageOptimizationPlan {
   totalMoneySaved: number;
   finalLowestEffectivePrice: number;
   overallSavingsPct: number;
+  waterfall?: DeterministicSavingsWaterfall;
   stepByStepActionPlan: string[];
 }
 
 export interface GiftCardPurchaseRequest {
   userId?: string;
   platform: ShoppingPlatform;
+  brandKey?: string;
   faceValue: number;
   paymentMethod: 'upi' | 'card' | 'wallet' | 'netbanking';
   autoCreditToShoppingWallet: boolean;
+  idempotencyKey?: string;
 }
 
 export interface GiftCardPurchaseResult {
@@ -112,6 +115,7 @@ export interface GiftCardPurchaseResult {
   voucherCode: string;
   voucherPin: string;
   platform: ShoppingPlatform;
+  brandKey?: string;
   faceValue: number;
   amountPaid: number;
   cashbackEarned: number;
@@ -119,7 +123,73 @@ export interface GiftCardPurchaseResult {
   autoCreditStatus: 'credited_instantly' | 'pending_sync' | 'code_generated';
   redemptionInstructions: string;
   directWalletUrl: string;
+  idempotencyKey?: string;
   timestamp: string;
+}
+
+export interface DeterministicSavingsWaterfall {
+  baseListedPrice: number;
+  platform: ShoppingPlatform;
+  platformDisplayName: string;
+  mrp: number;
+  couponApplied?: {
+    code: string;
+    discountAmount: number;
+    description: string;
+    minSpendRequired: number;
+  };
+  priceAfterCoupon: number;
+  bankOfferApplied?: {
+    bankName: string;
+    cardType: 'credit' | 'debit' | 'all';
+    discountAmount: number;
+    isInstant: boolean;
+    maxDiscountCap: number;
+  };
+  priceAfterBankOffer: number;
+  directPlatformSubtotal: number;
+  giftCardSelected?: {
+    brandKey: string;
+    brandName: string;
+    faceValue: number;
+    discountPct: number;
+    upfrontSavings: number;
+    netGiftCardCost: number;
+    cashbackPct: number;
+    guaranteedCashback: number;
+  };
+  upfrontCashOutlay: number;
+  deliveryCharges: number;
+  futureCashbackEarned: number;
+  totalNetEconomicSavings: number;
+  finalEffectiveCost: number;
+  effectiveSavingsPct: number;
+}
+
+export interface GiftCardBrandItem {
+  id: string;
+  brandKey: string;
+  brandName: string;
+  category: 'shopping' | 'fashion' | 'beauty' | 'food' | 'travel';
+  minDenomination: number;
+  maxDenomination: number;
+  supportedDenominations: number[];
+  currentDiscountPct: number;
+  currentCashbackPct: number;
+  walletRedemptionUrl: string;
+  terms: string;
+  isAvailable: boolean;
+}
+
+export interface CashbackLedgerEntry {
+  id: string;
+  userId: string;
+  giftCardOrderId: string;
+  amount: number;
+  status: 'pending' | 'credited' | 'withdrawn';
+  creditedAt?: string;
+  notes?: string;
+  createdAt: string;
 }
 
 export interface DropshippingProductItem {

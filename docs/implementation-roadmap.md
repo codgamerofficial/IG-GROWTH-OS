@@ -62,17 +62,18 @@ Phase 9: Compliance, Security & E2E Tests     [PLANNED]
 
 ---
 
-### Phase 4 — Savings Engine & Gift Card Optimization 🏗️ (NEXT PHASE)
-- [ ] Build deterministic discount evaluation engine: Base Price -> Instant Coupon -> Bank Card Offer -> Gift Card Savings -> Delivery -> Cashback.
-- [ ] Implement Rule-Based Coupon & Offer Eligibility Engine (checking minimum spend, category exclusions, and payment method).
-- [ ] Integrate Authorized Branded Gift Card Marketplace (Amazon, Flipkart, Myntra, etc.) with provider API connectivity.
-- [ ] Implement server-side payment verification and idempotent gift card fulfillment.
-- [ ] Provide safe, clear manual redemption instructions and official redemption links. Zero unauthorized wallet scraping.
-- [ ] Maintain separate financial ledgers for customer payable, gift card balance, and future cashback.
+### Phase 4 — Savings Engine & Gift Card Optimization ✅ (COMPLETED)
+- [x] Build deterministic discount evaluation engine: Base Price -> Instant Coupon -> Bank Card Offer -> Gift Card Savings -> Delivery -> Cashback.
+- [x] Implement Rule-Based Coupon & Offer Eligibility Engine (checking minimum spend, category exclusions, and payment method).
+- [x] Integrate Authorized Branded Gift Card Marketplace (Amazon, Flipkart, Myntra, etc.) with provider API connectivity.
+- [x] Implement server-side payment verification and idempotent gift card fulfillment.
+- [x] Provide safe, clear manual redemption instructions and official redemption links. Zero unauthorized wallet scraping.
+- [x] Maintain separate financial ledgers for customer payable, gift card balance, and future cashback.
+- [x] Create and run Phase 4 acceptance test suite (`tests/test-phase4-savings-engine.mjs`: 6/6 tests passed).
 
 ---
 
-### Phase 5 — Dropshipping Operations & Supplier Logistics
+### Phase 5 — Dropshipping Operations & Supplier Logistics 🏗️ (NEXT PHASE)
 - [ ] Build Supplier Inventory Sync engine with scheduled delta sync and real-time checkout lock.
 - [ ] Implement Idempotent Order Routing State Machine: `pending_payment` -> `paid` -> `supplier_confirmed` -> `packed` -> `shipped` -> `delivered`.
 - [ ] Integrate Courier Tracking APIs with live milestones and estimated delivery dates.

@@ -78,3 +78,4 @@ DROP POLICY IF EXISTS "Users can delete their own watchlists" ON public.price_wa
 CREATE POLICY "Users can delete their own watchlists"
   ON public.price_watchlists FOR DELETE
   USING (auth.uid() = user_id OR auth.role() = 'service_role');
+

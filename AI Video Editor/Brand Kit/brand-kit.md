@@ -2,10 +2,14 @@
 *(Auto-updated from Reference Video Analysis: ref_viral_hook_01.mp4 on 5/11/2026)*
 
 ## 1. Color Palette (Exact Hex Codes)
-- **Tone 1**: `#0C0C0E`
-- **Tone 2**: `#FFD43B`
-- **Tone 3**: `#06B6D4`
-- **Tone 4**: `#FFFFFF`
+- **Tone 1**: `#000000`
+- **Tone 2**: `#FFFFFF`
+- **Tone 3**: `#FF0000`
+- **Tone 4**: `#00FF00`
+- **Tone 5**: `#0000FF`
+- **Tone 6**: `#FFFF00`
+- **Tone 7**: `#FF00FF`
+- **Tone 8**: `#00FFFF`
 
 ## 2. Typography & Font Matching
 - **Primary Display / Headlines**: `Montserrat ExtraBold or closest match` (Weight: 800 ExtraBold)
