@@ -1,0 +1,47 @@
+{
+  "id": "prod_1793859480636_2067",
+  "name": "AeroPulse Titanium Drone",
+  "category": "electronics",
+  "description": "Autonomous carbon-fiber 4K cinematic camera drone with gold gimbal accents, aerodynamic folding arms, and obstacle sensors.",
+  "price": "$899.00",
+  "originalImages": [
+    "/icons/icon-512x512.png"
+  ],
+  "processedImages": [
+    "/icons/icon-512x512.png"
+  ],
+  "features": {
+    "colors": [
+      "#0C0C0E",
+      "#FFD43B",
+      "#1E293B",
+      "#FFFFFF"
+    ],
+    "materials": [
+      "Matte Polycarbonate",
+      "Brushed Aluminum",
+      "Satin Finish Coating"
+    ],
+    "shape": "Sleek monolithic form with rounded edges",
+    "textOnProduct": "AEROPULSE TITANI",
+    "keyDifferentiator": "High-precision performance and autonomous efficiency"
+  },
+  "generations": [
+    {
+      "id": "scene_1793859504381_p37d",
+      "productId": "prod_1793859480636_2067",
+      "environment": "luxury_pedestal",
+      "lighting": "dramatic_rim",
+      "composition": "center_hero",
+      "aspectRatio": "1:1",
+      "prompt": "luxury_pedestal scene with dramatic_rim lighting in center_hero framing",
+      "imageUrl": "/uploads/products/scene_1793859504381_p37d.svg",
+      "originalImageUrl": "/icons/icon-512x512.png",
+      "adHeadline": "Engineered for Flawless Performance",
+      "callToAction": "Order Now • Limited Early Batch",
+      "createdAt": "2026-11-05T06:18:24.381Z"
+    }
+  ],
+  "createdAt": "2026-11-05T06:18:00.636Z",
+  "updatedAt": "2026-11-05T06:18:24.381Z"
+}

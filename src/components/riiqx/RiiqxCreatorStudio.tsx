@@ -42,6 +42,7 @@ import { TemplatesTab } from './creator/TemplatesTab';
 import { BrandKitTab } from './creator/BrandKitTab';
 import { CampaignStudioTab } from './creator/CampaignStudioTab';
 import { CreativeCanvasTab } from './canvas/CreativeCanvasTab';
+import { ProductStudioTab } from './products/ProductStudioTab';
 import { VoiceStudioTab } from './creator/VoiceStudioTab';
 import { ShortsFactoryTab } from './creator/ShortsFactoryTab';
 import { CaptureStudioTab } from './creator/CaptureStudioTab';
@@ -379,6 +380,7 @@ export function RiiqxCreatorStudio() {
         {activeSubTab === 'brand_kit' && <BrandKitTab />}
         {activeSubTab === 'campaign_studio' && <CampaignStudioTab />}
         {activeSubTab === 'creative_canvas' && <CreativeCanvasTab />}
+        {activeSubTab === 'product_studio' && <ProductStudioTab />}
       </main>
     </div>
   );

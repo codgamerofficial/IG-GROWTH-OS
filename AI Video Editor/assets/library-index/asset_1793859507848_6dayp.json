@@ -1,0 +1,23 @@
+{
+  "userId": "riiqx_user_creator",
+  "name": "Product Render: AeroPulse Titanium Drone (luxury_pedestal)",
+  "category": "product_images",
+  "mimeType": "image/svg+xml",
+  "fileSizeBytes": 2048,
+  "publicUrl": "/uploads/products/scene_1793859504381_p37d.svg",
+  "tags": [
+    "product_studio",
+    "electronics",
+    "luxury_pedestal",
+    "dramatic_rim"
+  ],
+  "metadata": {
+    "productId": "prod_1793859480636_2067",
+    "sceneId": "scene_1793859504381_p37d",
+    "environment": "luxury_pedestal",
+    "lighting": "dramatic_rim",
+    "headline": "Engineered for Flawless Performance"
+  },
+  "id": "asset_1793859507848_6dayp",
+  "createdAt": "2026-11-05T06:18:27.848Z"
+}

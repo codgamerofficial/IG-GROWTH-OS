@@ -88,6 +88,7 @@ export type CreatorStudioTab =
   | 'brand_kit'
   | 'campaign_studio'
   | 'creative_canvas'
+  | 'product_studio'
   | 'autopilot';
 
 // -----------------------------------------------------------------------------

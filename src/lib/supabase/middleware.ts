@@ -34,6 +34,7 @@ const PUBLIC_PATHS = [
   '/api/riiqx/brand',
   '/api/riiqx/campaigns',
   '/api/riiqx/canvas',
+  '/api/riiqx/products',
   '/api/riiqx/export',
   '/api/riiqx/tools',
   '/api/creator',

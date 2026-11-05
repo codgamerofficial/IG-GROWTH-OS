@@ -37,6 +37,7 @@ import {
   Camera,
   Search,
   Megaphone,
+  ShoppingBag,
 } from 'lucide-react';
 
 interface CreatorStudioNavProps {
@@ -86,6 +87,7 @@ export function CreatorStudioNav({
     { id: 'brand_kit', label: 'Brand Kit', icon: Palette },
     { id: 'campaign_studio', label: 'Campaign Studio', icon: Megaphone, badge: 'Phase 3' },
     { id: 'creative_canvas', label: 'Creative Canvas', icon: Layers, badge: 'Phase 4' },
+    { id: 'product_studio', label: 'Product Studio', icon: ShoppingBag, badge: 'Phase 5' },
   ];
 
   const getStatusBadge = (status: ProjectLifecycleStatus) => {
