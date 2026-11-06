@@ -52,10 +52,10 @@ export default function manifest(): MetadataRoute.Manifest {
         url: '/?tab=chat',
       },
       {
-        name: 'Creator Studio',
-        short_name: 'Creator',
-        description: 'Generate 9:16 vertical video storyboards and hooks',
-        url: '/?tab=creator',
+        name: 'Video Editor',
+        short_name: 'Editor',
+        description: 'Multi-track timeline, kinetic subtitles and canvas render',
+        url: '/?tab=editor',
       },
       {
         name: 'Autopilot Center',

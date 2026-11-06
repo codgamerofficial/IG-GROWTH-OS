@@ -115,7 +115,14 @@ interface RiiqxContextType {
 const RiiqxContext = createContext<RiiqxContextType | undefined>(undefined);
 
 export function RiiqxProvider({ children }: { children: ReactNode }) {
-  const [activeTab, setActiveTab] = useState<RiiqxViewTab>('home');
+  const [activeTab, setActiveTabState] = useState<RiiqxViewTab>('home');
+  const setActiveTab = useCallback((tab: RiiqxViewTab) => {
+    if (tab === 'shopping' || tab === 'creator') {
+      setActiveTabState('home');
+    } else {
+      setActiveTabState(tab);
+    }
+  }, []);
   const [theme, setThemeState] = useState<'light' | 'dark'>('dark');
   const [globalPrompt, setGlobalPrompt] = useState<string>('');
   const [isAiDrawerOpen, setIsAiDrawerOpen] = useState<boolean>(false);

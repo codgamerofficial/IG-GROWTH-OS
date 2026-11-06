@@ -66,13 +66,6 @@ export function RiiqxHomeDashboard() {
 
   const quickActionCards = [
     {
-      title: 'Creator Studio',
-      desc: '14-stage 9:16 Shorts & Reels production workspace',
-      icon: Video,
-      color: 'bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] border-[#FFD43B]/30',
-      tab: 'creator' as const,
-    },
-    {
       title: 'AI Video Editor',
       desc: 'Multi-track timeline, kinetic captions & canvas render',
       icon: Wand2,
@@ -129,11 +122,11 @@ export function RiiqxHomeDashboard() {
 
         <div className="flex items-center gap-2.5">
           <button
-            onClick={() => setActiveTab('creator')}
+            onClick={() => setActiveTab('chat')}
             className="px-4 py-2.5 rounded-2xl bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] text-xs font-bold transition flex items-center gap-2 shadow-xs group"
           >
-            <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-200" />
-            <span>New Video Project</span>
+            <Sparkles className="w-4 h-4" />
+            <span>Launch AI Agent</span>
           </button>
         </div>
       </div>
@@ -267,63 +260,6 @@ export function RiiqxHomeDashboard() {
                   {c.desc}
                 </span>
               </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Recent Projects Grid */}
-      <div className="space-y-3.5">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-bold text-[#202124] dark:text-white">
-            Recent Creator Projects
-          </h2>
-          <button
-            onClick={() => setActiveTab('creator')}
-            className="text-xs font-bold text-[#202124] dark:text-[#FFD43B] hover:text-[#FF6B5E] flex items-center gap-0.5 transition"
-          >
-            Open Studio <ArrowUpRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {projects.slice(0, 3).map((p) => {
-            const topic = p.brief?.topic || p.name;
-            const niche = p.brief?.niche || 'AI & SaaS';
-            const duration = p.brief?.durationSeconds || 30;
-            return (
-              <div
-                key={p.id}
-                onClick={() => setActiveTab('creator')}
-                className="p-5 rounded-3xl bg-white/80 dark:bg-[#141418]/80 backdrop-blur-md border border-[#EAE7E1] dark:border-white/[0.08] hover:border-[#FFD43B]/60 transition-all cursor-pointer group shadow-sm flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#737373] dark:text-[#A1A1AA]">
-                      {niche}
-                    </span>
-                    <span
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded-full capitalize ${
-                        p.status === 'published'
-                          ? 'bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30'
-                          : 'bg-[#FFD43B]/20 text-[#202124] dark:text-[#FFD43B] border border-[#FFD43B]/30'
-                      }`}
-                    >
-                      {p.status}
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-[#202124] dark:text-white group-hover:text-[#FF6B5E] transition-colors line-clamp-2">
-                    {topic}
-                  </h3>
-                </div>
-
-                <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#EAE7E1] dark:border-white/[0.05] text-[11px] text-[#737373] dark:text-[#A1A1AA]">
-                  <span>Duration: {duration}s</span>
-                  <span className="flex items-center gap-1 font-semibold text-[#202124] dark:text-white">
-                    Edit in Studio <ChevronRight className="w-3.5 h-3.5" />
-                  </span>
-                </div>
-              </div>
             );
           })}
         </div>

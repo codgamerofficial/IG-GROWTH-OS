@@ -234,7 +234,7 @@ export function RiiqxFilesView() {
                   )}
                   {isVid && (
                     <button
-                      onClick={() => setActiveTab('creator')}
+                      onClick={() => setActiveTab('editor')}
                       title="Open in AI Video Editor"
                       className="p-2 rounded-xl hover:bg-[#FAF9F6] dark:hover:bg-[#151515] text-[#737373] hover:text-[#FF6B5E] transition-colors"
                     >

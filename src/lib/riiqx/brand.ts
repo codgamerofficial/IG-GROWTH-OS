@@ -107,13 +107,13 @@ export const riiqxBrand: RiiqxBrandConfig = {
   seo: {
     title: 'RIIQX — One Goal. An AI That Gets It Done.',
     description:
-      'Production-oriented online-first Agentic AI platform with AWS Bedrock intelligence, autonomous 9:16 Creator Studio, and Level 3 Social Media Autopilot.',
+      'Production-oriented online-first Agentic AI platform with AWS Bedrock intelligence, multi-model agentic automation, and Level 3 Social Media Autopilot.',
     keywords: [
       'RIIQX',
       'Agentic AI',
       'AWS Bedrock',
       'Claude Sonnet',
-      'Creator Studio',
+      'AI Video Intelligence',
       'Instagram Reels Autopilot',
       'YouTube Shorts AI',
       'Social Media Automation',

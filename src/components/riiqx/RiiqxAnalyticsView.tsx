@@ -1381,10 +1381,10 @@ export function RiiqxAnalyticsView() {
               <div className="p-8 rounded-3xl bg-white/80 dark:bg-[#141418]/80 border border-[#EAE7E1] dark:border-white/[0.08] text-center text-xs text-[#737373] space-y-2">
                 <p>No future posts currently queued.</p>
                 <button
-                  onClick={() => setActiveTab('creator')}
+                  onClick={() => setActiveTab('chat')}
                   className="font-bold text-[#FFD43B] hover:underline"
                 >
-                  Open Creator Studio to schedule a Reel or Short →
+                  Open AI Agent Chat to plan or schedule content →
                 </button>
               </div>
             ) : (

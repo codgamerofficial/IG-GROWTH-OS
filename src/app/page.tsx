@@ -9,9 +9,7 @@
 import React from 'react';
 import { useRiiqx } from '@/context/RiiqxContext';
 import { RiiqxHomeDashboard } from '@/components/riiqx/RiiqxHomeDashboard';
-import { SmartShoppingStudio } from '@/components/riiqx/shopping/SmartShoppingStudio';
 import { RiiqxChatView } from '@/components/riiqx/RiiqxChatView';
-import { RiiqxCreatorStudio } from '@/components/riiqx/RiiqxCreatorStudio';
 import { RiiqxVideoEditor } from '@/components/riiqx/RiiqxVideoEditor';
 import { RiiqxAutopilotCenter } from '@/components/riiqx/RiiqxAutopilotCenter';
 import { RiiqxResearchView } from '@/components/riiqx/RiiqxResearchView';
@@ -28,12 +26,8 @@ export default function RiiqxWorkspacePage() {
   switch (activeTab) {
     case 'home':
       return <RiiqxHomeDashboard />;
-    case 'shopping':
-      return <SmartShoppingStudio />;
     case 'chat':
       return <RiiqxChatView />;
-    case 'creator':
-      return <RiiqxCreatorStudio />;
     case 'editor':
       return <RiiqxVideoEditor />;
     case 'autopilot':

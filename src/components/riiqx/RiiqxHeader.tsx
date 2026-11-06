@@ -192,7 +192,6 @@ export function RiiqxHeader() {
           {[
             { tab: 'home', label: 'Dashboard' },
             { tab: 'chat', label: 'AI Agent Chat' },
-            { tab: 'creator', label: 'Creator Studio' },
             { tab: 'autopilot', label: 'Autopilot Center' },
             { tab: 'tasks', label: 'Task Planner' },
             { tab: 'research', label: 'Deep Research' },

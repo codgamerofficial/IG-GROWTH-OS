@@ -422,9 +422,9 @@ export function RiiqxVideoEditor() {
       <div className="h-14 border-b border-[#EAE7E1] dark:border-white/[0.08] bg-white/80 dark:bg-[#141418]/80 backdrop-blur-md px-4 md:px-6 flex items-center justify-between shrink-0 z-20">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => setActiveTab('creator')}
+            onClick={() => setActiveTab('home')}
             className="p-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 text-[#737373] transition-colors cursor-pointer"
-            title="Back to Creator Studio"
+            title="Back to Dashboard"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -469,11 +469,11 @@ export function RiiqxVideoEditor() {
           </div>
 
           <button
-            onClick={() => setActiveTab('creator')}
+            onClick={() => setActiveTab('home')}
             className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold text-[#737373] dark:text-[#A1A1AA] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
           >
             <Share2 className="w-3.5 h-3.5" />
-            <span>Share</span>
+            <span>Dashboard</span>
           </button>
 
           <button
