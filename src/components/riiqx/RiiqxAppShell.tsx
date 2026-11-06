@@ -37,7 +37,7 @@ export function RiiqxAppShell({ children }: RiiqxAppShellProps) {
 
   // Full Authenticated Workspace Dashboard Shell
   return (
-    <div className="flex h-full w-full max-w-full flex-col overflow-hidden min-h-0 bg-[#FAF9F6] dark:bg-[#0C0C0E]">
+    <div className="flex h-full w-full max-w-full flex-col overflow-hidden min-h-0 bg-[#FAF9F6] dark:bg-[#09090b]">
       <RiiqxHeader />
       <div className="relative flex flex-1 overflow-hidden min-h-0 min-w-0">
         <RiiqxSidebar />
