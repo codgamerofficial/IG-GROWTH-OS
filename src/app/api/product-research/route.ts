@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const userId = (await resolveAuthUserId(req)) || 'usr_guest_local';
     const body = await req.json();
 
-    const { url, screenshotBase64, screenshotMimeType, query, prompt } = body;
+    const { url, screenshotBase64, screenshotMimeType, query, prompt, userPreferences } = body;
 
     const report = await ProductResearchOrchestrator.executeResearch({
       url,
@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
       screenshotMimeType,
       queryHint: query || prompt,
       userId,
+      userPreferences,
     });
 
     return NextResponse.json({

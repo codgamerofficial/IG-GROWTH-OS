@@ -1,7 +1,7 @@
 // =============================================================================
 // RIIQX — Real Product Intelligence & Verification Engine Types
 // "Know your needs. Make smarter moves."
-// Zero Simulation • Verifiable Sources • True Final Price • Strict Evidence
+// Zero Simulation • Direct Buying Links • True Lowest Final Price • Strict Evidence
 // =============================================================================
 
 export type VerificationStatus =
@@ -13,16 +13,46 @@ export type VerificationStatus =
   | 'unverified'                    // Discovered link, but identity or stock cannot be confirmed
   | 'unavailable';                  // Out of stock or delisted
 
+export type LinkVerificationStatus =
+  | 'verified_pdp'                  // Exact product detail page (PDP) verified
+  | 'direct_link_unverified'        // Domain valid, but link is search/category or unconfirmed PDP
+  | 'redirect_unconfirmed'          // Permitted redirect followed, destination unverified
+  | 'broken_or_inaccessible';       // Target unreachable or 404
+
 export type VariantMatchStatus =
   | 'exact'                         // Identical model, storage, color, and specifications
-  | 'similar_alternative'           // Same product family but different spec/storage/generation
+  | 'variant_differs'               // Same model family, different storage/color/size
+  | 'similar_alternative'           // Alternative product family
+  | 'refurbished'                   // Refurbished, renewed, or open-box
+  | 'bundle'                        // Multi-pack or accessory bundle
   | 'unverified';
+
+export type OfferVerificationStatus =
+  | 'verified_applicable'           // Verified active and applies directly
+  | 'verified_eligibility_required' // Verified active, requires specific bank/card/coupon
+  | 'provider_reported_unconfirmed' // Reported by partner/catalog, pending independent check
+  | 'expired'                       // Past valid until timestamp
+  | 'not_applicable'                // Cart/order does not meet minimum order or category criteria
+  | 'unable_to_verify';             // Terms could not be independently audited
+
+export type OfferType =
+  | 'bank_card'                     // Credit/debit card instant discount
+  | 'payment_method'                // UPI / wallet discount
+  | 'store_coupon'                  // Promo / coupon code
+  | 'gift_card'                     // Store gift card redemption
+  | 'cashback'                      // Conditional post-purchase cashback
+  | 'membership_perk'               // Prime, Plus, NeuPass, etc.
+  | 'exchange_or_loyalty';          // Exchange or reward points
 
 export interface ProductIdentity {
   brand: string;
   title: string;
   model?: string;
+  modelNumber?: string;
+  gtinEanUpc?: string;
   category: string;
+  condition?: 'new' | 'refurbished' | 'open_box';
+  packQuantity?: number;
   imageUrl?: string;
   canonicalIdentifier?: string;
   variantAttributes: {
@@ -38,13 +68,75 @@ export interface ProductIdentity {
   rawInputType: 'url' | 'screenshot' | 'query' | 'hybrid';
 }
 
+export interface PromotionalOffer {
+  id: string;
+  retailerId: string;
+  retailerName: string;
+  offerName: string;
+  offerType: OfferType;
+  couponCode?: string;
+  bankName?: string;                 // e.g. "HDFC Bank", "ICICI Bank", "SBI Card", "Axis Bank"
+  cardCategory?: 'credit' | 'debit' | 'emi';
+  paymentMethod?: 'upi' | 'wallet' | 'card' | 'netbanking';
+  discountType: 'percentage' | 'flat' | 'free_shipping';
+  discountValue: number;            // Percentage (e.g. 10 for 10%) or Flat Rupee amount
+  minTransaction: number;           // Minimum cart value in INR
+  maxDiscountCap?: number;          // Maximum discount ceiling in INR
+  isInstantDiscount: boolean;       // Reduces checkout cash payable directly
+  isCashback: boolean;              // Credited post-purchase (NEVER treated as instant discount)
+  isStackable: boolean;             // Can combine with store coupon or other offers
+  stackingRules?: string;
+  termsUrl?: string;
+  verificationStatus: OfferVerificationStatus;
+  eligibilityDescription: string;
+  validUntil?: string;
+  lastCheckedAt: string;
+}
+
+export interface UserShoppingPreferences {
+  userId: string;
+  preferredBanks: string[];         // e.g. ["HDFC Bank", "ICICI Bank", "SBI Card", "Axis Bank"]
+  preferredCardTypes: ('credit' | 'debit' | 'emi')[];
+  preferredPaymentMethods: ('upi' | 'wallet' | 'card' | 'netbanking')[];
+  memberships: string[];            // e.g. ["Amazon Prime", "Flipkart Plus", "Tata NeuPass"]
+  giftCardBalances?: {
+    retailer: string;
+    balance: number;
+  }[];
+  updatedAt?: string;
+}
+
+export interface PriceCalculationScenario {
+  scenarioName: 'standard' | 'eligible_instant' | 'bank_card' | 'coupon_and_bank' | 'gift_card' | 'cashback';
+  scenarioLabel: string;
+  sellingPrice: number;
+  deliveryCharge: number;
+  mandatoryFees: number;
+  standardPayablePrice: number;     // Selling price + delivery + fees
+  instantDiscount: number;          // Verified direct discount
+  bankDiscount: number;             // Applied bank/card instant discount
+  couponDiscount: number;           // Applied promo coupon discount
+  appliedGiftCardValue: number;     // Value deducted from owned gift card (tracked separately)
+  finalCashPayable: number;         // EXACT RUPEES REQUIRED TO PAY AT CHECKOUT
+  expectedCashback: number;         // Cashback to be received later (NOT deducted from cash payable)
+  effectiveCostAfterCashback: number; // Final Cash Payable - Expected Cashback
+  appliedOffers: PromotionalOffer[];
+  isEstimatedRequiringCheckout: boolean;
+  calculationEvidence: string[];
+}
+
 export interface RetailerOffer {
   id: string;
   retailerName: string;
   retailerDomain: string;
   sellerName?: string;
-  productUrl: string;
-  canonicalUrl: string;
+  productUrl: string;               // Direct purchase / PDP URL
+  canonicalUrl: string;             // Normalized canonical URL
+  purchaseUrl: string;              // Verified click destination for BUY FROM STORE
+  directLinkVerified: boolean;      // True if direct PDP verified; false if search/unconfirmed
+  linkVerificationStatus: LinkVerificationStatus;
+  accessRestrictions?: string[];    // e.g. ['requires_app', 'pincode_dependent']
+  imageUrl?: string;
   listedPrice?: number;
   mrp?: number;
   sellingPrice?: number;
@@ -53,7 +145,6 @@ export interface RetailerOffer {
   deliveryDays?: number;
   inStock?: boolean;
   mandatoryFees: number;
-  finalComparablePrice?: number;
   currency: string;
   availability: 'in_stock' | 'out_of_stock' | 'pre_order' | 'unknown';
   variantMatchStatus: VariantMatchStatus;
@@ -65,15 +156,38 @@ export interface RetailerOffer {
   sourceEvidence?: Record<string, unknown>;
   badge?: string;
   isCheapestVerified?: boolean;
+
+  // Multi-scenario calculations
+  pricingScenarios?: {
+    standard: PriceCalculationScenario;
+    eligibleFinal?: PriceCalculationScenario;
+    bestConditional?: PriceCalculationScenario;
+  };
+  finalComparablePrice?: number;    // Standard payable price
+  eligibleFinalPrice?: number;      // User-specific eligible payable price
+  conditionalBestPrice?: number;    // Best conditional price across all banks/promotions
+}
+
+export interface PriceRankings {
+  rankingStandard: RetailerOffer[];       // Sorted strictly by lowest verified standard payable price
+  rankingEligible: RetailerOffer[];       // Sorted strictly by lowest eligible final price (user preferences)
+  rankingConditional: RetailerOffer[];    // Sorted strictly by lowest conditional price (all potential offers)
 }
 
 export interface PurchaseAnalysisReport {
   sessionId: string;
   identity: ProductIdentity;
   offers: RetailerOffer[];
-  cheapestVerifiedOffer?: RetailerOffer;
+  rankings: PriceRankings;
+  cheapestStandardOffer?: RetailerOffer;
+  cheapestEligibleOffer?: RetailerOffer;
+  cheapestConditionalOffer?: RetailerOffer;
+  availablePromotionalOffers: PromotionalOffer[];
+  userPreferencesApplied?: UserShoppingPreferences;
   priceTruth: {
-    lowestVerifiedPrice?: number;
+    lowestStandardPrice?: number;
+    lowestEligiblePrice?: number;
+    lowestConditionalPrice?: number;
     highestVerifiedPrice?: number;
     maxVerifiedSavings?: number;
     hasUnknownFees: boolean;

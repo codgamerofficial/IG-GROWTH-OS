@@ -7,7 +7,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveAuthUserId } from '@/lib/riiqx/session-helper';
 import { ProductResearchOrchestrator } from '@/services/product-intelligence/orchestrator';
-import { PurchaseAnalysisReport } from '@/services/product-intelligence/types';
+import { PurchaseAnalysisReport, UserShoppingPreferences, LinkVerificationStatus } from '@/services/product-intelligence/types';
 
 export interface TwinDecisionRequest {
   prompt?: string;
@@ -18,6 +18,7 @@ export interface TwinDecisionRequest {
   productUrl?: string;
   screenshotBase64?: string;
   screenshotMimeType?: string;
+  userPreferences?: UserShoppingPreferences;
 }
 
 export interface RetailerPrice {
@@ -27,6 +28,11 @@ export interface RetailerPrice {
   deliveryDays: number;
   inStock: boolean;
   link: string;
+  purchaseUrl?: string;
+  canonicalUrl?: string;
+  directLinkVerified?: boolean;
+  linkVerificationStatus?: LinkVerificationStatus;
+  imageUrl?: string;
   badge?: string;
   status?: string;
   verificationMethod?: string;
@@ -96,22 +102,28 @@ export async function POST(req: NextRequest) {
       screenshotMimeType,
       queryHint: !productUrl && !prompt.startsWith('http') ? prompt : undefined,
       userId,
+      userPreferences: body.userPreferences,
     });
 
-    const cheapest = report.cheapestVerifiedOffer;
+    const cheapest = report.cheapestEligibleOffer || report.cheapestStandardOffer;
     const highestPrice = report.priceTruth.highestVerifiedPrice || cheapest?.mrp || cheapest?.sellingPrice || 0;
-    const lowestPrice = cheapest?.finalComparablePrice || cheapest?.sellingPrice || report.priceTruth.lowestVerifiedPrice || 0;
+    const lowestPrice = cheapest?.eligibleFinalPrice || cheapest?.finalComparablePrice || cheapest?.sellingPrice || report.priceTruth.lowestEligiblePrice || report.priceTruth.lowestStandardPrice || 0;
     const totalSavings = Math.max(0, highestPrice - lowestPrice);
     const savingsPercentage = highestPrice > 0 ? Math.round((totalSavings / highestPrice) * 100) : 0;
 
     // Convert offers to RetailerPrice items
     const retailers: RetailerPrice[] = report.offers.map((offer) => ({
       name: offer.retailerName,
-      price: offer.finalComparablePrice || offer.sellingPrice || 0,
+      price: offer.eligibleFinalPrice || offer.finalComparablePrice || offer.sellingPrice || 0,
       originalPrice: offer.mrp,
       deliveryDays: offer.deliveryDays || 3,
       inStock: offer.inStock ?? (offer.availability === 'in_stock'),
-      link: offer.productUrl,
+      link: offer.purchaseUrl || offer.productUrl,
+      purchaseUrl: offer.purchaseUrl || offer.productUrl,
+      canonicalUrl: offer.canonicalUrl || offer.productUrl,
+      directLinkVerified: offer.directLinkVerified,
+      linkVerificationStatus: offer.linkVerificationStatus,
+      imageUrl: offer.imageUrl,
       badge: offer.badge,
       status: offer.priceVerificationStatus,
       verificationMethod: offer.verificationMethod,
@@ -122,11 +134,16 @@ export async function POST(req: NextRequest) {
     if (retailers.length === 0 && cheapest) {
       retailers.push({
         name: cheapest.retailerName,
-        price: cheapest.finalComparablePrice || cheapest.sellingPrice || 0,
+        price: cheapest.eligibleFinalPrice || cheapest.finalComparablePrice || cheapest.sellingPrice || 0,
         originalPrice: cheapest.mrp,
         deliveryDays: cheapest.deliveryDays || 3,
         inStock: cheapest.inStock ?? (cheapest.availability === 'in_stock'),
-        link: cheapest.productUrl,
+        link: cheapest.purchaseUrl || cheapest.productUrl,
+        purchaseUrl: cheapest.purchaseUrl || cheapest.productUrl,
+        canonicalUrl: cheapest.canonicalUrl || cheapest.productUrl,
+        directLinkVerified: cheapest.directLinkVerified,
+        linkVerificationStatus: cheapest.linkVerificationStatus,
+        imageUrl: cheapest.imageUrl,
         badge: cheapest.badge,
         status: cheapest.priceVerificationStatus,
         verificationMethod: cheapest.verificationMethod,

@@ -45,7 +45,7 @@ export class ProductIdentityResolver {
 
     if (bStorage && cStorage && bStorage !== cStorage) {
       return {
-        matchStatus: 'similar_alternative',
+        matchStatus: 'variant_differs',
         confidence: 0.82,
         explanation: `Variant Difference: Different storage capacity (${bStorage.toUpperCase()} target vs ${cStorage.toUpperCase()} candidate).`,
         differentiatingAttributes: { Storage: `${bStorage.toUpperCase()} vs ${cStorage.toUpperCase()}` },
@@ -72,7 +72,7 @@ export class ProductIdentityResolver {
 
     if (!isBenchmarkRefurbished && isRefurbished) {
       return {
-        matchStatus: 'similar_alternative',
+        matchStatus: 'refurbished',
         confidence: 0.8,
         explanation: 'Candidate listing is Renewed/Refurbished, not brand new retail stock.',
         differentiatingAttributes: { Condition: 'Refurbished' },

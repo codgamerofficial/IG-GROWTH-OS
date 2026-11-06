@@ -1,9 +1,10 @@
 // =============================================================================
 // RIIQX — Master Product Intelligence & Purchase Verification Orchestrator
 // Seamless Multimodal Pipeline • Zero Fabrication • End-to-End Verification
+// Exact Buying Links • True Lowest Final Price • 3-Tier Ranking Output
 // =============================================================================
 
-import { ProductIdentity, RetailerOffer, PurchaseAnalysisReport } from './types';
+import { ProductIdentity, RetailerOffer, PurchaseAnalysisReport, UserShoppingPreferences } from './types';
 import { ProductURLExtractor } from './url-extractor';
 import { VisualProductRecognizer } from './visual-recognizer';
 import { RetailerDiscoveryService } from './retailer-discovery';
@@ -17,6 +18,7 @@ export interface ResearchRequest {
   screenshotMimeType?: string;
   queryHint?: string;
   userId?: string;
+  userPreferences?: UserShoppingPreferences;
 }
 
 export class ProductResearchOrchestrator {
@@ -24,6 +26,10 @@ export class ProductResearchOrchestrator {
     const userId = req.userId || 'usr_guest_local';
     let identity: ProductIdentity;
     let initialOffers: RetailerOffer[] = [];
+
+    // 0. Fetch User Shopping Preferences (Banks, Cards, Memberships, Gift Cards)
+    const userPreferences =
+      req.userPreferences || (await TwinRepository.getShoppingPreferences(userId));
 
     // 1. Ingestion: URL vs Screenshot vs Text Query
     if (req.url && req.url.trim()) {
@@ -46,11 +52,11 @@ export class ProductResearchOrchestrator {
       let brand = 'Verified Brand';
       let title = rawQuery;
 
-      // 1. Extract known brand if present
+      // Extract known brand if present
       const knownBrands = [
         'Apple', 'Sony', 'Samsung', 'Minimalist', 'Dot & Key', 'Philips',
         'Agaro', 'Asics', 'Nike', 'boAt', 'OnePlus', 'Dell', 'Lenovo',
-        'HP', 'Realme', 'Xiaomi', 'Google', 'Nothing', 'Dyson'
+        'HP', 'Realme', 'Xiaomi', 'Google', 'Nothing', 'Dyson', 'Red Tape', 'RED TAPE'
       ];
       for (const b of knownBrands) {
         if (new RegExp(`\\b${b}\\b`, 'i').test(rawQuery)) {
@@ -59,7 +65,7 @@ export class ProductResearchOrchestrator {
         }
       }
 
-      // 2. Extract primary product from conversational query e.g. "Should I buy Apple AirPods Pro 2 or Sony WF-1000XM5?"
+      // Extract primary product from conversational query
       const compareMatch = rawQuery.match(/(?:should i buy|compare|which is better|recommend|choose between)\s+(.+?)(?:\s+(?:or|vs\.?)\s+(.+?))?(?:\?|$)/i);
       if (compareMatch && compareMatch[1]) {
         title = compareMatch[1].trim();
@@ -72,7 +78,7 @@ export class ProductResearchOrchestrator {
         variantAttributes: {},
         specifications: [
           `Verified product research request for ${title}.`,
-          'Cross-merchant pricing and catalog verification active.',
+          'Cross-merchant pricing, direct PDP links, and catalog verification active.',
         ],
         identityConfidence: 0.92,
         verificationSource: 'Live Retail Search & Catalog Ingestion',
@@ -82,48 +88,58 @@ export class ProductResearchOrchestrator {
       throw new Error('Please submit a product URL, upload a screenshot, or enter a product title to research.');
     }
 
-    // 2. Discover Real Offers Across Indian Retailers
+    // 2. Discover Real Offers Across Indian Retailers with Verified Direct Buying Links
     const allOffers = await RetailerDiscoveryService.discoverOffers(identity, initialOffers);
 
-    // 3. Price Truth Math & Ranking
+    // 3. Price Truth Math, Multi-Scenario Calculation & 3-Tier Rankings
     const {
       rankedOffers,
-      cheapestVerifiedOffer,
-      lowestVerifiedPrice,
-      highestVerifiedPrice,
+      rankings,
+      cheapestStandardOffer,
+      cheapestEligibleOffer,
+      cheapestConditionalOffer,
+      availablePromotionalOffers,
+      lowestStandardPrice,
+      lowestEligiblePrice,
+      lowestConditionalPrice,
       maxVerifiedSavings,
       hasUnknownFees,
       calculationExplanation,
-    } = PriceCalculatorService.computeAndRankOffers(allOffers);
+    } = PriceCalculatorService.computeAndRankOffers(allOffers, userPreferences);
 
-    // 4. AI Purchase Advisor Synthesis
-    const aiAnalysis = await AIProductAnalyst.analyzePurchase(identity, rankedOffers, lowestVerifiedPrice);
+    // 4. AI Purchase Advisor Synthesis with Fact/Opinion Separation
+    const aiAnalysis = await AIProductAnalyst.analyzePurchase(
+      identity,
+      rankedOffers,
+      lowestEligiblePrice || lowestStandardPrice
+    );
 
     // 5. Generate Session ID & Persist to Repository
     const sessionId = `research-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
     // Persist into user's decision history for tracking
     try {
-      if (cheapestVerifiedOffer) {
+      const topOffer = cheapestEligibleOffer || cheapestStandardOffer;
+      if (topOffer) {
         await TwinRepository.savePurchaseAnalysis({
           userId,
           productName: identity.title,
-          merchant: cheapestVerifiedOffer.retailerName,
-          productUrl: cheapestVerifiedOffer.productUrl,
+          merchant: topOffer.retailerName,
+          productUrl: topOffer.purchaseUrl || topOffer.productUrl,
           imageUrl: identity.imageUrl,
           inputType: identity.rawInputType === 'hybrid' ? 'query' : identity.rawInputType,
-          basePrice: highestVerifiedPrice || cheapestVerifiedOffer.sellingPrice || 0,
-          shippingFee: cheapestVerifiedOffer.deliveryCharge || 0,
+          basePrice: topOffer.sellingPrice || 0,
+          shippingFee: topOffer.deliveryCharge || 0,
           taxes: 0,
-          platformFee: cheapestVerifiedOffer.mandatoryFees || 0,
-          couponDiscount: 0,
-          cardDiscount: maxVerifiedSavings || 0,
-          conditionalCashback: 0,
-          totalPayable: cheapestVerifiedOffer.finalComparablePrice || cheapestVerifiedOffer.sellingPrice || 0,
-          currency: cheapestVerifiedOffer.currency,
+          platformFee: topOffer.mandatoryFees || 0,
+          couponDiscount: topOffer.pricingScenarios?.eligibleFinal?.couponDiscount || 0,
+          cardDiscount: topOffer.pricingScenarios?.eligibleFinal?.bankDiscount || 0,
+          conditionalCashback: topOffer.pricingScenarios?.eligibleFinal?.expectedCashback || 0,
+          totalPayable: topOffer.eligibleFinalPrice || topOffer.finalComparablePrice || topOffer.sellingPrice || 0,
+          currency: topOffer.currency,
           confidenceScore: identity.identityConfidence,
           assumptions: hasUnknownFees ? ['Delivery charges may vary by shipping pincode.'] : [],
-          evidence: [cheapestVerifiedOffer.verificationMethod],
+          evidence: [topOffer.verificationMethod],
           verdict: aiAnalysis.verdict,
         });
       }
@@ -135,10 +151,16 @@ export class ProductResearchOrchestrator {
       sessionId,
       identity,
       offers: rankedOffers,
-      cheapestVerifiedOffer,
+      rankings,
+      cheapestStandardOffer,
+      cheapestEligibleOffer,
+      cheapestConditionalOffer,
+      availablePromotionalOffers,
+      userPreferencesApplied: userPreferences,
       priceTruth: {
-        lowestVerifiedPrice,
-        highestVerifiedPrice,
+        lowestStandardPrice,
+        lowestEligiblePrice,
+        lowestConditionalPrice,
         maxVerifiedSavings,
         hasUnknownFees,
         calculationExplanation,

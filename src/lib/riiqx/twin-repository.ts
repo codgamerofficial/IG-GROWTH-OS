@@ -19,6 +19,7 @@ import {
   ActionApproval,
   ConsentRecord,
 } from './twin-types';
+import { UserShoppingPreferences } from '@/services/product-intelligence/types';
 
 // In-Memory store for development resiliency
 class ResilientTwinMemoryStore {
@@ -34,6 +35,7 @@ class ResilientTwinMemoryStore {
   referrals: Map<string, ReferralRecord[]> = new Map();
   approvals: Map<string, ActionApproval[]> = new Map();
   consents: Map<string, ConsentRecord[]> = new Map();
+  shoppingPreferences: Map<string, UserShoppingPreferences> = new Map();
 
   constructor() {
     this.seedDefaultOpportunities();
@@ -685,5 +687,33 @@ export class TwinRepository {
     }
 
     return true;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 12. USER SHOPPING & DISCOUNT PREFERENCES
+  // ---------------------------------------------------------------------------
+  public static async getShoppingPreferences(userId: string): Promise<UserShoppingPreferences> {
+    if (!memoryStore.shoppingPreferences.has(userId)) {
+      const defaultPrefs: UserShoppingPreferences = {
+        userId,
+        preferredBanks: ['HDFC Bank', 'ICICI Bank', 'SBI Card', 'Axis Bank'],
+        preferredCardTypes: ['credit', 'debit', 'emi'],
+        preferredPaymentMethods: ['upi', 'card', 'netbanking'],
+        memberships: ['Amazon Prime', 'Flipkart Plus'],
+        giftCardBalances: [],
+        updatedAt: new Date().toISOString(),
+      };
+      memoryStore.shoppingPreferences.set(userId, defaultPrefs);
+    }
+    return memoryStore.shoppingPreferences.get(userId)!;
+  }
+
+  public static async saveShoppingPreferences(prefs: UserShoppingPreferences): Promise<UserShoppingPreferences> {
+    const updated: UserShoppingPreferences = {
+      ...prefs,
+      updatedAt: new Date().toISOString(),
+    };
+    memoryStore.shoppingPreferences.set(prefs.userId, updated);
+    return updated;
   }
 }
