@@ -29,6 +29,7 @@ export function RiiqxSidebar() {
   const { activeTab, setActiveTab } = useRiiqx();
 
   const navItems: { tab: RiiqxViewTab; label: string; icon: React.ElementType }[] = [
+    { tab: 'twin', label: 'Ask AI Twin (Banza)', icon: Sparkles },
     { tab: 'home', label: 'Dashboard', icon: LayoutDashboard },
     { tab: 'chat', label: 'AI Agent Chat', icon: MessageSquare },
     { tab: 'autopilot', label: 'Autopilot Center', icon: Rocket },

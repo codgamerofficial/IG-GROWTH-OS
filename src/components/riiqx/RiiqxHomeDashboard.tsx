@@ -66,6 +66,13 @@ export function RiiqxHomeDashboard() {
 
   const quickActionCards = [
     {
+      title: 'Ask AI Twin (Banza)',
+      desc: 'Before you decide, ask your Twin. Price arbitrage & unbiased verdicts',
+      icon: Sparkles,
+      color: 'bg-[#FF5722]/20 text-[#202124] dark:text-[#FF5722] border-[#FF5722]/30',
+      tab: 'twin' as const,
+    },
+    {
       title: 'AI Video Editor',
       desc: 'Multi-track timeline, kinetic captions & canvas render',
       icon: Wand2,
@@ -122,11 +129,11 @@ export function RiiqxHomeDashboard() {
 
         <div className="flex items-center gap-2.5">
           <button
-            onClick={() => setActiveTab('chat')}
-            className="px-4 py-2.5 rounded-2xl bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] text-xs font-bold transition flex items-center gap-2 shadow-xs group"
+            onClick={() => setActiveTab('twin')}
+            className="px-4 py-2.5 rounded-2xl bg-[#FF5722] hover:bg-[#E64A19] text-white text-xs font-bold transition flex items-center gap-2 shadow-xs group"
           >
             <Sparkles className="w-4 h-4" />
-            <span>Launch AI Agent</span>
+            <span>Launch AI Twin</span>
           </button>
         </div>
       </div>

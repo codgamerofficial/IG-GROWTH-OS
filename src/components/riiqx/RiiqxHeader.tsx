@@ -190,6 +190,7 @@ export function RiiqxHeader() {
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-x-0 top-14 bg-white/95 dark:bg-[#151515]/95 backdrop-blur-xl border-b border-[#EAE7E1] dark:border-[#2E2E2E] p-4 shadow-xl z-50 space-y-1">
           {[
+            { tab: 'twin', label: 'Ask AI Twin (Banza)' },
             { tab: 'home', label: 'Dashboard' },
             { tab: 'chat', label: 'AI Agent Chat' },
             { tab: 'autopilot', label: 'Autopilot Center' },

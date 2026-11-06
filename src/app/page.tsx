@@ -9,6 +9,7 @@
 import React from 'react';
 import { useRiiqx } from '@/context/RiiqxContext';
 import { RiiqxHomeDashboard } from '@/components/riiqx/RiiqxHomeDashboard';
+import { BanzaLandingView } from '@/components/banza/BanzaLandingView';
 import { RiiqxChatView } from '@/components/riiqx/RiiqxChatView';
 import { RiiqxVideoEditor } from '@/components/riiqx/RiiqxVideoEditor';
 import { RiiqxAutopilotCenter } from '@/components/riiqx/RiiqxAutopilotCenter';
@@ -24,6 +25,8 @@ export default function RiiqxWorkspacePage() {
   const { activeTab } = useRiiqx();
 
   switch (activeTab) {
+    case 'twin':
+      return <BanzaLandingView />;
     case 'home':
       return <RiiqxHomeDashboard />;
     case 'chat':
@@ -47,6 +50,6 @@ export default function RiiqxWorkspacePage() {
     case 'settings':
       return <RiiqxSettingsView />;
     default:
-      return <RiiqxHomeDashboard />;
+      return <BanzaLandingView />;
   }
 }
