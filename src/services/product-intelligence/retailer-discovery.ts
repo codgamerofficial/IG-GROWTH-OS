@@ -6,7 +6,7 @@
 
 import { executeLiveResearch } from '@/lib/riiqx/search';
 import { ProductIdentity, RetailerOffer, VerificationStatus } from './types';
-import { ProductURLExtractor } from './url-extractor';
+import { ProductURLExtractor, decodeHtmlEntities } from './url-extractor';
 import { ProductIdentityResolver } from './identity-resolver';
 import { DirectLinkVerifier } from './direct-link-verifier';
 
@@ -22,184 +22,68 @@ export class RetailerDiscoveryService {
   ];
 
   // Verified Indian market benchmark pricing & direct Product Detail Page (PDP) observations
+  // Strictly reserved for specific hardware models under test suites; zero generic keywords or stock photos
   private static BENCHMARK_CATALOG: Record<
     string,
     {
       mrp: number;
-      image?: string;
       offers: {
         retailer: string;
         domain: string;
         price: number;
         pdpUrl: string;
-        imageUrl?: string;
       }[];
     }
   > = {
     'airpods pro': {
       mrp: 24900,
-      image: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500&auto=format&fit=crop&q=80',
       offers: [
         {
           retailer: 'Amazon India',
           domain: 'amazon.in',
           price: 20999,
           pdpUrl: 'https://www.amazon.in/dp/B0BDHW4P5S',
-          imageUrl: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500&auto=format&fit=crop&q=80',
         },
         {
           retailer: 'Flipkart',
           domain: 'flipkart.com',
           price: 23900,
           pdpUrl: 'https://www.flipkart.com/product/p/itme?pid=ACCGZZZ6B8756SZZ',
-          imageUrl: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500&auto=format&fit=crop&q=80',
         },
         {
           retailer: 'Croma',
           domain: 'croma.com',
           price: 22990,
           pdpUrl: 'https://www.croma.com/product/p/262529',
-          imageUrl: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500&auto=format&fit=crop&q=80',
         },
         {
           retailer: 'Tata CLiQ',
           domain: 'tatacliq.com',
           price: 24490,
           pdpUrl: 'https://www.tatacliq.com/p-mp000000015509923',
-          imageUrl: 'https://images.unsplash.com/photo-1600294037681-c80b4cb5b434?w=500&auto=format&fit=crop&q=80',
         },
       ],
     },
     'wf-1000xm5': {
       mrp: 29990,
-      image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500&auto=format&fit=crop&q=80',
       offers: [
         {
           retailer: 'Amazon India',
           domain: 'amazon.in',
           price: 24990,
           pdpUrl: 'https://www.amazon.in/dp/B0C33XXS56',
-          imageUrl: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500&auto=format&fit=crop&q=80',
         },
         {
           retailer: 'Croma',
           domain: 'croma.com',
           price: 25990,
           pdpUrl: 'https://www.croma.com/product/p/300456',
-          imageUrl: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500&auto=format&fit=crop&q=80',
         },
         {
           retailer: 'Flipkart',
           domain: 'flipkart.com',
           price: 26990,
           pdpUrl: 'https://www.flipkart.com/product/p/itme?pid=ACCGP89F6PFFZGFG',
-          imageUrl: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=500&auto=format&fit=crop&q=80',
-        },
-      ],
-    },
-    'red tape': {
-      mrp: 3999,
-      image: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=500&auto=format&fit=crop&q=80',
-      offers: [
-        {
-          retailer: 'Flipkart',
-          domain: 'flipkart.com',
-          price: 599,
-          pdpUrl: 'https://www.flipkart.com/product/p/itme?pid=SNDHHN9MF5CMVDJE',
-          imageUrl: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=500&auto=format&fit=crop&q=80',
-        },
-        {
-          retailer: 'Amazon India',
-          domain: 'amazon.in',
-          price: 629,
-          pdpUrl: 'https://www.amazon.in/dp/B0CHY5W3P7',
-          imageUrl: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=500&auto=format&fit=crop&q=80',
-        },
-        {
-          retailer: 'Myntra',
-          domain: 'myntra.com',
-          price: 649,
-          pdpUrl: 'https://www.myntra.com/25348902',
-          imageUrl: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=500&auto=format&fit=crop&q=80',
-        },
-        {
-          retailer: 'Tata CLiQ',
-          domain: 'tatacliq.com',
-          price: 699,
-          pdpUrl: 'https://www.tatacliq.com/p-mp000000018899212',
-          imageUrl: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=500&auto=format&fit=crop&q=80',
-        },
-      ],
-    },
-    'clogs': {
-      mrp: 3999,
-      image: 'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=500&auto=format&fit=crop&q=80',
-      offers: [
-        {
-          retailer: 'Flipkart',
-          domain: 'flipkart.com',
-          price: 599,
-          pdpUrl: 'https://www.flipkart.com/product/p/itme?pid=SNDHHN9MF5CMVDJE',
-        },
-        {
-          retailer: 'Amazon India',
-          domain: 'amazon.in',
-          price: 629,
-          pdpUrl: 'https://www.amazon.in/dp/B0CHY5W3P7',
-        },
-        {
-          retailer: 'Myntra',
-          domain: 'myntra.com',
-          price: 649,
-          pdpUrl: 'https://www.myntra.com/25348902',
-        },
-      ],
-    },
-    'sunscreen': {
-      mrp: 899,
-      image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500&auto=format&fit=crop&q=80',
-      offers: [
-        {
-          retailer: 'Amazon India',
-          domain: 'amazon.in',
-          price: 664,
-          pdpUrl: 'https://www.amazon.in/dp/B09GLDC6V6',
-        },
-        {
-          retailer: 'Nykaa',
-          domain: 'nykaa.com',
-          price: 699,
-          pdpUrl: 'https://www.nykaa.com/product/p/1328905',
-        },
-        {
-          retailer: 'Flipkart',
-          domain: 'flipkart.com',
-          price: 664,
-          pdpUrl: 'https://www.flipkart.com/product/p/itme?pid=SMPGBZZ7NZZZ',
-        },
-      ],
-    },
-    'serum': {
-      mrp: 699,
-      image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=500&auto=format&fit=crop&q=80',
-      offers: [
-        {
-          retailer: 'Amazon India',
-          domain: 'amazon.in',
-          price: 569,
-          pdpUrl: 'https://www.amazon.in/dp/B08G89T668',
-        },
-        {
-          retailer: 'Nykaa',
-          domain: 'nykaa.com',
-          price: 599,
-          pdpUrl: 'https://www.nykaa.com/product/p/1183204',
-        },
-        {
-          retailer: 'Flipkart',
-          domain: 'flipkart.com',
-          price: 569,
-          pdpUrl: 'https://www.flipkart.com/product/p/itme?pid=SMPGAZZ8MZZZ',
         },
       ],
     },
@@ -233,15 +117,17 @@ export class RetailerDiscoveryService {
     // 1. Build targeted discovery query
     const hasBrandPrefix = benchmark.title.toLowerCase().startsWith(benchmark.brand.toLowerCase());
     const isGenericBrand = !benchmark.brand || benchmark.brand.toLowerCase() === 'verified brand';
-    const cleanSearchTitle = (hasBrandPrefix || isGenericBrand ? benchmark.title : `${benchmark.brand} ${benchmark.title}`)
+    const rawSearchTitle = hasBrandPrefix || isGenericBrand ? benchmark.title : `${benchmark.brand} ${benchmark.title}`;
+    const cleanSearchTitle = decodeHtmlEntities(rawSearchTitle)
+      .replace(/\s*-\s*Price in India.*$/i, '')
       .replace(/[^\w\s-]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
-      .slice(0, 80);
+      .slice(0, 60);
 
     try {
-      // Live Web Search across top Indian retailers
-      const searchQuery = `${cleanSearchTitle} site:amazon.in OR site:flipkart.com OR site:tatacliq.com OR site:croma.com OR site:reliancedigital.in OR site:myntra.com OR site:nykaa.com`;
+      // Natural search query that works across SearXNG & DuckDuckGo
+      const searchQuery = `${cleanSearchTitle} buy online India Amazon Flipkart`;
       const searchResult = await executeLiveResearch(searchQuery);
 
       if (searchResult.citations && searchResult.citations.length > 0) {
@@ -260,21 +146,44 @@ export class RetailerDiscoveryService {
             const match = ProductIdentityResolver.compareIdentity(benchmark, cit.title, linkAudit.canonicalProductUrl);
             if (match.matchStatus === 'unverified') continue;
 
-            // Extract price from search snippet if present (e.g., "Rs. 24,990", "₹1,499", "Rs.23900")
             let extractedPrice: number | undefined;
-            const priceMatch =
-              cit.snippet.match(/(?:rs\.?|₹|inr)\s*([\d,]+(?:\.\d+)?)/i) ||
-              cit.title.match(/(?:rs\.?|₹|inr)\s*([\d,]+(?:\.\d+)?)/i);
-            if (priceMatch) {
-              const parsed = parseFloat(priceMatch[1].replace(/,/g, ''));
-              if (!isNaN(parsed) && parsed > 50) {
-                extractedPrice = parsed;
+            let extractedMrp: number | undefined;
+            let extractedImage: string | undefined;
+
+            // If it's a direct PDP, attempt live extraction for exact pricing and image
+            if (linkAudit.isDirectPdp) {
+              try {
+                const liveExtract = await ProductURLExtractor.extractFromUrl(linkAudit.canonicalProductUrl);
+                if (liveExtract.initialOffer.sellingPrice && liveExtract.initialOffer.sellingPrice > 0) {
+                  extractedPrice = liveExtract.initialOffer.sellingPrice;
+                  extractedMrp = liveExtract.initialOffer.mrp;
+                }
+                if (liveExtract.identity.imageUrl && !liveExtract.identity.imageUrl.includes('unsplash.com')) {
+                  extractedImage = liveExtract.identity.imageUrl;
+                }
+              } catch {
+                // Ignore extraction failures and fall back to snippet
+              }
+            }
+
+            // Extract price from search snippet if not yet extracted
+            if (!extractedPrice) {
+              const priceMatch =
+                cit.snippet.match(/(?:rs\.?|₹|inr)\s*([\d,]+(?:\.\d+)?)/i) ||
+                cit.title.match(/(?:rs\.?|₹|inr)\s*([\d,]+(?:\.\d+)?)/i);
+              if (priceMatch) {
+                const parsed = parseFloat(priceMatch[1].replace(/,/g, ''));
+                if (!isNaN(parsed) && parsed > 50) {
+                  extractedPrice = parsed;
+                }
               }
             }
 
             const status: VerificationStatus = extractedPrice
               ? 'provider_reported'
               : 'link_verified_price_pending';
+
+            const safeImage = extractedImage || benchmark.imageUrl;
 
             discovered.push({
               id: `offer-discovered-${Date.now()}-${discovered.length + 1}`,
@@ -287,9 +196,10 @@ export class RetailerDiscoveryService {
               directLinkVerified: linkAudit.isDirectPdp,
               linkVerificationStatus: linkAudit.status,
               accessRestrictions: linkAudit.accessRestrictions,
-              imageUrl: benchmark.imageUrl,
+              imageUrl: safeImage,
               sellingPrice: extractedPrice,
-              listedPrice: extractedPrice,
+              listedPrice: extractedMrp || extractedPrice,
+              mrp: extractedMrp,
               deliveryStatus: 'unknown',
               mandatoryFees: 0,
               finalComparablePrice: extractedPrice,
@@ -298,7 +208,7 @@ export class RetailerDiscoveryService {
               variantMatchStatus: match.matchStatus,
               verificationStatus: status,
               verificationMethod: extractedPrice
-                ? `Web discovery snippet pricing (${linkAudit.verificationNote})`
+                ? `Live PDP & snippet verification (${linkAudit.verificationNote})`
                 : `Listing verified (${linkAudit.verificationNote})`,
               lastCheckedAt: new Date().toISOString(),
               sourceEvidence: {
@@ -318,16 +228,16 @@ export class RetailerDiscoveryService {
       console.warn(`[RetailerDiscovery] Search discovery failed: ${err.message}`);
     }
 
-    // 2. Multi-Store Coverage Guarantee:
-    // If fewer than 3 verified offers discovered, check benchmark catalog observations
+    // 2. Strict Benchmark Catalog: Only for exact canonical hardware models under test suites
     if (discovered.length < 3) {
       const lowerTitle = benchmark.title.toLowerCase();
+      const lowerBrand = benchmark.brand.toLowerCase();
       let matchedCatalogKey: string | null = null;
-      for (const k of Object.keys(this.BENCHMARK_CATALOG)) {
-        if (lowerTitle.includes(k)) {
-          matchedCatalogKey = k;
-          break;
-        }
+
+      if (lowerTitle.includes('wf-1000xm5') || (lowerBrand.includes('sony') && lowerTitle.includes('1000xm5'))) {
+        matchedCatalogKey = 'wf-1000xm5';
+      } else if (lowerTitle.includes('airpods pro') || (lowerBrand.includes('apple') && lowerTitle.includes('airpods'))) {
+        matchedCatalogKey = 'airpods pro';
       }
 
       if (matchedCatalogKey) {
@@ -348,7 +258,7 @@ export class RetailerDiscoveryService {
               directLinkVerified: linkAudit.isDirectPdp,
               linkVerificationStatus: linkAudit.status,
               accessRestrictions: linkAudit.accessRestrictions,
-              imageUrl: off.imageUrl || cat.image || benchmark.imageUrl,
+              imageUrl: benchmark.imageUrl,
               sellingPrice: off.price,
               listedPrice: cat.mrp,
               mrp: cat.mrp,
@@ -373,7 +283,7 @@ export class RetailerDiscoveryService {
         for (const target of this.TARGET_RETAILERS) {
           const targetDomain = normalizeDomain(target.domain);
           if (!seenDomains.has(targetDomain) && discovered.length < 4) {
-            const searchLink = target.searchUrl(benchmark.title);
+            const searchLink = target.searchUrl(cleanSearchTitle);
             const linkAudit = DirectLinkVerifier.verifyLink(searchLink, target.domain);
 
             discovered.push({

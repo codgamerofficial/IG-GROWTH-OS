@@ -5,6 +5,21 @@
 
 import { ProductIdentity, RetailerOffer, VerificationStatus } from './types';
 
+export function decodeHtmlEntities(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/&#x27;/gi, "'")
+    .replace(/&#39;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
+    .replace(/&#x([a-fA-F0-9]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
 export class ProductURLExtractor {
   /**
    * SSRF Protection: Blocks loopback, private IPv4/IPv6, link-local, and cloud metadata targets
@@ -228,7 +243,8 @@ export class ProductURLExtractor {
     // Title resolution and clean marketing suffixes
     let resolvedTitle = jsonLdProduct?.name || ogTitle || '';
     if (resolvedTitle) {
-      resolvedTitle = resolvedTitle
+      resolvedTitle = decodeHtmlEntities(resolvedTitle)
+        .replace(/\s*-\s*Price in India.*$/i, '')
         .replace(/\s*-\s*Buy\s+.*$/i, '')
         .replace(/\s*\|\s*Flipkart\.com.*$/i, '')
         .replace(/:\s*Buy Online at Best Prices.*$/i, '')
@@ -236,6 +252,9 @@ export class ProductURLExtractor {
         .replace(/\s*-\s*Amazon\.in.*$/i, '')
         .replace(/\s*\|\s*Myntra.*$/i, '')
         .replace(/\s*\|\s*Tata CLiQ.*$/i, '')
+        .replace(/\s*\|\s*Croma.*$/i, '')
+        .replace(/\s*\|\s*Nykaa.*$/i, '')
+        .replace(/\s*\|\s*Reliance Digital.*$/i, '')
         .trim();
     } else {
       // Extract meaningful slug from rawUrl or canonicalUrl, filtering generic routing segments and ASINs
@@ -244,7 +263,7 @@ export class ProductURLExtractor {
         .split('/')
         .filter((s) => Boolean(s) && !['p', 'dp', 'gp', 'product', 'itm', 'buy', 's'].includes(s.toLowerCase()) && !/^[A-Z0-9]{10}$/i.test(s));
       const slug = segments[0] || 'Verified Product';
-      resolvedTitle = decodeURIComponent(slug).replace(/[-_+]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
+      resolvedTitle = decodeHtmlEntities(decodeURIComponent(slug)).replace(/[-_+]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
     }
 
     // Brand resolution
@@ -253,12 +272,14 @@ export class ProductURLExtractor {
         ? jsonLdProduct.brand
         : jsonLdProduct?.brand?.name || '';
 
-    if (!resolvedBrand) {
+    if (resolvedBrand) {
+      resolvedBrand = decodeHtmlEntities(resolvedBrand).trim();
+    } else {
       const known = [
         'RED TAPE', 'Red Tape', 'Apple', 'Sony', 'Samsung', 'Noise', 'boAt',
         'Asics', 'Minimalist', 'Lenovo', 'ASUS', 'OnePlus', 'Titan', 'Puma',
         'Nike', 'Adidas', 'Bata', 'Campus', 'Crocs', 'Sparx', 'Woodland',
-        'Philips', 'Agaro', 'Dot & Key'
+        'Philips', 'Agaro', 'Dot & Key', 'Storite', 'STORITE', 'ZARA', 'H&M'
       ];
       for (const k of known) {
         if (new RegExp(`\\b${k}\\b`, 'i').test(resolvedTitle)) {

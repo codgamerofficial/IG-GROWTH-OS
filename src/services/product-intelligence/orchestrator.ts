@@ -5,7 +5,7 @@
 // =============================================================================
 
 import { ProductIdentity, RetailerOffer, PurchaseAnalysisReport, UserShoppingPreferences } from './types';
-import { ProductURLExtractor } from './url-extractor';
+import { ProductURLExtractor, decodeHtmlEntities } from './url-extractor';
 import { VisualProductRecognizer } from './visual-recognizer';
 import { RetailerDiscoveryService } from './retailer-discovery';
 import { PriceCalculatorService } from './price-calculator';
@@ -88,8 +88,31 @@ export class ProductResearchOrchestrator {
       throw new Error('Please submit a product URL, upload a screenshot, or enter a product title to research.');
     }
 
+    // Clean HTML entities and residual ecommerce suffixes from identity
+    identity.title = decodeHtmlEntities(identity.title)
+      .replace(/\s*-\s*Price in India.*$/i, '')
+      .replace(/\s*-\s*Buy\s+.*$/i, '')
+      .replace(/\s*\|\s*Flipkart\.com.*$/i, '')
+      .trim();
+    identity.brand = decodeHtmlEntities(identity.brand).trim();
+
     // 2. Discover Real Offers Across Indian Retailers with Verified Direct Buying Links
     const allOffers = await RetailerDiscoveryService.discoverOffers(identity, initialOffers);
+
+    // If initial identity had no image (e.g. from text prompt), inherit the verified product image from discovered offers
+    if (!identity.imageUrl) {
+      const validImageOffer = allOffers.find((o) => o.imageUrl && !o.imageUrl.includes('unsplash.com'));
+      if (validImageOffer?.imageUrl) {
+        identity.imageUrl = validImageOffer.imageUrl;
+      }
+    }
+
+    // Ensure all offers without images inherit the verified identity image
+    for (const off of allOffers) {
+      if (!off.imageUrl || off.imageUrl.includes('unsplash.com')) {
+        off.imageUrl = identity.imageUrl;
+      }
+    }
 
     // 3. Price Truth Math, Multi-Scenario Calculation & 3-Tier Rankings
     const {

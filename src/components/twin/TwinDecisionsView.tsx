@@ -39,6 +39,21 @@ import {
   RetailerOffer,
 } from '@/services/product-intelligence/types';
 
+function decodeHtmlEntities(str: string): string {
+  if (!str) return '';
+  return str
+    .replace(/&#x27;/gi, "'")
+    .replace(/&#39;/gi, "'")
+    .replace(/&quot;/gi, '"')
+    .replace(/&apos;/gi, "'")
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(parseInt(code, 10)))
+    .replace(/&#x([a-fA-F0-9]+);/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+}
+
 export function TwinDecisionsView() {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -432,7 +447,7 @@ export function TwinDecisionsView() {
                   </div>
 
                   <h2 className="text-xl sm:text-2xl font-black text-[#1A1817] dark:text-white font-heading">
-                    {result.bestPick.title}
+                    {decodeHtmlEntities(result.bestPick.title)}
                   </h2>
                   <p className="text-xs sm:text-sm text-[#6B6661] dark:text-[#A3A3A3] max-w-3xl leading-relaxed">
                     {result.subtext}
@@ -560,20 +575,26 @@ export function TwinDecisionsView() {
                         )}
                       </div>
 
-                      {/* Store Authentic Product Image */}
-                      {offer.imageUrl ? (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={offer.imageUrl}
-                          alt={offer.retailerName}
-                          className="h-32 w-full object-contain rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] p-2"
-                        />
-                      ) : (
-                        <div className="h-32 w-full rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-dashed border-[#EAE3D9] dark:border-[#2E2E33] flex flex-col items-center justify-center text-[#6B6661] text-[10px]">
-                          <ImageIcon className="h-6 w-6 opacity-40 mb-1" />
-                          <span>Direct store image unlisted</span>
-                        </div>
-                      )}
+                      {/* Store Authentic Product Image (Strict authentic fallback; zero stock photos) */}
+                      {(() => {
+                        const cardImage =
+                          offer.imageUrl && !offer.imageUrl.includes('unsplash.com')
+                            ? offer.imageUrl
+                            : result.bestPick.imageUrl;
+                        return cardImage ? (
+                          /* eslint-disable-next-line @next/next/no-img-element */
+                          <img
+                            src={cardImage}
+                            alt={offer.retailerName}
+                            className="h-32 w-full object-contain rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] p-2"
+                          />
+                        ) : (
+                          <div className="h-32 w-full rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-dashed border-[#EAE3D9] dark:border-[#2E2E33] flex flex-col items-center justify-center text-[#6B6661] text-[10px]">
+                            <ImageIcon className="h-6 w-6 opacity-40 mb-1" />
+                            <span>Direct store image unlisted</span>
+                          </div>
+                        );
+                      })()}
 
                       {/* Price Display */}
                       <div>
