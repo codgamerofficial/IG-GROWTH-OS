@@ -767,8 +767,9 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
-      {/* Navigation Sub-Tabs & Actions Bar */}
+    <div className="flex h-full flex-1 flex-col min-h-0 overflow-y-auto bg-[#0C0C0E] text-[#F4F4F6] p-4 sm:p-6 lg:p-8 transition-colors select-auto">
+      <div className="mx-auto w-full max-w-7xl space-y-6 pb-24 animate-fadeIn">
+        {/* Navigation Sub-Tabs & Actions Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800 pb-4">
         <div className="flex flex-wrap gap-2">
           <button
@@ -3086,5 +3087,6 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
         </div>
       )}
     </div>
+  </div>
   );
 }
