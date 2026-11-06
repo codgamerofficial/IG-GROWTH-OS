@@ -392,3 +392,4 @@ CREATE POLICY "data_export_requests_user_manage" ON public.data_export_requests
 
 -- Verification comment
 COMMENT ON SCHEMA public IS 'RIIQX Personal AI Twin & Intelligence Platform Schema (20261107)';
+

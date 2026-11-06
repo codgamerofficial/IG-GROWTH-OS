@@ -135,3 +135,4 @@ export function TwinOpportunitiesView() {
     </div>
   );
 }
+

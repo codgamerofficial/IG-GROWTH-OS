@@ -377,3 +377,4 @@ export function TwinDashboardView() {
     </div>
   );
 }
+

@@ -41,6 +41,7 @@ const PUBLIC_PATHS = [
   '/api/riiqx/tools',
   '/api/shopping',
   '/api/twin',
+  '/api/product-research',
   '/api/compliance',
   '/api/creator',
   '/api/health',

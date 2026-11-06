@@ -210,3 +210,4 @@ export interface ConsentRecord {
   grantedAt: string;
   revokedAt?: string;
 }
+
