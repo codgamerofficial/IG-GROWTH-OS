@@ -1,0 +1,186 @@
+{
+  "fullTranscript": "Most creators make this fatal mistake in 2026. They chase isolated hacks instead of building automated distribution engines. RIIQX connects your channels and automates your entire creative workflow. Follow for daily tactics.",
+  "wordTimestamps": [
+    {
+      "word": "Most",
+      "start": 0.1,
+      "end": 0.38
+    },
+    {
+      "word": "creators",
+      "start": 0.4,
+      "end": 0.85
+    },
+    {
+      "word": "make",
+      "start": 0.88,
+      "end": 1.1
+    },
+    {
+      "word": "this",
+      "start": 1.12,
+      "end": 1.35
+    },
+    {
+      "word": "fatal",
+      "start": 1.38,
+      "end": 1.7
+    },
+    {
+      "word": "mistake",
+      "start": 1.72,
+      "end": 2.15
+    },
+    {
+      "word": "in",
+      "start": 2.18,
+      "end": 2.35
+    },
+    {
+      "word": "2026.",
+      "start": 2.38,
+      "end": 2.9
+    },
+    {
+      "word": "They",
+      "start": 3.2,
+      "end": 3.45
+    },
+    {
+      "word": "chase",
+      "start": 3.48,
+      "end": 3.75
+    },
+    {
+      "word": "isolated",
+      "start": 3.78,
+      "end": 4.2
+    },
+    {
+      "word": "hacks",
+      "start": 4.22,
+      "end": 4.65
+    },
+    {
+      "word": "instead",
+      "start": 4.7,
+      "end": 5.05
+    },
+    {
+      "word": "of",
+      "start": 5.08,
+      "end": 5.2
+    },
+    {
+      "word": "building",
+      "start": 5.22,
+      "end": 5.65
+    },
+    {
+      "word": "automated",
+      "start": 5.7,
+      "end": 6.2
+    },
+    {
+      "word": "distribution",
+      "start": 6.25,
+      "end": 6.85
+    },
+    {
+      "word": "engines.",
+      "start": 6.9,
+      "end": 7.4
+    },
+    {
+      "word": "RIIQX",
+      "start": 7.8,
+      "end": 8.2
+    },
+    {
+      "word": "connects",
+      "start": 8.25,
+      "end": 8.65
+    },
+    {
+      "word": "your",
+      "start": 8.7,
+      "end": 8.85
+    },
+    {
+      "word": "channels",
+      "start": 8.9,
+      "end": 9.35
+    },
+    {
+      "word": "and",
+      "start": 9.4,
+      "end": 9.55
+    },
+    {
+      "word": "automates",
+      "start": 9.6,
+      "end": 10.1
+    },
+    {
+      "word": "your",
+      "start": 10.15,
+      "end": 10.3
+    },
+    {
+      "word": "entire",
+      "start": 10.35,
+      "end": 10.7
+    },
+    {
+      "word": "creative",
+      "start": 10.75,
+      "end": 11.2
+    },
+    {
+      "word": "workflow.",
+      "start": 11.25,
+      "end": 11.85
+    },
+    {
+      "word": "Follow",
+      "start": 12.2,
+      "end": 12.6
+    },
+    {
+      "word": "for",
+      "start": 12.65,
+      "end": 12.8
+    },
+    {
+      "word": "daily",
+      "start": 12.85,
+      "end": 13.2
+    },
+    {
+      "word": "tactics.",
+      "start": 13.25,
+      "end": 13.8
+    }
+  ],
+  "detectedPauses": [
+    {
+      "startSec": 2.9,
+      "endSec": 3.2,
+      "durationSec": 0.3,
+      "recommendation": "Natural breathing pause, retain"
+    },
+    {
+      "startSec": 7.4,
+      "endSec": 7.8,
+      "durationSec": 0.4,
+      "recommendation": "Emphasis pause before solution, retain"
+    },
+    {
+      "startSec": 11.85,
+      "endSec": 12.2,
+      "durationSec": 0.35,
+      "recommendation": "Transition to CTA, clean cut"
+    }
+  ],
+  "auditedAt": "2026-11-06T10:26:26.131Z"
+}
