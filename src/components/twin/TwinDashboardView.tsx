@@ -4,6 +4,7 @@
 // RIIQX — Personal AI Twin Master Dashboard
 // "Know your needs. Make smarter moves."
 // Real Metrics • Transparent Calibration • Zero Fabricated Balances
+// Ultra-Modern Trending Obsidian Glassmorphic Design System
 // =============================================================================
 
 import React, { useState, useEffect } from 'react';
@@ -26,6 +27,7 @@ import {
   X,
   Target,
   RefreshCw,
+  Zap,
 } from 'lucide-react';
 import { useRiiqx } from '@/context/RiiqxContext';
 import { TwinProfile, TwinGoal, PurchaseAnalysis } from '@/lib/riiqx/twin-types';
@@ -158,20 +160,24 @@ export function TwinDashboardView() {
   const calibrationScore = 86; // Based on configured preferences, active goals & verified rules
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#FAF8F5] dark:bg-[#0E0E10] text-[#1A1817] dark:text-[#F4F4F6] p-4 sm:p-6 lg:p-8 space-y-8 relative">
+    <div className="flex-1 overflow-y-auto bg-[#09090b] text-[#F4F4F6] p-4 sm:p-6 lg:p-8 space-y-8 relative selection:bg-orange-500/30">
+      {/* Background Ambient Radial Glow */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute top-1/2 right-10 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+
       {/* 1. Header & Quick Status */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#EAE3D9] dark:border-[#26262B] pb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-[#16865D] animate-pulse" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#6B6661] dark:text-[#A3A3A3]">
+            <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[11px] font-black uppercase tracking-wider text-emerald-400">
               Active Intelligence Core
             </span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-[#1A1817] dark:text-white font-heading mt-1">
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white font-heading mt-2">
             {profile?.twinName || 'RIIQX Personal Twin'}
           </h1>
-          <p className="text-xs sm:text-sm text-[#6B6661] dark:text-[#A3A3A3] mt-1">
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-xl">
             &ldquo;Know your needs. Make smarter moves.&rdquo;
           </p>
         </div>
@@ -179,14 +185,14 @@ export function TwinDashboardView() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setActiveTab('decisions')}
-            className="flex items-center gap-2 rounded-2xl bg-white dark:bg-[#18181C] border border-[#EAE3D9] dark:border-[#26262B] px-4 py-2.5 text-xs font-bold shadow-xs hover:border-[#FF5722] transition-colors"
+            className="flex items-center gap-2 rounded-2xl bg-zinc-900/80 hover:bg-zinc-800 border border-white/[0.08] hover:border-orange-500/40 px-4 py-2.5 text-xs font-bold text-zinc-200 shadow-md transition-all active:scale-95"
           >
-            <Scale className="h-4 w-4 text-[#FF5722]" />
+            <Scale className="h-4 w-4 text-orange-400" />
             <span>Analyze Purchase</span>
           </button>
           <button
             onClick={() => setActiveTab('twin')}
-            className="flex items-center gap-2 rounded-2xl bg-[#FF5722] hover:bg-[#E64A19] text-white px-5 py-2.5 text-xs font-black shadow-xs transition-transform active:scale-95"
+            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-5 py-2.5 text-xs font-black shadow-lg shadow-orange-500/25 transition-transform active:scale-95"
           >
             <Sparkles className="h-4 w-4" />
             <span>Chat with Twin</span>
@@ -197,87 +203,97 @@ export function TwinDashboardView() {
       {/* 2. Top Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1: Personalization Calibration */}
-        <div className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white/70 dark:bg-[#18181C]/70 backdrop-blur-md p-5 flex flex-col justify-between">
+        <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-5 flex flex-col justify-between hover:border-white/[0.18] transition-all shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-orange-500/10 transition-colors" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#6B6661] dark:text-[#A3A3A3]">Calibration Level</span>
-            <span className="rounded-full bg-[#FF5722]/10 text-[#FF5722] px-2.5 py-0.5 text-[10px] font-black uppercase">
+            <span className="text-xs font-bold text-zinc-400">Calibration Level</span>
+            <span className="rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/30 px-2.5 py-0.5 text-[10px] font-black uppercase">
               Level {profile?.autonomyLevel || 2}
             </span>
           </div>
           <div className="my-3">
-            <div className="text-3xl font-black text-[#1A1817] dark:text-white font-heading">
+            <div className="text-3xl font-black text-white font-mono tracking-tight">
               {calibrationScore}%
             </div>
-            <div className="w-full bg-[#EAE3D9] dark:bg-[#26262B] h-2 rounded-full mt-2 overflow-hidden">
+            <div className="w-full bg-zinc-950/80 h-2 rounded-full mt-2.5 overflow-hidden border border-white/[0.06]">
               <div
-                className="bg-gradient-to-r from-[#FF5722] to-[#FF9800] h-full rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-orange-500 to-amber-400 h-full rounded-full transition-all duration-500 shadow-sm shadow-orange-500/50"
                 style={{ width: `${calibrationScore}%` }}
               />
             </div>
           </div>
-          <div className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3]">
-            Tone: <span className="font-bold text-[#1A1817] dark:text-white capitalize">{profile?.tone.replace('_', ' ') || 'Pragmatic'}</span>
+          <div className="text-[11px] text-zinc-400">
+            Tone: <span className="font-bold text-white capitalize">{profile?.tone.replace('_', ' ') || 'Pragmatic Analytical'}</span>
           </div>
         </div>
 
         {/* Metric 2: Verified Total Savings */}
-        <div className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white/70 dark:bg-[#18181C]/70 backdrop-blur-md p-5 flex flex-col justify-between">
+        <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-5 flex flex-col justify-between hover:border-white/[0.18] transition-all shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-emerald-500/10 transition-colors" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#6B6661] dark:text-[#A3A3A3]">Verified Net Savings</span>
-            <DollarSign className="h-4 w-4 text-[#16865D]" />
+            <span className="text-xs font-bold text-zinc-400">Verified Net Savings</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <DollarSign className="h-4 w-4" />
+            </div>
           </div>
           <div className="my-3">
-            <div className="text-3xl font-black text-[#16865D] font-heading">
+            <div className="text-3xl font-black text-emerald-400 font-mono tracking-tight">
               ₹{totalSaved > 0 ? totalSaved.toLocaleString('en-IN') : '2,420'}
             </div>
-            <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] mt-1">
+            <p className="text-[11px] text-zinc-400 mt-1 leading-relaxed">
               Deterministic calculations based on price truth &amp; card stacking.
             </p>
           </div>
-          <div className="text-[10px] text-[#16865D] font-bold flex items-center gap-1">
-            <CheckCircle2 className="h-3 w-3" /> Zero simulated balances
+          <div className="text-[10px] text-emerald-400 font-bold flex items-center gap-1 font-mono">
+            <CheckCircle2 className="h-3.5 w-3.5" /> Zero simulated balances
           </div>
         </div>
 
         {/* Metric 3: Active Goals */}
-        <div className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white/70 dark:bg-[#18181C]/70 backdrop-blur-md p-5 flex flex-col justify-between">
+        <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-5 flex flex-col justify-between hover:border-white/[0.18] transition-all shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-blue-500/10 transition-colors" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#6B6661] dark:text-[#A3A3A3]">Active Goals</span>
-            <TrendingUp className="h-4 w-4 text-[#3B82F6]" />
+            <span className="text-xs font-bold text-zinc-400">Active Goals</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <TrendingUp className="h-4 w-4" />
+            </div>
           </div>
           <div className="my-3">
-            <div className="text-3xl font-black text-[#1A1817] dark:text-white font-heading">
+            <div className="text-3xl font-black text-white font-mono tracking-tight">
               {goals.length} Goal{goals.length === 1 ? '' : 's'}
             </div>
-            <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] mt-1 truncate">
-              {goals[0]?.title || 'Quarterly Upgrade Fund'}
+            <p className="text-[11px] text-zinc-400 mt-1 truncate">
+              {goals[0]?.title || 'Quarterly Tech Upgrade Fund'}
             </p>
           </div>
           <button
             onClick={() => setIsGoalModalOpen(true)}
-            className="text-[11px] text-[#3B82F6] font-bold flex items-center gap-1 hover:underline text-left"
+            className="text-[11px] text-blue-400 font-bold flex items-center gap-1 hover:underline text-left group-hover:text-blue-300"
           >
             Manage Goals <ArrowRight className="h-3 w-3" />
           </button>
         </div>
 
         {/* Metric 4: Real Rewards Status */}
-        <div className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white/70 dark:bg-[#18181C]/70 backdrop-blur-md p-5 flex flex-col justify-between">
+        <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-5 flex flex-col justify-between hover:border-white/[0.18] transition-all shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl pointer-events-none group-hover:bg-purple-500/10 transition-colors" />
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-[#6B6661] dark:text-[#A3A3A3]">Rewards Ledger</span>
-            <Gift className="h-4 w-4 text-[#9C27B0]" />
+            <span className="text-xs font-bold text-zinc-400">Rewards Ledger</span>
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <Gift className="h-4 w-4" />
+            </div>
           </div>
           <div className="my-3">
-            <div className="text-3xl font-black text-[#1A1817] dark:text-white font-heading">
+            <div className="text-3xl font-black text-white font-mono tracking-tight">
               ₹0.00
             </div>
-            <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] mt-1">
+            <p className="text-[11px] text-zinc-400 mt-1">
               Referral tracking active • Partner funding pending
             </p>
           </div>
           <button
             onClick={() => setActiveTab('rewards')}
-            className="text-[11px] text-[#9C27B0] font-bold flex items-center gap-1 hover:underline text-left"
+            className="text-[11px] text-purple-400 font-bold flex items-center gap-1 hover:underline text-left group-hover:text-purple-300"
           >
             View Reward Ledger <ArrowRight className="h-3 w-3" />
           </button>
@@ -289,21 +305,21 @@ export function TwinDashboardView() {
         {/* Left Column (2 Cols): Goals & Decision Intelligence */}
         <div className="lg:col-span-2 space-y-6">
           {/* Active Goals Card */}
-          <div className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 shadow-xs">
-            <div className="flex items-center justify-between mb-4">
+          <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-7 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF5722]/10 text-[#FF5722]">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
                   <TrendingUp className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#1A1817] dark:text-white">Personal Goals &amp; Budgets</h3>
-                  <p className="text-xs text-[#6B6661] dark:text-[#A3A3A3]">Decisions are continuously aligned against these targets</p>
+                  <h3 className="text-base font-black text-white font-heading">Personal Goals &amp; Budgets</h3>
+                  <p className="text-xs text-zinc-400">Decisions are continuously aligned against these targets</p>
                 </div>
               </div>
 
               <button
                 onClick={() => setIsGoalModalOpen(true)}
-                className="flex items-center gap-1.5 text-xs font-bold text-[#FF5722] hover:underline"
+                className="flex items-center gap-1.5 text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
                 <span>Add Goal</span>
@@ -311,66 +327,81 @@ export function TwinDashboardView() {
             </div>
 
             <div className="space-y-4">
-              {goals.map((g) => {
-                const pct = g.targetAmount > 0 ? Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100)) : 0;
-                return (
-                  <div key={g.id} className="p-4 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] space-y-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div>
-                        <span className="font-bold text-xs sm:text-sm text-[#1A1817] dark:text-white">{g.title}</span>
-                        {g.description && <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] mt-0.5">{g.description}</p>}
-                      </div>
+              {goals.length === 0 ? (
+                <div className="p-6 rounded-2xl bg-zinc-950/70 border border-white/[0.06] text-center space-y-2">
+                  <p className="text-xs text-zinc-400">No active goals configured yet.</p>
+                  <button
+                    onClick={() => setIsGoalModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-xs font-bold shadow-md shadow-orange-500/20"
+                  >
+                    <Plus className="h-3.5 w-3.5" /> Create First Goal
+                  </button>
+                </div>
+              ) : (
+                goals.map((g) => {
+                  const pct = g.targetAmount > 0 ? Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100)) : 0;
+                  return (
+                    <div key={g.id} className="p-4 sm:p-5 rounded-2xl bg-zinc-950/70 border border-white/[0.06] hover:border-white/[0.14] transition-all space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <span className="font-bold text-xs sm:text-sm text-white">{g.title}</span>
+                          {g.description && <p className="text-[11px] text-zinc-400 mt-0.5">{g.description}</p>}
+                        </div>
 
-                      <div className="flex items-center gap-2 self-start sm:self-auto">
-                        <span className="text-xs font-black text-[#16865D]">
-                          ₹{g.currentAmount.toLocaleString('en-IN')} / ₹{g.targetAmount.toLocaleString('en-IN')} ({pct}%)
-                        </span>
+                        <div className="flex items-center gap-2.5 self-start sm:self-auto">
+                          <span className="text-xs font-black text-emerald-400 font-mono">
+                            ₹{g.currentAmount.toLocaleString('en-IN')} / ₹{g.targetAmount.toLocaleString('en-IN')} ({pct}%)
+                          </span>
 
-                        {/* Quick Progress Increment Buttons */}
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleQuickAddSavings(g.id, 500)}
-                            className="px-2 py-0.5 rounded-lg bg-white dark:bg-[#18181C] hover:bg-[#EAE3D9] border border-[#EAE3D9] dark:border-[#2E2E33] text-[10px] font-bold text-[#16865D] transition-colors"
-                            title="Add ₹500 to this goal"
-                          >
-                            +₹500
-                          </button>
-                          <button
-                            onClick={() => handleQuickAddSavings(g.id, 1000)}
-                            className="px-2 py-0.5 rounded-lg bg-white dark:bg-[#18181C] hover:bg-[#EAE3D9] border border-[#EAE3D9] dark:border-[#2E2E33] text-[10px] font-bold text-[#16865D] transition-colors"
-                            title="Add ₹1,000 to this goal"
-                          >
-                            +₹1k
-                          </button>
+                          {/* Quick Progress Increment Buttons */}
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleQuickAddSavings(g.id, 500)}
+                              className="px-2.5 py-1 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 border border-white/[0.08] text-[10px] font-bold text-emerald-400 transition-colors"
+                              title="Add ₹500 to this goal"
+                            >
+                              +₹500
+                            </button>
+                            <button
+                              onClick={() => handleQuickAddSavings(g.id, 1000)}
+                              className="px-2.5 py-1 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 border border-white/[0.08] text-[10px] font-bold text-emerald-400 transition-colors"
+                              title="Add ₹1,000 to this goal"
+                            >
+                              +₹1k
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="w-full bg-[#EAE3D9] dark:bg-[#18181C] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#16865D] h-full rounded-full transition-all duration-300" style={{ width: `${pct}%` }} />
+                      <div className="w-full bg-zinc-900 h-2.5 rounded-full overflow-hidden border border-white/[0.04]">
+                        <div
+                          className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-300 shadow-xs shadow-emerald-500/50"
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
 
           {/* Recent Decision Lab Verdicts */}
-          <div className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 shadow-xs">
-            <div className="flex items-center justify-between mb-4">
+          <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-7 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#3B82F6]/10 text-[#3B82F6]">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
                   <Scale className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#1A1817] dark:text-white">Recent Decision Lab Results</h3>
-                  <p className="text-xs text-[#6B6661] dark:text-[#A3A3A3]">Evidence-backed product evaluations and price truth</p>
+                  <h3 className="text-base font-black text-white font-heading">Recent Decision Lab Results</h3>
+                  <p className="text-xs text-zinc-400">Evidence-backed product evaluations and price truth</p>
                 </div>
               </div>
 
               <button
                 onClick={() => setActiveTab('decisions')}
-                className="text-xs font-bold text-[#3B82F6] hover:underline flex items-center gap-1"
+                className="text-xs font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1 transition-colors"
               >
                 <span>View All</span>
                 <ArrowRight className="h-3.5 w-3.5" />
@@ -378,15 +409,15 @@ export function TwinDashboardView() {
             </div>
 
             {recentDecisions.length === 0 ? (
-              <div className="p-8 text-center rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-dashed border-[#EAE3D9] dark:border-[#2E2E33] space-y-2">
-                <Scale className="h-8 w-8 text-[#6B6661] dark:text-[#A3A3A3] mx-auto opacity-40" />
-                <p className="text-xs font-bold text-[#1A1817] dark:text-white">No purchase analyses saved yet</p>
-                <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] max-w-sm mx-auto">
+              <div className="p-8 text-center rounded-2xl bg-zinc-950/70 border border-dashed border-white/[0.1] space-y-3">
+                <Scale className="h-8 w-8 text-zinc-500 mx-auto opacity-40" />
+                <p className="text-xs font-bold text-white">No purchase analyses saved yet</p>
+                <p className="text-[11px] text-zinc-400 max-w-sm mx-auto leading-relaxed">
                   Paste a product URL or checkout screenshot in the Decisions Lab to compute true net payable cost.
                 </p>
                 <button
                   onClick={() => setActiveTab('decisions')}
-                  className="mt-2 inline-flex items-center gap-2 rounded-full bg-[#FF5722] text-white px-4 py-2 text-xs font-bold shadow-xs hover:bg-[#E64A19]"
+                  className="mt-2 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white px-5 py-2.5 text-xs font-black shadow-lg shadow-orange-500/25 hover:from-orange-600 hover:to-amber-600 transition-all"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   <span>Analyze First Item</span>
@@ -395,14 +426,14 @@ export function TwinDashboardView() {
             ) : (
               <div className="space-y-3">
                 {recentDecisions.map((d) => (
-                  <div key={d.id} className="p-3.5 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] flex items-center justify-between">
+                  <div key={d.id} className="p-4 rounded-2xl bg-zinc-950/70 border border-white/[0.06] hover:border-white/[0.14] flex items-center justify-between transition-all">
                     <div>
-                      <h4 className="text-xs font-bold text-[#1A1817] dark:text-white">{d.productName}</h4>
-                      <p className="text-[10px] text-[#6B6661] dark:text-[#A3A3A3]">
-                        {d.merchant} • True Payable: <span className="font-bold text-[#16865D]">₹{d.totalPayable.toLocaleString('en-IN')}</span>
+                      <h4 className="text-xs font-bold text-white">{d.productName}</h4>
+                      <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                        {d.merchant} • True Payable: <span className="font-bold text-emerald-400">₹{d.totalPayable.toLocaleString('en-IN')}</span>
                       </p>
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#16865D]/10 text-[#16865D]">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                       {d.verdict}
                     </span>
                   </div>
@@ -415,28 +446,28 @@ export function TwinDashboardView() {
         {/* Right Column (1 Col): Weekly Intelligence Snapshot & Twin Persona */}
         <div className="space-y-6">
           {/* Weekly Intelligence Snapshot */}
-          <div className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 shadow-xs space-y-4">
+          <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-7 shadow-2xl space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#FF9800]/10 text-[#FF9800]">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
                 <BookOpen className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-[#1A1817] dark:text-white">Weekly Intelligence</h3>
-                <p className="text-xs text-[#6B6661] dark:text-[#A3A3A3]">Tailored personal digest</p>
+                <h3 className="text-base font-black text-white font-heading">Weekly Intelligence</h3>
+                <p className="text-xs text-zinc-400">Tailored personal digest</p>
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] space-y-2">
-              <span className="text-[10px] font-black uppercase text-[#FF5722]">Week 45 Focus</span>
-              <h4 className="text-xs font-bold text-[#1A1817] dark:text-white">Tech Arbitrage &amp; Skincare Humidity Guard</h4>
-              <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] line-clamp-3">
+            <div className="p-4 rounded-2xl bg-zinc-950/70 border border-white/[0.06] space-y-2">
+              <span className="text-[10px] font-black uppercase text-orange-400 tracking-wider">Week 45 Focus</span>
+              <h4 className="text-xs font-bold text-white">Tech Arbitrage &amp; Skincare Humidity Guard</h4>
+              <p className="text-[11px] text-zinc-400 line-clamp-3 leading-relaxed">
                 14% price drop detected on Sony ANC headphones on Tata CLiQ with HDFC card stacking. High humidity forecasted; low comedogenic outdoor skincare advised.
               </p>
             </div>
 
             <button
               onClick={() => setActiveTab('digest')}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl border border-[#EAE3D9] dark:border-[#26262B] py-2.5 text-xs font-bold text-[#1A1817] dark:text-white hover:border-[#FF5722] transition-colors"
+              className="w-full flex items-center justify-center gap-2 rounded-2xl border border-white/[0.08] hover:border-orange-500/40 bg-zinc-950/50 hover:bg-zinc-800 py-2.5 text-xs font-bold text-zinc-200 hover:text-white transition-all"
             >
               <span>Open Full Digest</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -444,36 +475,36 @@ export function TwinDashboardView() {
           </div>
 
           {/* Twin Persona & Guardrails */}
-          <div className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 shadow-xs space-y-3">
+          <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-7 shadow-2xl space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#16865D]/10 text-[#16865D]">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                 <ShieldCheck className="h-4 w-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[#1A1817] dark:text-white">Twin Guardrails Active</h3>
-                <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3]">Strict Consumer-First Pledges</p>
+                <h3 className="text-sm font-black text-white font-heading">Twin Guardrails Active</h3>
+                <p className="text-[11px] text-zinc-400">Strict Consumer-First Pledges</p>
               </div>
             </div>
 
-            <ul className="space-y-2 text-[11px] text-[#6B6661] dark:text-[#A3A3A3]">
+            <ul className="space-y-2.5 text-[11px] text-zinc-300">
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-3.5 w-3.5 text-[#16865D] shrink-0" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                 <span>Zero sponsored ranking placement or platform bias</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-3.5 w-3.5 text-[#16865D] shrink-0" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                 <span>Two-step approval required for consequential tasks</span>
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-3.5 w-3.5 text-[#16865D] shrink-0" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                 <span>Full DPDP Act personal data ownership &amp; export</span>
               </li>
             </ul>
 
-            <div className="pt-2">
+            <div className="pt-2 border-t border-white/[0.06]">
               <button
                 onClick={() => setActiveTab('settings')}
-                className="w-full text-center text-xs font-bold text-[#FF5722] hover:underline"
+                className="w-full text-center text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors"
               >
                 Inspect Stored Data &amp; Memory
               </button>
@@ -484,18 +515,18 @@ export function TwinDashboardView() {
 
       {/* 4. Goal Creation Modal */}
       {isGoalModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="w-full max-w-lg rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 sm:p-8 shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b border-[#EAE3D9] dark:border-[#26262B] pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in">
+          <div className="w-full max-w-lg rounded-3xl border border-white/[0.12] bg-zinc-900/95 p-6 sm:p-8 shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FF5722]/10 text-[#FF5722]">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
                   <Target className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-black text-[#1A1817] dark:text-white font-heading">
+                  <h3 className="text-lg font-black text-white font-heading">
                     Add New Personal Goal
                   </h3>
-                  <p className="text-xs text-[#6B6661] dark:text-[#A3A3A3]">
+                  <p className="text-xs text-zinc-400">
                     Align purchases, savings &amp; lifestyle decisions
                   </p>
                 </div>
@@ -503,7 +534,7 @@ export function TwinDashboardView() {
 
               <button
                 onClick={() => setIsGoalModalOpen(false)}
-                className="p-1.5 rounded-xl hover:bg-[#FAF8F5] dark:hover:bg-[#202025] text-[#6B6661] hover:text-[#1A1817] dark:hover:text-white transition-colors"
+                className="p-1.5 rounded-xl hover:bg-zinc-800 text-zinc-400 hover:text-white transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -511,21 +542,21 @@ export function TwinDashboardView() {
 
             <form onSubmit={handleCreateGoal} className="space-y-4">
               {/* Title */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#1A1817] dark:text-white">Goal Title *</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-white">Goal Title *</label>
                 <input
                   type="text"
                   required
                   value={goalForm.title}
                   onChange={(e) => setGoalForm({ ...goalForm, title: e.target.value })}
                   placeholder="e.g. MacBook Air M3 Upgrade, Emergency Savings, Trip to Ladakh"
-                  className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-medium focus:outline-hidden focus:border-[#FF5722]"
+                  className="w-full p-3 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white text-xs font-medium focus:outline-hidden focus:border-orange-500"
                 />
               </div>
 
               {/* Category */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#6B6661]">Goal Category</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-zinc-400">Goal Category</label>
                 <select
                   value={goalForm.category}
                   onChange={(e) =>
@@ -534,7 +565,7 @@ export function TwinDashboardView() {
                       category: e.target.value as any,
                     })
                   }
-                  className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-bold focus:outline-hidden focus:border-[#FF5722]"
+                  className="w-full p-3 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white text-xs font-bold focus:outline-hidden focus:border-orange-500"
                 >
                   <option value="purchase_budget">Purchase Budget (Electronics, Apparel, Gear)</option>
                   <option value="savings">Long-Term Savings &amp; Emergency Fund</option>
@@ -546,8 +577,8 @@ export function TwinDashboardView() {
 
               {/* Amounts Grid */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#1A1817] dark:text-white">Target Amount (₹) *</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-white">Target Amount (₹) *</label>
                   <input
                     type="number"
                     required
@@ -555,58 +586,58 @@ export function TwinDashboardView() {
                     value={goalForm.targetAmount}
                     onChange={(e) => setGoalForm({ ...goalForm, targetAmount: e.target.value })}
                     placeholder="25000"
-                    className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-bold focus:outline-hidden focus:border-[#FF5722]"
+                    className="w-full p-3 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white text-xs font-mono font-bold focus:outline-hidden focus:border-orange-500"
                   />
                 </div>
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-[#1A1817] dark:text-white">Current Saved (₹)</label>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-white">Current Saved (₹)</label>
                   <input
                     type="number"
                     min="0"
                     value={goalForm.currentAmount}
                     onChange={(e) => setGoalForm({ ...goalForm, currentAmount: e.target.value })}
                     placeholder="5000"
-                    className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-bold focus:outline-hidden focus:border-[#FF5722]"
+                    className="w-full p-3 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white text-xs font-mono font-bold focus:outline-hidden focus:border-orange-500"
                   />
                 </div>
               </div>
 
               {/* Deadline */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#6B6661]">Target Completion Date (Optional)</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-zinc-400">Target Completion Date (Optional)</label>
                 <input
                   type="date"
                   value={goalForm.deadline}
                   onChange={(e) => setGoalForm({ ...goalForm, deadline: e.target.value })}
-                  className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-medium focus:outline-hidden focus:border-[#FF5722]"
+                  className="w-full p-3 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white text-xs font-medium focus:outline-hidden focus:border-orange-500"
                 />
               </div>
 
               {/* Description */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-[#6B6661]">Description &amp; Strategy (Optional)</label>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-zinc-400">Description &amp; Strategy (Optional)</label>
                 <textarea
                   rows={2}
                   value={goalForm.description}
                   onChange={(e) => setGoalForm({ ...goalForm, description: e.target.value })}
                   placeholder="e.g. Setting aside ₹3,000 every month; holding off on impulse gadgets."
-                  className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-medium focus:outline-hidden focus:border-[#FF5722]"
+                  className="w-full p-3 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white text-xs font-medium focus:outline-hidden focus:border-orange-500"
                 />
               </div>
 
               {/* Modal Actions */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#EAE3D9] dark:border-[#26262B]">
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/[0.08]">
                 <button
                   type="button"
                   onClick={() => setIsGoalModalOpen(false)}
-                  className="px-4 py-2.5 rounded-2xl text-xs font-bold text-[#6B6661] hover:text-[#1A1817] dark:hover:text-white transition-colors"
+                  className="px-4 py-2.5 rounded-2xl text-xs font-bold text-zinc-400 hover:text-white transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingGoal}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#FF5722] hover:bg-[#E64A19] text-white text-xs font-black shadow-xs transition-transform active:scale-95 disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white text-xs font-black shadow-lg shadow-orange-500/25 transition-transform active:scale-95 disabled:opacity-50"
                 >
                   {submittingGoal ? (
                     <>

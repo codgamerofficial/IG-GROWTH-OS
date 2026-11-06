@@ -1,4 +1,24 @@
 import assert from 'node:assert';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// Pre-load .env.local for standalone test runner if not already loaded by Next.js
+if (fs.existsSync('.env.local')) {
+  const envContent = fs.readFileSync('.env.local', 'utf-8');
+  for (const line of envContent.split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx !== -1) {
+      const key = trimmed.slice(0, eqIdx).trim();
+      const val = trimmed.slice(eqIdx + 1).trim();
+      if (!process.env[key]) {
+        process.env[key] = val;
+      }
+    }
+  }
+}
+
 import { AIServiceManager } from '../src/services/ai/ai-service-manager.ts';
 import { CapabilityRegistry, isProviderConfigured } from '../src/services/ai/capability-registry.ts';
 import { AICapability } from '../src/services/ai/types.ts';

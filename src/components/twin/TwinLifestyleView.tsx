@@ -4,6 +4,7 @@
 // RIIQX — Food & Lifestyle Decision Intelligence View
 // What to Eat • What to Cook • Evidence-Based Nutrition & Dining Truth
 // Interactive Ingredients Search • Zero Simulation • Honest Macro Math
+// Ultra-Modern Trending Obsidian Glassmorphic Design System
 // =============================================================================
 
 import React, { useState } from 'react';
@@ -20,6 +21,8 @@ import {
   Flame,
   ShieldCheck,
   ShoppingBag,
+  ArrowRight,
+  Info,
 } from 'lucide-react';
 import { useRiiqx } from '@/context/RiiqxContext';
 
@@ -219,27 +222,33 @@ export function TwinLifestyleView() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#FAF8F5] dark:bg-[#0E0E10] text-[#1A1817] dark:text-[#F4F4F6] p-4 sm:p-6 lg:p-8 space-y-8">
+    <div className="flex-1 overflow-y-auto bg-[#09090b] text-[#F4F4F6] p-4 sm:p-6 lg:p-8 space-y-8 relative selection:bg-orange-500/30">
+      {/* Background Ambient Radial Glow */}
+      <div className="absolute top-0 left-1/3 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute top-1/2 right-10 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+
       {/* 1. Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#EAE3D9] dark:border-[#26262B] pb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
         <div>
           <div className="flex items-center gap-2">
-            <Utensils className="h-4 w-4 text-[#FF5722]" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#6B6661] dark:text-[#A3A3A3]">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20">
+              <Utensils className="h-3.5 w-3.5" />
+            </div>
+            <span className="text-[11px] font-black uppercase tracking-wider text-orange-400">
               Lifestyle &amp; Food Intelligence
             </span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-[#1A1817] dark:text-white font-heading mt-1">
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white font-heading mt-2">
             What to Eat &amp; What to Cook
           </h1>
-          <p className="text-xs sm:text-sm text-[#6B6661] dark:text-[#A3A3A3] mt-1">
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-2xl leading-relaxed">
             Personalized meal discovery calibrated against your dietary specs, calorie goals, and real grocery budgets.
           </p>
         </div>
 
         <button
           onClick={() => setActiveTab('twin')}
-          className="flex items-center gap-2 rounded-2xl bg-[#FF5722] hover:bg-[#E64A19] text-white px-5 py-2.5 text-xs font-black shadow-xs transition-transform active:scale-95"
+          className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-5 py-2.5 text-xs font-black shadow-lg shadow-orange-500/25 transition-transform active:scale-95"
         >
           <Sparkles className="h-4 w-4" />
           <span>Ask Custom Recipe</span>
@@ -247,14 +256,16 @@ export function TwinLifestyleView() {
       </div>
 
       {/* 2. Interactive Discovery Control Console */}
-      <div className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 shadow-xs space-y-6">
+      <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-7 shadow-2xl space-y-6">
         {/* Mode Selector */}
-        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#EAE3D9] dark:border-[#26262B] pb-4">
-          <div className="flex items-center gap-2 bg-[#FAF8F5] dark:bg-[#202025] p-1.5 rounded-2xl border border-[#EAE3D9] dark:border-[#2E2E33]">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
+          <div className="flex items-center gap-2 bg-zinc-950/80 p-1.5 rounded-2xl border border-white/[0.08] shadow-inner">
             <button
               onClick={() => setMode('cook_home')}
-              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                mode === 'cook_home' ? 'bg-[#FF5722] text-white shadow-xs' : 'text-[#6B6661] hover:text-[#1A1817]'
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                mode === 'cook_home'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25'
+                  : 'text-zinc-400 hover:text-white'
               }`}
             >
               <Utensils className="h-3.5 w-3.5" />
@@ -262,8 +273,10 @@ export function TwinLifestyleView() {
             </button>
             <button
               onClick={() => setMode('eat_out')}
-              className={`px-5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
-                mode === 'eat_out' ? 'bg-[#FF5722] text-white shadow-xs' : 'text-[#6B6661] hover:text-[#1A1817]'
+              className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                mode === 'eat_out'
+                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg shadow-orange-500/25'
+                  : 'text-zinc-400 hover:text-white'
               }`}
             >
               <ShoppingBag className="h-3.5 w-3.5" />
@@ -271,8 +284,8 @@ export function TwinLifestyleView() {
             </button>
           </div>
 
-          <div className="text-xs text-[#6B6661] flex items-center gap-1.5 font-bold">
-            <ShieldCheck className="h-4 w-4 text-[#16865D]" />
+          <div className="text-xs text-zinc-400 flex items-center gap-1.5 font-mono">
+            <ShieldCheck className="h-4 w-4 text-emerald-400" />
             <span>Zero Fake Restaurant Hours &bull; Real Nutrient Bounds</span>
           </div>
         </div>
@@ -280,9 +293,9 @@ export function TwinLifestyleView() {
         {/* Cook Home: Ingredients Input */}
         {mode === 'cook_home' && (
           <div className="space-y-3">
-            <label className="text-xs font-bold text-[#1A1817] dark:text-white flex items-center justify-between">
+            <label className="text-xs font-bold text-white flex items-center justify-between">
               <span>What do you have in your fridge or pantry right now?</span>
-              <span className="text-[11px] text-[#6B6661] font-normal">Separate ingredients by commas</span>
+              <span className="text-[11px] text-zinc-500 font-normal">Separate ingredients by commas</span>
             </label>
             <div className="relative">
               <input
@@ -290,20 +303,20 @@ export function TwinLifestyleView() {
                 value={ingredientsInput}
                 onChange={(e) => setIngredientsInput(e.target.value)}
                 placeholder="e.g. Eggs, paneer, baby spinach, tomatoes, brown rice, curd..."
-                className="w-full p-3.5 pr-10 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-medium focus:outline-hidden focus:border-[#FF5722] transition-colors"
+                className="w-full p-3.5 pr-10 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white text-xs font-medium focus:outline-hidden focus:border-orange-500 transition-colors shadow-inner"
               />
             </div>
 
             {/* Quick Pantry Suggestion Tags */}
             <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="text-[11px] text-[#6B6661] mr-1">Quick add:</span>
+              <span className="text-[11px] text-zinc-500 mr-1 font-mono">Quick add:</span>
               {quickPantryTags.map((tag) => (
                 <button
                   key={tag}
                   onClick={() => handleAddTag(tag)}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#FAF8F5] dark:bg-[#202025] hover:bg-[#EAE3D9] dark:hover:bg-[#2E2E33] border border-[#EAE3D9] dark:border-[#2E2E33] text-[11px] font-bold text-[#6B6661] dark:text-[#A3A3A3] transition-colors"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 border border-white/[0.08] hover:border-orange-500/40 text-[11px] font-bold text-zinc-300 hover:text-white transition-all active:scale-95"
                 >
-                  <Plus className="h-3 w-3" />
+                  <Plus className="h-3 w-3 text-orange-400" />
                   <span>{tag}</span>
                 </button>
               ))}
@@ -315,11 +328,11 @@ export function TwinLifestyleView() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
           {/* Dietary Goal */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[#6B6661]">Dietary Constraint</label>
+            <label className="text-xs font-bold text-zinc-400">Dietary Constraint</label>
             <select
               value={dietaryPreference}
               onChange={(e) => setDietaryPreference(e.target.value)}
-              className="w-full text-xs p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] font-bold focus:outline-hidden focus:border-[#FF5722]"
+              className="w-full text-xs p-3 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white font-bold focus:outline-hidden focus:border-orange-500"
             >
               <option value="High Protein / Low Carb">High Protein / Low Carb</option>
               <option value="Plant-Based Vegetarian">Plant-Based Vegetarian</option>
@@ -331,11 +344,11 @@ export function TwinLifestyleView() {
 
           {/* Budget Constraint */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[#6B6661]">Max Budget per Serving</label>
+            <label className="text-xs font-bold text-zinc-400">Max Budget per Serving</label>
             <select
               value={budgetConstraint}
               onChange={(e) => setBudgetConstraint(e.target.value)}
-              className="w-full text-xs p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] font-bold focus:outline-hidden focus:border-[#FF5722]"
+              className="w-full text-xs p-3 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white font-bold focus:outline-hidden focus:border-orange-500"
             >
               <option value="Under ₹150">Under ₹150</option>
               <option value="Under ₹300">Under ₹300</option>
@@ -345,11 +358,11 @@ export function TwinLifestyleView() {
 
           {/* Meal Type */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[#6B6661]">Meal Type</label>
+            <label className="text-xs font-bold text-zinc-400">Meal Type</label>
             <select
               value={mealType}
               onChange={(e) => setMealType(e.target.value)}
-              className="w-full text-xs p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] font-bold focus:outline-hidden focus:border-[#FF5722]"
+              className="w-full text-xs p-3 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white font-bold focus:outline-hidden focus:border-orange-500"
             >
               <option value="Breakfast">Breakfast</option>
               <option value="Lunch">Lunch</option>
@@ -361,13 +374,13 @@ export function TwinLifestyleView() {
 
           {/* Time Available (for cook_home) or Dining Format (for eat_out) */}
           <div className="space-y-1.5">
-            <label className="text-xs font-bold text-[#6B6661]">
+            <label className="text-xs font-bold text-zinc-400">
               {mode === 'cook_home' ? 'Max Prep & Cook Time' : 'Ordering Target'}
             </label>
             <select
               value={timeAvailable}
               onChange={(e) => setTimeAvailable(e.target.value)}
-              className="w-full text-xs p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] font-bold focus:outline-hidden focus:border-[#FF5722]"
+              className="w-full text-xs p-3 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white font-bold focus:outline-hidden focus:border-orange-500"
             >
               {mode === 'cook_home' ? (
                 <>
@@ -391,7 +404,7 @@ export function TwinLifestyleView() {
           <button
             onClick={handleGeneratePlan}
             disabled={loading}
-            className="flex items-center gap-2 rounded-2xl bg-[#FF5722] hover:bg-[#E64A19] disabled:opacity-50 text-white px-6 py-3 text-xs font-black shadow-xs transition-transform active:scale-95"
+            className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 text-white px-7 py-3 text-xs font-black shadow-lg shadow-orange-500/25 transition-transform active:scale-95"
           >
             {loading ? (
               <>
@@ -418,56 +431,59 @@ export function TwinLifestyleView() {
             return (
               <div
                 key={i}
-                className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-[#FF5722] transition-colors"
+                className="rounded-3xl border border-white/[0.08] hover:border-white/[0.18] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-7 shadow-2xl flex flex-col justify-between space-y-4 hover:-translate-y-1 transition-all duration-200 relative overflow-hidden group"
               >
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-[11px] font-bold text-[#6B6661]">
-                    <span className="flex items-center gap-1 text-[#FF5722]">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-[11px] font-bold">
+                    <span className="flex items-center gap-1.5 text-orange-400 bg-orange-500/10 border border-orange-500/20 px-2.5 py-0.5 rounded-full font-mono">
                       <Clock className="h-3 w-3" /> {meal.time}
                     </span>
-                    <span className="text-[#16865D] font-black">{meal.cost} per serving</span>
+                    <span className="text-emerald-400 font-mono font-black">{meal.cost} per serving</span>
                   </div>
-                  <h3 className="text-base font-bold text-[#1A1817] dark:text-white leading-snug">{meal.title}</h3>
-                  <p className="text-xs text-[#6B6661] dark:text-[#A3A3A3] leading-relaxed">{meal.whyTwinPicks}</p>
+                  <h3 className="text-base font-bold text-white leading-snug font-heading group-hover:text-orange-400 transition-colors">
+                    {meal.title}
+                  </h3>
+                  <p className="text-xs text-zinc-300 leading-relaxed">{meal.whyTwinPicks}</p>
                 </div>
 
                 {/* Health & Nutrient Tip */}
                 {meal.healthTip && (
-                  <div className="p-3 rounded-xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-[11px] text-[#6B6661] dark:text-[#A3A3A3] space-y-1">
-                    <span className="font-bold text-[#16865D] flex items-center gap-1">
-                      <Flame className="h-3 w-3" /> Twin Nutrition Insight:
+                  <div className="p-3.5 rounded-2xl bg-zinc-950/70 border border-white/[0.06] text-[11px] text-zinc-300 space-y-1.5">
+                    <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                      <Flame className="h-3.5 w-3.5" /> Twin Nutrition Insight:
                     </span>
-                    <p>{meal.healthTip}</p>
+                    <p className="leading-relaxed">{meal.healthTip}</p>
                   </div>
                 )}
 
                 {/* Macros & Ingredients */}
-                <div className="pt-3 border-t border-[#EAE3D9] dark:border-[#26262B] space-y-3">
-                  <div className="grid grid-cols-4 gap-2 text-center bg-[#FAF8F5] dark:bg-[#202025] p-2 rounded-xl border border-[#EAE3D9] dark:border-[#2E2E33]">
+                <div className="pt-3 border-t border-white/[0.08] space-y-3">
+                  <div className="grid grid-cols-4 gap-2 text-center bg-zinc-950/80 p-3 rounded-2xl border border-white/[0.06] font-mono">
                     <div>
-                      <div className="text-[10px] text-[#6B6661]">Calories</div>
-                      <div className="text-xs font-bold text-[#1A1817] dark:text-white">{meal.calories}</div>
+                      <div className="text-[10px] text-zinc-500">Calories</div>
+                      <div className="text-xs font-bold text-white">{meal.calories}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-[#6B6661]">Protein</div>
-                      <div className="text-xs font-bold text-[#3B82F6]">{meal.protein}</div>
+                      <div className="text-[10px] text-zinc-500">Protein</div>
+                      <div className="text-xs font-bold text-blue-400">{meal.protein}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-[#6B6661]">Carbs</div>
-                      <div className="text-xs font-bold text-[#FF9800]">{meal.carbs || '24g'}</div>
+                      <div className="text-[10px] text-zinc-500">Carbs</div>
+                      <div className="text-xs font-bold text-amber-400">{meal.carbs || '24g'}</div>
                     </div>
                     <div>
-                      <div className="text-[10px] text-[#6B6661]">Fats</div>
-                      <div className="text-xs font-bold text-[#9C27B0]">{meal.fats || '12g'}</div>
+                      <div className="text-[10px] text-zinc-500">Fats</div>
+                      <div className="text-xs font-bold text-purple-400">{meal.fats || '12g'}</div>
                     </div>
                   </div>
 
-                  <div className="text-[11px] text-[#6B6661] space-y-1">
-                    <span className="font-bold text-[#1A1817] dark:text-white">Ingredients:</span>
-                    <ul className="list-disc list-inside space-y-0.5">
+                  <div className="text-[11px] text-zinc-300 space-y-1.5">
+                    <span className="font-bold text-white block">Ingredients:</span>
+                    <ul className="space-y-1 text-zinc-400">
                       {meal.ingredients.map((ing, idx) => (
-                        <li key={idx} className="truncate">
-                          {ing}
+                        <li key={idx} className="flex items-start gap-1.5 truncate">
+                          <span className="text-orange-400 font-bold">&bull;</span>
+                          <span>{ing}</span>
                         </li>
                       ))}
                     </ul>
@@ -478,18 +494,21 @@ export function TwinLifestyleView() {
                     <div className="pt-2">
                       <button
                         onClick={() => setExpandedRecipeIndex(isExpanded ? null : i)}
-                        className="w-full flex items-center justify-between text-xs font-bold text-[#FF5722] hover:underline"
+                        className="w-full flex items-center justify-between text-xs font-bold text-orange-400 hover:text-orange-300 transition-colors"
                       >
                         <span>{isExpanded ? 'Hide Preparation Steps' : 'View Preparation Steps'}</span>
                         {isExpanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
                       </button>
 
                       {isExpanded && (
-                        <div className="mt-2 p-3 rounded-xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] space-y-1.5 text-xs text-[#1A1817] dark:text-[#E0E0E0]">
-                          <ol className="list-decimal list-inside space-y-1">
+                        <div className="mt-2.5 p-3.5 rounded-2xl bg-zinc-950/80 border border-white/[0.06] space-y-2 text-xs text-zinc-300 animate-in fade-in">
+                          <ol className="space-y-2 list-none">
                             {meal.steps.map((st, sidx) => (
-                              <li key={sidx} className="leading-relaxed">
-                                {st}
+                              <li key={sidx} className="flex items-start gap-2.5 leading-relaxed">
+                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange-500/15 text-orange-400 text-[10px] font-black font-mono">
+                                  {sidx + 1}
+                                </span>
+                                <span>{st}</span>
                               </li>
                             ))}
                           </ol>
@@ -508,49 +527,53 @@ export function TwinLifestyleView() {
           {eatOutGuides.map((guide, i) => (
             <div
               key={i}
-              className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-[#FF5722] transition-colors"
+              className="rounded-3xl border border-white/[0.08] hover:border-white/[0.18] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-7 shadow-2xl flex flex-col justify-between space-y-4 hover:-translate-y-1 transition-all duration-200 relative overflow-hidden group"
             >
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-[11px] font-bold text-[#6B6661]">
-                  <span className="text-[#FF5722] uppercase tracking-wider">{guide.cuisine}</span>
-                  <span className="text-[#16865D] font-black">{guide.estimatedCost}</span>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between text-[11px] font-bold">
+                  <span className="text-orange-400 uppercase tracking-wider font-mono text-[10px] bg-orange-500/10 border border-orange-500/20 px-2 py-0.5 rounded-lg">
+                    {guide.cuisine}
+                  </span>
+                  <span className="text-emerald-400 font-mono font-black">{guide.estimatedCost}</span>
                 </div>
-                <h3 className="text-base font-bold text-[#1A1817] dark:text-white leading-snug">{guide.title}</h3>
+                <h3 className="text-base font-bold text-white leading-snug font-heading group-hover:text-orange-400 transition-colors">
+                  {guide.title}
+                </h3>
 
-                <div className="flex items-center gap-3 text-xs font-bold text-[#1A1817] dark:text-white pt-1">
+                <div className="flex items-center gap-3 text-xs font-mono font-bold text-zinc-300 pt-1">
                   <span>{guide.calories}</span>
-                  <span className="text-[#3B82F6]">{guide.protein}</span>
+                  <span className="text-blue-400">{guide.protein}</span>
                 </div>
               </div>
 
               {/* Tactical Order Instruction Hack */}
-              <div className="p-3.5 rounded-2xl bg-[#FF5722]/5 border border-[#FF5722]/20 space-y-1">
-                <div className="text-[11px] font-black uppercase text-[#FF5722] flex items-center gap-1.5">
+              <div className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 space-y-1.5">
+                <div className="text-[11px] font-black uppercase text-orange-400 flex items-center gap-1.5 tracking-wider">
                   <CheckCircle2 className="h-3.5 w-3.5" /> Ordering Note for Chef / Delivery:
                 </div>
-                <p className="text-xs text-[#1A1817] dark:text-white leading-relaxed italic">
+                <p className="text-xs text-white leading-relaxed italic">
                   &ldquo;{guide.orderingHack}&rdquo;
                 </p>
               </div>
 
               {/* What Commercial Kitchens Hide */}
-              <div className="p-3.5 rounded-2xl bg-amber-500/5 border border-amber-500/20 space-y-1">
-                <div className="text-[11px] font-black uppercase text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-1.5">
+                <div className="text-[11px] font-black uppercase text-amber-400 flex items-center gap-1.5 tracking-wider">
                   <AlertTriangle className="h-3.5 w-3.5" /> What Restaurants Hide:
                 </div>
-                <p className="text-xs text-[#6B6661] dark:text-[#A3A3A3] leading-relaxed">
+                <p className="text-xs text-zinc-300 leading-relaxed">
                   {guide.whatRestaurantsHide}
                 </p>
               </div>
 
               {/* Healthier Swaps */}
-              <div className="pt-2 border-t border-[#EAE3D9] dark:border-[#26262B] space-y-1 text-xs">
-                <span className="font-bold text-[#1A1817] dark:text-white">Recommended Swaps:</span>
-                <ul className="space-y-1 text-[11px] text-[#6B6661] dark:text-[#A3A3A3]">
+              <div className="pt-3 border-t border-white/[0.08] space-y-2 text-xs">
+                <span className="font-bold text-white block">Recommended Swaps:</span>
+                <ul className="space-y-1.5 text-[11px] text-zinc-400">
                   {guide.betterSwaps.map((sw, sidx) => (
-                    <li key={sidx} className="flex items-start gap-1.5">
-                      <span className="text-[#16865D] font-bold">&bull;</span>
-                      <span>{sw}</span>
+                    <li key={sidx} className="flex items-start gap-2">
+                      <span className="text-emerald-400 font-bold">&bull;</span>
+                      <span className="leading-relaxed">{sw}</span>
                     </li>
                   ))}
                 </ul>
