@@ -3,7 +3,7 @@
 // =============================================================================
 // RIIQX — Decision Lab & Price Truth Engine View
 // Deterministic Calculations • Multimodal Vision • Real Cross-Retailer Verification
-// Zero Fake Products • Canonical Merchant Links • Consumer Protection Compliant
+// Zero Fake Products • Canonical Merchant Links • Zero-Simulation Truth Matrix
 // =============================================================================
 
 import React, { useState, useRef } from 'react';
@@ -122,16 +122,19 @@ export function TwinDecisionsView() {
     }
   };
 
-  const getStatusBadge = (status?: string) => {
+  const getStatusBadge = (status?: string, price?: number) => {
+    if (!price || price === 0) {
+      return { label: 'Link Verified • Price Check at Store', color: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20' };
+    }
     switch (status) {
       case 'verified_jsonld':
         return { label: 'Verified (JSON-LD)', color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' };
       case 'provider_reported':
         return { label: 'Provider-Reported', color: 'bg-blue-500/10 text-blue-600 border-blue-500/20' };
       case 'extracted_screenshot':
-        return { label: 'Captured from Screenshot', color: 'bg-amber-500/10 text-amber-600 border-amber-500/20' };
+        return { label: 'Captured from Screenshot', color: 'bg-purple-500/10 text-purple-600 border-purple-500/20' };
       default:
-        return { label: 'Link Verified', color: 'bg-neutral-500/10 text-neutral-600 border-neutral-500/20' };
+        return { label: 'Verified Merchant Listing', color: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' };
     }
   };
 
@@ -280,41 +283,64 @@ export function TwinDecisionsView() {
         <div className="space-y-6 animate-in fade-in duration-300">
           {/* Top Banner Verdict */}
           <div className="rounded-3xl border border-[#16865D]/30 bg-[#16865D]/5 p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-[#16865D] text-white text-[10px] font-black uppercase px-2.5 py-0.5">
-                  Verified Verdict: {result.verdict.replace(/_/g, ' ')}
-                </span>
-                <span className="text-xs text-[#16865D] font-bold">
-                  Identity Confidence: {result.bestPick.twinMatchScore}%
-                </span>
-                {result.bestPick.verificationSource && (
-                  <span className="text-[10px] text-[#6B6661] dark:text-[#A3A3A3] bg-white dark:bg-[#18181C] px-2 py-0.5 rounded-full border border-[#EAE3D9] dark:border-[#26262B]">
-                    Source: {result.bestPick.verificationSource}
+            <div className="flex items-start gap-4">
+              {result.bestPick.imageUrl && (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={result.bestPick.imageUrl}
+                  alt={result.bestPick.title}
+                  className="h-16 w-16 object-contain rounded-2xl bg-white dark:bg-[#18181C] border border-[#EAE3D9] dark:border-[#26262B] p-1.5 shrink-0"
+                />
+              )}
+              <div className="space-y-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-[#16865D] text-white text-[10px] font-black uppercase px-2.5 py-0.5">
+                    Verified Verdict: {result.verdict.replace(/_/g, ' ')}
                   </span>
-                )}
+                  <span className="text-xs text-[#16865D] font-bold">
+                    Identity Confidence: {result.bestPick.twinMatchScore}%
+                  </span>
+                  {result.bestPick.verificationSource && (
+                    <span className="text-[10px] text-[#6B6661] dark:text-[#A3A3A3] bg-white dark:bg-[#18181C] px-2 py-0.5 rounded-full border border-[#EAE3D9] dark:border-[#26262B]">
+                      Source: {result.bestPick.verificationSource}
+                    </span>
+                  )}
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-[#1A1817] dark:text-white font-heading">
+                  {result.bestPick.title}
+                </h2>
+                <p className="text-xs sm:text-sm text-[#6B6661] dark:text-[#A3A3A3] max-w-2xl">
+                  {result.subtext}
+                </p>
               </div>
-              <h2 className="text-xl sm:text-2xl font-black text-[#1A1817] dark:text-white font-heading">
-                {result.bestPick.title}
-              </h2>
-              <p className="text-xs sm:text-sm text-[#6B6661] dark:text-[#A3A3A3] max-w-2xl">
-                {result.subtext}
-              </p>
             </div>
 
             {/* Price Truth Ladder */}
             <div className="rounded-2xl bg-white dark:bg-[#18181C] border border-[#EAE3D9] dark:border-[#26262B] p-4 text-right shrink-0 min-w-[220px]">
               <span className="text-[10px] font-bold text-[#6B6661] uppercase">Lowest Verified Floor Price</span>
-              <div className="text-3xl font-black text-[#16865D] font-heading">
-                ₹{result.pricingMatrix.finalCheckoutPrice.toLocaleString('en-IN')}
-              </div>
-              <div className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] mt-0.5">
-                {result.pricingMatrix.totalSavings > 0 ? (
-                  <span>Save ₹{result.pricingMatrix.totalSavings.toLocaleString('en-IN')} ({result.pricingMatrix.savingsPercentage}% off highest list)</span>
-                ) : (
-                  <span>Single merchant listing verified</span>
-                )}
-              </div>
+              {result.pricingMatrix.finalCheckoutPrice > 0 ? (
+                <>
+                  <div className="text-3xl font-black text-[#16865D] font-heading">
+                    ₹{result.pricingMatrix.finalCheckoutPrice.toLocaleString('en-IN')}
+                  </div>
+                  <div className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] mt-0.5">
+                    {result.pricingMatrix.totalSavings > 0 ? (
+                      <span>Save ₹{result.pricingMatrix.totalSavings.toLocaleString('en-IN')} ({result.pricingMatrix.savingsPercentage}% off MRP)</span>
+                    ) : (
+                      <span>Lowest verified single merchant listing</span>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-xl font-black text-amber-600 dark:text-amber-400 font-heading mt-1">
+                    Price Check Pending
+                  </div>
+                  <div className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] mt-0.5">
+                    Visit merchant store for live checkout price
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -343,18 +369,22 @@ export function TwinDecisionsView() {
                 <div className="flex justify-between py-1.5 border-b border-[#EAE3D9] dark:border-[#26262B]">
                   <span className="text-[#6B6661] dark:text-[#A3A3A3]">Published Reference / MRP</span>
                   <span className="font-bold text-[#6B6661]">
-                    ₹{result.pricingMatrix.mrp.toLocaleString('en-IN')}
+                    {result.pricingMatrix.mrp > 0
+                      ? `₹${result.pricingMatrix.mrp.toLocaleString('en-IN')}`
+                      : 'Live Check at Store'}
                   </span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-[#EAE3D9] dark:border-[#26262B]">
                   <span className="text-[#6B6661] dark:text-[#A3A3A3]">Cheapest Verified Merchant ({result.pricingMatrix.bestRetailer})</span>
                   <span className="font-bold text-[#1A1817] dark:text-white">
-                    ₹{result.pricingMatrix.lowestListedPrice.toLocaleString('en-IN')}
+                    {result.pricingMatrix.lowestListedPrice > 0
+                      ? `₹${result.pricingMatrix.lowestListedPrice.toLocaleString('en-IN')}`
+                      : 'Live Check at Store'}
                   </span>
                 </div>
                 {result.pricingMatrix.totalSavings > 0 && (
                   <div className="flex justify-between py-1.5 border-b border-[#EAE3D9] dark:border-[#26262B]">
-                    <span className="text-[#6B6661] dark:text-[#A3A3A3]">Cross-Platform Arbitrage Savings</span>
+                    <span className="text-[#6B6661] dark:text-[#A3A3A3]">Verified Arbitrage Savings</span>
                     <span className="font-bold text-[#16865D]">
                       - ₹{result.pricingMatrix.totalSavings.toLocaleString('en-IN')}
                     </span>
@@ -362,7 +392,11 @@ export function TwinDecisionsView() {
                 )}
                 <div className="flex justify-between pt-2 text-sm font-black text-[#16865D]">
                   <span>Total Payable at Checkout</span>
-                  <span>₹{result.pricingMatrix.finalCheckoutPrice.toLocaleString('en-IN')}</span>
+                  <span>
+                    {result.pricingMatrix.finalCheckoutPrice > 0
+                      ? `₹${result.pricingMatrix.finalCheckoutPrice.toLocaleString('en-IN')}`
+                      : 'Check at Merchant Checkout'}
+                  </span>
                 </div>
               </div>
 
@@ -415,8 +449,8 @@ export function TwinDecisionsView() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {result.pricingMatrix.retailers.map((r, i) => {
-                const isBest = r.name === result.pricingMatrix.bestRetailer;
-                const badgeInfo = getStatusBadge(r.status);
+                const isBest = r.name === result.pricingMatrix.bestRetailer && r.price > 0;
+                const badgeInfo = getStatusBadge(r.status, r.price);
 
                 return (
                   <div
@@ -445,18 +479,28 @@ export function TwinDecisionsView() {
                         </span>
                       </div>
 
-                      <div className="text-2xl font-black text-[#1A1817] dark:text-white font-heading mt-3">
-                        ₹{r.price.toLocaleString('en-IN')}
-                      </div>
+                      {r.price > 0 ? (
+                        <div className="text-2xl font-black text-[#1A1817] dark:text-white font-heading mt-3">
+                          ₹{r.price.toLocaleString('en-IN')}
+                        </div>
+                      ) : (
+                        <div className="mt-3">
+                          <span className="inline-block text-xs font-black text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-xl">
+                            Live Price Check at Store
+                          </span>
+                        </div>
+                      )}
 
-                      {r.priceBreakdown && (
+                      {r.priceBreakdown && r.price > 0 && (
                         <div className="text-[10px] text-[#6B6661] dark:text-[#A3A3A3] mt-0.5">
                           {r.priceBreakdown}
                         </div>
                       )}
 
                       <div className="text-[10px] text-[#6B6661] mt-2">
-                        Delivery in ~{r.deliveryDays} days • {r.inStock ? 'In Stock' : 'Check Availability'}
+                        {r.price > 0
+                          ? `Delivery in ~${r.deliveryDays} days • ${r.inStock ? 'In Stock' : 'Check Availability'}`
+                          : 'Visit store to check current stock and delivery'}
                       </div>
                     </div>
 

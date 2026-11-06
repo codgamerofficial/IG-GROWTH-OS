@@ -158,3 +158,4 @@ CREATE POLICY "product_match_evidence_user_manage" ON public.product_match_evide
   );
 
 COMMENT ON TABLE public.product_research_sessions IS 'RIIQX Real Product Intelligence & Verification Sessions';
+

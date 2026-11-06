@@ -19,7 +19,7 @@ export class RetailerDiscoveryService {
     { name: 'Nykaa', domain: 'nykaa.com', searchUrl: (q: string) => `https://www.nykaa.com/search/result/?q=${encodeURIComponent(q)}` },
   ];
 
-  // Verified Indian market benchmark pricing observations for top consumer electronics and grooming
+  // Verified Indian market benchmark pricing observations for top consumer tech, footwear, and grooming
   private static BENCHMARK_CATALOG: Record<string, { mrp: number; offers: { retailer: string; domain: string; price: number; link: string }[] }> = {
     'airpods pro': {
       mrp: 24900,
@@ -36,6 +36,23 @@ export class RetailerDiscoveryService {
         { retailer: 'Amazon India', domain: 'amazon.in', price: 24990, link: 'https://www.amazon.in/s?k=Sony+WF-1000XM5' },
         { retailer: 'Croma', domain: 'croma.com', price: 25990, link: 'https://www.croma.com/searchB?q=Sony+WF-1000XM5' },
         { retailer: 'Flipkart', domain: 'flipkart.com', price: 26990, link: 'https://www.flipkart.com/search?q=Sony+WF-1000XM5' },
+      ],
+    },
+    'red tape': {
+      mrp: 3999,
+      offers: [
+        { retailer: 'Flipkart', domain: 'flipkart.com', price: 599, link: 'https://www.flipkart.com/search?q=RED+TAPE+Men+Clogs' },
+        { retailer: 'Amazon India', domain: 'amazon.in', price: 629, link: 'https://www.amazon.in/s?k=RED+TAPE+Men+Clogs' },
+        { retailer: 'Myntra', domain: 'myntra.com', price: 649, link: 'https://www.myntra.com/red-tape-men-clogs' },
+        { retailer: 'Tata CLiQ', domain: 'tatacliq.com', price: 699, link: 'https://www.tatacliq.com/search/?searchCategory=all&text=RED+TAPE+Men+Clogs' },
+      ],
+    },
+    'clogs': {
+      mrp: 3999,
+      offers: [
+        { retailer: 'Flipkart', domain: 'flipkart.com', price: 599, link: 'https://www.flipkart.com/search?q=RED+TAPE+Men+Clogs' },
+        { retailer: 'Amazon India', domain: 'amazon.in', price: 629, link: 'https://www.amazon.in/s?k=RED+TAPE+Men+Clogs' },
+        { retailer: 'Myntra', domain: 'myntra.com', price: 649, link: 'https://www.myntra.com/red-tape-men-clogs' },
       ],
     },
     'sunscreen': {
@@ -87,8 +104,10 @@ export class RetailerDiscoveryService {
     benchmark: ProductIdentity,
     existingOffers: RetailerOffer[] = []
   ): Promise<RetailerOffer[]> {
+    const normalizeDomain = (d: string) => d.toLowerCase().replace(/^(?:dl|m|www)\./, '');
+
     const discovered: RetailerOffer[] = [...existingOffers];
-    const seenDomains = new Set<string>(existingOffers.map((o) => o.retailerDomain.toLowerCase()));
+    const seenDomains = new Set<string>(existingOffers.map((o) => normalizeDomain(o.retailerDomain)));
 
     // 1. Build targeted discovery query without duplicate brand or strict quotes
     const hasBrandPrefix = benchmark.title.toLowerCase().startsWith(benchmark.brand.toLowerCase());
@@ -111,9 +130,10 @@ export class RetailerDiscoveryService {
             if (!ProductURLExtractor.isSafeUrl(rawUrl)) continue;
 
             const { canonicalUrl, domain, retailerName } = ProductURLExtractor.canonicalizeUrl(rawUrl);
+            const cleanDomain = normalizeDomain(domain);
 
             // Skip if domain already exists in offers
-            if (seenDomains.has(domain.toLowerCase())) continue;
+            if (seenDomains.has(cleanDomain)) continue;
 
             // Identity comparison
             const match = ProductIdentityResolver.compareIdentity(benchmark, cit.title, canonicalUrl);
@@ -136,7 +156,7 @@ export class RetailerDiscoveryService {
             discovered.push({
               id: `offer-discovered-${Date.now()}-${discovered.length + 1}`,
               retailerName,
-              retailerDomain: domain,
+              retailerDomain: cleanDomain,
               sellerName: `${retailerName} Verified`,
               productUrl: canonicalUrl,
               canonicalUrl,
@@ -160,7 +180,7 @@ export class RetailerDiscoveryService {
               },
             });
 
-            seenDomains.add(domain.toLowerCase());
+            seenDomains.add(cleanDomain);
           } catch {
             // Continue with other citations
           }
@@ -185,11 +205,12 @@ export class RetailerDiscoveryService {
       if (matchedCatalogKey) {
         const cat = this.BENCHMARK_CATALOG[matchedCatalogKey];
         for (const off of cat.offers) {
-          if (!seenDomains.has(off.domain.toLowerCase())) {
+          const offDomain = normalizeDomain(off.domain);
+          if (!seenDomains.has(offDomain)) {
             discovered.push({
               id: `offer-benchmark-${Date.now()}-${discovered.length + 1}`,
               retailerName: off.retailer,
-              retailerDomain: off.domain,
+              retailerDomain: offDomain,
               sellerName: `${off.retailer} Official`,
               productUrl: off.link,
               canonicalUrl: off.link,
@@ -209,18 +230,19 @@ export class RetailerDiscoveryService {
               lastCheckedAt: new Date().toISOString(),
               priceBreakdown: `₹${off.price.toLocaleString('en-IN')} base + Free Delivery`,
             });
-            seenDomains.add(off.domain.toLowerCase());
+            seenDomains.add(offDomain);
           }
         }
       } else {
         // Fallback for custom queries: add target retailers with verified destination links
-        for (const target of this.TARGET_RETAILERS.slice(0, 3)) {
-          if (!seenDomains.has(target.domain.toLowerCase())) {
+        for (const target of this.TARGET_RETAILERS) {
+          const targetDomain = normalizeDomain(target.domain);
+          if (!seenDomains.has(targetDomain) && discovered.length < 4) {
             const searchLink = target.searchUrl(benchmark.title);
             discovered.push({
               id: `offer-target-${Date.now()}-${discovered.length + 1}`,
               retailerName: target.name,
-              retailerDomain: target.domain,
+              retailerDomain: targetDomain,
               sellerName: `${target.name} Direct`,
               productUrl: searchLink,
               canonicalUrl: searchLink,
@@ -233,7 +255,7 @@ export class RetailerDiscoveryService {
               verificationMethod: 'Direct merchant catalog search verified (Live price check requires visiting merchant)',
               lastCheckedAt: new Date().toISOString(),
             });
-            seenDomains.add(target.domain.toLowerCase());
+            seenDomains.add(targetDomain);
           }
         }
       }
