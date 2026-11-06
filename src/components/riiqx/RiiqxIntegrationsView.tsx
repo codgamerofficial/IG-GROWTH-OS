@@ -32,6 +32,9 @@ import {
   Twitter,
   Linkedin,
   Clock,
+  Link2,
+  X,
+  Info,
 } from 'lucide-react';
 
 interface ConnectedAccount {
@@ -69,6 +72,28 @@ export function RiiqxIntegrationsView() {
   const [testResult, setTestResult] = useState<{ id: string; success: boolean; latencyMs?: number; message?: string } | null>(null);
   const [noticeMessage, setNoticeMessage] = useState<{ type: 'success' | 'warning' | 'error'; text: string } | null>(null);
 
+  // Modal and custom link states for Instagram & Facebook Page bridging
+  const [isLinkingModalOpen, setIsLinkingModalOpen] = useState(false);
+  const [instagramHandleInput, setInstagramHandleInput] = useState('');
+  const [isSubmittingLink, setIsSubmittingLink] = useState(false);
+  const [isSyncingInstagram, setIsSyncingInstagram] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
+
+  const clearUrlOAuthParams = () => {
+    if (typeof window === 'undefined') return;
+    const cleanUrl = new URL(window.location.href);
+    cleanUrl.searchParams.delete('connection_status');
+    cleanUrl.searchParams.delete('provider');
+    cleanUrl.searchParams.delete('message');
+    cleanUrl.searchParams.delete('account_name');
+    cleanUrl.searchParams.delete('pages_connected');
+    cleanUrl.searchParams.delete('connected_count');
+    if (!cleanUrl.searchParams.get('tab')) {
+      cleanUrl.searchParams.set('tab', 'integrations');
+    }
+    window.history.replaceState({}, document.title, cleanUrl.toString());
+  };
+
   // Check URL searchParams on mount for callback notifications
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -81,25 +106,25 @@ export function RiiqxIntegrationsView() {
       if (status === 'success') {
         setNoticeMessage({
           type: 'success',
-          text: `Successfully authorized ${provider ? provider.toUpperCase() : 'account'}${
+          text: msg || `Successfully authorized ${provider ? provider.toUpperCase() : 'account'}${
             accountName ? ` (${accountName})` : ''
           }! Tokens securely encrypted with AES-256-GCM.`,
         });
         fetchAccounts();
-        window.history.replaceState({}, document.title, window.location.pathname);
+        clearUrlOAuthParams();
       } else if (status === 'warning') {
         setNoticeMessage({
           type: 'warning',
           text: msg || 'Connected Facebook Page(s), but no linked Instagram Professional account was found.',
         });
         fetchAccounts();
-        window.history.replaceState({}, document.title, window.location.pathname);
+        clearUrlOAuthParams();
       } else if (status === 'error') {
         setNoticeMessage({
           type: 'error',
           text: msg || `Failed to complete ${provider || ''} authorization.`,
         });
-        window.history.replaceState({}, document.title, window.location.pathname);
+        clearUrlOAuthParams();
       }
     }
   }, []);
@@ -126,6 +151,63 @@ export function RiiqxIntegrationsView() {
 
   const handleConnectOAuth = (provider: string) => {
     window.location.href = `/api/social/oauth/authorize?provider=${provider}`;
+  };
+
+  const handleSyncInstagram = async () => {
+    setIsSyncingInstagram(true);
+    try {
+      const res = await fetch('/api/social/accounts/instagram/sync', { method: 'POST' });
+      const data = await res.json();
+      if (data.success && data.synced) {
+        setNoticeMessage({
+          type: 'success',
+          text: data.message || 'Instagram account successfully synced from Facebook Page!',
+        });
+        await fetchAccounts();
+      } else {
+        setNoticeMessage({
+          type: 'warning',
+          text: data.message || 'No linked Instagram Professional account found on Meta yet.',
+        });
+      }
+    } catch (err: unknown) {
+      setNoticeMessage({
+        type: 'error',
+        text: err instanceof Error ? err.message : 'Failed to sync with Meta.',
+      });
+    } finally {
+      setIsSyncingInstagram(false);
+    }
+  };
+
+  const handleLinkInstagram = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!instagramHandleInput.trim()) return;
+    setIsSubmittingLink(true);
+    setLinkError(null);
+    try {
+      const res = await fetch('/api/social/accounts/instagram/link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ handle: instagramHandleInput }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsLinkingModalOpen(false);
+        setInstagramHandleInput('');
+        setNoticeMessage({
+          type: 'success',
+          text: data.message || 'Instagram profile connected successfully!',
+        });
+        await fetchAccounts();
+      } else {
+        setLinkError(data.error || 'Failed to link Instagram account.');
+      }
+    } catch (err: unknown) {
+      setLinkError(err instanceof Error ? err.message : 'Network error while linking.');
+    } finally {
+      setIsSubmittingLink(false);
+    }
   };
 
   const handleTestConnection = async (account: ConnectedAccount) => {
@@ -289,13 +371,20 @@ export function RiiqxIntegrationsView() {
     return matchesCat && matchesSearch;
   });
 
+  const connectedFacebook = connectedAccounts.find(
+    (a) => a.provider === 'facebook' && a.status === 'connected'
+  );
+  const connectedInstagram = connectedAccounts.find(
+    (a) => a.provider === 'instagram' && a.status === 'connected'
+  );
+
   return (
     <div className="flex h-full flex-1 flex-col overflow-y-auto bg-[#FAF9F6] dark:bg-[#0C0C0E] p-4 sm:p-6 lg:p-8 space-y-6 transition-colors">
       <div className="mx-auto w-full max-w-6xl space-y-6">
         {/* Notice Banner */}
         {noticeMessage && (
           <div
-            className={`p-4 rounded-2xl border text-xs sm:text-sm font-semibold flex items-center justify-between animate-in fade-in duration-300 ${
+            className={`p-4 rounded-2xl border text-xs sm:text-sm font-semibold flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-in fade-in duration-300 ${
               noticeMessage.type === 'success'
                 ? 'bg-[#16865D]/10 border-[#16865D]/30 text-[#16865D]'
                 : noticeMessage.type === 'warning'
@@ -311,14 +400,28 @@ export function RiiqxIntegrationsView() {
               ) : (
                 <AlertTriangle className="w-4 h-4 shrink-0 text-[#FF4D4F]" />
               )}
-              <span>{noticeMessage.text}</span>
+              <span className="leading-snug">{noticeMessage.text}</span>
             </div>
-            <button
-              onClick={() => setNoticeMessage(null)}
-              className="text-xs opacity-70 hover:opacity-100 font-bold ml-2"
-            >
-              Dismiss
-            </button>
+            <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+              {noticeMessage.type === 'warning' && connectedFacebook && !connectedInstagram && (
+                <button
+                  onClick={() => setIsLinkingModalOpen(true)}
+                  className="px-3 py-1 rounded-full bg-[#FFD43B] text-[#202124] text-xs font-bold hover:bg-[#FFC928] transition-colors flex items-center gap-1 shadow-xs cursor-pointer"
+                >
+                  <Link2 className="w-3 h-3" />
+                  <span>Link Instagram Handle</span>
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setNoticeMessage(null);
+                  clearUrlOAuthParams();
+                }}
+                className="text-xs opacity-75 hover:opacity-100 font-bold px-2 py-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+              >
+                Dismiss
+              </button>
+            </div>
           </div>
         )}
 
@@ -402,10 +505,28 @@ export function RiiqxIntegrationsView() {
                           <span>Connected</span>
                         </span>
                       </div>
+                    ) : plugin.providerKey === 'instagram' && connectedFacebook ? (
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => setIsLinkingModalOpen(true)}
+                          className="flex items-center gap-1 text-[11px] font-bold px-3 py-1 rounded-full bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] transition-colors shadow-xs cursor-pointer"
+                          title={`Link Instagram profile to ${connectedFacebook.accountName}`}
+                        >
+                          <Link2 className="w-3 h-3" />
+                          <span>Link Handle</span>
+                        </button>
+                        <button
+                          onClick={() => handleConnectOAuth('instagram')}
+                          className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full border border-[#EAE7E1] dark:border-[#2E2E2E] text-[#737373] hover:text-[#202124] dark:hover:text-white transition-colors cursor-pointer"
+                          title="Authorize via Meta OAuth Dialog"
+                        >
+                          <span>OAuth</span>
+                        </button>
+                      </div>
                     ) : plugin.providerKey ? (
                       <button
                         onClick={() => handleConnectOAuth(plugin.providerKey!)}
-                        className="flex items-center gap-1 text-[11px] font-bold px-3.5 py-1 rounded-full bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] transition-colors shadow-xs"
+                        className="flex items-center gap-1 text-[11px] font-bold px-3.5 py-1 rounded-full bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] transition-colors shadow-xs cursor-pointer"
                       >
                         <Plus className="w-3 h-3" />
                         <span>{hasAuthIssue ? 'Reconnect' : 'Connect'}</span>
@@ -434,6 +555,23 @@ export function RiiqxIntegrationsView() {
                     <p className="text-xs text-[#737373] dark:text-[#A3A3A3] mt-1 leading-relaxed">
                       {plugin.desc}
                     </p>
+
+                    {plugin.id === 'instagram' && !isConnected && connectedFacebook && (
+                      <div className="mt-2.5 p-2 rounded-xl text-[10px] bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 flex items-center justify-between">
+                        <span className="flex items-center gap-1 font-semibold truncate">
+                          <CheckCircle2 className="w-3 h-3 shrink-0" />
+                          <span>Page &ldquo;{connectedFacebook.accountName}&rdquo; active</span>
+                        </span>
+                        <button
+                          onClick={handleSyncInstagram}
+                          disabled={isSyncingInstagram}
+                          className="text-[10px] font-bold underline hover:no-underline shrink-0 ml-1.5 flex items-center gap-0.5 cursor-pointer"
+                        >
+                          <RefreshCw className={`w-2.5 h-2.5 ${isSyncingInstagram ? 'animate-spin' : ''}`} />
+                          <span>Sync</span>
+                        </button>
+                      </div>
+                    )}
 
                     {matchedAccount && (
                       <div className="mt-2.5 pt-2 border-t border-[#EAE7E1] dark:border-[#2E2E2E] space-y-1">
@@ -502,6 +640,115 @@ export function RiiqxIntegrationsView() {
           })}
         </div>
       </div>
+
+      {/* Link Instagram Modal */}
+      {isLinkingModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl bg-white dark:bg-[#18181B] border border-[#EAE7E1] dark:border-[#2E2E2E] p-6 shadow-2xl space-y-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-[#FF6B5E]/15 text-[#FF6B5E] flex items-center justify-center">
+                  <Instagram className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#202124] dark:text-white">
+                    Link Instagram Profile
+                  </h3>
+                  <p className="text-xs text-[#737373] dark:text-[#A3A3A3]">
+                    Bridge to Facebook Page {connectedFacebook ? `(${connectedFacebook.accountName})` : ''}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setIsLinkingModalOpen(false);
+                  setLinkError(null);
+                }}
+                className="p-1 rounded-xl text-[#737373] hover:text-[#202124] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 text-xs space-y-1">
+              <p className="font-bold flex items-center gap-1.5">
+                <Info className="w-3.5 h-3.5 shrink-0" />
+                <span>Quick Setup (Instagram Professional)</span>
+              </p>
+              <ol className="list-decimal list-inside space-y-0.5 text-[11px] opacity-90 pl-1">
+                <li>In Instagram App: Settings &rarr; Account type &rarr; Switch to Professional</li>
+                <li>Creator / Business Tools &rarr; Connect Facebook Page: <strong>{connectedFacebook?.accountName || 'MVF Official'}</strong></li>
+                <li>Enter your handle below or click Sync from Meta</li>
+              </ol>
+            </div>
+
+            {linkError && (
+              <div className="p-2.5 rounded-xl bg-[#FF4D4F]/10 border border-[#FF4D4F]/30 text-[#FF4D4F] text-xs font-semibold flex items-center gap-2">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>{linkError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleLinkInstagram} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#202124] dark:text-white mb-1.5">
+                  Instagram Username
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-[#737373]">
+                    @
+                  </span>
+                  <input
+                    type="text"
+                    value={instagramHandleInput}
+                    onChange={(e) => setInstagramHandleInput(e.target.value)}
+                    placeholder="mvf_official"
+                    className="w-full pl-8 pr-4 py-2.5 rounded-2xl bg-[#FAF9F6] dark:bg-[#202020] border border-[#EAE7E1] dark:border-[#2E2E2E] text-xs font-semibold text-[#202124] dark:text-white placeholder-[#737373] focus:outline-none focus:border-[#FFD43B]"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={handleSyncInstagram}
+                  disabled={isSyncingInstagram}
+                  className="px-3 py-2 rounded-2xl border border-[#EAE7E1] dark:border-[#2E2E2E] text-xs font-bold text-[#737373] hover:text-[#202124] dark:hover:text-white flex items-center gap-1.5 hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSyncingInstagram ? 'animate-spin' : ''}`} />
+                  <span>Sync from Meta</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsLinkingModalOpen(false);
+                      setLinkError(null);
+                    }}
+                    className="px-3.5 py-2 rounded-2xl text-xs font-bold text-[#737373] hover:text-[#202124] dark:hover:text-white transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingLink || !instagramHandleInput.trim()}
+                    className="px-4 py-2 rounded-2xl bg-[#FFD43B] hover:bg-[#FFC928] text-[#202124] text-xs font-bold transition-colors shadow-xs disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {isSubmittingLink ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5" />
+                    )}
+                    <span>Link Profile</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

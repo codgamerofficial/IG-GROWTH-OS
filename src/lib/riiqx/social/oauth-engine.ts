@@ -272,6 +272,7 @@ export function createMetaAuthUrl(state: string, customRedirectUri?: string): st
     state,
     scope: config.scopes.join(','),
     response_type: 'code',
+    auth_type: 'rerequest', // Always re-evaluate permissions so newly created pages or linked accounts can be selected
   });
 
   return `https://www.facebook.com/v26.0/dialog/oauth?${params.toString()}`;
@@ -463,7 +464,29 @@ export async function exchangeMetaCode(
     throw new Error(pagesData.error?.message || 'Failed to fetch Facebook Pages and Instagram accounts.');
   }
 
-  const rawPages = pagesData.data as Array<Record<string, unknown>>;
+  let rawPages = (pagesData.data as Array<Record<string, unknown>>) || [];
+
+  // Fallback: If /me/accounts returned empty, probe /me?fields=accounts{...}
+  if (rawPages.length === 0) {
+    try {
+      const meAccountsUrl = new URL('https://graph.facebook.com/v26.0/me');
+      meAccountsUrl.searchParams.set(
+        'fields',
+        'id,name,accounts{id,name,access_token,instagram_business_account{id,username,name,profile_picture_url}}'
+      );
+      meAccountsUrl.searchParams.set('access_token', longLivedToken);
+      const meRes = await fetch(meAccountsUrl.toString());
+      if (meRes.ok) {
+        const meData = await meRes.json();
+        if (Array.isArray(meData.accounts?.data)) {
+          rawPages = meData.accounts.data;
+        }
+      }
+    } catch {
+      // Non-blocking fallback
+    }
+  }
+
   const accounts: DiscoveredMetaAccount[] = [];
 
   for (const p of rawPages) {

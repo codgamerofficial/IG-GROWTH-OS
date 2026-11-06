@@ -240,8 +240,8 @@ export async function getConnectedAccounts(userId: string): Promise<ConnectedAcc
     (a) => a.user_id === userId || a.user_id === 'usr_riiqx_primary'
   );
 
-  // Fallback to existing accounts in local dev/resilient vault if not yet bound
-  if (matches.length === 0 && store.accounts.length > 0) {
+  // Fallback to all existing accounts in local dev/resilient workspace vault
+  if ((userId === 'usr_riiqx_primary' || matches.length === 0) && store.accounts.length > 0) {
     matches = [...store.accounts];
   }
 

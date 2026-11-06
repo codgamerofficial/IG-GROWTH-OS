@@ -276,7 +276,7 @@ export function StoryboardDashboard() {
                     Speech Transcript (Whisper)
                   </span>
                   <p className="mt-1 text-xs font-medium text-zinc-200 italic">
-                    "{beat.speechTranscript}"
+                    &ldquo;{beat.speechTranscript}&rdquo;
                   </p>
                 </div>
 

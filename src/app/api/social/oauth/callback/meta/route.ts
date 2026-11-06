@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exchangeMetaCode, getTrustedAppOrigin } from '@/lib/riiqx/social/oauth-engine';
-import { saveConnectedAccount } from '@/lib/riiqx/social/account-repository';
+import { saveConnectedAccount, getConnectedAccounts } from '@/lib/riiqx/social/account-repository';
 import { resolveAuthUserId } from '@/lib/riiqx/session-helper';
 
 export const dynamic = 'force-dynamic';
@@ -92,6 +92,11 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    const requestedProvider = req.cookies.get('riiqx_oauth_provider')?.value || '';
+    const isInstagramIntent = state.includes('_instagram_') || requestedProvider === 'instagram';
+    const existingAccounts = await getConnectedAccounts(userId);
+    const existingFacebook = existingAccounts.find((a) => a.provider === 'facebook');
+
     const dest = new URL(appUrl);
     dest.searchParams.set('tab', 'integrations');
 
@@ -99,21 +104,44 @@ export async function GET(req: NextRequest) {
       dest.searchParams.set('connection_status', 'success');
       dest.searchParams.set('provider', 'instagram');
       dest.searchParams.set('account_name', `@${primaryInstagramUsername}`);
+      dest.searchParams.set('message', `Successfully connected Instagram (@${primaryInstagramUsername})!`);
       dest.searchParams.set('connected_count', String(instagramAccountsCount + facebookPagesCount));
     } else if (facebookPagesCount > 0) {
-      dest.searchParams.set('connection_status', 'warning');
-      dest.searchParams.set('provider', 'facebook');
-      dest.searchParams.set('pages_connected', String(facebookPagesCount));
-      dest.searchParams.set(
-        'message',
-        `Authorized ${facebookPagesCount} Facebook Page(s), but no linked Instagram Professional account was found. To publish to Instagram, link your Instagram Creator or Business account to your Facebook Page in Instagram Settings.`
-      );
+      if (isInstagramIntent) {
+        dest.searchParams.set('connection_status', 'warning');
+        dest.searchParams.set('provider', 'instagram');
+        dest.searchParams.set('pages_connected', String(facebookPagesCount));
+        dest.searchParams.set(
+          'message',
+          `Authorized Facebook Page (${accounts[0]?.pageName || 'MVF Official'}), but no linked Instagram Professional account was detected. You can link your Instagram handle directly on the Instagram card below or via Instagram app settings.`
+        );
+      } else {
+        dest.searchParams.set('connection_status', 'success');
+        dest.searchParams.set('provider', 'facebook');
+        dest.searchParams.set('account_name', accounts[0]?.pageName || 'Facebook Page');
+        dest.searchParams.set('message', `Successfully connected Facebook Page (${accounts[0]?.pageName || 'Facebook Page'})!`);
+        dest.searchParams.set('pages_connected', String(facebookPagesCount));
+      }
+    } else if (existingFacebook) {
+      if (isInstagramIntent) {
+        dest.searchParams.set('connection_status', 'warning');
+        dest.searchParams.set('provider', 'instagram');
+        dest.searchParams.set(
+          'message',
+          `Meta verified your account. Your Facebook Page (${existingFacebook.account_name}) is active. To link Instagram, click "Link Instagram" on the card below or connect ${existingFacebook.account_name} in Instagram mobile settings.`
+        );
+      } else {
+        dest.searchParams.set('connection_status', 'success');
+        dest.searchParams.set('provider', 'facebook');
+        dest.searchParams.set('account_name', existingFacebook.account_name);
+        dest.searchParams.set('message', `Facebook Page (${existingFacebook.account_name}) is active and authorized.`);
+      }
     } else {
-      dest.searchParams.set('connection_status', 'error');
-      dest.searchParams.set('provider', 'meta');
+      dest.searchParams.set('connection_status', 'warning');
+      dest.searchParams.set('provider', isInstagramIntent ? 'instagram' : 'meta');
       dest.searchParams.set(
         'message',
-        'Meta authorization completed, but no Facebook Pages or Instagram accounts were returned. Ensure your Facebook account administers at least one Page.'
+        'Meta authorization completed, but no Facebook Pages were selected. Please ensure your Facebook account administers at least one Page and select it in the Meta dialog.'
       );
     }
 
