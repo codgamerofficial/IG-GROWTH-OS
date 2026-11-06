@@ -3,6 +3,7 @@
 // =============================================================================
 // RIIQX — User Data Ownership & DPDP Act Privacy Settings View
 // One-Click JSON Archive Export • Permanent Deletion • Autonomy Controls
+// Ultra-Modern Trending Obsidian Glassmorphic Design System
 // =============================================================================
 
 import React, { useState, useEffect } from 'react';
@@ -16,6 +17,7 @@ import {
   Save,
   AlertTriangle,
   Lock,
+  Sparkles,
 } from 'lucide-react';
 import { TwinProfile } from '@/lib/riiqx/twin-types';
 
@@ -95,20 +97,26 @@ export function TwinSettingsView() {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#FAF8F5] dark:bg-[#0E0E10] text-[#1A1817] dark:text-[#F4F4F6] p-4 sm:p-6 lg:p-8 space-y-8">
+    <div className="flex-1 overflow-y-auto bg-[#09090b] text-[#F4F4F6] p-4 sm:p-6 lg:p-8 space-y-8 relative selection:bg-orange-500/30">
+      {/* Background Ambient Radial Glow */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+      <div className="absolute top-1/2 left-10 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none -z-10" />
+
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#EAE3D9] dark:border-[#26262B] pb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-6">
         <div>
           <div className="flex items-center gap-2">
-            <Settings className="h-4 w-4 text-[#FF5722]" />
-            <span className="text-xs font-black uppercase tracking-wider text-[#6B6661] dark:text-[#A3A3A3]">
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20">
+              <Settings className="h-3.5 w-3.5" />
+            </div>
+            <span className="text-[11px] font-black uppercase tracking-wider text-orange-400">
               Twin Controls &amp; Data Ownership
             </span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-[#1A1817] dark:text-white font-heading mt-1">
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white font-heading mt-2">
             Data Ownership &amp; Privacy Center
           </h1>
-          <p className="text-xs sm:text-sm text-[#6B6661] dark:text-[#A3A3A3] mt-1">
+          <p className="text-xs sm:text-sm text-zinc-400 mt-1 max-w-2xl leading-relaxed">
             Configure your Twin&rsquo;s autonomy and exercise complete ownership under the DPDP Act.
           </p>
         </div>
@@ -119,41 +127,43 @@ export function TwinSettingsView() {
         <div className="lg:col-span-2 space-y-6">
           <form
             onSubmit={handleSaveProfile}
-            className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 sm:p-8 space-y-6 shadow-xs"
+            className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-8 space-y-6 shadow-2xl relative overflow-hidden"
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
               <div className="flex items-center gap-2.5">
-                <Sliders className="h-5 w-5 text-[#FF5722]" />
-                <h3 className="text-base font-bold text-[#1A1817] dark:text-white font-heading">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-orange-500/10 text-orange-400 border border-orange-500/20">
+                  <Sliders className="h-4 w-4" />
+                </div>
+                <h3 className="text-base font-black text-white font-heading">
                   Twin Configuration &amp; Autonomy
                 </h3>
               </div>
               {savedSuccess && (
-                <span className="flex items-center gap-1 text-xs font-bold text-[#16865D]">
-                  <CheckCircle2 className="h-4 w-4" /> Saved Successfully
+                <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full animate-in fade-in">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Saved Successfully
                 </span>
               )}
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-5">
               {/* Twin Name */}
-              <div>
-                <label className="block text-xs font-bold text-[#1A1817] dark:text-white mb-1">Twin Name</label>
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-white">Twin Name</label>
                 <input
                   type="text"
                   value={profile.twinName}
                   onChange={(e) => setProfile({ ...profile, twinName: e.target.value })}
-                  className="w-full text-xs p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] focus:outline-none focus:border-[#FF5722]"
+                  className="w-full text-xs p-3.5 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white focus:outline-hidden focus:border-orange-500 shadow-inner"
                 />
               </div>
 
               {/* Autonomy Level Slider */}
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-bold text-[#1A1817] dark:text-white">
-                    Autonomy Level: Level {profile.autonomyLevel}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-white">
+                    Autonomy Level: <span className="text-orange-400 font-mono font-black">Level {profile.autonomyLevel}</span>
                   </label>
-                  <span className="text-[11px] text-[#6B6661]">
+                  <span className="text-[11px] text-zinc-400 font-mono">
                     {profile.autonomyLevel === 1
                       ? 'Advisory (Always asks)'
                       : profile.autonomyLevel === 2
@@ -167,18 +177,18 @@ export function TwinSettingsView() {
                   max="3"
                   value={profile.autonomyLevel}
                   onChange={(e) => setProfile({ ...profile, autonomyLevel: Number(e.target.value) as any })}
-                  className="w-full accent-[#FF5722]"
+                  className="w-full accent-orange-500 cursor-pointer h-2 bg-zinc-950 rounded-lg"
                 />
               </div>
 
               {/* Tone & Budget Tier */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-[#1A1817] dark:text-white mb-1">Personality Tone</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-zinc-300">Personality Tone</label>
                   <select
                     value={profile.tone}
                     onChange={(e) => setProfile({ ...profile, tone: e.target.value as any })}
-                    className="w-full text-xs p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33]"
+                    className="w-full text-xs p-3.5 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white font-bold focus:outline-hidden focus:border-orange-500"
                   >
                     <option value="pragmatic_analytical">Pragmatic &amp; Analytical</option>
                     <option value="warm_supportive">Warm &amp; Supportive</option>
@@ -186,12 +196,12 @@ export function TwinSettingsView() {
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-[#1A1817] dark:text-white mb-1">Budget Orientation</label>
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-zinc-300">Budget Orientation</label>
                   <select
                     value={profile.budgetTier}
                     onChange={(e) => setProfile({ ...profile, budgetTier: e.target.value as any })}
-                    className="w-full text-xs p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33]"
+                    className="w-full text-xs p-3.5 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white font-bold focus:outline-hidden focus:border-orange-500"
                   >
                     <option value="frugal">Frugal (Maximum thrift)</option>
                     <option value="balanced">Balanced Value (Optimal ROI)</option>
@@ -201,8 +211,8 @@ export function TwinSettingsView() {
               </div>
 
               {/* Preferred Brands */}
-              <div>
-                <label className="block text-xs font-bold text-[#1A1817] dark:text-white mb-1">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-zinc-300">
                   Preferred Brands (Comma separated)
                 </label>
                 <input
@@ -214,13 +224,13 @@ export function TwinSettingsView() {
                       preferredBrands: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
                     })
                   }
-                  className="w-full text-xs p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] focus:outline-none focus:border-[#FF5722]"
+                  className="w-full text-xs p-3.5 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white focus:outline-hidden focus:border-orange-500 shadow-inner"
                 />
               </div>
 
               {/* Avoid Keywords / Red Flags */}
-              <div>
-                <label className="block text-xs font-bold text-[#1A1817] dark:text-white mb-1">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-zinc-300">
                   Avoid Keywords / Dealbreakers
                 </label>
                 <input
@@ -232,16 +242,16 @@ export function TwinSettingsView() {
                       avoidKeywords: e.target.value.split(',').map((s) => s.trim()).filter(Boolean),
                     })
                   }
-                  className="w-full text-xs p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] focus:outline-none focus:border-[#FF5722]"
+                  className="w-full text-xs p-3.5 rounded-2xl bg-zinc-950/80 border border-white/[0.08] text-white focus:outline-hidden focus:border-orange-500 shadow-inner"
                 />
               </div>
             </div>
 
-            <div className="pt-2 flex justify-end">
+            <div className="pt-3 border-t border-white/[0.06] flex justify-end">
               <button
                 type="submit"
                 disabled={saving}
-                className="flex items-center gap-2 rounded-2xl bg-[#FF5722] hover:bg-[#E64A19] text-white px-6 py-3 text-xs font-bold shadow-xs transition-transform active:scale-95"
+                className="flex items-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-7 py-3 text-xs font-black shadow-lg shadow-orange-500/25 transition-transform active:scale-95 disabled:opacity-50"
               >
                 <Save className="h-4 w-4" />
                 <span>{saving ? 'Saving...' : 'Save Twin Profile'}</span>
@@ -252,30 +262,32 @@ export function TwinSettingsView() {
 
         {/* Right Column: DPDP Act Data Ownership & Exports */}
         <div className="space-y-6">
-          <div className="rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 space-y-4 shadow-xs">
+          <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-7 space-y-5 shadow-2xl">
             <div className="flex items-center gap-2.5">
-              <ShieldCheck className="h-5 w-5 text-[#16865D]" />
-              <h3 className="text-base font-bold text-[#1A1817] dark:text-white font-heading">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <ShieldCheck className="h-4 w-4" />
+              </div>
+              <h3 className="text-base font-black text-white font-heading">
                 DPDP Act Data Rights
               </h3>
             </div>
 
-            <p className="text-xs text-[#6B6661] dark:text-[#A3A3A3] leading-relaxed">
+            <p className="text-xs text-zinc-300 leading-relaxed">
               Under India&rsquo;s Digital Personal Data Protection Act, you have the right to obtain a full machine-readable copy of your data or permanently delete all recorded facts.
             </p>
 
             <div className="space-y-3 pt-2">
               <button
                 onClick={handleExportData}
-                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] py-3 text-xs font-bold text-[#1A1817] dark:text-white hover:border-[#FF5722] transition-colors"
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-zinc-950/80 hover:bg-zinc-800 border border-white/[0.08] hover:border-orange-500/40 py-3 text-xs font-bold text-zinc-200 hover:text-white transition-all shadow-md group"
               >
-                <Download className="h-4 w-4 text-[#FF5722]" />
+                <Download className="h-4 w-4 text-orange-400 transition-transform group-hover:translate-y-0.5" />
                 <span>Export Full Data Archive (JSON)</span>
               </button>
 
               <button
                 onClick={handleDeleteAllData}
-                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#FF4D4F]/10 border border-[#FF4D4F]/30 py-3 text-xs font-bold text-[#FF4D4F] hover:bg-[#FF4D4F]/20 transition-colors"
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 py-3 text-xs font-bold text-rose-400 transition-colors shadow-md"
               >
                 <Trash2 className="h-4 w-4" />
                 <span>Permanently Delete All Data</span>
@@ -287,4 +299,3 @@ export function TwinSettingsView() {
     </div>
   );
 }
-
