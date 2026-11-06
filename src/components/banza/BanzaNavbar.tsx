@@ -93,3 +93,4 @@ export function BanzaNavbar({ currentMode, onModeChange }: BanzaNavbarProps) {
     </header>
   );
 }
+

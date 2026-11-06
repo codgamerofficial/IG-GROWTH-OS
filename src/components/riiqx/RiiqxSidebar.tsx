@@ -11,34 +11,31 @@ import { RiiqxEmblem } from '@/components/riiqx/RiiqxEmblem';
 import {
   LayoutDashboard,
   MessageSquare,
-  Video,
-  Rocket,
-  CheckSquare,
-  Search,
-  Code2,
-  Boxes,
-  BarChart3,
-  FolderOpen,
-  Settings,
   Sparkles,
+  Scale,
+  Compass,
+  Utensils,
+  Gift,
+  BookOpen,
+  Boxes,
+  Clock,
+  Settings,
   ChevronRight,
-  ShoppingBag,
 } from 'lucide-react';
 
 export function RiiqxSidebar() {
   const { activeTab, setActiveTab } = useRiiqx();
 
   const navItems: { tab: RiiqxViewTab; label: string; icon: React.ElementType }[] = [
-    { tab: 'twin', label: 'Ask AI Twin (Banza)', icon: Sparkles },
-    { tab: 'home', label: 'Dashboard', icon: LayoutDashboard },
-    { tab: 'chat', label: 'AI Agent Chat', icon: MessageSquare },
-    { tab: 'autopilot', label: 'Autopilot Center', icon: Rocket },
-    { tab: 'tasks', label: 'Task Planner', icon: CheckSquare },
-    { tab: 'research', label: 'Deep Research', icon: Search },
-    { tab: 'code', label: 'Code Studio', icon: Code2 },
-    { tab: 'integrations', label: 'Integrations', icon: Boxes },
-    { tab: 'analytics', label: 'Analytics & Growth', icon: BarChart3 },
-    { tab: 'files', label: 'Library', icon: FolderOpen },
+    { tab: 'home', label: 'Home', icon: LayoutDashboard },
+    { tab: 'twin', label: 'My Twin', icon: Sparkles },
+    { tab: 'decisions', label: 'Decisions', icon: Scale },
+    { tab: 'opportunities', label: 'Opportunities', icon: Compass },
+    { tab: 'lifestyle', label: 'Lifestyle', icon: Utensils },
+    { tab: 'rewards', label: 'Rewards', icon: Gift },
+    { tab: 'digest', label: 'Weekly Intelligence', icon: BookOpen },
+    { tab: 'connections', label: 'Connections', icon: Boxes },
+    { tab: 'activity', label: 'Activity', icon: Clock },
     { tab: 'settings', label: 'Settings', icon: Settings },
   ];
 
@@ -56,7 +53,7 @@ export function RiiqxSidebar() {
               RIIQX
             </span>
             <span className="text-[10px] font-semibold text-[#737373] dark:text-[#A3A3A3] tracking-wide -mt-0.5">
-              Creator OS • AI Agent
+              Personal Intelligence Twin
             </span>
           </div>
         </div>

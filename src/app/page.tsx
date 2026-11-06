@@ -1,55 +1,51 @@
 'use client';
 
 // =============================================================================
-// RIIQX 2.0 — Master Workspace Router
-// One Goal. An AI That Gets It Done.
-// Contemporary Creator OS • Tool-Calling AI Agent • Level 3 Autopilot
+// RIIQX — Master Workspace Router
+// "Know your needs. Make smarter moves."
+// Personal AI Twin & Intelligence Platform
 // =============================================================================
 
 import React from 'react';
 import { useRiiqx } from '@/context/RiiqxContext';
-import { RiiqxHomeDashboard } from '@/components/riiqx/RiiqxHomeDashboard';
-import { BanzaLandingView } from '@/components/banza/BanzaLandingView';
-import { RiiqxChatView } from '@/components/riiqx/RiiqxChatView';
-import { RiiqxVideoEditor } from '@/components/riiqx/RiiqxVideoEditor';
-import { RiiqxAutopilotCenter } from '@/components/riiqx/RiiqxAutopilotCenter';
-import { RiiqxResearchView } from '@/components/riiqx/RiiqxResearchView';
-import { RiiqxCodeView } from '@/components/riiqx/RiiqxCodeView';
-import { RiiqxTaskView } from '@/components/riiqx/RiiqxTaskView';
-import { RiiqxIntegrationsView } from '@/components/riiqx/RiiqxIntegrationsView';
-import { RiiqxFilesView } from '@/components/riiqx/RiiqxFilesView';
-import { RiiqxAnalyticsView } from '@/components/riiqx/RiiqxAnalyticsView';
-import { RiiqxSettingsView } from '@/components/riiqx/RiiqxSettingsView';
+import { TwinDashboardView } from '@/components/twin/TwinDashboardView';
+import { TwinChatView } from '@/components/twin/TwinChatView';
+import { TwinDecisionsView } from '@/components/twin/TwinDecisionsView';
+import { TwinOpportunitiesView } from '@/components/twin/TwinOpportunitiesView';
+import { TwinLifestyleView } from '@/components/twin/TwinLifestyleView';
+import { TwinRewardsView } from '@/components/twin/TwinRewardsView';
+import { TwinDigestView } from '@/components/twin/TwinDigestView';
+import { TwinConnectionsView } from '@/components/twin/TwinConnectionsView';
+import { TwinActivityView } from '@/components/twin/TwinActivityView';
+import { TwinSettingsView } from '@/components/twin/TwinSettingsView';
 
 export default function RiiqxWorkspacePage() {
   const { activeTab } = useRiiqx();
 
   switch (activeTab) {
-    case 'twin':
-      return <BanzaLandingView />;
     case 'home':
-      return <RiiqxHomeDashboard />;
-    case 'chat':
-      return <RiiqxChatView />;
-    case 'editor':
-      return <RiiqxVideoEditor />;
-    case 'autopilot':
-      return <RiiqxAutopilotCenter />;
-    case 'research':
-      return <RiiqxResearchView />;
-    case 'code':
-      return <RiiqxCodeView />;
-    case 'tasks':
-      return <RiiqxTaskView />;
+      return <TwinDashboardView />;
+    case 'twin':
+      return <TwinChatView />;
+    case 'decisions':
+      return <TwinDecisionsView />;
+    case 'opportunities':
+      return <TwinOpportunitiesView />;
+    case 'lifestyle':
+      return <TwinLifestyleView />;
+    case 'rewards':
+      return <TwinRewardsView />;
+    case 'digest':
+      return <TwinDigestView />;
+    case 'connections':
     case 'integrations':
-      return <RiiqxIntegrationsView />;
-    case 'files':
-      return <RiiqxFilesView />;
-    case 'analytics':
-      return <RiiqxAnalyticsView />;
+      return <TwinConnectionsView />;
+    case 'activity':
+    case 'tasks':
+      return <TwinActivityView />;
     case 'settings':
-      return <RiiqxSettingsView />;
+      return <TwinSettingsView />;
     default:
-      return <BanzaLandingView />;
+      return <TwinDashboardView />;
   }
 }

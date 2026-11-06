@@ -144,3 +144,4 @@ export function BanzaResearchSimulator({ onLaunchTwin }: { onLaunchTwin: (q: str
     </section>
   );
 }
+

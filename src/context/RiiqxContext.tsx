@@ -22,6 +22,14 @@ import {
 export type RiiqxViewTab =
   | 'home'
   | 'twin'
+  | 'decisions'
+  | 'opportunities'
+  | 'lifestyle'
+  | 'rewards'
+  | 'digest'
+  | 'connections'
+  | 'activity'
+  | 'settings'
   | 'shopping'
   | 'chat'
   | 'creator'
@@ -32,8 +40,7 @@ export type RiiqxViewTab =
   | 'code'
   | 'integrations'
   | 'files'
-  | 'analytics'
-  | 'settings';
+  | 'analytics';
 
 interface RiiqxContextType {
   // Navigation & View
@@ -116,7 +123,7 @@ interface RiiqxContextType {
 const RiiqxContext = createContext<RiiqxContextType | undefined>(undefined);
 
 export function RiiqxProvider({ children }: { children: ReactNode }) {
-  const [activeTab, setActiveTabState] = useState<RiiqxViewTab>('twin');
+  const [activeTab, setActiveTabState] = useState<RiiqxViewTab>('home');
   const setActiveTab = useCallback((tab: RiiqxViewTab) => {
     if (tab === 'shopping' || tab === 'creator') {
       setActiveTabState('twin');

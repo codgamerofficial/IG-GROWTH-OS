@@ -190,16 +190,15 @@ export function RiiqxHeader() {
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-x-0 top-14 bg-white/95 dark:bg-[#151515]/95 backdrop-blur-xl border-b border-[#EAE7E1] dark:border-[#2E2E2E] p-4 shadow-xl z-50 space-y-1">
           {[
-            { tab: 'twin', label: 'Ask AI Twin (Banza)' },
-            { tab: 'home', label: 'Dashboard' },
-            { tab: 'chat', label: 'AI Agent Chat' },
-            { tab: 'autopilot', label: 'Autopilot Center' },
-            { tab: 'tasks', label: 'Task Planner' },
-            { tab: 'research', label: 'Deep Research' },
-            { tab: 'code', label: 'Code Studio' },
-            { tab: 'integrations', label: 'Integrations' },
-            { tab: 'analytics', label: 'Analytics & Growth' },
-            { tab: 'files', label: 'Library' },
+            { tab: 'home', label: 'Home' },
+            { tab: 'twin', label: 'My Twin' },
+            { tab: 'decisions', label: 'Decisions' },
+            { tab: 'opportunities', label: 'Opportunities' },
+            { tab: 'lifestyle', label: 'Lifestyle' },
+            { tab: 'rewards', label: 'Rewards' },
+            { tab: 'digest', label: 'Weekly Intelligence' },
+            { tab: 'connections', label: 'Connections' },
+            { tab: 'activity', label: 'Activity' },
             { tab: 'settings', label: 'Settings' },
           ].map((item) => (
             <button
