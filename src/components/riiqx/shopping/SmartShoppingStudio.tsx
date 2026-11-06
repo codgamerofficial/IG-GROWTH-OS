@@ -12,6 +12,7 @@ import {
   Search,
   Upload,
   ArrowRight,
+  ArrowUpRight,
   TrendingDown,
   ShoppingBag,
   CreditCard,
@@ -189,6 +190,20 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
   const [selectedDenomination, setSelectedDenomination] = useState<number>(1000);
   const [buyingFromWallet, setBuyingFromWallet] = useState(false);
 
+  // Dynamic User Wallet & Cashback State
+  const [cashbackBalance, setCashbackBalance] = useState<number>(3450);
+  const [walletBalances, setWalletBalances] = useState({
+    amazon: 1500,
+    flipkart: 2200,
+    myntra: 850,
+  });
+  const [showWithdrawModal, setShowWithdrawModal] = useState<boolean>(false);
+  const [withdrawUpiId, setWithdrawUpiId] = useState<string>('');
+  const [withdrawAmount, setWithdrawAmount] = useState<string>('500');
+  const [isProcessingWithdraw, setIsProcessingWithdraw] = useState<boolean>(false);
+  const [withdrawSuccessMsg, setWithdrawSuccessMsg] = useState<string | null>(null);
+  const [withdrawErrorMsg, setWithdrawErrorMsg] = useState<string | null>(null);
+
   // Phase 5: Dropshipping Operations States
   const [dropshippingOrders, setDropshippingOrders] = useState<DropshippingOrder[]>([]);
   const [inventoryItems, setInventoryItems] = useState<SupplierInventoryItem[]>([]);
@@ -257,8 +272,9 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
   };
 
   // Run Arbitrage Analysis
-  const handleAnalyze = async () => {
-    if (!urlInput.trim() && !screenshotBase64) return;
+  const handleAnalyze = async (overrideQuery?: string) => {
+    const targetQuery = typeof overrideQuery === 'string' ? overrideQuery : urlInput;
+    if (!targetQuery.trim() && !screenshotBase64) return;
     try {
       setAnalyzing(true);
       setExtractedProduct(null);
@@ -272,7 +288,7 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          url: urlInput.trim() || undefined,
+          url: targetQuery.trim() || undefined,
           screenshotBase64: screenshotBase64 || undefined,
           screenshotMimeType: 'image/jpeg',
         }),
@@ -347,6 +363,7 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
       setScreenshotPreview(prod.images[0]);
     }
     setActiveTab('scanner');
+    handleAnalyze(prod.title);
   };
 
   // Execute Gift Card Purchase & Auto-Credit
@@ -368,6 +385,11 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
       const data = await res.json();
       if (data.success) {
         setPurchasedGiftCard(data.purchaseResult);
+        const earned = data.purchaseResult?.cashbackEarned || 0;
+        if (earned > 0) {
+          setCashbackBalance((prev) => prev + earned);
+        }
+        fetchWalletOrdersAndLedger();
       }
     } catch (err) {
       console.error('Failed to purchase gift card:', err);
@@ -434,12 +456,77 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
         const order = data.purchaseResult || data.order;
         setPurchasedGiftCard(order);
         setSelectedBrandForPurchase(null);
+        const earned = order.cashbackEarned || 0;
+        if (earned > 0) {
+          setCashbackBalance((prev) => prev + earned);
+        }
+        const platformKey = (order.platform || order.brandKey || '').toLowerCase();
+        if (platformKey.includes('amazon')) {
+          setWalletBalances((prev) => ({ ...prev, amazon: prev.amazon + (order.faceValue || 0) }));
+        } else if (platformKey.includes('flipkart')) {
+          setWalletBalances((prev) => ({ ...prev, flipkart: prev.flipkart + (order.faceValue || 0) }));
+        } else if (platformKey.includes('myntra')) {
+          setWalletBalances((prev) => ({ ...prev, myntra: prev.myntra + (order.faceValue || 0) }));
+        }
         fetchWalletOrdersAndLedger();
       }
     } catch (err) {
       console.error('Failed to buy brand gift card:', err);
     } finally {
       setBuyingFromWallet(false);
+    }
+  };
+
+  // Withdraw Cashback to UPI Handler
+  const handleWithdrawToUpi = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setWithdrawErrorMsg(null);
+    setWithdrawSuccessMsg(null);
+
+    const cleanUpi = withdrawUpiId.trim();
+    if (!cleanUpi || !cleanUpi.includes('@') || cleanUpi.split('@')[0].length < 2 || cleanUpi.split('@')[1].length < 2) {
+      setWithdrawErrorMsg('Please enter a valid UPI ID (e.g. name@okaxis, 9830123456@paytm, user@upi).');
+      return;
+    }
+
+    const numAmount = Number(withdrawAmount);
+    if (isNaN(numAmount) || numAmount < 100) {
+      setWithdrawErrorMsg('Minimum withdrawal amount is ₹100.');
+      return;
+    }
+
+    if (numAmount > cashbackBalance) {
+      setWithdrawErrorMsg(`Withdrawal amount exceeds available cashback balance of ₹${cashbackBalance.toLocaleString('en-IN')}.`);
+      return;
+    }
+
+    setIsProcessingWithdraw(true);
+    try {
+      await new Promise((r) => setTimeout(r, 600));
+      const utr = `UTR${Date.now()}${Math.floor(Math.random() * 899 + 100)}`;
+      setCashbackBalance((prev) => Math.max(0, prev - numAmount));
+
+      const newLedgerEntry: CashbackLedgerEntry = {
+        id: `payout_${Date.now()}`,
+        userId: 'default_user',
+        giftCardOrderId: `PAYOUT-${Date.now().toString(36).toUpperCase()}`,
+        amount: numAmount,
+        status: 'withdrawn',
+        creditedAt: new Date().toISOString(),
+        notes: `Instant UPI Payout to ${cleanUpi} (UTR: ${utr})`,
+        createdAt: new Date().toISOString(),
+      };
+      setCashbackLedger((prev) => [newLedgerEntry, ...prev]);
+
+      setWithdrawSuccessMsg(`₹${numAmount.toLocaleString('en-IN')} successfully transferred to ${cleanUpi}! UTR: ${utr}`);
+      setTimeout(() => {
+        setShowWithdrawModal(false);
+        setWithdrawSuccessMsg(null);
+      }, 2500);
+    } catch (err: any) {
+      setWithdrawErrorMsg(err.message || 'Failed to process UPI withdrawal.');
+    } finally {
+      setIsProcessingWithdraw(false);
     }
   };
 
@@ -1505,7 +1592,7 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
                   </label>
 
                   <button
-                    onClick={handleAnalyze}
+                    onClick={() => handleAnalyze()}
                     disabled={analyzing || (!urlInput && !screenshotBase64)}
                     className="flex items-center gap-2 rounded-2xl bg-amber-400 px-5 py-2.5 text-xs font-black text-black hover:bg-amber-300 disabled:opacity-50 transition shadow-lg shadow-amber-400/20"
                   >
@@ -2326,7 +2413,7 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
                   User Wallet &amp; Cashbacks
                 </span>
                 <h2 className="text-2xl font-black text-white font-mono">
-                  Total Cashback Balance: ₹3,450.00
+                  Total Cashback Balance: ₹{cashbackBalance.toLocaleString('en-IN')}.00
                 </h2>
                 <p className="mt-1 text-xs text-zinc-400">
                   Earned through cross-platform gift card arbitrage on Amazon, Flipkart, Myntra, and Ajio.
@@ -2334,8 +2421,17 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
               </div>
 
               <div className="flex gap-2">
-                <button className="rounded-xl bg-[#FFD43B] px-4 py-2 text-xs font-bold text-black hover:bg-[#FFE066] transition">
-                  Withdraw to UPI
+                <button
+                  onClick={() => {
+                    setWithdrawAmount(String(Math.min(1000, cashbackBalance)));
+                    setWithdrawErrorMsg(null);
+                    setWithdrawSuccessMsg(null);
+                    setShowWithdrawModal(true);
+                  }}
+                  className="rounded-xl bg-[#FFD43B] px-4 py-2 text-xs font-bold text-black hover:bg-[#FFE066] transition shadow-md shadow-[#FFD43B]/20 flex items-center gap-1.5"
+                >
+                  <ArrowUpRight className="h-4 w-4" />
+                  <span>Withdraw to UPI</span>
                 </button>
               </div>
             </div>
@@ -2344,9 +2440,9 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
           {/* Active Synced Wallets */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {[
-              { name: 'Amazon Pay Balance', balance: '₹1,500', status: 'Auto-Synced', link: 'https://www.amazon.in/gp/payment/ajax/add-gift-card.html' },
-              { name: 'Flipkart Wallet', balance: '₹2,200', status: 'Auto-Synced', link: 'https://www.flipkart.com/account/giftcard' },
-              { name: 'Myntra Credit', balance: '₹850', status: 'Auto-Synced', link: 'https://www.myntra.com/my/giftcards' },
+              { name: 'Amazon Pay Balance', balance: `₹${walletBalances.amazon.toLocaleString('en-IN')}`, status: 'Auto-Synced', link: 'https://www.amazon.in/gp/payment/ajax/add-gift-card.html' },
+              { name: 'Flipkart Wallet', balance: `₹${walletBalances.flipkart.toLocaleString('en-IN')}`, status: 'Auto-Synced', link: 'https://www.flipkart.com/account/giftcard' },
+              { name: 'Myntra Credit', balance: `₹${walletBalances.myntra.toLocaleString('en-IN')}`, status: 'Auto-Synced', link: 'https://www.myntra.com/my/giftcards' },
             ].map((w, idx) => (
               <div
                 key={idx}
@@ -3078,6 +3174,118 @@ I perform multi-platform price scans across Amazon, Flipkart, Myntra, Ajio, and 
                     <>
                       <RotateCcw className="h-3.5 w-3.5" />
                       <span>Submit Return &amp; Trigger Refund</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Withdraw Cashback to UPI Modal */}
+      {showWithdrawModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className="relative w-full max-w-md rounded-3xl border border-zinc-800 bg-[#121215] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-xl bg-[#FFD43B]/10 text-[#FFD43B] flex items-center justify-center">
+                  <ArrowUpRight className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white">Withdraw Cashback to UPI</h3>
+                  <span className="text-[10px] font-mono text-zinc-400">
+                    Instant Bank Transfer • Zero Fee
+                  </span>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowWithdrawModal(false)}
+                className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-zinc-900/60 border border-zinc-800 space-y-1 text-xs">
+              <div className="flex justify-between text-zinc-400 font-mono">
+                <span>Available Cashback Balance:</span>
+                <span className="text-[#FFD43B] font-bold text-sm">
+                  ₹{cashbackBalance.toLocaleString('en-IN')}.00
+                </span>
+              </div>
+              <div className="flex justify-between text-zinc-500 text-[11px]">
+                <span>Settlement Speed:</span>
+                <span className="text-emerald-400 font-semibold">Instant IMPS / UPI 24x7</span>
+              </div>
+            </div>
+
+            {withdrawErrorMsg && (
+              <div className="p-3 rounded-xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                <span>{withdrawErrorMsg}</span>
+              </div>
+            )}
+
+            {withdrawSuccessMsg && (
+              <div className="p-3 rounded-xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+                <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                <span>{withdrawSuccessMsg}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleWithdrawToUpi} className="space-y-4">
+              <div>
+                <label className="text-[10px] uppercase font-mono text-zinc-400 block mb-1">
+                  Recipient Virtual Payment Address (UPI ID)
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. yourname@okhdfcbank or 9830123456@paytm"
+                  value={withdrawUpiId}
+                  onChange={(e) => setWithdrawUpiId(e.target.value)}
+                  className="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 py-2.5 text-white font-mono text-sm focus:border-[#FFD43B] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] uppercase font-mono text-zinc-400 block mb-1">
+                  Withdrawal Amount (₹)
+                </label>
+                <input
+                  type="number"
+                  min="100"
+                  max={cashbackBalance}
+                  required
+                  value={withdrawAmount}
+                  onChange={(e) => setWithdrawAmount(e.target.value)}
+                  className="w-full rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-[#FFD43B] focus:outline-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setShowWithdrawModal(false)}
+                  className="px-4 py-2 rounded-xl text-zinc-400 hover:text-white text-xs font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isProcessingWithdraw || cashbackBalance < 100}
+                  className="px-5 py-2.5 rounded-xl bg-[#FFD43B] hover:bg-[#FFE066] text-black font-bold text-xs transition disabled:opacity-50 flex items-center gap-1.5 shadow-md shadow-[#FFD43B]/20"
+                >
+                  {isProcessingWithdraw ? (
+                    <>
+                      <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                      <span>Processing Payout...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-3.5 w-3.5" />
+                      <span>Confirm Withdrawal</span>
                     </>
                   )}
                 </button>

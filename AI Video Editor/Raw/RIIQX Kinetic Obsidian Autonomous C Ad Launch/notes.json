@@ -1,0 +1,103 @@
+{
+  "projectId": "proj_ad_1793955122486",
+  "title": "RIIQX Kinetic Obsidian Autonomous Chronograph Watch — Viral Dropshipping Ad",
+  "targetPlatform": "Instagram Reels / TikTok / YouTube Shorts",
+  "aspectRatio": "9:16",
+  "resolution": {
+    "width": 1080,
+    "height": 1920
+  },
+  "fps": 30,
+  "status": "ready_to_edit",
+  "brandKitRef": "Brand Kit/brand-kit.md",
+  "productInfo": {
+    "id": "prod_kinetic_watch_03",
+    "supplierPrice": 1450,
+    "sellingPrice": 3899,
+    "profitMarginPct": 62.8,
+    "imageUrl": "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800&auto=format&fit=crop",
+    "category": "fashion"
+  },
+  "affiliate": {
+    "referralCode": "ref_creatorstudio01_tch_03_k7jq",
+    "canonicalReferralUrl": "https://riiqx.com/p/prod_kinetic_watch_03?ref=ref_creatorstudio01_tch_03_k7jq&camp=vid_ad_riiqx_kinetic_obsidian_autonomous_c&utm_source=riiqx_creator_ad",
+    "commissionRatePct": 8.5
+  },
+  "beats": [
+    {
+      "beatNumber": 1,
+      "timecode": "00:00 - 00:03.0",
+      "durationSeconds": 3,
+      "speechTranscript": "Why pay ₹25,000 for a luxury watch when Grade 5 Titanium looks like this?",
+      "visualDirection": "Extreme 1.1x punch-in on problem scenario, fast cut to RIIQX Kinetic Obsidian Autonomous Chronograph Watch beauty shot with neon ambient glow.",
+      "captions": "WHY PAY ₹25,000 FOR A LUXURY WATCH WHEN ",
+      "captionStyle": {
+        "highlightColor": "#FFD43B",
+        "animation": "pop_bounce"
+      },
+      "bRoll": "problem_scenario_hook.mp4",
+      "assets": [
+        "warning_icon.png",
+        "whoosh_sfx.wav"
+      ],
+      "approval": "approved"
+    },
+    {
+      "beatNumber": 2,
+      "timecode": "00:03.0 - 00:07.0",
+      "durationSeconds": 4,
+      "speechTranscript": "Meet the RIIQX Kinetic Obsidian Autonomous Chronograph Watch. Autonomous titanium timepiece with electric gold sub-dials, sapphire crystal anti-ref...",
+      "visualDirection": "360 rotating 3D turntable perspective with floating cyan feature badges.",
+      "captions": "ENGINEERED FOR MAXIMUM PERFORMANCE",
+      "captionStyle": {
+        "highlightColor": "#06B6D4",
+        "animation": "karaoke_flow"
+      },
+      "bRoll": "product_360_rotate.mp4",
+      "assets": [
+        "spec_pill.png",
+        "digital_click.wav"
+      ],
+      "approval": "approved"
+    },
+    {
+      "beatNumber": 3,
+      "timecode": "00:07.0 - 00:11.0",
+      "durationSeconds": 4,
+      "speechTranscript": "Regular retail stores charge way more, but you can get it for only ₹3,899 with instant free shipping!",
+      "visualDirection": "Side-by-side price comparison graphic slashing high retail price down to ₹3,899.",
+      "captions": "ONLY ₹3,899 — LIMITED STOCK!",
+      "captionStyle": {
+        "highlightColor": "#10B981",
+        "animation": "pop_bounce"
+      },
+      "bRoll": "unboxing_lifestyle.mp4",
+      "assets": [
+        "price_badge.png",
+        "cash_register.wav"
+      ],
+      "approval": "approved"
+    },
+    {
+      "beatNumber": 4,
+      "timecode": "00:11.0 - 00:15.0",
+      "durationSeconds": 4,
+      "speechTranscript": "Tap the link in bio or use code RIIQX10 to order yours now before it sells out!",
+      "visualDirection": "Animated CTA arrow pointing down to link in bio with pulsing amber order button.",
+      "captions": "TAP LINK IN BIO TO ORDER NOW!",
+      "captionStyle": {
+        "highlightColor": "#FFD43B",
+        "animation": "pulse"
+      },
+      "bRoll": "outro_lifestyle.mp4",
+      "assets": [
+        "cta_arrow.png",
+        "riser_braam.wav"
+      ],
+      "approval": "approved"
+    }
+  ],
+  "creatorFeedbackNotes": "High-converting dropshipping template pre-loaded with viral pacing rules and trackable affiliate link.",
+  "createdAt": "2026-11-06T08:52:02.486Z",
+  "updatedAt": "2026-11-06T08:52:02.486Z"
+}

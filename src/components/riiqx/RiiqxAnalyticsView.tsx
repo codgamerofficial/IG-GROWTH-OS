@@ -89,6 +89,16 @@ export function RiiqxAnalyticsView() {
   const [isDiscoveringPages, setIsDiscoveringPages] = useState<boolean>(false);
   const [pagesActionMessage, setPagesActionMessage] = useState<string | null>(null);
 
+  // Instagram Profile Telemetry Sync Modal State
+  const [isIgSyncModalOpen, setIsIgSyncModalOpen] = useState<boolean>(false);
+  const [selectedIgAccount, setSelectedIgAccount] = useState<any | null>(null);
+  const [igFollowersInput, setIgFollowersInput] = useState<string>('');
+  const [igMediaInput, setIgMediaInput] = useState<string>('');
+  const [igBioInput, setIgBioInput] = useState<string>('');
+  const [isSavingIgTelemetry, setIsSavingIgTelemetry] = useState<boolean>(false);
+  const [igSyncSuccessMsg, setIgSyncSuccessMsg] = useState<string | null>(null);
+  const [igSyncErrorMsg, setIgSyncErrorMsg] = useState<string | null>(null);
+
   // Cross-Account Comparison State
   const [compareAccountAId, setCompareAccountAId] = useState<string>('');
   const [compareAccountBId, setCompareAccountBId] = useState<string>('');
@@ -115,6 +125,43 @@ export function RiiqxAnalyticsView() {
       setIsSyncing(false);
     }
   }, [selectedAccountId, selectedPlatform, timeRange]);
+
+  const handleSaveIgTelemetry = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedIgAccount) return;
+    setIsSavingIgTelemetry(true);
+    setIgSyncErrorMsg(null);
+    setIgSyncSuccessMsg(null);
+
+    try {
+      const res = await fetch('/api/social/accounts/instagram/telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accountId: selectedIgAccount.id,
+          followersCount: igFollowersInput.trim() !== '' ? Number(igFollowersInput) : undefined,
+          mediaCount: igMediaInput.trim() !== '' ? Number(igMediaInput) : undefined,
+          bio: igBioInput.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setIgSyncSuccessMsg(data.message || 'Instagram profile metrics verified & saved!');
+        await fetchLiveAnalytics();
+        setTimeout(() => {
+          setIsIgSyncModalOpen(false);
+          setIgSyncSuccessMsg(null);
+        }, 1500);
+      } else {
+        setIgSyncErrorMsg(data.error || 'Failed to save telemetry.');
+      }
+    } catch (err: any) {
+      setIgSyncErrorMsg(err.message || 'Network error.');
+    } finally {
+      setIsSavingIgTelemetry(false);
+    }
+  };
 
   const fetchDiscoveredPages = useCallback(async () => {
     setIsDiscoveringPages(true);
@@ -568,9 +615,24 @@ export function RiiqxAnalyticsView() {
                                 )}
                               </div>
                               <div className="text-base font-black text-[#202124] dark:text-white">
-                                {primaryMetric?.value !== null && primaryMetric?.value !== undefined
-                                  ? primaryMetric.value.toLocaleString()
-                                  : 'Not Available'}
+                                {primaryMetric?.value !== null && primaryMetric?.value !== undefined ? (
+                                  primaryMetric.value.toLocaleString()
+                                ) : isIg ? (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedIgAccount(acc);
+                                      setIgFollowersInput('');
+                                      setIgMediaInput('');
+                                      setIsIgSyncModalOpen(true);
+                                    }}
+                                    className="text-xs font-semibold text-[#FFD43B] hover:underline flex items-center gap-1"
+                                  >
+                                    <span>Sync Live</span>
+                                    <SlidersHorizontal className="w-3 h-3" />
+                                  </button>
+                                ) : (
+                                  'Not Available'
+                                )}
                               </div>
                             </div>
 
@@ -582,9 +644,24 @@ export function RiiqxAnalyticsView() {
                                 )}
                               </div>
                               <div className="text-base font-black text-[#202124] dark:text-white">
-                                {secondaryMetric?.value !== null && secondaryMetric?.value !== undefined
-                                  ? secondaryMetric.value.toLocaleString()
-                                  : 'Not Available'}
+                                {secondaryMetric?.value !== null && secondaryMetric?.value !== undefined ? (
+                                  secondaryMetric.value.toLocaleString()
+                                ) : isIg ? (
+                                  <button
+                                    onClick={() => {
+                                      setSelectedIgAccount(acc);
+                                      setIgFollowersInput('');
+                                      setIgMediaInput('');
+                                      setIsIgSyncModalOpen(true);
+                                    }}
+                                    className="text-xs font-semibold text-[#FFD43B] hover:underline flex items-center gap-1"
+                                  >
+                                    <span>Sync Live</span>
+                                    <SlidersHorizontal className="w-3 h-3" />
+                                  </button>
+                                ) : (
+                                  'Not Available'
+                                )}
                               </div>
                             </div>
                           </div>
@@ -592,6 +669,29 @@ export function RiiqxAnalyticsView() {
 
                         {/* Actions & Warnings */}
                         <div className="space-y-2 pt-1">
+                          {/* Instagram Verified Profile Telemetry Sync Action */}
+                          {isIg && isConnected && (
+                            <button
+                              onClick={() => {
+                                setSelectedIgAccount(acc);
+                                setIgFollowersInput(
+                                  primaryMetric?.value !== null && primaryMetric?.value !== undefined
+                                    ? String(primaryMetric.value)
+                                    : ''
+                                );
+                                setIgMediaInput(
+                                  secondaryMetric?.value !== null && secondaryMetric?.value !== undefined
+                                    ? String(secondaryMetric.value)
+                                    : ''
+                                );
+                                setIsIgSyncModalOpen(true);
+                              }}
+                              className="flex items-center justify-center gap-1.5 w-full py-1.5 px-3 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/30 text-[11px] font-bold transition"
+                            >
+                              <SlidersHorizontal className="w-3 h-3" />
+                              <span>Verify / Sync Profile Metrics</span>
+                            </button>
+                          )}
                           {/* Reconnect Action if Expired */}
                           {!isConnected && (
                             <a
@@ -1701,6 +1801,119 @@ export function RiiqxAnalyticsView() {
                   Done
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Instagram Real Profile Telemetry Sync Modal */}
+        {isIgSyncModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs">
+            <div className="w-full max-w-lg rounded-3xl bg-white dark:bg-[#141418] border border-[#EAE7E1] dark:border-white/[0.08] p-6 shadow-2xl space-y-5">
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-[#EAE7E1] dark:border-white/[0.08] pb-3.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-[#FF6B5E]/10 text-[#FF6B5E] flex items-center justify-center">
+                    <Instagram className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-[#202124] dark:text-white">
+                      Verify &amp; Sync Instagram Metrics
+                    </h3>
+                    <p className="text-[11px] text-[#737373]">
+                      Connected Creator @{selectedIgAccount?.username || 'iam.riik'} • Zero Simulation
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setIsIgSyncModalOpen(false)}
+                  className="p-1.5 rounded-xl text-[#737373] hover:text-[#202124] dark:hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Status alerts */}
+              {igSyncSuccessMsg && (
+                <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <span>{igSyncSuccessMsg}</span>
+                </div>
+              )}
+
+              {igSyncErrorMsg && (
+                <div className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>{igSyncErrorMsg}</span>
+                </div>
+              )}
+
+              <div className="p-3 rounded-2xl bg-[#FAF9F6] dark:bg-[#18181C] border border-[#EAE7E1] dark:border-white/[0.05] text-xs text-[#737373] space-y-1">
+                <div className="font-semibold text-[#202124] dark:text-white flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Authentic Data Verification</span>
+                </div>
+                <p className="text-[11px]">
+                  If your personal or creator Instagram profile is not linked to a Facebook Page inside Meta Business Suite, Meta Graph API cannot auto-read your follower stats. Enter your real numbers below to sync genuine analytics without simulated mock data.
+                </p>
+              </div>
+
+              <form onSubmit={handleSaveIgTelemetry} className="space-y-4">
+                <div>
+                  <label className="text-[11px] font-bold text-[#737373] block mb-1">
+                    Instagram Follower Count
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 1500"
+                    value={igFollowersInput}
+                    onChange={(e) => setIgFollowersInput(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F6] dark:bg-[#18181C] border border-[#EAE7E1] dark:border-white/[0.08] text-sm font-bold text-[#202124] dark:text-white focus:outline-none focus:border-[#FFD43B]"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-[#737373] block mb-1">
+                    Published Media / Posts Count
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 45"
+                    value={igMediaInput}
+                    onChange={(e) => setIgMediaInput(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-[#FAF9F6] dark:bg-[#18181C] border border-[#EAE7E1] dark:border-white/[0.08] text-sm font-bold text-[#202124] dark:text-white focus:outline-none focus:border-[#FFD43B]"
+                  />
+                </div>
+
+                <div className="pt-2 flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsIgSyncModalOpen(false)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-[#737373] hover:text-[#202124] dark:hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingIgTelemetry}
+                    className="px-5 py-2 rounded-xl bg-[#FFD43B] hover:bg-[#FFC928] text-black text-xs font-bold transition flex items-center gap-1.5 disabled:opacity-50"
+                  >
+                    {isSavingIgTelemetry ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        <span>Saving Telemetry...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5" />
+                        <span>Save &amp; Sync Metrics</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

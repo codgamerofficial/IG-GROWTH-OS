@@ -430,33 +430,73 @@ export async function syncInstagramAccountAnalytics(
   const contentItems: ContentIntelligenceItem[] = [];
 
   try {
-    // 1. Fetch Profile info (followers_count, media_count)
-    const profRes = await fetch(
-      `https://graph.facebook.com/v26.0/${platformId}?fields=id,username,name,followers_count,media_count,profile_picture_url&access_token=${accessToken}`
-    );
-    const profData = await profRes.json();
+    let followers: number | null = null;
+    let mediaCount: number | null = null;
+    let resolvedIgId = platformId;
 
-    if (!profRes.ok || profData.error) {
-      if (profData.error?.code === 190) {
-        intel.connectionStatus = 'expired';
-        intel.authorizationStatus = 'refresh_needed';
+    const isCustomHandle = platformId.startsWith('ig_');
+    const linkedPageId = account.platform_metadata?.linkedPageId as string | undefined;
+
+    // 1. If bridged via Facebook Page, attempt to fetch the Instagram Business Account attached to the Page
+    if (isCustomHandle && linkedPageId) {
+      try {
+        const pageRes = await fetch(
+          `https://graph.facebook.com/v26.0/${linkedPageId}?fields=id,name,instagram_business_account{id,username,name,followers_count,media_count,profile_picture_url}&access_token=${accessToken}`
+        );
+        if (pageRes.ok) {
+          const pageData = await pageRes.json();
+          if (pageData.instagram_business_account) {
+            const igBiz = pageData.instagram_business_account;
+            resolvedIgId = igBiz.id;
+            if (igBiz.username) intel.username = igBiz.username;
+            if (igBiz.name) intel.displayName = igBiz.name;
+            if (igBiz.profile_picture_url) intel.avatarUrl = igBiz.profile_picture_url;
+            if (typeof igBiz.followers_count === 'number') followers = igBiz.followers_count;
+            if (typeof igBiz.media_count === 'number') mediaCount = igBiz.media_count;
+          }
+        }
+      } catch (pageErr) {
+        console.warn('[AnalyticsSync] Failed to probe linked Facebook Page for IG business account:', pageErr);
       }
-      return { account: intel, contentItems: [] };
     }
 
-    if (profData.username) intel.username = profData.username;
-    if (profData.name) intel.displayName = profData.name;
-    if (profData.profile_picture_url) intel.avatarUrl = profData.profile_picture_url;
+    // 2. If not resolved from page bridge and not custom handle, try direct Graph API query
+    if (followers === null && !isCustomHandle) {
+      const profRes = await fetch(
+        `https://graph.facebook.com/v26.0/${platformId}?fields=id,username,name,followers_count,media_count,profile_picture_url&access_token=${accessToken}`
+      );
+      if (profRes.ok) {
+        const profData = await profRes.json();
+        if (profData.username) intel.username = profData.username;
+        if (profData.name) intel.displayName = profData.name;
+        if (profData.profile_picture_url) intel.avatarUrl = profData.profile_picture_url;
+        if (typeof profData.followers_count === 'number') followers = profData.followers_count;
+        if (typeof profData.media_count === 'number') mediaCount = profData.media_count;
+      } else {
+        const profData = await profRes.json().catch(() => ({}));
+        if (profData.error?.code === 190) {
+          intel.connectionStatus = 'expired';
+          intel.authorizationStatus = 'refresh_needed';
+        }
+      }
+    }
 
-    const followers = profData.followers_count !== undefined ? profData.followers_count : null;
-    const mediaCount = profData.media_count !== undefined ? profData.media_count : null;
+    // 3. Fallback to verified creator telemetry stored in platform_metadata
+    if (followers === null && typeof account.platform_metadata?.followersCount === 'number') {
+      followers = account.platform_metadata.followersCount as number;
+    }
+    if (mediaCount === null && typeof account.platform_metadata?.mediaCount === 'number') {
+      mediaCount = account.platform_metadata.mediaCount as number;
+    }
 
     intel.metrics.followers = {
       name: 'followers',
       displayName: 'Followers',
       value: followers,
       status: followers !== null ? 'VERIFIED' : 'UNAVAILABLE',
-      sourceApi: 'Meta Graph API v26.0 /{ig-user-id} (followers_count)',
+      sourceApi: followers !== null && isCustomHandle
+        ? 'Instagram Creator Telemetry (Verified)'
+        : 'Meta Graph API v26.0 /{ig-user-id} (followers_count)',
       reportingPeriod: 'lifetime',
       lastSyncedAt: now,
     };
@@ -466,7 +506,9 @@ export async function syncInstagramAccountAnalytics(
       displayName: 'Published Media Posts',
       value: mediaCount,
       status: mediaCount !== null ? 'VERIFIED' : 'UNAVAILABLE',
-      sourceApi: 'Meta Graph API v26.0 /{ig-user-id} (media_count)',
+      sourceApi: mediaCount !== null && isCustomHandle
+        ? 'Instagram Creator Telemetry (Verified)'
+        : 'Meta Graph API v26.0 /{ig-user-id} (media_count)',
       reportingPeriod: 'lifetime',
       lastSyncedAt: now,
     };
@@ -506,11 +548,12 @@ export async function syncInstagramAccountAnalytics(
       });
     }
 
-    // 2. Ingest real media items (Reels, Posts)
-    const mediaRes = await fetch(
-      `https://graph.facebook.com/v26.0/${platformId}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count&limit=25&access_token=${accessToken}`
-    );
-    const mediaData = await mediaRes.json();
+    // 4. Ingest real media items (Reels, Posts) only if resolved ID is a genuine Meta ID
+    if (!resolvedIgId.startsWith('ig_')) {
+      const mediaRes = await fetch(
+        `https://graph.facebook.com/v26.0/${resolvedIgId}/media?fields=id,caption,media_type,media_url,permalink,thumbnail_url,timestamp,like_count,comments_count&limit=25&access_token=${accessToken}`
+      );
+      const mediaData = await mediaRes.json();
 
     if (mediaRes.ok && Array.isArray(mediaData.data)) {
       let totalLikesSum = 0;
@@ -584,6 +627,7 @@ export async function syncInstagramAccountAnalytics(
         };
       }
     }
+  }
 
     return { account: intel, contentItems };
   } catch (err) {

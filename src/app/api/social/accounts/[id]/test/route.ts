@@ -132,7 +132,7 @@ export async function POST(
       if (isCustomHandle && linkedPageId) {
         // Probe via the bound Facebook Page Access Token
         res = await fetch(
-          `https://graph.facebook.com/v26.0/${linkedPageId}?fields=id,name,instagram_business_account{id,username,name,followers_count,media_count}&access_token=${accessToken}`
+          `https://graph.facebook.com/v26.0/${linkedPageId}?fields=id,name,instagram_business_account{id,username,name,followers_count,media_count},connected_instagram_account,instagram_accounts{id,username}&access_token=${accessToken}`
         );
       } else {
         res = await fetch(
@@ -142,6 +142,7 @@ export async function POST(
 
       const latencyMs = Date.now() - startTime;
       data = await res.json();
+      console.log('INSTAGRAM TEST DATA:', JSON.stringify(data, null, 2));
 
       if (!res.ok || data.error) {
         // Fallback: If direct IG ID probe failed but has linkedPageId, probe page token
@@ -181,16 +182,19 @@ export async function POST(
       await updateAccountStatus(accountId, userId, 'connected');
 
       const igDetail = data.instagram_business_account || data;
+      const metadataFollowers = account.platform_metadata?.followersCount as number | undefined;
+      const metadataMedia = account.platform_metadata?.mediaCount as number | undefined;
+
       return NextResponse.json({
         success: true,
         latencyMs,
         provider: 'instagram',
         status: 'connected',
         details: {
-          username: igDetail.username || account.account_handle?.replace(/^@/, ''),
+          username: igDetail.username || account.account_handle?.replace(/^@/, '') || account.account_name,
           name: igDetail.name || account.account_name,
-          followersCount: igDetail.followers_count ?? igDetail.followersCount,
-          mediaCount: igDetail.media_count ?? igDetail.mediaCount,
+          followersCount: igDetail.followers_count ?? igDetail.followersCount ?? metadataFollowers,
+          mediaCount: igDetail.media_count ?? igDetail.mediaCount ?? metadataMedia,
         },
       });
     }
