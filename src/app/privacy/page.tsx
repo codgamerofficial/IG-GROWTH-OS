@@ -190,19 +190,19 @@ export default function PrivacyPage() {
             <span className="w-6 h-6 rounded-full bg-[#16865D] text-white text-xs font-bold inline-flex items-center justify-center">
               4
             </span>
-            Your Rights: Export &amp; Right to Be Forgotten
+            DPDP Act 2023 &amp; Global Data Principal Rights
           </h2>
           <div className="space-y-3 text-xs sm:text-sm text-[#5F6368] dark:text-[#9CA3AF] leading-relaxed">
             <p>
-              Under global data privacy regulations (GDPR, CCPA, and Indian Digital Personal Data Protection Act):
+              Under India&apos;s <strong>Digital Personal Data Protection (DPDP) Act, 2023</strong> and international data protection standards (GDPR, CCPA), you are guaranteed specific statutory rights as a Data Principal:
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               <div className="p-4 rounded-2xl border border-[#EAE7E1] dark:border-[#27282D] bg-[#FAF9F6] dark:bg-[#121316] flex items-start gap-3">
                 <Download className="w-5 h-5 text-[#16865D] shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-bold text-xs text-[#202124] dark:text-white">Full Workspace Export</h4>
+                  <h4 className="font-bold text-xs text-[#202124] dark:text-white">Right to Access &amp; Portability</h4>
                   <p className="text-[11px] text-[#737373] dark:text-[#9CA3AF] mt-1">
-                    Download an encrypted ZIP archive containing all scripts, storyboards, and publishing logs at any time from Settings.
+                    Export your complete transaction history, creator scripts, and account logs at any time in machine-readable JSON format.
                   </p>
                 </div>
               </div>
@@ -210,12 +210,15 @@ export default function PrivacyPage() {
               <div className="p-4 rounded-2xl border border-[#EAE7E1] dark:border-[#27282D] bg-[#FAF9F6] dark:bg-[#121316] flex items-start gap-3">
                 <Trash2 className="w-5 h-5 text-[#FF4D4F] shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-bold text-xs text-[#202124] dark:text-white">Permanent Purge</h4>
+                  <h4 className="font-bold text-xs text-[#202124] dark:text-white">Right to Erasure (&quot;Right to be Forgotten&quot;)</h4>
                   <p className="text-[11px] text-[#737373] dark:text-[#9CA3AF] mt-1">
-                    Delete your profile, revoke all connected channel tokens, and purge database records permanently with zero residue.
+                    Delete your profile, revoke social platform tokens, and purge all customer database records permanently within 48 hours.
                   </p>
                 </div>
               </div>
+            </div>
+            <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200">
+              <strong>Zero Financial Credential Access:</strong> RIIQX never asks for, records, scrapes, or stores bank login credentials, UPI PINs, netbanking passwords, or one-time passwords (OTPs). Shopping screenshots analyzed by vision AI are processed ephemerally and discarded immediately after OCR analysis.
             </div>
           </div>
         </section>
@@ -226,14 +229,29 @@ export default function PrivacyPage() {
             <span className="w-6 h-6 rounded-full bg-[#16865D] text-white text-xs font-bold inline-flex items-center justify-center">
               5
             </span>
-            Privacy Officer &amp; Security Contact
+            Data Protection &amp; Grievance Redressal Officer
           </h2>
           <div className="space-y-3 text-xs sm:text-sm text-[#5F6368] dark:text-[#9CA3AF] leading-relaxed">
             <p>
-              If you have any questions regarding data handling, cryptographic safeguards, or wish to submit a data erasure request, contact our Data Governance Officer:
+              For privacy inquiries, statutory DPDP Act requests, or grievance escalation, please reach out to our designated Data Protection &amp; Grievance Redressal Officer:
             </p>
-            <div className="p-3.5 rounded-2xl bg-[#FAF9F6] dark:bg-[#121316] border border-[#EAE7E1] dark:border-[#27282D] text-xs font-mono">
-              privacy@riiqx.ai • Security &amp; Privacy Office, RIIQX Labs, Kolkata, India
+            <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#121316] border border-[#EAE7E1] dark:border-[#27282D] space-y-2 text-xs">
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span className="text-[#737373] dark:text-[#9CA3AF]">Officer Name:</span>
+                <strong className="text-[#202124] dark:text-white">Saswata Dey</strong>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span className="text-[#737373] dark:text-[#9CA3AF]">Official Email:</span>
+                <a href="mailto:grievance@riiqx.com" className="text-[#16865D] font-mono hover:underline">grievance@riiqx.com</a>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span className="text-[#737373] dark:text-[#9CA3AF]">Statutory Redressal Window:</span>
+                <span className="text-[#202124] dark:text-white">48 hours acknowledgment • 30 days resolution</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span className="text-[#737373] dark:text-[#9CA3AF]">Postal Address:</span>
+                <span className="text-[#202124] dark:text-white">Data Governance Office, RIIQX Labs, Salt Lake Sector V, Kolkata, WB 700091, India</span>
+              </div>
             </div>
           </div>
         </section>

@@ -216,11 +216,87 @@ export default function TermsPage() {
           </div>
         </section>
 
-        {/* Section 6: Contact & Inquiries */}
+        {/* Section 6: E-Commerce, Arbitrage & Indian Regulatory Compliance */}
         <section className="space-y-3.5 bg-white dark:bg-[#1A1B20] p-6 sm:p-8 rounded-3xl border border-[#EAE7E1] dark:border-[#2E3038] shadow-xs">
           <h2 className="text-lg sm:text-xl font-black text-[#202124] dark:text-white flex items-center gap-2.5">
             <span className="w-6 h-6 rounded-full bg-[#FFD43B] text-[#202124] text-xs font-bold inline-flex items-center justify-center">
               6
+            </span>
+            E-Commerce Operations &amp; Consumer Protection Compliance
+          </h2>
+          <div className="space-y-3 text-xs sm:text-sm text-[#5F6368] dark:text-[#9CA3AF] leading-relaxed">
+            <p>
+              RIIQX operates in strict adherence to the <strong>Consumer Protection (E-Commerce) Rules, 2020</strong> and its 2026 statutory amendments under the Ministry of Consumer Affairs, Government of India.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div className="p-3.5 rounded-2xl bg-[#FAF9F6] dark:bg-[#121316] border border-[#EAE7E1] dark:border-[#27282D]">
+                <h4 className="font-bold text-xs text-[#202124] dark:text-white mb-1">Direct Dropshipping Marketplace</h4>
+                <p className="text-[11px] text-[#5F6368] dark:text-[#9CA3AF] leading-relaxed">
+                  For native products fulfilled by verified suppliers, all prices display transparent GST breakdowns. Verified MRP, country of origin, warranty, and 7-day return/replacement policies are surfaced explicitly prior to checkout.
+                </p>
+              </div>
+              <div className="p-3.5 rounded-2xl bg-[#FAF9F6] dark:bg-[#121316] border border-[#EAE7E1] dark:border-[#27282D]">
+                <h4 className="font-bold text-xs text-[#202124] dark:text-white mb-1">Price Comparison &amp; Arbitrage Engine</h4>
+                <p className="text-[11px] text-[#5F6368] dark:text-[#9CA3AF] leading-relaxed">
+                  Third-party comparisons across Amazon, Flipkart, Myntra, Ajio, Meesho, and Tata CLiQ are compiled from public feeds and verified affiliate relationships. Redirections lead directly to authorized external retailers.
+                </p>
+              </div>
+            </div>
+            <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-900 dark:text-emerald-200 text-xs">
+              <strong>Anti-Dark Patterns Guarantee:</strong> RIIQX prohibits misleading countdown clocks, fabricated stock scarcity badges, simulated discount percentages, and forced continuity checkout models.
+            </div>
+          </div>
+        </section>
+
+        {/* Section 7: Grievance Redressal Mechanism */}
+        <section className="space-y-3.5 bg-white dark:bg-[#1A1B20] p-6 sm:p-8 rounded-3xl border border-[#EAE7E1] dark:border-[#2E3038] shadow-xs">
+          <h2 className="text-lg sm:text-xl font-black text-[#202124] dark:text-white flex items-center gap-2.5">
+            <span className="w-6 h-6 rounded-full bg-[#FFD43B] text-[#202124] text-xs font-bold inline-flex items-center justify-center">
+              7
+            </span>
+            Statutory Grievance Redressal Mechanism
+          </h2>
+          <div className="space-y-3 text-xs sm:text-sm text-[#5F6368] dark:text-[#9CA3AF] leading-relaxed">
+            <p>
+              In accordance with Rule 4(4) of the Information Technology (Intermediary Guidelines and Digital Media Ethics Code) Rules, 2021 and Rule 4(5) of the Consumer Protection (E-Commerce) Rules, 2020, the designated Grievance Officer details are published below:
+            </p>
+            <div className="p-4 rounded-2xl bg-[#FAF9F6] dark:bg-[#121316] border border-[#EAE7E1] dark:border-[#27282D] space-y-2 text-xs">
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span className="text-[#737373] dark:text-[#9CA3AF]">Grievance Officer:</span>
+                <strong className="text-[#202124] dark:text-white">Saswata Dey</strong>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span className="text-[#737373] dark:text-[#9CA3AF]">Designation:</span>
+                <span className="text-[#202124] dark:text-white">Head of Compliance &amp; Grievance Redressal</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span className="text-[#737373] dark:text-[#9CA3AF]">Email Address:</span>
+                <a href="mailto:grievance@riiqx.com" className="text-[#FF6B5E] font-mono hover:underline">grievance@riiqx.com</a>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span className="text-[#737373] dark:text-[#9CA3AF]">Postal Address:</span>
+                <span className="text-[#202124] dark:text-white">RIIQX Technologies, Salt Lake Sector V, Kolkata, WB 700091, India</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1 pt-1 border-t border-[#EAE7E1] dark:border-[#27282D]">
+                <span className="text-[#737373] dark:text-[#9CA3AF]">Acknowledgment Window:</span>
+                <strong className="text-[#16865D] dark:text-[#34D399]">Within 48 hours</strong>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                <span className="text-[#737373] dark:text-[#9CA3AF]">Statutory Resolution Window:</span>
+                <strong className="text-[#16865D] dark:text-[#34D399]">Within 30 calendar days</strong>
+              </div>
+            </div>
+            <p className="text-[11px] text-[#737373] dark:text-[#9CA3AF]">
+              Live compliance status and active statutory registrations can be inspected programmatically at <Link href="/api/compliance/e-commerce" className="text-[#FF6B5E] hover:underline font-mono">/api/compliance/e-commerce</Link>.
+            </p>
+          </div>
+        </section>
+
+        {/* Section 8: Governing Law */}
+        <section className="space-y-3.5 bg-white dark:bg-[#1A1B20] p-6 sm:p-8 rounded-3xl border border-[#EAE7E1] dark:border-[#2E3038] shadow-xs">
+          <h2 className="text-lg sm:text-xl font-black text-[#202124] dark:text-white flex items-center gap-2.5">
+            <span className="w-6 h-6 rounded-full bg-[#FFD43B] text-[#202124] text-xs font-bold inline-flex items-center justify-center">
+              8
             </span>
             Governing Law &amp; Legal Notices
           </h2>
@@ -228,11 +304,8 @@ export default function TermsPage() {
             <p>
               These Terms shall be governed by and construed in accordance with the laws of India. Any legal disputes arising out of these Terms shall be subject to the exclusive jurisdiction of the competent courts in Kolkata, India.
             </p>
-            <p>
-              For formal legal inquiries, contract inquiries, or notice service, please reach out to:
-            </p>
             <div className="p-3.5 rounded-2xl bg-[#FAF9F6] dark:bg-[#121316] border border-[#EAE7E1] dark:border-[#27282D] text-xs font-mono">
-              legal@riiqx.ai • RIIQX Labs, Kolkata, West Bengal, India
+              legal@riiqx.com • RIIQX Labs, Salt Lake Sector V, Kolkata, West Bengal, India
             </div>
           </div>
         </section>

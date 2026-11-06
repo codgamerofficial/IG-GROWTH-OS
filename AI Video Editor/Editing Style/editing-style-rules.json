@@ -3,8 +3,8 @@
   "sourceVideo": "ref_viral_hook_01.mp4",
   "pacing": {
     "hookDurationSeconds": 1.8,
-    "averageShotLengthSeconds": 2.1,
-    "cutsPerMinute": 29
+    "averageShotLengthSeconds": 2,
+    "cutsPerMinute": 30
   },
   "transitions": {
     "defaultTransition": "hard_cut",
@@ -12,19 +12,15 @@
     "emphasis": "digital_punch_in_1.08x"
   },
   "captions": {
-    "animation": "pop_bounce karaoke word-by-word",
-    "highlightColor": "#FFD43B",
-    "placement": "Center lower third (70-75% Y)"
+    "animation": "Not applicable",
+    "highlightColor": "Not applicable",
+    "placement": "Not applicable (no captions detected)"
   },
   "colors": [
     "#000000",
     "#FFFFFF",
-    "#FF0000",
-    "#00FF00",
-    "#0000FF",
     "#FFFF00",
-    "#FF00FF",
     "#00FFFF"
   ],
-  "updatedAt": "2026-11-05T19:41:14.376Z"
+  "updatedAt": "2026-11-06T06:35:50.596Z"
 }
