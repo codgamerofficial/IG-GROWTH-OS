@@ -28,3 +28,5 @@
 - **Hook Window**: Visual punch within 0.0s - 1.8s
 - **B-Roll Layering**: Maximum 3.0s continuous A-roll before inserting product b-roll or screencast
 <!-- Video Ad Generated: Lumina RGB Aura Kinetic Levitating Desk Lamp on 2026-11-06T06:35:54.545Z -->
+
+<!-- Video Ad Generated: HyperLens 4K Magnetic Cinema Lens Kit for Smartphones on 2026-11-06T08:41:07.239Z -->

@@ -1,0 +1,103 @@
+{
+  "projectId": "proj_ad_1793954467238",
+  "title": "HyperLens 4K Magnetic Cinema Lens Kit for Smartphones — Viral Dropshipping Ad",
+  "targetPlatform": "Instagram Reels / TikTok / YouTube Shorts",
+  "aspectRatio": "9:16",
+  "resolution": {
+    "width": 1080,
+    "height": 1920
+  },
+  "fps": 30,
+  "status": "ready_to_edit",
+  "brandKitRef": "Brand Kit/brand-kit.md",
+  "productInfo": {
+    "id": "prod_hyperlens_4k_04",
+    "supplierPrice": 390,
+    "sellingPrice": 1499,
+    "profitMarginPct": 74,
+    "imageUrl": "https://images.unsplash.com/photo-1512499617640-c74ae3a79d37?w=800&auto=format&fit=crop",
+    "category": "mobiles"
+  },
+  "affiliate": {
+    "referralCode": "ref_creatorstudio01__4k_04_65ye",
+    "canonicalReferralUrl": "https://riiqx.com/p/prod_hyperlens_4k_04?ref=ref_creatorstudio01__4k_04_65ye&camp=vid_ad_hyperlens_4k_magnetic_cinema_lens_k&utm_source=riiqx_creator_ad",
+    "commissionRatePct": 8.5
+  },
+  "beats": [
+    {
+      "beatNumber": 1,
+      "timecode": "00:00 - 00:03.0",
+      "durationSeconds": 3,
+      "speechTranscript": "Turn your budget smartphone into a ₹1,00,000 cinema camera for ₹1,499.",
+      "visualDirection": "Extreme 1.1x punch-in on problem scenario, fast cut to HyperLens 4K Magnetic Cinema Lens Kit for Smartphones beauty shot with neon ambient glow.",
+      "captions": "TURN YOUR BUDGET SMARTPHONE INTO A ₹1,00",
+      "captionStyle": {
+        "highlightColor": "#FFD43B",
+        "animation": "pop_bounce"
+      },
+      "bRoll": "problem_scenario_hook.mp4",
+      "assets": [
+        "warning_icon.png",
+        "whoosh_sfx.wav"
+      ],
+      "approval": "approved"
+    },
+    {
+      "beatNumber": 2,
+      "timecode": "00:03.0 - 00:07.0",
+      "durationSeconds": 4,
+      "speechTranscript": "Meet the HyperLens 4K Magnetic Cinema Lens Kit for Smartphones. Universal snap-on multi-coated optical glass lens attachment. Features a 120° zero-di...",
+      "visualDirection": "360 rotating 3D turntable perspective with floating cyan feature badges.",
+      "captions": "ENGINEERED FOR MAXIMUM PERFORMANCE",
+      "captionStyle": {
+        "highlightColor": "#06B6D4",
+        "animation": "karaoke_flow"
+      },
+      "bRoll": "product_360_rotate.mp4",
+      "assets": [
+        "spec_pill.png",
+        "digital_click.wav"
+      ],
+      "approval": "approved"
+    },
+    {
+      "beatNumber": 3,
+      "timecode": "00:07.0 - 00:11.0",
+      "durationSeconds": 4,
+      "speechTranscript": "Regular retail stores charge way more, but you can get it for only ₹1,499 with instant free shipping!",
+      "visualDirection": "Side-by-side price comparison graphic slashing high retail price down to ₹1,499.",
+      "captions": "ONLY ₹1,499 — LIMITED STOCK!",
+      "captionStyle": {
+        "highlightColor": "#10B981",
+        "animation": "pop_bounce"
+      },
+      "bRoll": "unboxing_lifestyle.mp4",
+      "assets": [
+        "price_badge.png",
+        "cash_register.wav"
+      ],
+      "approval": "approved"
+    },
+    {
+      "beatNumber": 4,
+      "timecode": "00:11.0 - 00:15.0",
+      "durationSeconds": 4,
+      "speechTranscript": "Tap the link in bio or use code RIIQX10 to order yours now before it sells out!",
+      "visualDirection": "Animated CTA arrow pointing down to link in bio with pulsing amber order button.",
+      "captions": "TAP LINK IN BIO TO ORDER NOW!",
+      "captionStyle": {
+        "highlightColor": "#FFD43B",
+        "animation": "pulse"
+      },
+      "bRoll": "outro_lifestyle.mp4",
+      "assets": [
+        "cta_arrow.png",
+        "riser_braam.wav"
+      ],
+      "approval": "approved"
+    }
+  ],
+  "creatorFeedbackNotes": "High-converting dropshipping template pre-loaded with viral pacing rules and trackable affiliate link.",
+  "createdAt": "2026-11-06T08:41:07.238Z",
+  "updatedAt": "2026-11-06T08:41:07.238Z"
+}
