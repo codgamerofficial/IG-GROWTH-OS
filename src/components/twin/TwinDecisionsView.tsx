@@ -210,11 +210,12 @@ export function TwinDecisionsView() {
 
     try {
       const isUrl = q.startsWith('http://') || q.startsWith('https://');
+      const fallbackPrompt = !q && screenshotFileName ? screenshotFileName.replace(/\.[^/.]+$/, '') : q;
       const res = await fetch('/api/twin/decide', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: isUrl ? undefined : q,
+          prompt: isUrl ? undefined : (fallbackPrompt || undefined),
           productUrl: isUrl ? q : undefined,
           screenshotBase64: screenshotBase64 || undefined,
           screenshotMimeType: screenshotBase64 ? screenshotMimeType : undefined,

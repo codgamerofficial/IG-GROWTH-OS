@@ -41,7 +41,8 @@ export class ProductResearchOrchestrator {
     } else if (req.screenshotBase64 && req.screenshotBase64.trim()) {
       const recognized = await VisualProductRecognizer.recognizeScreenshot(
         req.screenshotBase64,
-        req.screenshotMimeType || 'image/jpeg'
+        req.screenshotMimeType || 'image/jpeg',
+        req.queryHint
       );
       identity = recognized.identity;
       if (recognized.detectedOffer) {

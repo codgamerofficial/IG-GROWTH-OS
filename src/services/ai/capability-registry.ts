@@ -1,9 +1,51 @@
 // =============================================================================
 // RIIQX — Master Capability Registry & Model Catalog
 // Explicit Capability Declarations • Zero Guesswork • Dynamic Discovery
+// Provider Configuration Verification • Automatic Resilient Routing
 // =============================================================================
 
 import { AICapability, ModelCapabilitySpec, AIProviderId, TaskType } from './types';
+
+/**
+ * Determine if an AI provider has valid credentials / configuration in environment
+ */
+export function isProviderConfigured(provider: AIProviderId): boolean {
+  switch (provider) {
+    case 'google':
+      return Boolean(
+        process.env.GEMINI_API_KEY ||
+        process.env.GOOGLE_GENERATIVE_AI_API_KEY ||
+        process.env.GOOGLE_AI_STUDIO_API_KEY ||
+        process.env.GOOGLE_API_KEY
+      );
+    case 'groq':
+      return Boolean(process.env.GROQ_API_KEY || process.env.groq_api_key);
+    case 'openrouter':
+      return Boolean(
+        process.env.OPENROUTER_API_KEY ||
+        process.env['sk-or-v1-openrouter_api_key']
+      );
+    case 'cohere':
+      return Boolean(process.env.COHERE_API_KEY || process.env.cohera_api_key);
+    case 'agentrouter':
+      return Boolean(
+        process.env.AGENT_ROUTER_API_KEY ||
+        process.env.AGENTROUTER_API_KEY ||
+        process.env.agenrouter_api_key
+      );
+    case 'bedrock': {
+      // Must have credentials AND active model configuration/access
+      const hasBearer = Boolean(process.env.AWS_BEARER_TOKEN_BEDROCK || process.env.BEDROCK_API_KEY);
+      const hasKeys = Boolean(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
+      const hasModel = Boolean(process.env.BEDROCK_MODEL_ID);
+      return (hasBearer || (hasKeys && hasModel));
+    }
+    case 'local':
+      return true;
+    default:
+      return false;
+  }
+}
 
 export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
   // 1. Google Gemini (Primary Vision & Multimodal Reasoning)
@@ -57,9 +99,9 @@ export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
     pricing: { promptPer1M: 1.25, completionPer1M: 5.0 },
   },
 
-  // 2. Groq Cloud (Ultra-Fast Script & Workflow Orchestration)
+  // 2. Groq Cloud (Ultra-Fast Script, Reasoning & Workflow Orchestration)
   {
-    modelId: process.env.GROQ_MODEL || 'openai/gpt-oss-120b',
+    modelId: 'openai/gpt-oss-120b',
     provider: 'groq',
     displayName: 'Groq GPT-OSS 120B',
     contextWindow: 128_000,
@@ -70,7 +112,22 @@ export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
     ],
     isFreeTier: true,
     tierDescription: 'Free Developer Tier',
-    recommendedTasks: ['campaign', 'scriptwriting', 'fast', 'workflow_synthesis'],
+    recommendedTasks: ['campaign', 'scriptwriting', 'fast', 'workflow_synthesis', 'general'],
+    pricing: { promptPer1M: 0, completionPer1M: 0 },
+  },
+  {
+    modelId: 'openai/gpt-oss-20b',
+    provider: 'groq',
+    displayName: 'Groq GPT-OSS 20B',
+    contextWindow: 128_000,
+    capabilities: [
+      AICapability.TEXT_GENERATION,
+      AICapability.STRUCTURED_OUTPUT,
+      AICapability.TOOL_CALLING,
+    ],
+    isFreeTier: true,
+    tierDescription: 'Free Developer Tier',
+    recommendedTasks: ['fast', 'scriptwriting', 'general'],
     pricing: { promptPer1M: 0, completionPer1M: 0 },
   },
   {
@@ -85,11 +142,40 @@ export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
     ],
     isFreeTier: true,
     tierDescription: 'Free Developer Tier',
-    recommendedTasks: ['coding', 'workflow_synthesis', 'fast'],
+    recommendedTasks: ['coding', 'workflow_synthesis', 'fast', 'reasoning'],
     pricing: { promptPer1M: 0, completionPer1M: 0 },
   },
 
-  // 3. OpenRouter (Universal Gateway & High-Fidelity Fallback)
+  // 3. OpenRouter (Universal Gateway, Free Vision & Multimodal Fallback)
+  {
+    modelId: 'nvidia/nemotron-3.5-super-vl:free',
+    provider: 'openrouter',
+    displayName: 'Nemotron 3.5 Super VL (OpenRouter)',
+    contextWindow: 128_000,
+    capabilities: [
+      AICapability.TEXT_GENERATION,
+      AICapability.STRUCTURED_OUTPUT,
+      AICapability.VISION,
+    ],
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['vision', 'general', 'research'],
+    pricing: { promptPer1M: 0, completionPer1M: 0 },
+  },
+  {
+    modelId: 'liquid/lfm-2.5-2.6b:free',
+    provider: 'openrouter',
+    displayName: 'Liquid LFM 2.5 (OpenRouter)',
+    contextWindow: 32_000,
+    capabilities: [
+      AICapability.TEXT_GENERATION,
+      AICapability.STRUCTURED_OUTPUT,
+    ],
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['fast', 'general'],
+    pricing: { promptPer1M: 0, completionPer1M: 0 },
+  },
   {
     modelId: 'meta-llama/llama-3.3-70b-instruct',
     provider: 'openrouter',
@@ -100,13 +186,48 @@ export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
       AICapability.STRUCTURED_OUTPUT,
       AICapability.TOOL_CALLING,
     ],
-    isFreeTier: true,
-    tierDescription: 'Free Tier',
+    isFreeTier: false,
+    tierDescription: 'Commercial Cloud',
     recommendedTasks: ['general', 'campaign', 'scriptwriting'],
+    pricing: { promptPer1M: 0.12, completionPer1M: 0.3 },
+  },
+
+  // 4. Cohere (Enterprise Grounding & Multilingual Citations)
+  {
+    modelId: 'command-r-plus-08-2024',
+    provider: 'cohere',
+    displayName: 'Cohere Command R+',
+    contextWindow: 128_000,
+    capabilities: [
+      AICapability.TEXT_GENERATION,
+      AICapability.STRUCTURED_OUTPUT,
+      AICapability.TOOL_CALLING,
+      AICapability.EMBEDDINGS,
+    ],
+    isFreeTier: true,
+    tierDescription: 'Free Developer Tier',
+    recommendedTasks: ['research', 'workflow_synthesis', 'general', 'reasoning'],
     pricing: { promptPer1M: 0, completionPer1M: 0 },
   },
 
-  // 4. AWS Bedrock (Enterprise Claude 3.5 Sonnet / Haiku via SigV4)
+  // 5. AgentRouter (High-Speed Inference Gateway)
+  {
+    modelId: 'deepseek-v4-flash',
+    provider: 'agentrouter',
+    displayName: 'DeepSeek V4 Flash (AgentRouter)',
+    contextWindow: 64_000,
+    capabilities: [
+      AICapability.TEXT_GENERATION,
+      AICapability.STRUCTURED_OUTPUT,
+      AICapability.TOOL_CALLING,
+    ],
+    isFreeTier: true,
+    tierDescription: 'Free Tier',
+    recommendedTasks: ['fast', 'coding', 'general'],
+    pricing: { promptPer1M: 0, completionPer1M: 0 },
+  },
+
+  // 6. AWS Bedrock (Enterprise Claude 3.5 Sonnet / Haiku via SigV4)
   {
     modelId: 'anthropic.claude-3-5-sonnet',
     provider: 'bedrock',
@@ -139,25 +260,7 @@ export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
     pricing: { promptPer1M: 0.8, completionPer1M: 4.0 },
   },
 
-  // 5. Cohere (Enterprise Grounding & Multilingual Citations)
-  {
-    modelId: 'command-r-plus-08-2024',
-    provider: 'cohere',
-    displayName: 'Cohere Command R+',
-    contextWindow: 128_000,
-    capabilities: [
-      AICapability.TEXT_GENERATION,
-      AICapability.STRUCTURED_OUTPUT,
-      AICapability.TOOL_CALLING,
-      AICapability.EMBEDDINGS,
-    ],
-    isFreeTier: true,
-    tierDescription: 'Free Developer Tier',
-    recommendedTasks: ['research', 'workflow_synthesis', 'general'],
-    pricing: { promptPer1M: 0, completionPer1M: 0 },
-  },
-
-  // 6. Native Audio Speech Transcription (Whisper)
+  // 7. Native Audio Speech Transcription (Whisper)
   {
     modelId: 'whisper-local-native',
     provider: 'local',
@@ -170,7 +273,7 @@ export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
     pricing: { promptPer1M: 0, completionPer1M: 0 },
   },
 
-  // 7. Media Generation Engine
+  // 8. Media Generation Engine
   {
     modelId: 'flux-schnell-sharp-pipeline',
     provider: 'local',
@@ -187,10 +290,12 @@ export const MASTER_MODEL_CAPABILITY_CATALOG: ModelCapabilitySpec[] = [
 export class CapabilityRegistry {
   /**
    * Find models matching ALL required capabilities, prioritized by Free Tier first
+   * Optionally filters only to currently configured providers
    */
   public static findModelsByCapabilities(
     required: AICapability[],
-    preferredProvider?: AIProviderId
+    preferredProvider?: AIProviderId,
+    onlyConfigured: boolean = true
   ): ModelCapabilitySpec[] {
     return MASTER_MODEL_CAPABILITY_CATALOG.filter((spec) => {
       // Must support every requested capability
@@ -199,6 +304,9 @@ export class CapabilityRegistry {
 
       // Filter by provider if specified
       if (preferredProvider && spec.provider !== preferredProvider) return false;
+
+      // Filter only configured providers
+      if (onlyConfigured && !isProviderConfigured(spec.provider)) return false;
 
       return true;
     }).sort((a, b) => {
@@ -210,13 +318,15 @@ export class CapabilityRegistry {
   }
 
   /**
-   * Resolve best model for a given task
+   * Resolve best model for a given task, optionally filtering to configured providers
    */
   public static resolveBestModelForTask(
     task: TaskType,
-    extraCapabilities: AICapability[] = []
+    extraCapabilities: AICapability[] = [],
+    onlyConfigured: boolean = true
   ): ModelCapabilitySpec {
     const candidates = MASTER_MODEL_CAPABILITY_CATALOG.filter((spec) => {
+      if (onlyConfigured && !isProviderConfigured(spec.provider)) return false;
       const taskMatch = spec.recommendedTasks.includes(task);
       const capMatch = extraCapabilities.every((cap) => spec.capabilities.includes(cap));
       return taskMatch && capMatch;
@@ -227,6 +337,10 @@ export class CapabilityRegistry {
     });
 
     if (candidates.length > 0) return candidates[0];
+
+    // Fallback: any configured model matching extraCapabilities
+    const capMatches = this.findModelsByCapabilities(extraCapabilities, undefined, onlyConfigured);
+    if (capMatches.length > 0) return capMatches[0];
 
     // Fallback: Gemini 2.5 Flash as standard universal model
     return (

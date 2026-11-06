@@ -25,6 +25,7 @@ export type AIProviderId =
   | 'openai'
   | 'nvidia'
   | 'aiml'
+  | 'agentrouter'
   | 'local';
 
 export type TaskType =
