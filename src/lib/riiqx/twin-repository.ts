@@ -394,6 +394,64 @@ export class TwinRepository {
     return newGoal;
   }
 
+  public static async updateGoal(
+    userId: string,
+    goalId: string,
+    updates: Partial<TwinGoal>
+  ): Promise<TwinGoal | null> {
+    const list = memoryStore.goals.get(userId) || [];
+    const index = list.findIndex((g) => g.id === goalId);
+    if (index === -1) return null;
+
+    const updated: TwinGoal = {
+      ...list[index],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    try {
+      const admin: any = createAdminClient();
+      await admin
+        .from('twin_goals')
+        .update({
+          title: updated.title,
+          description: updated.description,
+          category: updated.category,
+          target_amount: updated.targetAmount,
+          current_amount: updated.currentAmount,
+          currency: updated.currency,
+          deadline: updated.deadline,
+          status: updated.status,
+          metadata: updated.metadata || {},
+          updated_at: updated.updatedAt,
+        })
+        .eq('id', goalId)
+        .eq('user_id', userId);
+    } catch {
+      // Fall through
+    }
+
+    list[index] = updated;
+    memoryStore.goals.set(userId, list);
+    return updated;
+  }
+
+  public static async deleteGoal(userId: string, goalId: string): Promise<boolean> {
+    const list = memoryStore.goals.get(userId) || [];
+    const filtered = list.filter((g) => g.id !== goalId);
+    if (filtered.length === list.length) return false;
+
+    try {
+      const admin: any = createAdminClient();
+      await admin.from('twin_goals').delete().eq('id', goalId).eq('user_id', userId);
+    } catch {
+      // Fall through
+    }
+
+    memoryStore.goals.set(userId, filtered);
+    return true;
+  }
+
   // ---------------------------------------------------------------------------
   // 4. PURCHASE ANALYSES & PRICE TRUTH
   // ---------------------------------------------------------------------------
@@ -525,6 +583,35 @@ export class TwinRepository {
     }
 
     return memoryStore.digests.get(userId) || [];
+  }
+
+  public static async addWeeklyDigest(
+    digest: Omit<WeeklyDigest, 'id' | 'createdAt'>
+  ): Promise<WeeklyDigest> {
+    const newDigest: WeeklyDigest = {
+      ...digest,
+      id: `digest-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      const admin: any = createAdminClient();
+      await admin.from('weekly_digests').insert({
+        user_id: newDigest.userId,
+        week_start_date: newDigest.weekStartDate,
+        title: newDigest.title,
+        sections: newDigest.sections,
+        is_read: newDigest.isRead,
+      });
+    } catch {
+      // Fall through
+    }
+
+    const list = memoryStore.digests.get(digest.userId) || [];
+    list.unshift(newDigest);
+    memoryStore.digests.set(digest.userId, list);
+
+    return newDigest;
   }
 
   // ---------------------------------------------------------------------------

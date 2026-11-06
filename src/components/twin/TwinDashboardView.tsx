@@ -23,6 +23,9 @@ import {
   DollarSign,
   AlertTriangle,
   Plus,
+  X,
+  Target,
+  RefreshCw,
 } from 'lucide-react';
 import { useRiiqx } from '@/context/RiiqxContext';
 import { TwinProfile, TwinGoal, PurchaseAnalysis } from '@/lib/riiqx/twin-types';
@@ -35,47 +38,127 @@ export function TwinDashboardView() {
   const [totalSaved, setTotalSaved] = useState<number>(0);
   const [loading, setLoading] = useState(true);
 
+  // Goal Modal State
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+  const [submittingGoal, setSubmittingGoal] = useState(false);
+  const [goalForm, setGoalForm] = useState({
+    title: '',
+    description: '',
+    category: 'purchase_budget' as 'purchase_budget' | 'savings' | 'lifestyle' | 'career' | 'custom',
+    targetAmount: '',
+    currentAmount: '',
+    deadline: '',
+  });
+
   useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        setLoading(true);
-        // Load Profile
-        const resProf = await fetch('/api/twin/profile');
-        if (resProf.ok) {
-          const data = await resProf.json();
-          setProfile(data.profile);
-        }
-
-        // Load Goals
-        const resGoals = await fetch('/api/twin/goals');
-        if (resGoals.ok) {
-          const data = await resGoals.json();
-          setGoals(data.goals || []);
-        }
-
-        // Load Recent Decisions from /api/twin/decide history or repository
-        const resPurchases = await fetch('/api/twin/data');
-        if (resPurchases.ok) {
-          const data = await resPurchases.json();
-          const purchases: PurchaseAnalysis[] = data.purchaseAnalyses || [];
-          setRecentDecisions(purchases.slice(0, 3));
-          const sumSaved = purchases.reduce((acc, p) => acc + Math.max(0, p.basePrice - p.totalPayable), 0);
-          setTotalSaved(sumSaved);
-        }
-      } catch (err) {
-        console.error('Failed to load dashboard data:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
     loadDashboardData();
   }, []);
+
+  async function loadDashboardData() {
+    try {
+      setLoading(true);
+      // Load Profile
+      const resProf = await fetch('/api/twin/profile');
+      if (resProf.ok) {
+        const data = await resProf.json();
+        setProfile(data.profile);
+      }
+
+      // Load Goals
+      const resGoals = await fetch('/api/twin/goals');
+      if (resGoals.ok) {
+        const data = await resGoals.json();
+        setGoals(data.goals || []);
+      }
+
+      // Load Recent Decisions from /api/twin/data
+      const resPurchases = await fetch('/api/twin/data');
+      if (resPurchases.ok) {
+        const data = await resPurchases.json();
+        const purchases: PurchaseAnalysis[] = data.purchaseAnalyses || [];
+        setRecentDecisions(purchases.slice(0, 3));
+        const sumSaved = purchases.reduce((acc, p) => acc + Math.max(0, p.basePrice - p.totalPayable), 0);
+        setTotalSaved(sumSaved);
+      }
+    } catch (err) {
+      console.error('Failed to load dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleCreateGoal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!goalForm.title.trim()) return;
+
+    try {
+      setSubmittingGoal(true);
+      const res = await fetch('/api/twin/goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: goalForm.title.trim(),
+          description: goalForm.description.trim() || undefined,
+          category: goalForm.category,
+          targetAmount: Number(goalForm.targetAmount) || 0,
+          currentAmount: Number(goalForm.currentAmount) || 0,
+          currency: 'INR',
+          deadline: goalForm.deadline || undefined,
+          status: 'active',
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.goal) {
+          setGoals((prev) => [data.goal, ...prev]);
+        }
+        setIsGoalModalOpen(false);
+        setGoalForm({
+          title: '',
+          description: '',
+          category: 'purchase_budget',
+          targetAmount: '',
+          currentAmount: '',
+          deadline: '',
+        });
+      }
+    } catch (err) {
+      console.error('Failed to create goal:', err);
+    } finally {
+      setSubmittingGoal(false);
+    }
+  };
+
+  const handleQuickAddSavings = async (goalId: string, deltaAmount: number) => {
+    const existing = goals.find((g) => g.id === goalId);
+    if (!existing) return;
+
+    const newAmount = Math.max(0, existing.currentAmount + deltaAmount);
+    try {
+      // Optimistic update
+      setGoals((prev) =>
+        prev.map((g) => (g.id === goalId ? { ...g, currentAmount: newAmount } : g))
+      );
+
+      await fetch('/api/twin/goals', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          goalId,
+          currentAmount: newAmount,
+        }),
+      });
+    } catch (err) {
+      console.error('Failed to update goal progress:', err);
+      loadDashboardData();
+    }
+  };
 
   const calibrationScore = 86; // Based on configured preferences, active goals & verified rules
 
   return (
-    <div className="flex-1 overflow-y-auto bg-[#FAF8F5] dark:bg-[#0E0E10] text-[#1A1817] dark:text-[#F4F4F6] p-4 sm:p-6 lg:p-8 space-y-8">
+    <div className="flex-1 overflow-y-auto bg-[#FAF8F5] dark:bg-[#0E0E10] text-[#1A1817] dark:text-[#F4F4F6] p-4 sm:p-6 lg:p-8 space-y-8 relative">
       {/* 1. Header & Quick Status */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#EAE3D9] dark:border-[#26262B] pb-6">
         <div>
@@ -148,7 +231,7 @@ export function TwinDashboardView() {
               ₹{totalSaved > 0 ? totalSaved.toLocaleString('en-IN') : '2,420'}
             </div>
             <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] mt-1">
-              Deterministic calculations based on price truth & card stacking.
+              Deterministic calculations based on price truth &amp; card stacking.
             </p>
           </div>
           <div className="text-[10px] text-[#16865D] font-bold flex items-center gap-1">
@@ -171,7 +254,7 @@ export function TwinDashboardView() {
             </p>
           </div>
           <button
-            onClick={() => setActiveTab('settings')}
+            onClick={() => setIsGoalModalOpen(true)}
             className="text-[11px] text-[#3B82F6] font-bold flex items-center gap-1 hover:underline text-left"
           >
             Manage Goals <ArrowRight className="h-3 w-3" />
@@ -213,13 +296,13 @@ export function TwinDashboardView() {
                   <TrendingUp className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#1A1817] dark:text-white">Personal Goals & Budgets</h3>
+                  <h3 className="text-base font-bold text-[#1A1817] dark:text-white">Personal Goals &amp; Budgets</h3>
                   <p className="text-xs text-[#6B6661] dark:text-[#A3A3A3]">Decisions are continuously aligned against these targets</p>
                 </div>
               </div>
 
               <button
-                onClick={() => setActiveTab('twin')}
+                onClick={() => setIsGoalModalOpen(true)}
                 className="flex items-center gap-1.5 text-xs font-bold text-[#FF5722] hover:underline"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -232,15 +315,39 @@ export function TwinDashboardView() {
                 const pct = g.targetAmount > 0 ? Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100)) : 0;
                 return (
                   <div key={g.id} className="p-4 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-xs sm:text-sm text-[#1A1817] dark:text-white">{g.title}</span>
-                      <span className="text-xs font-black text-[#16865D]">
-                        ₹{g.currentAmount.toLocaleString('en-IN')} / ₹{g.targetAmount.toLocaleString('en-IN')} ({pct}%)
-                      </span>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <span className="font-bold text-xs sm:text-sm text-[#1A1817] dark:text-white">{g.title}</span>
+                        {g.description && <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] mt-0.5">{g.description}</p>}
+                      </div>
+
+                      <div className="flex items-center gap-2 self-start sm:self-auto">
+                        <span className="text-xs font-black text-[#16865D]">
+                          ₹{g.currentAmount.toLocaleString('en-IN')} / ₹{g.targetAmount.toLocaleString('en-IN')} ({pct}%)
+                        </span>
+
+                        {/* Quick Progress Increment Buttons */}
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleQuickAddSavings(g.id, 500)}
+                            className="px-2 py-0.5 rounded-lg bg-white dark:bg-[#18181C] hover:bg-[#EAE3D9] border border-[#EAE3D9] dark:border-[#2E2E33] text-[10px] font-bold text-[#16865D] transition-colors"
+                            title="Add ₹500 to this goal"
+                          >
+                            +₹500
+                          </button>
+                          <button
+                            onClick={() => handleQuickAddSavings(g.id, 1000)}
+                            className="px-2 py-0.5 rounded-lg bg-white dark:bg-[#18181C] hover:bg-[#EAE3D9] border border-[#EAE3D9] dark:border-[#2E2E33] text-[10px] font-bold text-[#16865D] transition-colors"
+                            title="Add ₹1,000 to this goal"
+                          >
+                            +₹1k
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    {g.description && <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3]">{g.description}</p>}
+
                     <div className="w-full bg-[#EAE3D9] dark:bg-[#18181C] h-2 rounded-full overflow-hidden">
-                      <div className="bg-[#16865D] h-full rounded-full transition-all" style={{ width: `${pct}%` }} />
+                      <div className="bg-[#16865D] h-full rounded-full transition-all duration-300" style={{ width: `${pct}%` }} />
                     </div>
                   </div>
                 );
@@ -321,7 +428,7 @@ export function TwinDashboardView() {
 
             <div className="p-4 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] space-y-2">
               <span className="text-[10px] font-black uppercase text-[#FF5722]">Week 45 Focus</span>
-              <h4 className="text-xs font-bold text-[#1A1817] dark:text-white">Tech Arbitrage & Skincare Humidity Guard</h4>
+              <h4 className="text-xs font-bold text-[#1A1817] dark:text-white">Tech Arbitrage &amp; Skincare Humidity Guard</h4>
               <p className="text-[11px] text-[#6B6661] dark:text-[#A3A3A3] line-clamp-3">
                 14% price drop detected on Sony ANC headphones on Tata CLiQ with HDFC card stacking. High humidity forecasted; low comedogenic outdoor skincare advised.
               </p>
@@ -359,7 +466,7 @@ export function TwinDashboardView() {
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-3.5 w-3.5 text-[#16865D] shrink-0" />
-                <span>Full DPDP Act personal data ownership & export</span>
+                <span>Full DPDP Act personal data ownership &amp; export</span>
               </li>
             </ul>
 
@@ -368,13 +475,153 @@ export function TwinDashboardView() {
                 onClick={() => setActiveTab('settings')}
                 className="w-full text-center text-xs font-bold text-[#FF5722] hover:underline"
               >
-                Inspect Stored Data & Memory
+                Inspect Stored Data &amp; Memory
               </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* 4. Goal Creation Modal */}
+      {isGoalModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-lg rounded-3xl border border-[#EAE3D9] dark:border-[#26262B] bg-white dark:bg-[#18181C] p-6 sm:p-8 shadow-2xl space-y-6">
+            <div className="flex items-center justify-between border-b border-[#EAE3D9] dark:border-[#26262B] pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FF5722]/10 text-[#FF5722]">
+                  <Target className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-[#1A1817] dark:text-white font-heading">
+                    Add New Personal Goal
+                  </h3>
+                  <p className="text-xs text-[#6B6661] dark:text-[#A3A3A3]">
+                    Align purchases, savings &amp; lifestyle decisions
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setIsGoalModalOpen(false)}
+                className="p-1.5 rounded-xl hover:bg-[#FAF8F5] dark:hover:bg-[#202025] text-[#6B6661] hover:text-[#1A1817] dark:hover:text-white transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateGoal} className="space-y-4">
+              {/* Title */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#1A1817] dark:text-white">Goal Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={goalForm.title}
+                  onChange={(e) => setGoalForm({ ...goalForm, title: e.target.value })}
+                  placeholder="e.g. MacBook Air M3 Upgrade, Emergency Savings, Trip to Ladakh"
+                  className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-medium focus:outline-hidden focus:border-[#FF5722]"
+                />
+              </div>
+
+              {/* Category */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#6B6661]">Goal Category</label>
+                <select
+                  value={goalForm.category}
+                  onChange={(e) =>
+                    setGoalForm({
+                      ...goalForm,
+                      category: e.target.value as any,
+                    })
+                  }
+                  className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-bold focus:outline-hidden focus:border-[#FF5722]"
+                >
+                  <option value="purchase_budget">Purchase Budget (Electronics, Apparel, Gear)</option>
+                  <option value="savings">Long-Term Savings &amp; Emergency Fund</option>
+                  <option value="lifestyle">Lifestyle &amp; Fitness Experience</option>
+                  <option value="career">Career, Course &amp; Professional Growth</option>
+                  <option value="custom">Custom Milestone</option>
+                </select>
+              </div>
+
+              {/* Amounts Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[#1A1817] dark:text-white">Target Amount (₹) *</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={goalForm.targetAmount}
+                    onChange={(e) => setGoalForm({ ...goalForm, targetAmount: e.target.value })}
+                    placeholder="25000"
+                    className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-bold focus:outline-hidden focus:border-[#FF5722]"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[#1A1817] dark:text-white">Current Saved (₹)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={goalForm.currentAmount}
+                    onChange={(e) => setGoalForm({ ...goalForm, currentAmount: e.target.value })}
+                    placeholder="5000"
+                    className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-bold focus:outline-hidden focus:border-[#FF5722]"
+                  />
+                </div>
+              </div>
+
+              {/* Deadline */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#6B6661]">Target Completion Date (Optional)</label>
+                <input
+                  type="date"
+                  value={goalForm.deadline}
+                  onChange={(e) => setGoalForm({ ...goalForm, deadline: e.target.value })}
+                  className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-medium focus:outline-hidden focus:border-[#FF5722]"
+                />
+              </div>
+
+              {/* Description */}
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-[#6B6661]">Description &amp; Strategy (Optional)</label>
+                <textarea
+                  rows={2}
+                  value={goalForm.description}
+                  onChange={(e) => setGoalForm({ ...goalForm, description: e.target.value })}
+                  placeholder="e.g. Setting aside ₹3,000 every month; holding off on impulse gadgets."
+                  className="w-full p-3 rounded-2xl bg-[#FAF8F5] dark:bg-[#202025] border border-[#EAE3D9] dark:border-[#2E2E33] text-xs font-medium focus:outline-hidden focus:border-[#FF5722]"
+                />
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#EAE3D9] dark:border-[#26262B]">
+                <button
+                  type="button"
+                  onClick={() => setIsGoalModalOpen(false)}
+                  className="px-4 py-2.5 rounded-2xl text-xs font-bold text-[#6B6661] hover:text-[#1A1817] dark:hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingGoal}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-[#FF5722] hover:bg-[#E64A19] text-white text-xs font-black shadow-xs transition-transform active:scale-95 disabled:opacity-50"
+                >
+                  {submittingGoal ? (
+                    <>
+                      <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                      <span>Saving Goal...</span>
+                    </>
+                  ) : (
+                    <span>Save Goal</span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
