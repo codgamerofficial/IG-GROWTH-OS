@@ -291,3 +291,4 @@ export function CheckoutTrapAuditCard({ audit, onReset }: Props) {
     </div>
   );
 }
+

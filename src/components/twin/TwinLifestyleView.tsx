@@ -7,7 +7,7 @@
 // Ultra-Modern Trending Obsidian Glassmorphic Design System
 // =============================================================================
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Utensils,
   Sparkles,
@@ -23,8 +23,13 @@ import {
   ShoppingBag,
   ArrowRight,
   Info,
+  Camera,
+  Image as ImageIcon,
+  X,
+  AlertCircle,
 } from 'lucide-react';
 import { useRiiqx } from '@/context/RiiqxContext';
+import { PantryVisionScanResult } from '@/services/lifestyle/pantry-vision-scanner';
 
 interface CookHomeRecipe {
   title: string;
@@ -60,6 +65,13 @@ export function TwinLifestyleView() {
   const [mealType, setMealType] = useState('Dinner');
   const [timeAvailable, setTimeAvailable] = useState('25 mins');
   const [expandedRecipeIndex, setExpandedRecipeIndex] = useState<number | null>(null);
+
+  // Snap-to-Pantry Visual Scanner State
+  const [pantryImageBase64, setPantryImageBase64] = useState<string | null>(null);
+  const [pantryFileName, setPantryFileName] = useState<string | null>(null);
+  const [pantryScanning, setPantryScanning] = useState(false);
+  const [pantryScanResult, setPantryScanResult] = useState<PantryVisionScanResult | null>(null);
+  const pantryFileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(false);
   const [cookRecipes, setCookRecipes] = useState<CookHomeRecipe[]>([
@@ -190,6 +202,69 @@ export function TwinLifestyleView() {
     }
   };
 
+  const handlePantryFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 8 * 1024 * 1024) {
+      alert('Image exceeds 8MB. Please upload a smaller photo.');
+      return;
+    }
+
+    setPantryFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const b64 = reader.result as string;
+      setPantryImageBase64(b64);
+      triggerPantryScan(b64, file.type);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerPantryScan = async (base64: string, mimeType: string) => {
+    try {
+      setPantryScanning(true);
+      const res = await fetch('/api/twin/lifestyle/scan-pantry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          imageBase64: base64,
+          mimeType,
+          diet: dietaryPreference,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.result) {
+          setPantryScanResult(data.result);
+          // Auto populate ingredients input
+          const names = data.result.detectedItems.map((i: any) => i.name).join(', ');
+          if (names) {
+            setIngredientsInput(names);
+          }
+          // If immediate recipes returned, update cookRecipes
+          if (Array.isArray(data.result.suggestedRecipesImmediate) && data.result.suggestedRecipesImmediate.length > 0) {
+            setCookRecipes(data.result.suggestedRecipesImmediate);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Pantry scan failed:', err);
+    } finally {
+      setPantryScanning(false);
+    }
+  };
+
+  const handleClearPantryScan = () => {
+    setPantryImageBase64(null);
+    setPantryFileName(null);
+    setPantryScanResult(null);
+    if (pantryFileInputRef.current) {
+      pantryFileInputRef.current.value = '';
+    }
+  };
+
   const handleGeneratePlan = async () => {
     try {
       setLoading(true);
@@ -290,13 +365,33 @@ export function TwinLifestyleView() {
           </div>
         </div>
 
-        {/* Cook Home: Ingredients Input */}
+        {/* Cook Home: Ingredients Input & Visual Fridge OCR */}
         {mode === 'cook_home' && (
-          <div className="space-y-3">
-            <label className="text-xs font-bold text-white flex items-center justify-between">
-              <span>What do you have in your fridge or pantry right now?</span>
-              <span className="text-[11px] text-zinc-500 font-normal">Separate ingredients by commas</span>
-            </label>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-white flex items-center gap-2">
+                <span>What do you have in your fridge or pantry right now?</span>
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  ref={pantryFileInputRef}
+                  onChange={handlePantryFileSelect}
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => pantryFileInputRef.current?.click()}
+                  disabled={pantryScanning}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 border border-emerald-500/40 text-emerald-300 text-xs font-black shadow-sm transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>{pantryScanning ? 'Scanning Fridge...' : '📸 Snap Fridge / Groceries'}</span>
+                </button>
+              </div>
+            </div>
+
             <div className="relative">
               <input
                 type="text"
@@ -307,6 +402,84 @@ export function TwinLifestyleView() {
               />
             </div>
 
+            {/* Visual Pantry Scan Results Banner */}
+            {pantryScanResult && (
+              <div className="rounded-2xl bg-emerald-950/20 border border-emerald-500/30 p-4 space-y-3 animate-in fade-in">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    {pantryImageBase64 && (
+                      <img
+                        src={pantryImageBase64}
+                        alt="Pantry Scan"
+                        className="w-12 h-12 object-cover rounded-xl border border-white/[0.1] shadow-xs"
+                      />
+                    )}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-white">
+                          Pantry OCR: {pantryScanResult.detectedItems.length} Ingredients Recognized
+                        </span>
+                        {pantryScanResult.expiringSoonCount > 0 && (
+                          <span className="text-[10px] font-bold text-rose-300 bg-rose-500/20 border border-rose-500/30 px-2 py-0.5 rounded-full">
+                            {pantryScanResult.expiringSoonCount} Expiring Soon
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-zinc-300 mt-0.5">{pantryScanResult.summary}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleClearPantryScan}
+                    className="p-1 hover:bg-white/[0.08] rounded-lg text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                    title="Clear Scan"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Detected Ingredient Chips with Freshness State */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {pantryScanResult.detectedItems.map((item, idx) => {
+                    const isUrgent = item.freshnessEstimate === 'expiring_urgent';
+                    const isSoon = item.freshnessEstimate === 'use_soon';
+                    return (
+                      <span
+                        key={idx}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold border ${
+                          isUrgent
+                            ? 'bg-rose-500/15 border-rose-500/40 text-rose-300'
+                            : isSoon
+                            ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                            : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            isUrgent ? 'bg-rose-400' : isSoon ? 'bg-amber-400' : 'bg-emerald-400'
+                          }`}
+                        />
+                        <span>{item.name}</span>
+                        {item.estimatedQuantity && (
+                          <span className="text-[9px] opacity-75 font-mono">({item.estimatedQuantity})</span>
+                        )}
+                      </span>
+                    );
+                  })}
+                </div>
+
+                {/* Missing Staples Notice */}
+                {pantryScanResult.missingStaplesForCompleteMeal.length > 0 && (
+                  <div className="flex items-center gap-2 text-[11px] text-zinc-400 pt-1">
+                    <Info className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+                    <span>
+                      Common staples needed: {pantryScanResult.missingStaplesForCompleteMeal.join(', ')}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Quick Pantry Suggestion Tags */}
             <div className="flex flex-wrap items-center gap-1.5 pt-1">
               <span className="text-[11px] text-zinc-500 mr-1 font-mono">Quick add:</span>
@@ -314,7 +487,7 @@ export function TwinLifestyleView() {
                 <button
                   key={tag}
                   onClick={() => handleAddTag(tag)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 border border-white/[0.08] hover:border-orange-500/40 text-[11px] font-bold text-zinc-300 hover:text-white transition-all active:scale-95"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-zinc-800/80 hover:bg-zinc-700 border border-white/[0.08] hover:border-orange-500/40 text-[11px] font-bold text-zinc-300 hover:text-white transition-all active:scale-95 cursor-pointer"
                 >
                   <Plus className="h-3 w-3 text-orange-400" />
                   <span>{tag}</span>
