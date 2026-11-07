@@ -49,25 +49,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`dark ${inter.variable}`}>
       <head>
+        <script
+          src="https://quge5.com/88/tag.min.js"
+          data-zone="307132"
+          async
+          data-cfasync="false"
+        />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(regs) {
-                  for (var i = 0; i < regs.length; i++) { regs[i].unregister(); }
-                });
-                if ('caches' in window) {
-                  caches.keys().then(function(keys) {
-                    for (var j = 0; j < keys.length; j++) { caches.delete(keys[j]); }
-                  });
-                }
-              }
-            `,
-          }}
-        />
       </head>
       <body className="h-[100dvh] min-h-[100dvh] bg-[#FAF9F6] text-[#202124] dark:bg-[#0C0C0E] dark:text-[#F4F4F6] antialiased selection:bg-[#FFD43B]/40 selection:text-[#202124] flex flex-col font-sans w-full max-w-full overflow-hidden">
         <RiiqxProvider>
