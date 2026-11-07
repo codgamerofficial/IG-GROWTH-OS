@@ -18,8 +18,10 @@ import {
   Scale,
   Check,
   X,
+  Crosshair,
 } from 'lucide-react';
 import { ActionApproval } from '@/lib/riiqx/twin-types';
+import { FestiveDropSniperCard } from './FestiveDropSniperCard';
 
 export function TwinActivityView() {
   const [approvals, setApprovals] = useState<ActionApproval[]>([
@@ -150,6 +152,9 @@ export function TwinActivityView() {
           </div>
         </div>
       )}
+
+      {/* Festive Price Drop Sniper & 48-Hour Bank Arbitrage Radar */}
+      <FestiveDropSniperCard />
 
       {/* Audit Timeline */}
       <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-8 space-y-6 shadow-2xl max-w-4xl relative overflow-hidden">
