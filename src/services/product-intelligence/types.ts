@@ -211,3 +211,47 @@ export interface PurchaseAnalysisReport {
   }[];
   timestamp: string;
 }
+
+// =============================================================================
+// Deceptive Fee & Dark Pattern Deflector Types
+// =============================================================================
+
+export type DarkPatternCategory =
+  | 'pre_ticked_opt_in'      // Charity donation, green delivery, tips
+  | 'convenience_fee'        // Platform charge, internet handling, booking fee
+  | 'fake_insurance'         // Redundant transit cover, device warranty, cancellation shield
+  | 'hidden_surcharge'       // Payment gateway surcharge, packaging fee
+  | 'artificial_urgency'     // Fake countdown timers, false low-stock banners
+  | 'cancellation_trap';     // Paid opt-out for standard consumer refund rights
+
+export type DeceptiveSeverity = 'high' | 'medium' | 'low';
+
+export interface DeceptiveFeeItem {
+  id: string;
+  name: string;
+  amount: number;
+  category: DarkPatternCategory;
+  severity: DeceptiveSeverity;
+  isRemovable: boolean;
+  actionableStep: string;
+  evidence: string;
+}
+
+export interface DeceptiveFeeAuditResult {
+  auditId: string;
+  merchantName: string;
+  pageType: 'checkout_summary' | 'cart_review' | 'payment_selection' | 'product_pdp' | 'general';
+  publishedTotal: number;
+  baseItemSubtotal: number;
+  mandatoryCharges: number;
+  removableSurchargesTotal: number;
+  honestPayablePrice: number;
+  potentialInstantSavings: number;
+  truthScore: number; // 0 (Most deceitful) to 100 (100% Honest & Transparent)
+  deceptiveItems: DeceptiveFeeItem[];
+  stepByStepUncheckGuide: string[];
+  honestCheckoutVerdict: 'severe_dark_patterns' | 'moderate_traps' | 'transparent_checkout';
+  summary: string;
+  timestamp: string;
+}
+

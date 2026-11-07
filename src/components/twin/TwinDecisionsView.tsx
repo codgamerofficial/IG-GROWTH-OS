@@ -14,6 +14,7 @@ import {
   Upload,
   ArrowRight,
   ShieldCheck,
+  ShieldAlert,
   CheckCircle2,
   AlertTriangle,
   CreditCard,
@@ -37,7 +38,9 @@ import {
   UserShoppingPreferences,
   PromotionalOffer,
   RetailerOffer,
+  DeceptiveFeeAuditResult,
 } from '@/services/product-intelligence/types';
+import { CheckoutTrapAuditCard } from './CheckoutTrapAuditCard';
 
 function decodeHtmlEntities(str: string): string {
   if (!str) return '';
@@ -184,6 +187,11 @@ export function TwinDecisionsView() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [result, setResult] = useState<TwinDecisionResponse | null>(null);
+
+  // Mode Switcher: 'price_truth' | 'checkout_trap'
+  const [activeMode, setActiveMode] = useState<'price_truth' | 'checkout_trap'>('price_truth');
+  const [auditResult, setAuditResult] = useState<DeceptiveFeeAuditResult | null>(null);
+  const [auditLoading, setAuditLoading] = useState(false);
 
   // Active Ranking Dimension: 'eligible' | 'standard' | 'conditional'
   const [activeRankingTab, setActiveRankingTab] = useState<'eligible' | 'standard' | 'conditional'>('eligible');
@@ -362,6 +370,40 @@ export function TwinDecisionsView() {
     }
   };
 
+  const handleAuditCheckout = async () => {
+    if (!screenshotBase64 && !query.trim()) {
+      setErrorMsg('Please upload a checkout / cart screenshot, or specify a merchant to audit.');
+      return;
+    }
+
+    setErrorMsg(null);
+    setAuditLoading(true);
+
+    try {
+      const res = await fetch('/api/twin/audit-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          screenshotBase64: screenshotBase64 || undefined,
+          mimeType: screenshotMimeType,
+          merchantHint: query.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to audit checkout screenshot.');
+      }
+
+      setAuditResult(data.audit);
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Checkout trap audit temporarily unavailable.');
+    } finally {
+      setAuditLoading(false);
+    }
+  };
+
   // Determine which offers to display based on selected ranking tab
   const getOffersForActiveRanking = (): RetailerOffer[] => {
     if (!result?.report?.rankings) {
@@ -439,8 +481,44 @@ export function TwinDecisionsView() {
         </div>
       </div>
 
-      {/* 2. Input Box: URL, Query, or Screenshot */}
-      <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-7 shadow-2xl space-y-4">
+      {/* 2. Mode Selector & Input Box: URL, Query, or Screenshot */}
+      <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-7 shadow-2xl space-y-5">
+        {/* Mode Selector Tabs */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-white/[0.08] pb-4">
+          <button
+            onClick={() => {
+              setActiveMode('price_truth');
+              setErrorMsg(null);
+            }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeMode === 'price_truth'
+                ? 'bg-gradient-to-r from-orange-500/20 to-amber-500/10 text-white border border-orange-500/30 shadow-md shadow-orange-500/10'
+                : 'text-zinc-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
+            }`}
+          >
+            <Scale className="h-4 w-4 text-orange-400" />
+            <span>Product Price Truth &amp; Deals</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveMode('checkout_trap');
+              setErrorMsg(null);
+            }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeMode === 'checkout_trap'
+                ? 'bg-gradient-to-r from-emerald-500/20 to-teal-500/10 text-emerald-300 border border-emerald-500/30 shadow-md shadow-emerald-500/10'
+                : 'text-zinc-400 hover:text-emerald-400 hover:bg-white/[0.04] border border-transparent'
+            }`}
+          >
+            <ShieldAlert className="h-4 w-4 text-emerald-400" />
+            <span>Deceptive Fee &amp; Dark Pattern Deflector</span>
+            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              WORLD FIRST
+            </span>
+          </button>
+        </div>
+
         {errorMsg && (
           <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-semibold flex items-center justify-between animate-in fade-in">
             <span>{errorMsg}</span>
@@ -457,8 +535,17 @@ export function TwinDecisionsView() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
-              placeholder="Paste exact Amazon, Flipkart, Myntra URL or enter product name..."
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  if (activeMode === 'checkout_trap') handleAuditCheckout();
+                  else handleAnalyze();
+                }
+              }}
+              placeholder={
+                activeMode === 'checkout_trap'
+                  ? 'Upload checkout / payment summary screenshot or enter store name...'
+                  : 'Paste exact Amazon, Flipkart, Myntra URL or enter product name...'
+              }
               className="w-full pl-11 pr-4 py-3.5 text-xs sm:text-sm rounded-2xl bg-zinc-950/70 border border-white/[0.08] text-white placeholder-zinc-500 focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500/80 transition-all shadow-inner"
             />
           </div>
@@ -475,7 +562,7 @@ export function TwinDecisionsView() {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className={`flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-bold rounded-2xl border transition-all ${
+              className={`flex items-center justify-center gap-2 px-4 py-3.5 text-xs font-bold rounded-2xl border transition-all cursor-pointer ${
                 screenshotBase64
                   ? 'bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-xs'
                   : 'bg-zinc-950/70 hover:bg-zinc-800 border-white/[0.08] text-zinc-300 hover:text-white'
@@ -486,15 +573,26 @@ export function TwinDecisionsView() {
             </button>
           </div>
 
-          {/* Analyze / Verify Button */}
-          <button
-            onClick={() => handleAnalyze()}
-            disabled={(!query.trim() && !screenshotBase64) || loading}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-7 py-3.5 text-xs font-black shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 active:scale-95 disabled:opacity-40 shrink-0"
-          >
-            {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            <span>{loading ? 'Verifying Buying Links...' : 'Verify Product & Deals'}</span>
-          </button>
+          {/* Action Button: Analyze Product vs Audit Traps */}
+          {activeMode === 'checkout_trap' ? (
+            <button
+              onClick={() => handleAuditCheckout()}
+              disabled={(!screenshotBase64 && !query.trim()) || auditLoading}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white px-7 py-3.5 text-xs font-black shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all duration-200 active:scale-95 disabled:opacity-40 shrink-0 cursor-pointer"
+            >
+              {auditLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <ShieldAlert className="h-4 w-4" />}
+              <span>{auditLoading ? 'Auditing Checkout Traps...' : 'Audit Checkout Traps'}</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => handleAnalyze()}
+              disabled={(!query.trim() && !screenshotBase64) || loading}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-7 py-3.5 text-xs font-black shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all duration-200 active:scale-95 disabled:opacity-40 shrink-0 cursor-pointer"
+            >
+              {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              <span>{loading ? 'Verifying Buying Links...' : 'Verify Product & Deals'}</span>
+            </button>
+          )}
         </div>
 
         {/* Screenshot Preview */}
@@ -510,13 +608,15 @@ export function TwinDecisionsView() {
               <div>
                 <span className="font-bold text-white block">{screenshotFileName}</span>
                 <span className="text-[11px] text-amber-400 font-mono">
-                  Multimodal vision active &bull; Cross-checked with live merchant catalogs
+                  {activeMode === 'checkout_trap'
+                    ? 'Multimodal OCR Active • Scanning for pre-ticked donations, hidden fees, and warranty markups'
+                    : 'Multimodal vision active • Cross-checked with live merchant catalogs'}
                 </span>
               </div>
             </div>
             <button
               onClick={handleClearScreenshot}
-              className="p-1.5 text-zinc-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors"
+              className="p-1.5 text-zinc-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition-colors cursor-pointer"
               title="Remove Screenshot"
             >
               <X className="h-4 w-4" />
@@ -526,21 +626,75 @@ export function TwinDecisionsView() {
 
         {/* Suggestion Chips */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-1">
-          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider shrink-0">Try real examples:</span>
-          {sampleQueries.map((q, idx) => (
+          <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider shrink-0">
+            {activeMode === 'checkout_trap' ? 'Audit Common Traps:' : 'Try Real Examples:'}
+          </span>
+          {(activeMode === 'checkout_trap'
+            ? [
+                'BookMyShow Ticket Convenience Fee',
+                'Flipkart Cart with Extended Warranty',
+                'Zomato Cart Delivery Surcharge',
+                'MakeMyTrip Flight Booking Fee',
+              ]
+            : sampleQueries
+          ).map((item, idx) => (
             <button
               key={idx}
-              onClick={() => handleAnalyze(q)}
-              className="shrink-0 text-[11px] font-medium text-zinc-400 hover:text-white bg-zinc-950/60 hover:bg-zinc-800 border border-white/[0.08] hover:border-orange-500/40 px-3 py-1.5 rounded-full truncate max-w-[280px] transition-all"
+              onClick={() => {
+                setQuery(item);
+                if (activeMode === 'checkout_trap') handleAuditCheckout();
+                else handleAnalyze(item);
+              }}
+              className="rounded-full bg-zinc-950/80 hover:bg-zinc-800 border border-white/[0.06] hover:border-orange-500/40 px-3 py-1 text-[11px] text-zinc-300 hover:text-white shrink-0 transition-all font-mono shadow-xs cursor-pointer"
             >
-              {q}
+              {item.length > 40 ? item.substring(0, 37) + '...' : item}
             </button>
           ))}
         </div>
       </div>
 
-      {/* 3. Decision Results Container */}
-      {result && (
+      {/* 3. Deceptive Fee Deflector Result */}
+      {activeMode === 'checkout_trap' && auditResult && (
+        <CheckoutTrapAuditCard
+          audit={auditResult}
+          onReset={() => setAuditResult(null)}
+        />
+      )}
+
+      {/* Deceptive Fee Onboarding Explainer (When in trap mode but no audit performed yet) */}
+      {activeMode === 'checkout_trap' && !auditResult && (
+        <div className="rounded-3xl border border-emerald-500/20 bg-emerald-950/10 backdrop-blur-xl p-6 sm:p-8 shadow-xl space-y-4">
+          <div className="flex items-center gap-2.5 text-emerald-400">
+            <ShieldAlert className="w-5 h-5" />
+            <h3 className="text-sm font-bold tracking-wide">
+              How the Deceptive Fee Deflector Protects Your Wallet
+            </h3>
+          </div>
+          <p className="text-xs text-zinc-300 leading-relaxed max-w-3xl">
+            Modern e-commerce and booking platforms routinely inflate your final checkout bill with pre-ticked charity contributions, convenience surcharges, redundant transit insurance, and cancellation traps.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/[0.08] space-y-1.5">
+              <span className="text-[10px] font-black text-rose-400 uppercase tracking-wider">01 &bull; Snap Checkout</span>
+              <p className="text-xs font-bold text-white">Upload Your Order Summary</p>
+              <p className="text-[11px] text-zinc-400">Take a screenshot of the final payment breakdown before clicking pay.</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/[0.08] space-y-1.5">
+              <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider">02 &bull; Forensic OCR</span>
+              <p className="text-xs font-bold text-white">Auto-Detect Hidden Traps</p>
+              <p className="text-[11px] text-zinc-400">Computer vision isolates sneaky opt-ins and platform fee markups.</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/[0.08] space-y-1.5">
+              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider">03 &bull; Uncheck &amp; Save</span>
+              <p className="text-xs font-bold text-white">Instant Uncheck Checklist</p>
+              <p className="text-[11px] text-zinc-400">Follow plain-language steps to drop the payable total by ₹50 to ₹350.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. Decision Results Container */}
+      {activeMode === 'price_truth' && result && (
         <div className="space-y-8 animate-in fade-in duration-300">
           {/* A. Product Identity Hero Section */}
           <div className="rounded-3xl border border-white/[0.08] bg-zinc-900/60 backdrop-blur-xl p-6 sm:p-8 shadow-2xl space-y-6 relative overflow-hidden">
