@@ -32,6 +32,8 @@ import {
   Gift,
   Building2,
   Percent,
+  MapPin,
+  Navigation,
 } from 'lucide-react';
 import { TwinDecisionResponse } from '@/app/api/twin/decide/route';
 import {
@@ -39,8 +41,10 @@ import {
   PromotionalOffer,
   RetailerOffer,
   DeceptiveFeeAuditResult,
+  HyperlocalArbitrageReport,
 } from '@/services/product-intelligence/types';
 import { CheckoutTrapAuditCard } from './CheckoutTrapAuditCard';
+import { HyperlocalArbitrageCard } from './HyperlocalArbitrageCard';
 
 function decodeHtmlEntities(str: string): string {
   if (!str) return '';
@@ -188,10 +192,15 @@ export function TwinDecisionsView() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [result, setResult] = useState<TwinDecisionResponse | null>(null);
 
-  // Mode Switcher: 'price_truth' | 'checkout_trap'
-  const [activeMode, setActiveMode] = useState<'price_truth' | 'checkout_trap'>('price_truth');
+  // Mode Switcher: 'price_truth' | 'checkout_trap' | 'hyperlocal_arbitrage'
+  const [activeMode, setActiveMode] = useState<'price_truth' | 'checkout_trap' | 'hyperlocal_arbitrage'>('price_truth');
   const [auditResult, setAuditResult] = useState<DeceptiveFeeAuditResult | null>(null);
   const [auditLoading, setAuditLoading] = useState(false);
+
+  // Hyperlocal Online vs Offline Arbitrage State (Phase 3)
+  const [hyperlocalReport, setHyperlocalReport] = useState<HyperlocalArbitrageReport | null>(null);
+  const [hyperlocalLoading, setHyperlocalLoading] = useState(false);
+  const [hyperlocalCity, setHyperlocalCity] = useState('Kolkata');
 
   // Active Ranking Dimension: 'eligible' | 'standard' | 'conditional'
   const [activeRankingTab, setActiveRankingTab] = useState<'eligible' | 'standard' | 'conditional'>('eligible');
@@ -404,6 +413,62 @@ export function TwinDecisionsView() {
     }
   };
 
+  // Hyperlocal Arbitrage Fetcher (Phase 3)
+  const handleFetchHyperlocal = async (
+    targetCity?: string,
+    customTitle?: string,
+    customPrice?: number
+  ) => {
+    setErrorMsg(null);
+    setHyperlocalLoading(true);
+
+    try {
+      const city = targetCity || hyperlocalCity;
+      const pTitle =
+        customTitle ||
+        result?.report?.identity?.title ||
+        result?.bestPick?.title ||
+        query.trim() ||
+        'Sony WF-1000XM5 Wireless Noise Cancelling Earbuds';
+
+      const pPrice =
+        customPrice ||
+        result?.report?.priceTruth?.lowestStandardPrice ||
+        result?.pricingMatrix?.finalCheckoutPrice ||
+        15225;
+
+      const pRetailer =
+        result?.report?.cheapestStandardOffer?.retailerName ||
+        result?.pricingMatrix?.bestRetailer ||
+        'Amazon India';
+
+      const res = await fetch('/api/twin/hyperlocal-arbitrage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productTitle: pTitle,
+          onlinePrice: pPrice,
+          onlineRetailer: pRetailer,
+          city,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to analyze nearby store arbitrage.');
+      }
+
+      setHyperlocalReport(data.report);
+      setHyperlocalCity(city);
+      setActiveMode('hyperlocal_arbitrage');
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'Hyperlocal store arbitrage unavailable.');
+    } finally {
+      setHyperlocalLoading(false);
+    }
+  };
+
   // Determine which offers to display based on selected ranking tab
   const getOffersForActiveRanking = (): RetailerOffer[] => {
     if (!result?.report?.rankings) {
@@ -517,6 +582,27 @@ export function TwinDecisionsView() {
               WORLD FIRST
             </span>
           </button>
+
+          <button
+            onClick={() => {
+              setActiveMode('hyperlocal_arbitrage');
+              setErrorMsg(null);
+              if (!hyperlocalReport) {
+                handleFetchHyperlocal();
+              }
+            }}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeMode === 'hyperlocal_arbitrage'
+                ? 'bg-gradient-to-r from-blue-500/20 to-cyan-500/10 text-cyan-300 border border-cyan-500/30 shadow-md shadow-cyan-500/10'
+                : 'text-zinc-400 hover:text-cyan-400 hover:bg-white/[0.04] border border-transparent'
+            }`}
+          >
+            <MapPin className="h-4 w-4 text-cyan-400" />
+            <span>Hyperlocal Online vs Offline</span>
+            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+              CARTO GIS
+            </span>
+          </button>
         </div>
 
         {errorMsg && (
@@ -538,12 +624,15 @@ export function TwinDecisionsView() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   if (activeMode === 'checkout_trap') handleAuditCheckout();
+                  else if (activeMode === 'hyperlocal_arbitrage') handleFetchHyperlocal(hyperlocalCity, query);
                   else handleAnalyze();
                 }
               }}
               placeholder={
                 activeMode === 'checkout_trap'
                   ? 'Upload checkout / payment summary screenshot or enter store name...'
+                  : activeMode === 'hyperlocal_arbitrage'
+                  ? 'Enter product name (e.g. Sony WF-1000XM5, iPhone 16) to check Croma/Reliance...'
                   : 'Paste exact Amazon, Flipkart, Myntra URL or enter product name...'
               }
               className="w-full pl-11 pr-4 py-3.5 text-xs sm:text-sm rounded-2xl bg-zinc-950/70 border border-white/[0.08] text-white placeholder-zinc-500 focus:outline-hidden focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500/80 transition-all shadow-inner"
@@ -573,7 +662,7 @@ export function TwinDecisionsView() {
             </button>
           </div>
 
-          {/* Action Button: Analyze Product vs Audit Traps */}
+          {/* Action Button: Analyze Product vs Audit Traps vs Hyperlocal */}
           {activeMode === 'checkout_trap' ? (
             <button
               onClick={() => handleAuditCheckout()}
@@ -582,6 +671,15 @@ export function TwinDecisionsView() {
             >
               {auditLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <ShieldAlert className="h-4 w-4" />}
               <span>{auditLoading ? 'Auditing Checkout Traps...' : 'Audit Checkout Traps'}</span>
+            </button>
+          ) : activeMode === 'hyperlocal_arbitrage' ? (
+            <button
+              onClick={() => handleFetchHyperlocal(hyperlocalCity, query)}
+              disabled={hyperlocalLoading}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white px-7 py-3.5 text-xs font-black shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-200 active:scale-95 disabled:opacity-40 shrink-0 cursor-pointer"
+            >
+              {hyperlocalLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
+              <span>{hyperlocalLoading ? 'Scanning Nearby Stores...' : 'Scan Nearby Stores'}</span>
             </button>
           ) : (
             <button
@@ -693,6 +791,47 @@ export function TwinDecisionsView() {
         </div>
       )}
 
+      {/* 4. Hyperlocal Arbitrage Result */}
+      {activeMode === 'hyperlocal_arbitrage' && hyperlocalReport && (
+        <HyperlocalArbitrageCard
+          report={hyperlocalReport}
+          onRefreshCity={(city) => handleFetchHyperlocal(city)}
+          isLoading={hyperlocalLoading}
+        />
+      )}
+
+      {/* Hyperlocal Onboarding Explainer (When in hyperlocal mode but no report loaded yet) */}
+      {activeMode === 'hyperlocal_arbitrage' && !hyperlocalReport && (
+        <div className="rounded-3xl border border-cyan-500/20 bg-cyan-950/10 backdrop-blur-xl p-6 sm:p-8 shadow-xl space-y-4">
+          <div className="flex items-center gap-2.5 text-cyan-400">
+            <MapPin className="w-5 h-5" />
+            <h3 className="text-sm font-bold tracking-wide">
+              Carto GIS Hyperlocal Online vs Offline Arbitrage
+            </h3>
+          </div>
+          <p className="text-xs text-zinc-300 leading-relaxed max-w-3xl">
+            Never wait 2-3 days for online delivery when your neighborhood Croma, Reliance Digital, or Vijay Sales has the exact product in stock today with instant Point-of-Sale (POS) credit card swipe terminal cashback.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/[0.08] space-y-1.5">
+              <span className="text-[10px] font-black text-cyan-400 uppercase tracking-wider">01 &bull; 15 km Radius Scan</span>
+              <p className="text-xs font-bold text-white">Live Store Inventory</p>
+              <p className="text-[11px] text-zinc-400">Detect verified electronics retail branches around your pincode with real driving times.</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/[0.08] space-y-1.5">
+              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider">02 &bull; POS Swipe Cashbacks</span>
+              <p className="text-xs font-bold text-white">PineLabs &amp; Innoviti Deals</p>
+              <p className="text-[11px] text-zinc-400">Calculate instant terminal swipe discounts and manager spot coupons that beat online prices.</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-zinc-950/60 border border-white/[0.08] space-y-1.5">
+              <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider">03 &bull; Same-Day Take Home</span>
+              <p className="text-xs font-bold text-white">Zero Shipping Wait</p>
+              <p className="text-[11px] text-zinc-400">Take your device home today with one-tap Google Maps turn-by-turn driving directions.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 4. Decision Results Container */}
       {activeMode === 'price_truth' && result && (
         <div className="space-y-8 animate-in fade-in duration-300">
@@ -737,6 +876,23 @@ export function TwinDecisionsView() {
                   <p className="text-xs sm:text-sm text-zinc-300 max-w-3xl leading-relaxed">
                     {result.subtext}
                   </p>
+
+                  <div className="pt-1">
+                    <button
+                      onClick={() =>
+                        handleFetchHyperlocal(
+                          hyperlocalCity,
+                          result.bestPick.title,
+                          result.pricingMatrix.finalCheckoutPrice
+                        )
+                      }
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+                    >
+                      <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>Compare with Nearby Stores (Croma / Reliance Digital / Vijay Sales)</span>
+                      <ArrowRight className="w-3 h-3 opacity-70" />
+                    </button>
+                  </div>
                 </div>
               </div>
 

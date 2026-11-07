@@ -255,3 +255,65 @@ export interface DeceptiveFeeAuditResult {
   timestamp: string;
 }
 
+// =============================================================================
+// Hyperlocal Online vs Offline Store Arbitrage Types (Phase 3)
+// =============================================================================
+
+export type PhysicalStoreChain =
+  | 'Croma'
+  | 'Reliance Digital'
+  | 'Vijay Sales'
+  | 'Apple Premium Reseller'
+  | 'Samsung Smart Cafe'
+  | 'Local Authorized Tech Store';
+
+export interface PhysicalStoreLocation {
+  storeId: string;
+  chainName: PhysicalStoreChain;
+  branchName: string;
+  address: string;
+  pincode: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+  distanceKm: number;
+  drivingMinutes: number;
+  phone?: string;
+  inStock: boolean;
+  stockLevel: 'high_stock' | 'low_stock' | 'last_units' | 'call_to_check';
+  storePrice: number;
+  posTerminalCashback: {
+    bankName: string;
+    instantCashbackRupees: number;
+    terminalProvider: 'PineLabs' | 'Innoviti' | 'Paytm POS';
+    cardType: 'credit' | 'debit';
+  }[];
+  managerDiscountPotentialRupees: number;
+  netInStorePayablePrice: number;
+  openBoxAlternativeAvailable?: boolean;
+  openBoxPriceRupees?: number;
+  directionsUrl: string;
+  badge?: string;
+}
+
+export interface HyperlocalArbitrageReport {
+  arbitrageId: string;
+  productTitle: string;
+  userPincode: string;
+  userCity: string;
+  userCoordinates: { lat: number; lng: number };
+  searchRadiusKm: number;
+  onlineLowestDeliveredPrice: number;
+  onlineLowestRetailer: string;
+  onlineDeliveryDays: number;
+  offlineStores: PhysicalStoreLocation[];
+  bestOfflineOffer?: PhysicalStoreLocation;
+  arbitrageVerdict: 'offline_wins_cheaper' | 'offline_wins_faster' | 'online_wins_cheaper' | 'parity';
+  savingsAmountRupees: number;
+  pickupTimeAdvantageHours: number;
+  recommendationReason: string;
+  cartoBasemapUrl: string;
+  timestamp: string;
+}
+
+
