@@ -20,6 +20,7 @@ import {
   Youtube,
   Instagram,
   Check,
+  MessageCircle,
 } from 'lucide-react';
 
 interface AppConnector {
@@ -65,6 +66,16 @@ export function TwinConnectionsView() {
       status: 'not_connected',
       scopes: ['instagram_basic', 'pages_show_list'],
       dataAccessed: ['Account Handle', 'Media Insights'],
+    },
+    {
+      id: 'meta_whatsapp',
+      name: 'WhatsApp Pocket Twin',
+      provider: 'whatsapp',
+      description: 'Zero-app shopping twin. Forward Amazon/Flipkart links or checkout screenshots via WhatsApp for instant price truth.',
+      icon: MessageCircle,
+      status: 'connected',
+      scopes: ['whatsapp_business_messaging', 'messages_read_write'],
+      dataAccessed: ['Shared Product Links', 'Checkout Screenshots', 'Zero Contact Harvesting'],
     },
   ]);
   const [loading, setLoading] = useState(false);
